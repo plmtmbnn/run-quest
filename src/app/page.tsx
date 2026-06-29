@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { HomeScreen } from "@/features/home/home-screen";
-import { LanguageSelectionScreen } from "@/features/language/language-selection-screen";
+import { OnboardingScreen } from "@/features/onboarding/onboarding-screen";
 
-type AppScreen = "loading" | "language" | "home";
+type AppScreen = "loading" | "onboarding" | "home";
 
 /**
  * Root page — routes the player to the correct screen.
@@ -17,11 +17,11 @@ export default function Page() {
   const [screen, setScreen] = useState<AppScreen>("loading");
 
   useEffect(() => {
-    // After hydration, check whether the player has previously saved settings.
+    // After hydration, check whether the player has completed onboarding (has saved settings).
     const hasSavedSettings =
       globalThis.localStorage?.getItem("runquest.settings") !== null;
 
-    setScreen(hasSavedSettings ? "home" : "language");
+    setScreen(hasSavedSettings ? "home" : "onboarding");
   }, []);
 
   if (screen === "loading") {
@@ -30,8 +30,8 @@ export default function Page() {
     return null;
   }
 
-  if (screen === "language") {
-    return <LanguageSelectionScreen onComplete={() => setScreen("home")} />;
+  if (screen === "onboarding") {
+    return <OnboardingScreen onComplete={() => setScreen("home")} />;
   }
 
   return <HomeScreen />;
