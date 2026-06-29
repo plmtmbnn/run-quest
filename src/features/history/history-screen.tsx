@@ -147,7 +147,7 @@ export function HistoryScreen() {
                   </div>
                   <div className="flex flex-col items-center bg-gray-50/50 rounded-xl py-2">
                     <span className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold mb-0.5">
-                      Status
+                      {t("history.status" as TranslationKey)}
                     </span>
                     <span
                       className={`text-sm font-bold ${
@@ -156,7 +156,9 @@ export function HistoryScreen() {
                           : "text-emerald-600"
                       }`}
                     >
-                      {entry.grade === "F" ? "DNF" : "Completed"}
+                      {entry.grade === "F"
+                        ? t("history.dnf_status" as TranslationKey)
+                        : t("history.completed_status" as TranslationKey)}
                     </span>
                   </div>
                 </div>

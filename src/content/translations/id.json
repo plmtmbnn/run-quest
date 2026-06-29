@@ -15,7 +15,15 @@
       "runs": "Sesi Lari",
       "streak": "Streak",
       "distance": "Jarak"
-    }
+    },
+    "entry_tickets": "Tiket Masuk Harian:",
+    "remaining": "Tersisa",
+    "recommended": "Direkomendasikan",
+    "choose_race": "Pilih Balapan",
+    "resume_race": "Lanjutkan Balapan →",
+    "completed_badge": "✓ Selesai",
+    "locked": "🔒 Terkunci",
+    "target_time": "Target Waktu"
   },
   "history": {
     "title": "Riwayat Balapan",
@@ -25,13 +33,49 @@
     "score": "Skor",
     "grade": "Grade",
     "distance": "Jarak",
-    "time": "Waktu"
+    "time": "Waktu",
+    "subtitle_desc": "Lihat hasil tantangan sebelumnya, rekor, dan catatan latihan.",
+    "dnf": "DNF",
+    "status": "Status",
+    "completed_status": "Selesai",
+    "dnf_status": "DNF"
   },
   "language": {
     "title": "Pilih Bahasa",
     "subtitle": "Kamu bisa mengubah ini nanti di pengaturan.",
     "english": "English",
     "indonesian": "Bahasa Indonesia"
+  },
+  "settings": {
+    "title": "Pengaturan",
+    "subtitle": "Sesuaikan preferensi dan konfigurasi aplikasi Anda",
+    "sections": {
+      "general": "Umum",
+      "race_preferences": "Preferensi Balapan",
+      "danger_zone": "Zona Bahaya"
+    },
+    "sound": {
+      "title": "Efek Suara",
+      "desc": "Putar indikator suara selama simulasi balapan"
+    },
+    "language": {
+      "title": "Bahasa",
+      "desc": "Bahasa terjemahan antarmuka sistem dan game"
+    },
+    "preferences": {
+      "desc": "Balapan yang cocok dengan preferensi ini akan diurutkan di bagian atas Papan Balap Harian Anda.",
+      "surface": "Permukaan Pilihan",
+      "distance": "Jarak Pilihan"
+    },
+    "danger": {
+      "reset": "Hapus Semua Data",
+      "desc": "Hapus profil, statistik, riwayat lari Anda secara permanen, dan atur ulang entri papan harian Anda. Tindakan ini tidak dapat dibatalkan.",
+      "button": "Hapus Data",
+      "modal_title": "Apakah Anda benar-benar yakin?",
+      "modal_desc": "Tindakan ini akan menghapus semua catatan perjalanan lari Anda. Semua statistik, riwayat penyelesaian, dan preferensi akan dihancurkan secara permanen.",
+      "cancel": "Batal",
+      "confirm": "Ya, HAPUS SEMUA"
+    }
   },
   "preparation": {
     "title": "Persiapan",
@@ -157,7 +201,14 @@
     "surface": {
       "road": "Jalan Raya",
       "track": "Lintasan Lari",
-      "trail": "Jalan Setapak (Trail)"
+      "trail": "Jalan Setapak (Trail)",
+      "any": "Semua"
+    },
+    "distance_types": {
+      "any": "Semua",
+      "short": "5K",
+      "medium": "10K",
+      "long": "15K+"
     },
     "elevation": {
       "flat": "Datar",
@@ -187,7 +238,20 @@
       "story_headline": "Sorotan & Kisah",
       "lessons_learned": "Pelajaran Pelatih",
       "share": "Bagikan Hasil",
-      "back_home": "Kembali ke Menu"
+      "back_home": "Kembali ke Menu",
+      "no_results_title": "Hasil aktif tidak ditemukan",
+      "no_results_desc": "Silakan selesaikan tantangan terlebih dahulu.",
+      "go_home": "Kembali ke Beranda",
+      "score_out_of": "dari 1000",
+      "share_card": "Kartu Hasil",
+      "download_png": "Unduh Kartu Hasil (PNG)",
+      "generating_image": "Membuat Gambar...",
+      "copied": "Tersalin!",
+      "outcome_gold": "Medali Emas",
+      "outcome_silver": "Medali Perak",
+      "outcome_bronze": "Medali Perunggu",
+      "outcome_finish": "Finisher",
+      "outcome_dnf": "Gagal Menyelesaikan (DNF)"
     }
   }
 }

@@ -35,16 +35,18 @@ export function ResultScreen() {
   if (!lastResult) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6 text-center text-gray-900">
-        <h2 className="text-xl font-bold mb-2">No active results found</h2>
+        <h2 className="text-xl font-bold mb-2">
+          {t("challenge.result.no_results_title" as TranslationKey)}
+        </h2>
         <p className="text-gray-500 mb-6 text-sm">
-          Please complete a challenge first.
+          {t("challenge.result.no_results_desc" as TranslationKey)}
         </p>
         <button
           type="button"
           onClick={() => router.push("/")}
           className="px-6 py-2 bg-blue-600 text-white rounded-full text-sm font-semibold hover:bg-blue-700 active:scale-95 transition-all"
         >
-          Go Home
+          {t("challenge.result.go_home" as TranslationKey)}
         </button>
       </div>
     );
@@ -77,11 +79,17 @@ export function ResultScreen() {
   };
 
   const handleShare = async () => {
-    const text = `🏃‍♂️ RunQuest Daily Challenge Result!
-🏆 Outcome: ${outcome.toUpperCase()} (${grade} Grade)
-⏱️ Finish Time: ${formatTime(finishTime)}
-🔥 Score: ${score}/1000
-📖 "${story.headline[lang]}"
+    const titleText = challenge.race.title[lang];
+    const outcomeText = t(
+      `challenge.result.outcome_${outcome}` as TranslationKey,
+    );
+    const headlineText = story.headline[lang];
+
+    const text = `🏃‍♂️ RunQuest Daily Challenge: ${titleText}!
+🏆 ${outcomeText} (${grade} Grade)
+⏱️ ${t("challenge.result.time" as TranslationKey)}: ${formatTime(finishTime)}
+🔥 ${t("history.score" as TranslationKey)}: ${score}/1000
+📖 "${headlineText}"
 
 Play now at: https://runquest.game`;
 
@@ -98,20 +106,24 @@ Play now at: https://runquest.game`;
 
   const handleDownloadCard = async () => {
     if (!cardRef.current) return;
+
     setDownloading(true);
     try {
+      // Small delay to ensure styles are evaluated
+      await new Promise((resolve) => setTimeout(resolve, 100));
       const dataUrl = await toPng(cardRef.current, {
         cacheBust: true,
         style: {
           transform: "scale(1)",
         },
       });
+
       const link = document.createElement("a");
-      link.download = `runquest-result-${outcome}-${challenge.date}.png`;
+      link.download = `runquest-result-${challenge.date}.png`;
       link.href = dataUrl;
       link.click();
     } catch (error) {
-      console.error("Failed to generate image:", error);
+      console.error("Failed to generate PNG:", error);
     } finally {
       setDownloading(false);
     }
@@ -151,7 +163,9 @@ Play now at: https://runquest.game`;
           >
             <Award className="h-16 w-16 mb-2" />
             <span className="text-xs uppercase tracking-widest font-bold">
-              {outcome.toUpperCase()}
+              {t(
+                `challenge.result.outcome_${outcome}` as TranslationKey,
+              ).toUpperCase()}
             </span>
           </div>
 
@@ -166,12 +180,14 @@ Play now at: https://runquest.game`;
 
           <div className="flex flex-col items-center">
             <span className="text-xs text-gray-400 uppercase tracking-widest mb-1">
-              Score
+              {t("history.score" as TranslationKey)}
             </span>
             <span className="text-4xl font-extrabold text-blue-600">
               {score}
             </span>
-            <span className="text-[10px] text-gray-400">out of 1000</span>
+            <span className="text-[10px] text-gray-400">
+              {t("challenge.result.score_out_of" as TranslationKey)}
+            </span>
           </div>
 
           <div className="flex flex-col items-center">
@@ -188,7 +204,7 @@ Play now at: https://runquest.game`;
         {/* Visual Share Card */}
         <div className="flex flex-col gap-3">
           <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
-            Share Card
+            {t("challenge.result.share_card" as TranslationKey)}
           </h3>
           <div
             ref={cardRef}
@@ -225,7 +241,7 @@ Play now at: https://runquest.game`;
                 </div>
                 <div>
                   <div className="text-xs text-slate-400 uppercase tracking-widest font-semibold">
-                    Grade
+                    {t("challenge.result.grade" as TranslationKey)}
                   </div>
                   <div className="text-4xl font-black font-heading mt-0.5">
                     {grade}
@@ -233,7 +249,7 @@ Play now at: https://runquest.game`;
                 </div>
                 <div className="ml-auto text-right">
                   <div className="text-xs text-slate-400 uppercase tracking-widest font-semibold">
-                    Score
+                    {t("history.score" as TranslationKey)}
                   </div>
                   <div className="text-3xl font-extrabold text-blue-400 mt-0.5">
                     {score}
@@ -246,7 +262,7 @@ Play now at: https://runquest.game`;
                 <div className="flex gap-4">
                   <div>
                     <span className="text-[10px] text-slate-500 uppercase tracking-wider block">
-                      Distance
+                      {t("history.distance" as TranslationKey)}
                     </span>
                     <span className="text-sm font-bold text-slate-200">
                       {challenge.race.distance} km
@@ -254,7 +270,7 @@ Play now at: https://runquest.game`;
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-500 uppercase tracking-wider block">
-                      Time
+                      {t("history.time" as TranslationKey)}
                     </span>
                     <span className="text-sm font-bold text-slate-200">
                       {formatTime(finishTime)}
@@ -277,12 +293,16 @@ Play now at: https://runquest.game`;
             {downloading ? (
               <>
                 <RefreshCw className="h-4 w-4 animate-spin" />
-                <span>Generating Image...</span>
+                <span>
+                  {t("challenge.result.generating_image" as TranslationKey)}
+                </span>
               </>
             ) : (
               <>
                 <Share2 className="h-4 w-4" />
-                <span>Download Result Card (PNG)</span>
+                <span>
+                  {t("challenge.result.download_png" as TranslationKey)}
+                </span>
               </>
             )}
           </button>
@@ -291,7 +311,7 @@ Play now at: https://runquest.game`;
         {/* Narrative & Highlights Section */}
         <section className="rounded-3xl border border-[#E5E7EB] bg-white p-6 shadow-sm flex flex-col gap-6">
           <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-3">
-            <Sparkles className="h-5 w-5 text-amber-500" />
+            <Sparkles className="h-5 w-5 text-amber-550" />
             <h2 className="font-heading text-lg font-bold text-gray-800">
               {story.headline[lang]}
             </h2>
@@ -348,7 +368,7 @@ Play now at: https://runquest.game`;
             {copied ? (
               <>
                 <RefreshCw className="h-5 w-5 animate-spin" />
-                <span>Copied!</span>
+                <span>{t("challenge.result.copied" as TranslationKey)}</span>
               </>
             ) : (
               <>

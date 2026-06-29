@@ -15,7 +15,7 @@ import type { RaceEntry } from "@/types/engine";
 
 export function HomeScreen() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const player = usePlayerStore((state) => state.player);
   const { setChallenge } = useGameStore();
   const { settings } = useSettingsStore();
@@ -177,7 +177,7 @@ export function HomeScreen() {
                 onClick={() => router.push("/history")}
                 className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-bold tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-1 rounded-full transition-all border border-white/10"
               >
-                View History →
+                {t("history.title" as TranslationKey)} →
               </button>
             </div>
             <div className="flex gap-6">
@@ -212,10 +212,11 @@ export function HomeScreen() {
         {/* Daily Entry Tracker */}
         <div className="flex items-center justify-between bg-white border-2 border-[#E5E7EB] rounded-2xl px-6 py-4 shadow-sm">
           <span className="text-sm font-bold text-gray-700">
-            Daily Entry Tickets:
+            {t("home.entry_tickets" as TranslationKey)}
           </span>
           <span className="bg-indigo-50 border border-indigo-100 text-indigo-750 text-xs font-black px-3.5 py-1.5 rounded-full">
-            {boardStatus ? boardStatus.entriesRemaining : 1} Remaining
+            {boardStatus ? boardStatus.entriesRemaining : 1}{" "}
+            {t("home.remaining" as TranslationKey)}
           </span>
         </div>
 
@@ -235,19 +236,21 @@ export function HomeScreen() {
             const isRecommended =
               hasActivePreferences && maxScore > 0 && score === maxScore;
 
-            let buttonText = "Choose Race";
+            const lang = language === "id" ? "id" : "en";
+
+            let buttonText = t("home.choose_race" as TranslationKey);
             let buttonStyle = "bg-blue-600 hover:bg-blue-700 text-white";
 
             if (isCompleted) {
-              buttonText = "✓ Completed";
+              buttonText = t("home.completed_badge" as TranslationKey);
               buttonStyle =
                 "bg-emerald-50 text-emerald-700 border-2 border-emerald-200 cursor-not-allowed";
             } else if (isSelected) {
-              buttonText = "Resume Race →";
+              buttonText = t("home.resume_race" as TranslationKey);
               buttonStyle =
                 "bg-indigo-600 hover:bg-indigo-700 text-white animate-pulse";
             } else if (isLocked) {
-              buttonText = "🔒 Locked";
+              buttonText = t("home.locked" as TranslationKey);
               buttonStyle =
                 "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200";
             }
@@ -267,15 +270,19 @@ export function HomeScreen() {
                         entry.category,
                       )}`}
                     >
-                      {entry.category}
+                      {t(
+                        `challenge.surface.${entry.category}` as TranslationKey,
+                      )}
                     </span>
                     <span className="text-[10px] font-bold text-gray-450 bg-gray-50 border border-gray-100 rounded-full px-2.5 py-1">
-                      {entry.surface.toUpperCase()}
+                      {t(
+                        `challenge.surface.${entry.surface}` as TranslationKey,
+                      ).toUpperCase()}
                     </span>
                     {isRecommended && (
                       <span className="inline-flex items-center gap-0.5 text-[9px] font-black text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5 uppercase tracking-wide">
                         <Sparkles className="h-2.5 w-2.5 text-amber-550 fill-amber-500" />{" "}
-                        Recommended
+                        {t("home.recommended" as TranslationKey)}
                       </span>
                     )}
                   </div>
@@ -285,11 +292,10 @@ export function HomeScreen() {
                 {/* Main Content */}
                 <div>
                   <h3 className="text-lg font-black text-gray-900 font-heading leading-tight mb-1">
-                    {entry.title.en}
+                    {entry.title[lang]}
                   </h3>
                   <p className="text-xs text-gray-550 leading-relaxed">
-                    Run a {entry.distance}km course with a target time of{" "}
-                    {formatTargetTime(entry.scenario.objective.targetTime)}.
+                    {entry.scenario.race.description[lang]}
                   </p>
                 </div>
 
@@ -297,7 +303,7 @@ export function HomeScreen() {
                 <div className="grid grid-cols-2 gap-2 bg-gray-50/50 rounded-2xl p-3 text-center text-xs">
                   <div className="flex flex-col gap-0.5">
                     <span className="text-[9px] text-gray-400 uppercase tracking-widest font-semibold">
-                      Distance
+                      {t("history.distance" as TranslationKey)}
                     </span>
                     <span className="font-bold text-gray-800">
                       {entry.distance} KM
@@ -305,7 +311,7 @@ export function HomeScreen() {
                   </div>
                   <div className="flex flex-col gap-0.5 border-l border-gray-200">
                     <span className="text-[9px] text-gray-400 uppercase tracking-widest font-semibold">
-                      Target Time
+                      {t("home.target_time" as TranslationKey)}
                     </span>
                     <span className="font-bold text-gray-800">
                       {formatTargetTime(entry.scenario.objective.targetTime)}

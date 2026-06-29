@@ -15,7 +15,15 @@
       "runs": "Runs",
       "streak": "Streak",
       "distance": "Distance"
-    }
+    },
+    "entry_tickets": "Daily Entry Tickets:",
+    "remaining": "Remaining",
+    "recommended": "Recommended",
+    "choose_race": "Choose Race",
+    "resume_race": "Resume Race →",
+    "completed_badge": "✓ Completed",
+    "locked": "🔒 Locked",
+    "target_time": "Target Time"
   },
   "history": {
     "title": "Race History",
@@ -25,13 +33,49 @@
     "score": "Score",
     "grade": "Grade",
     "distance": "Distance",
-    "time": "Time"
+    "time": "Time",
+    "subtitle_desc": "View your past challenge outcomes, records, and training logs.",
+    "dnf": "DNF",
+    "status": "Status",
+    "completed_status": "Completed",
+    "dnf_status": "DNF"
   },
   "language": {
     "title": "Choose Your Language",
     "subtitle": "You can change this later in settings.",
     "english": "English",
     "indonesian": "Bahasa Indonesia"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Customize your preferences and app configurations",
+    "sections": {
+      "general": "General",
+      "race_preferences": "Race Preferences",
+      "danger_zone": "Danger Zone"
+    },
+    "sound": {
+      "title": "Sound Effects",
+      "desc": "Play sound indicators during race simulation"
+    },
+    "language": {
+      "title": "Language",
+      "desc": "System and game interface translation language"
+    },
+    "preferences": {
+      "desc": "Races matching these preferences will sort to the top of your Daily Race Board.",
+      "surface": "Preferred Surface",
+      "distance": "Preferred Distance"
+    },
+    "danger": {
+      "reset": "Reset All Data",
+      "desc": "Permanently delete your profile, stats, run history, and reset your daily board entries. This cannot be undone.",
+      "button": "Reset Data",
+      "modal_title": "Are you absolutely sure?",
+      "modal_desc": "This will wipe all records of your running journey. All stats, completion histories, and preferences will be permanently destroyed.",
+      "cancel": "Cancel",
+      "confirm": "Yes, WIPE ALL"
+    }
   },
   "preparation": {
     "title": "Preparation",
@@ -157,7 +201,14 @@
     "surface": {
       "road": "Road",
       "track": "Track",
-      "trail": "Trail"
+      "trail": "Trail",
+      "any": "Any"
+    },
+    "distance_types": {
+      "any": "Any",
+      "short": "5K",
+      "medium": "10K",
+      "long": "15K+"
     },
     "elevation": {
       "flat": "Flat",
@@ -187,7 +238,20 @@
       "story_headline": "Highlights & Story",
       "lessons_learned": "Coaching Lessons",
       "share": "Share Result",
-      "back_home": "Back to Home"
+      "back_home": "Back to Home",
+      "no_results_title": "No active results found",
+      "no_results_desc": "Please complete a challenge first.",
+      "go_home": "Go Home",
+      "score_out_of": "out of 1000",
+      "share_card": "Share Card",
+      "download_png": "Download Result Card (PNG)",
+      "generating_image": "Generating Image...",
+      "copied": "Copied!",
+      "outcome_gold": "Gold Medal",
+      "outcome_silver": "Silver Medal",
+      "outcome_bronze": "Bronze Medal",
+      "outcome_finish": "Finisher",
+      "outcome_dnf": "Did Not Finish"
     }
   }
 }
