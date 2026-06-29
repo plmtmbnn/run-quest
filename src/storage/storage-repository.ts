@@ -1,5 +1,6 @@
 import type { ZodType } from "zod/v4";
 import {
+  StoredDailyBoardSchema,
   StoredDailySchema,
   StoredHistorySchema,
   StoredPlayerSchema,
@@ -9,6 +10,7 @@ import { storageAdapter } from "./storage-adapter";
 import type {
   StorageKey,
   StoredDaily,
+  StoredDailyBoard,
   StoredHistory,
   StoredPlayer,
   StoredSettings,
@@ -83,6 +85,16 @@ export const storageRepository = {
 
   saveDaily(daily: StoredDaily): void {
     save("runquest.daily", daily);
+  },
+
+  // ── Daily Board ───────────────────────────────────────────
+
+  loadDailyBoard(): StoredDailyBoard | null {
+    return loadAndValidate("runquest.board", StoredDailyBoardSchema);
+  },
+
+  saveDailyBoard(board: StoredDailyBoard): void {
+    save("runquest.board", board);
   },
 
   // ── Race History ──────────────────────────────────────────

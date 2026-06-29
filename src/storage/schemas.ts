@@ -72,3 +72,14 @@ export const StoredHistorySchema = z.object({
   version: z.number(),
   entries: z.array(RaceHistoryEntrySchema),
 });
+
+/**
+ * Schema for stored daily board status.
+ */
+export const StoredDailyBoardSchema = z.object({
+  version: z.number(),
+  boardId: z.string(),
+  entriesRemaining: z.number(),
+  selectedEntryId: z.string().nullable(),
+  completedEntryId: z.string().nullable(),
+});

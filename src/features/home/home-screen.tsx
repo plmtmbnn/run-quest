@@ -1,47 +1,58 @@
 "use client";
 
 import dayjs from "dayjs";
-import { Clock, Flame, MapPin, Trophy, Wind } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
-import { generateDailyChallenge } from "@/services/challenge/generator";
+import { generateDailyRaceBoard } from "@/services/challenge/generator";
 import { storageRepository } from "@/storage/storage-repository";
+import type { StoredDailyBoard } from "@/storage/types";
 import { useGameStore } from "@/store/game-store";
 import { usePlayerStore } from "@/store/player-store";
+import type { RaceEntry } from "@/types/engine";
 
-/**
- * Home screen — shows today's daily challenge summary and primary CTA.
- */
 export function HomeScreen() {
   const router = useRouter();
-  const { t, language } = useTranslation();
-  const lang = (language === "id" ? "id" : "en") as "en" | "id";
+  const { t } = useTranslation();
   const player = usePlayerStore((state) => state.player);
+  const { setChallenge } = useGameStore();
 
-  const { currentChallenge, setChallenge } = useGameStore();
-  const [dailyCompleted, setDailyCompleted] = useState(false);
-
-  // Determine today's challenge
   const todayStr = dayjs().format("YYYY-MM-DD");
-  const challenge = currentChallenge || generateDailyChallenge(todayStr);
+  const board = generateDailyRaceBoard(todayStr);
+
+  const [boardStatus, setBoardStatus] = useState<StoredDailyBoard | null>(null);
 
   useEffect(() => {
-    if (!currentChallenge) {
-      setChallenge(challenge);
+    let status = storageRepository.loadDailyBoard();
+    if (!status || status.boardId !== todayStr) {
+      status = {
+        version: 1,
+        boardId: todayStr,
+        entriesRemaining: 1,
+        selectedEntryId: null,
+        completedEntryId: null,
+      };
+      storageRepository.saveDailyBoard(status);
     }
-  }, [currentChallenge, challenge, setChallenge]);
+    setBoardStatus(status);
+  }, [todayStr]);
 
-  useEffect(() => {
-    const daily = storageRepository.loadDaily();
-    if (
-      daily &&
-      daily.challengeId === challenge.id &&
-      daily.status === "completed"
-    ) {
-      setDailyCompleted(true);
-    }
-  }, [challenge.id]);
+  const handleSelectRace = (entry: RaceEntry) => {
+    if (!boardStatus) return;
+
+    // Save active choice to storage
+    const updatedStatus: StoredDailyBoard = {
+      ...boardStatus,
+      entriesRemaining: 0,
+      selectedEntryId: entry.scenario.id,
+    };
+    storageRepository.saveDailyBoard(updatedStatus);
+    setBoardStatus(updatedStatus);
+
+    // Load active challenge to Zustand and navigate to briefing
+    setChallenge(entry.scenario);
+    router.push("/briefing");
+  };
 
   const formatTargetTime = (seconds: number) => {
     const hrs = Math.floor(seconds / 3600);
@@ -52,20 +63,52 @@ export function HomeScreen() {
     return `${mins}m`;
   };
 
+  const renderStars = (difficulty: number) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <span
+          key={i}
+          className={
+            i <= difficulty ? "text-amber-500 font-bold" : "text-gray-200"
+          }
+        >
+          ★
+        </span>,
+      );
+    }
+    return <div className="flex gap-0.5 text-xs">{stars}</div>;
+  };
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case "road":
+        return "bg-blue-50 text-blue-600 border-blue-100";
+      case "trail":
+        return "bg-emerald-50 text-emerald-600 border-emerald-100";
+      case "track":
+        return "bg-amber-50 text-amber-600 border-amber-100";
+      default:
+        return "bg-purple-50 text-purple-600 border-purple-100";
+    }
+  };
+
+  const isBoardCompleted = boardStatus?.completedEntryId !== null;
+
   return (
-    <div className="min-h-screen bg-[#FFFDF8] flex flex-col">
+    <div className="min-h-screen bg-[#FFFDF8] flex flex-col pb-12">
       {/* Header */}
       <header className="px-6 pt-10 pb-4">
         <p className="text-sm font-medium text-gray-400 uppercase tracking-widest mb-1">
           RunQuest
         </p>
         <h1 className="text-3xl font-bold text-gray-900 font-heading">
-          {dailyCompleted
+          {isBoardCompleted
             ? t("home.completed" as TranslationKey)
             : t("home.title" as TranslationKey)}
         </h1>
         <p className="text-sm text-gray-500 mt-1">
-          {dailyCompleted
+          {isBoardCompleted
             ? t("home.completed_subtitle" as TranslationKey)
             : t("home.subtitle" as TranslationKey)}
         </p>
@@ -122,67 +165,114 @@ export function HomeScreen() {
           </div>
         )}
 
-        {/* Daily Challenge Card */}
-        <div className="bg-white rounded-3xl border-2 border-[#E5E7EB] shadow-[0_8px_24px_rgba(0,0,0,0.08)] p-6">
-          {/* Date badge */}
-          <div className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-600 text-xs font-semibold px-3 py-1 rounded-full mb-4">
-            <Flame className="w-3.5 h-3.5" />
-            <span>Daily Challenge</span>
-          </div>
+        {/* Daily Entry Tracker */}
+        <div className="flex items-center justify-between bg-white border-2 border-[#E5E7EB] rounded-2xl px-6 py-4 shadow-sm">
+          <span className="text-sm font-bold text-gray-700">
+            Daily Entry Tickets:
+          </span>
+          <span className="bg-indigo-50 border border-indigo-100 text-indigo-750 text-xs font-black px-3.5 py-1.5 rounded-full">
+            {boardStatus ? boardStatus.entriesRemaining : 1} Remaining
+          </span>
+        </div>
 
-          <h2 className="text-xl font-bold text-gray-900 font-heading mb-1">
-            {challenge.race.title[lang]}
-          </h2>
-          <p className="text-sm text-gray-500 mb-6">
-            {challenge.race.description[lang]}
-          </p>
+        {/* Race Entries List */}
+        <div className="flex flex-col gap-4">
+          {board.entries.map((entry) => {
+            const isCompleted =
+              boardStatus?.completedEntryId === entry.scenario.id;
+            const isSelected =
+              boardStatus?.selectedEntryId === entry.scenario.id;
+            const isLocked =
+              !isCompleted &&
+              !isSelected &&
+              boardStatus?.entriesRemaining === 0;
 
-          {/* Race details */}
-          <div className="grid grid-cols-3 gap-3 mb-6">
-            <StatChip
-              icon={<MapPin className="w-4 h-4" />}
-              label={t("challenge.briefing.distance" as TranslationKey)}
-              value={`${challenge.race.distance} km`}
-            />
-            <StatChip
-              icon={<Flame className="w-4 h-4" />}
-              label={t("challenge.briefing.weather_temp" as TranslationKey)}
-              value={`${t(`challenge.weather.${challenge.environment.weather}` as TranslationKey)} ${challenge.environment.temperature}°`}
-            />
-            <StatChip
-              icon={<Wind className="w-4 h-4" />}
-              label={t("challenge.briefing.surface_type" as TranslationKey)}
-              value={t(
-                `challenge.surface.${challenge.race.surface}` as TranslationKey,
-              )}
-            />
-          </div>
+            let buttonText = "Choose Race";
+            let buttonStyle = "bg-blue-600 hover:bg-blue-700 text-white";
 
-          {/* Target time */}
-          <div className="flex items-center gap-2 bg-orange-50 rounded-2xl p-3 mb-6">
-            <Clock className="w-4 h-4 text-orange-500 flex-shrink-0" />
-            <span className="text-sm text-orange-800 font-medium">
-              Target: finish under{" "}
-              {formatTargetTime(challenge.objective.targetTime)}
-            </span>
-          </div>
+            if (isCompleted) {
+              buttonText = "✓ Completed";
+              buttonStyle =
+                "bg-emerald-50 text-emerald-700 border-2 border-emerald-200 cursor-not-allowed";
+            } else if (isSelected) {
+              buttonText = "Resume Race →";
+              buttonStyle =
+                "bg-indigo-600 hover:bg-indigo-700 text-white animate-pulse";
+            } else if (isLocked) {
+              buttonText = "🔒 Locked";
+              buttonStyle =
+                "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200";
+            }
 
-          {/* Primary CTA / Locked Info */}
-          {dailyCompleted ? (
-            <div className="bg-emerald-50 border-2 border-emerald-250 rounded-2xl p-4 text-center text-emerald-800 font-semibold text-sm flex items-center justify-center gap-2">
-              <Trophy className="h-5 w-5 text-emerald-500 animate-bounce" />
-              <span>You completed today&apos;s challenge successfully!</span>
-            </div>
-          ) : (
-            <button
-              id="start-race-cta"
-              type="button"
-              onClick={() => router.push("/briefing")}
-              className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold text-base py-4 rounded-full transition-all duration-200 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-            >
-              {t("common.start" as TranslationKey)} Today&apos;s Race
-            </button>
-          )}
+            return (
+              <div
+                key={entry.id}
+                className={`bg-white rounded-3xl border-2 border-[#E5E7EB] shadow-sm p-6 flex flex-col gap-4 transition-all duration-205 ${
+                  isLocked
+                    ? "opacity-60"
+                    : "hover:border-blue-500/50 hover:shadow-md"
+                }`}
+              >
+                {/* Badges */}
+                <div className="flex items-center justify-between">
+                  <div className="flex gap-2">
+                    <span
+                      className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border ${getCategoryColor(
+                        entry.category,
+                      )}`}
+                    >
+                      {entry.category}
+                    </span>
+                    <span className="text-[10px] font-bold text-gray-450 bg-gray-50 border border-gray-100 rounded-full px-2.5 py-1">
+                      {entry.surface.toUpperCase()}
+                    </span>
+                  </div>
+                  {renderStars(entry.difficulty)}
+                </div>
+
+                {/* Main Content */}
+                <div>
+                  <h3 className="text-lg font-black text-gray-900 font-heading leading-tight mb-1">
+                    {entry.title.en}
+                  </h3>
+                  <p className="text-xs text-gray-550 leading-relaxed">
+                    Run a {entry.distance}km course with a target time of{" "}
+                    {formatTargetTime(entry.scenario.objective.targetTime)}.
+                  </p>
+                </div>
+
+                {/* Details grid */}
+                <div className="grid grid-cols-2 gap-2 bg-gray-50/50 rounded-2xl p-3 text-center text-xs">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[9px] text-gray-400 uppercase tracking-widest font-semibold">
+                      Distance
+                    </span>
+                    <span className="font-bold text-gray-800">
+                      {entry.distance} KM
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-0.5 border-l border-gray-200">
+                    <span className="text-[9px] text-gray-400 uppercase tracking-widest font-semibold">
+                      Target Time
+                    </span>
+                    <span className="font-bold text-gray-800">
+                      {formatTargetTime(entry.scenario.objective.targetTime)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* CTA Button */}
+                <button
+                  type="button"
+                  disabled={isCompleted || isLocked}
+                  onClick={() => handleSelectRace(entry)}
+                  className={`w-full font-bold text-sm py-3.5 rounded-full transition-all duration-200 ${buttonStyle}`}
+                >
+                  {buttonText}
+                </button>
+              </div>
+            );
+          })}
         </div>
 
         {/* Player ID (dev helper) */}
@@ -192,26 +282,6 @@ export function HomeScreen() {
           </p>
         )}
       </main>
-    </div>
-  );
-}
-
-interface StatChipProps {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}
-
-function StatChip({ icon, label, value }: StatChipProps) {
-  return (
-    <div className="flex flex-col items-center gap-1 bg-gray-50 rounded-2xl p-3">
-      <span className="text-gray-400">{icon}</span>
-      <span className="text-[10px] text-gray-400 uppercase tracking-wider text-center">
-        {label}
-      </span>
-      <span className="text-sm font-bold text-gray-800 text-center">
-        {value}
-      </span>
     </div>
   );
 }

@@ -7,8 +7,8 @@
     "continue": "Lanjutkan"
   },
   "home": {
-    "title": "Tantangan Hari Ini",
-    "subtitle": "Apakah kamu siap berlari?",
+    "title": "Papan Balap Hari Ini",
+    "subtitle": "Pilih tantangan balapan hari ini. Kamu hanya mendapat satu entri harian.",
     "completed": "Perlombaan Selesai",
     "completed_subtitle": "Kamu telah menyelesaikan perlombaan hari ini! Kembali lagi besok untuk tantangan baru.",
     "stats": {

@@ -156,5 +156,12 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       resultId: result.outcome,
     };
     storageRepository.saveDaily(daily);
+
+    // 4. Update Daily Board status completed marker
+    const boardStatus = storageRepository.loadDailyBoard();
+    if (boardStatus) {
+      boardStatus.completedEntryId = challengeId;
+      storageRepository.saveDailyBoard(boardStatus);
+    }
   },
 }));

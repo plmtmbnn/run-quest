@@ -87,13 +87,48 @@ export interface StorySeed {
   mood: "optimistic" | "tense" | "survival" | "competitive";
 }
 
-export interface DailyChallenge {
+export interface Scenario {
   id: string;
   date: string; // ISODate string
   environment: Environment;
   race: Race;
   objective: Objective;
   storySeed: StorySeed;
+}
+
+export type DailyChallenge = Scenario;
+
+export interface RaceEntry {
+  id: string;
+  scenarioId: string;
+  title: LocalizedText;
+  category:
+    | "road"
+    | "trail"
+    | "track"
+    | "ultra"
+    | "community"
+    | "event"
+    | "virtual";
+  surface: Surface;
+  distance: number;
+  difficulty: number; // 1 to 5 stars
+  estimatedDuration: number; // in seconds
+  reward: number;
+  tags: string[];
+  featured: boolean;
+  availability: "available" | "locked" | "completed";
+  scenario: Scenario;
+}
+
+export interface DailyRaceBoard {
+  id: string;
+  publishedAt: string;
+  title: LocalizedText;
+  entries: RaceEntry[];
+  entryPolicy: {
+    maxEntries: number;
+  };
 }
 
 export interface Player {

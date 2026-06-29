@@ -7,8 +7,8 @@
     "continue": "Continue"
   },
   "home": {
-    "title": "Today's Challenge",
-    "subtitle": "Are you ready to run?",
+    "title": "Today's Race Board",
+    "subtitle": "Choose today's race challenge. You only get one daily entry.",
     "completed": "Race Completed",
     "completed_subtitle": "You finished today's race! Come back tomorrow for a new challenge.",
     "stats": {
