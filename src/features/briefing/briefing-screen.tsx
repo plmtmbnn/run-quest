@@ -1,9 +1,11 @@
 "use client";
 
 import dayjs from "dayjs";
+import { motion } from "framer-motion";
 import { ArrowLeft, Clock, Flame, MapPin, Sparkles, Wind } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { generateDailyChallenge } from "@/services/challenge/generator";
 import { storageRepository } from "@/storage/storage-repository";
@@ -15,6 +17,7 @@ export function BriefingScreen() {
   const lang = (language === "id" ? "id" : "en") as "en" | "id";
 
   const { currentChallenge } = useGameStore();
+  const { playSound } = useSound();
 
   const challenge =
     currentChallenge || generateDailyChallenge(dayjs().format("YYYY-MM-DD"));
@@ -40,13 +43,22 @@ export function BriefingScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFFDF8] pb-24 text-gray-900">
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -15 }}
+      transition={{ duration: 0.25, ease: "easeInOut" }}
+      className="min-h-screen bg-background pb-24 text-gray-900"
+    >
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-[#E5E7EB] bg-[#FFFDF8]/90 px-6 py-4 backdrop-blur-md">
+      <header className="sticky top-0 z-10 border-b border-[#E5E7EB] bg-surface/90 px-6 py-4 backdrop-blur-md">
         <div className="mx-auto flex max-w-2xl items-center gap-4">
           <button
             type="button"
-            onClick={() => router.back()}
+            onClick={() => {
+              playSound("click");
+              router.back();
+            }}
             className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white transition hover:bg-gray-50 active:scale-95"
             aria-label="Back"
           >
@@ -163,13 +175,16 @@ export function BriefingScreen() {
 
           <button
             type="button"
-            onClick={() => router.push("/preparation")}
+            onClick={() => {
+              playSound("click");
+              router.push("/preparation");
+            }}
             className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold text-base py-4 rounded-full transition-all duration-200 shadow-sm"
           >
             {t("challenge.briefing.start_prep" as TranslationKey)} →
           </button>
         </div>
       </main>
-    </div>
+    </motion.div>
   );
 }

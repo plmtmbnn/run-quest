@@ -1,9 +1,11 @@
 "use client";
 
 import dayjs from "dayjs";
+import { motion } from "framer-motion";
 import { Settings, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { generateDailyRaceBoard } from "@/services/challenge/generator";
 import { storageRepository } from "@/storage/storage-repository";
@@ -19,6 +21,7 @@ export function HomeScreen() {
   const player = usePlayerStore((state) => state.player);
   const { setChallenge } = useGameStore();
   const { settings } = useSettingsStore();
+  const { playSound } = useSound();
 
   const todayStr = dayjs().format("YYYY-MM-DD");
   const board = generateDailyRaceBoard(todayStr);
@@ -80,6 +83,7 @@ export function HomeScreen() {
     storageRepository.saveDailyBoard(updatedStatus);
     setBoardStatus(updatedStatus);
 
+    playSound("click");
     // Load active challenge to Zustand and navigate to briefing
     setChallenge(entry.scenario);
     router.push("/briefing");
@@ -165,7 +169,13 @@ export function HomeScreen() {
   const isBoardCompleted = boardStatus?.completedEntryId !== null;
 
   return (
-    <div className="min-h-screen bg-[#FFFDF8] flex flex-col pb-12">
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -15 }}
+      transition={{ duration: 0.25, ease: "easeInOut" }}
+      className="min-h-screen bg-background flex flex-col pb-12"
+    >
       {/* Header */}
       <header className="px-6 pt-10 pb-4 flex justify-between items-start">
         <div>
@@ -185,7 +195,10 @@ export function HomeScreen() {
         </div>
         <button
           type="button"
-          onClick={() => router.push("/settings")}
+          onClick={() => {
+            playSound("click");
+            router.push("/settings");
+          }}
           className="rounded-full p-2.5 bg-white border-2 border-[#E5E7EB] hover:bg-gray-50 text-gray-700 shadow-sm transition-all active:scale-95 mt-2"
           aria-label="Settings"
         >
@@ -209,7 +222,10 @@ export function HomeScreen() {
               </div>
               <button
                 type="button"
-                onClick={() => router.push("/history")}
+                onClick={() => {
+                  playSound("click");
+                  router.push("/history");
+                }}
                 className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-bold tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-1 rounded-full transition-all border border-white/10"
               >
                 {t("history.title" as TranslationKey)} →
@@ -390,6 +406,6 @@ export function HomeScreen() {
           </p>
         )}
       </main>
-    </div>
+    </motion.div>
   );
 }

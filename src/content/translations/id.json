@@ -84,6 +84,13 @@
       "title": "Bahasa",
       "desc": "Bahasa terjemahan antarmuka sistem dan game"
     },
+    "theme": {
+      "title": "Tema Warna",
+      "desc": "Pilih tampilan RunQuest di perangkat Anda.",
+      "light": "Terang",
+      "dark": "Gelap",
+      "system": "Sistem"
+    },
     "preferences": {
       "desc": "Balapan yang cocok dengan preferensi ini akan diurutkan di bagian atas Papan Balap Harian Anda.",
       "surface": "Permukaan Pilihan",

@@ -1,6 +1,7 @@
 "use client";
 
 import dayjs from "dayjs";
+import { motion } from "framer-motion";
 import { toPng } from "html-to-image";
 import {
   Award,
@@ -30,6 +31,7 @@ export function ResultScreen() {
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const shareCardRef = useRef<HTMLDivElement>(null);
 
   // Safely fallback if result is missing (navigated directly)
   if (!lastResult) {
@@ -105,13 +107,13 @@ Play now at: https://runquest.game`;
   };
 
   const handleDownloadCard = async () => {
-    if (!cardRef.current) return;
+    if (!shareCardRef.current) return;
 
     setDownloading(true);
     try {
       // Small delay to ensure styles are evaluated
       await new Promise((resolve) => setTimeout(resolve, 100));
-      const dataUrl = await toPng(cardRef.current, {
+      const dataUrl = await toPng(shareCardRef.current, {
         cacheBust: true,
         style: {
           transform: "scale(1)",
@@ -136,9 +138,15 @@ Play now at: https://runquest.game`;
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24 text-gray-900">
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -15 }}
+      transition={{ duration: 0.25, ease: "easeInOut" }}
+      className="min-h-screen bg-background pb-24 text-gray-900"
+    >
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-[#E5E7EB] bg-white/90 px-6 py-4 backdrop-blur-md">
+      <header className="sticky top-0 z-10 border-b border-[#E5E7EB] bg-surface/90 px-6 py-4 backdrop-blur-md">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
           <h1 className="font-heading text-xl font-bold text-gray-900">
             {t("challenge.result.title" as TranslationKey)}
@@ -387,6 +395,86 @@ Play now at: https://runquest.game`;
           </button>
         </div>
       </main>
-    </div>
+
+      {/* Hidden high-res export card */}
+      <div
+        className="absolute top-0 left-0 pointer-events-none opacity-0"
+        style={{ position: "absolute", left: "-9999px" }}
+      >
+        <div
+          ref={shareCardRef}
+          className="w-[800px] h-[450px] bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border-2 border-slate-800 rounded-3xl p-10 text-white relative overflow-hidden flex flex-col justify-between"
+        >
+          {/* Absolute decorative gradient circles */}
+          <div className="absolute top-[-100px] right-[-100px] w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-[-100px] left-[-100px] w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          {/* Logo / Title */}
+          <div className="flex justify-between items-start">
+            <div>
+              <span className="text-[12px] font-extrabold uppercase tracking-widest text-indigo-400">
+                RunQuest Daily Challenge
+              </span>
+              <h4 className="text-3xl font-black font-heading text-slate-100 mt-2">
+                {challenge.race.title[lang]}
+              </h4>
+            </div>
+            <div className="text-[12px] font-mono text-slate-400 bg-slate-800/40 border border-slate-700/50 rounded-full px-4 py-1.5">
+              {challenge.date}
+            </div>
+          </div>
+
+          {/* Center stats */}
+          <div className="flex items-center gap-12 my-4">
+            <div
+              className={`p-5 rounded-2xl border ${getOutcomeColor()} bg-white/5`}
+            >
+              <Award className="h-20 w-20" />
+            </div>
+            <div>
+              <div className="text-sm text-slate-400 uppercase tracking-widest font-semibold">
+                {t("challenge.result.grade" as TranslationKey)}
+              </div>
+              <div className="text-7xl font-black font-heading mt-1 text-slate-100">
+                {grade}
+              </div>
+            </div>
+            <div className="ml-auto text-right">
+              <div className="text-sm text-slate-400 uppercase tracking-widest font-semibold">
+                {t("history.score" as TranslationKey)}
+              </div>
+              <div className="text-6xl font-black font-heading mt-1 text-blue-400">
+                {score}
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom stats and URL */}
+          <div className="flex justify-between items-end border-t border-slate-800 pt-6">
+            <div className="flex gap-8">
+              <div>
+                <span className="text-xs text-slate-500 uppercase tracking-wider block">
+                  {t("history.distance" as TranslationKey)}
+                </span>
+                <span className="text-xl font-bold text-slate-200">
+                  {challenge.race.distance} km
+                </span>
+              </div>
+              <div>
+                <span className="text-xs text-slate-550 uppercase tracking-wider block">
+                  {t("history.time" as TranslationKey)}
+                </span>
+                <span className="text-xl font-bold text-slate-200">
+                  {formatTime(finishTime)}
+                </span>
+              </div>
+            </div>
+            <div className="text-lg font-black text-indigo-400 tracking-tight">
+              runquest.game
+            </div>
+          </div>
+        </div>
+      </div>
+    </motion.div>
   );
 }

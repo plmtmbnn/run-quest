@@ -1,6 +1,7 @@
 "use client";
 
 import dayjs from "dayjs";
+import { motion } from "framer-motion";
 import {
   ArrowLeft,
   Clock,
@@ -12,6 +13,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useSound } from "@/hooks/use-sound";
 import type { TranslationKey } from "@/i18n/use-translation";
 import { useTranslation } from "@/i18n/use-translation";
 import { generateDailyChallenge } from "@/services/challenge/generator";
@@ -41,27 +43,63 @@ export function PreparationScreen() {
 
   const {
     preparation,
-    setShoes,
-    setNutrition,
-    toggleGear,
-    setWarmup,
-    setPacing,
-    setMindset,
+    setShoes: _setShoes,
+    setNutrition: _setNutrition,
+    toggleGear: _toggleGear,
+    setWarmup: _setWarmup,
+    setPacing: _setPacing,
+    setMindset: _setMindset,
   } = usePreparationStore();
+  const { playSound } = useSound();
+
+  const setShoes = (val: Parameters<typeof _setShoes>[0]) => {
+    playSound("click");
+    _setShoes(val);
+  };
+  const setNutrition = (val: Parameters<typeof _setNutrition>[0]) => {
+    playSound("click");
+    _setNutrition(val);
+  };
+  const toggleGear = (val: Parameters<typeof _toggleGear>[0]) => {
+    playSound("click");
+    _toggleGear(val);
+  };
+  const setWarmup = (val: Parameters<typeof _setWarmup>[0]) => {
+    playSound("click");
+    _setWarmup(val);
+  };
+  const setPacing = (val: Parameters<typeof _setPacing>[0]) => {
+    playSound("click");
+    _setPacing(val);
+  };
+  const setMindset = (val: Parameters<typeof _setMindset>[0]) => {
+    playSound("click");
+    _setMindset(val);
+  };
 
   const handleStartSimulation = () => {
+    playSound("click");
     router.push("/race");
   };
 
   return (
-    <div className="min-h-screen bg-[#FFFDF8] pb-24 text-gray-900">
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -15 }}
+      transition={{ duration: 0.25, ease: "easeInOut" }}
+      className="min-h-screen bg-background pb-24 text-gray-900"
+    >
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-[#E5E7EB] bg-[#FFFDF8]/90 px-6 py-4 backdrop-blur-md">
+      <header className="sticky top-0 z-10 border-b border-[#E5E7EB] bg-surface/90 px-6 py-4 backdrop-blur-md">
         <div className="mx-auto flex max-w-5xl items-center gap-4">
           <button
             id="back-to-home"
             type="button"
-            onClick={() => router.back()}
+            onClick={() => {
+              playSound("click");
+              router.back();
+            }}
             className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#E5E7EB] bg-white transition-all duration-200 hover:border-blue-500 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             aria-label="Go back"
           >
@@ -557,7 +595,7 @@ export function PreparationScreen() {
           </div>
         </div>
       </main>
-    </div>
+    </motion.div>
   );
 }
 

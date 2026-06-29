@@ -1,6 +1,7 @@
 "use client";
 
 import dayjs from "dayjs";
+import { motion } from "framer-motion";
 import { ArrowLeft, Calendar, Clock, Trophy } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -51,9 +52,15 @@ export function HistoryScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFFDF8] flex flex-col pb-16">
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -15 }}
+      transition={{ duration: 0.25, ease: "easeInOut" }}
+      className="min-h-screen bg-background flex flex-col pb-16"
+    >
       {/* Sticky Header */}
-      <header className="sticky top-0 z-10 border-b border-[#E5E7EB] bg-white/90 px-6 py-4 backdrop-blur-md">
+      <header className="sticky top-0 z-10 border-b border-[#E5E7EB] bg-surface/90 px-6 py-4 backdrop-blur-md">
         <div className="mx-auto flex max-w-3xl items-center gap-3">
           <button
             type="button"
@@ -167,6 +174,6 @@ export function HistoryScreen() {
           </div>
         )}
       </main>
-    </div>
+    </motion.div>
   );
 }

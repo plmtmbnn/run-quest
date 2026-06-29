@@ -18,11 +18,34 @@ export function AppProvider({ children }: AppProviderProps) {
   const initializeSettings = useSettingsStore(
     (state) => state.initializeSettings,
   );
+  const theme = useSettingsStore((state) => state.settings.theme);
 
   useEffect(() => {
     initializeSettings();
     initializePlayer();
   }, [initializeSettings, initializePlayer]);
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+    const updateTheme = () => {
+      const isDark =
+        theme === "dark" || (theme === "system" && mediaQuery.matches);
+      if (isDark) {
+        root.classList.add("dark");
+      } else {
+        root.classList.remove("dark");
+      }
+    };
+
+    updateTheme();
+
+    if (theme === "system") {
+      mediaQuery.addEventListener("change", updateTheme);
+      return () => mediaQuery.removeEventListener("change", updateTheme);
+    }
+  }, [theme]);
 
   return <>{children}</>;
 }

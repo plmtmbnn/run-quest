@@ -84,6 +84,13 @@
       "title": "Language",
       "desc": "System and game interface translation language"
     },
+    "theme": {
+      "title": "Color Theme",
+      "desc": "Choose how RunQuest looks on your device.",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
     "preferences": {
       "desc": "Races matching these preferences will sort to the top of your Daily Race Board.",
       "surface": "Preferred Surface",

@@ -1,16 +1,25 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { ArrowLeft, ShieldAlert, Trash2, Volume2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { useSettingsStore } from "@/store/settings-store";
 
 export function SettingsScreen() {
   const router = useRouter();
   const { t } = useTranslation();
-  const { settings, setSound, setLanguage, setPreferences, resetAllData } =
-    useSettingsStore();
+  const {
+    settings,
+    setSound,
+    setLanguage,
+    setTheme,
+    setPreferences,
+    resetAllData,
+  } = useSettingsStore();
+  const { playSound } = useSound();
 
   const [showResetConfirm, setShowResetConfirm] = useState(false);
 
@@ -18,6 +27,7 @@ export function SettingsScreen() {
     key: "preferredSurface" | "preferredDistance",
     value: string,
   ) => {
+    playSound("click");
     const updated = {
       ...settings.preferences,
       [key]: value,
@@ -26,13 +36,22 @@ export function SettingsScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFFDF8] flex flex-col pb-16">
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -15 }}
+      transition={{ duration: 0.25, ease: "easeInOut" }}
+      className="min-h-screen bg-background flex flex-col pb-16"
+    >
       {/* Sticky Header */}
-      <header className="sticky top-0 z-10 border-b border-[#E5E7EB] bg-white/90 px-6 py-4 backdrop-blur-md">
+      <header className="sticky top-0 z-10 border-b border-[#E5E7EB] bg-surface/90 px-6 py-4 backdrop-blur-md">
         <div className="mx-auto flex max-w-3xl items-center gap-3">
           <button
             type="button"
-            onClick={() => router.push("/")}
+            onClick={() => {
+              playSound("click");
+              router.push("/");
+            }}
             className="rounded-full p-2 hover:bg-gray-100 transition-colors"
           >
             <ArrowLeft className="h-5 w-5 text-gray-700" />
@@ -69,7 +88,10 @@ export function SettingsScreen() {
             </div>
             <button
               type="button"
-              onClick={() => setSound(!settings.sound)}
+              onClick={() => {
+                playSound("click");
+                setSound(!settings.sound);
+              }}
               className={`w-14 h-8 rounded-full p-1 transition-colors duration-200 focus:outline-none ${
                 settings.sound ? "bg-blue-600" : "bg-gray-200"
               }`}
@@ -80,6 +102,39 @@ export function SettingsScreen() {
                 }`}
               />
             </button>
+          </div>
+
+          <hr className="border-[#E5E7EB]" />
+
+          {/* Theme selection */}
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-gray-900">
+                {t("settings.theme.title" as TranslationKey)}
+              </span>
+              <span className="text-xs text-gray-400">
+                {t("settings.theme.desc" as TranslationKey)}
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-2 mt-2">
+              {(["light", "dark", "system"] as const).map((themeMode) => (
+                <button
+                  key={themeMode}
+                  type="button"
+                  onClick={() => {
+                    playSound("click");
+                    setTheme(themeMode);
+                  }}
+                  className={`text-xs font-bold py-3 rounded-2xl transition-all border-2 capitalize ${
+                    settings.theme === themeMode
+                      ? "bg-blue-50 border-blue-500 text-blue-700"
+                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                  }`}
+                >
+                  {t(`settings.theme.${themeMode}` as TranslationKey)}
+                </button>
+              ))}
+            </div>
           </div>
 
           <hr className="border-[#E5E7EB]" />
@@ -97,7 +152,10 @@ export function SettingsScreen() {
             <div className="grid grid-cols-2 gap-3 mt-2">
               <button
                 type="button"
-                onClick={() => setLanguage("en")}
+                onClick={() => {
+                  playSound("click");
+                  setLanguage("en");
+                }}
                 className={`text-sm font-bold py-3 rounded-2xl transition-all border-2 ${
                   settings.language === "en"
                     ? "bg-blue-50 border-blue-500 text-blue-700"
@@ -108,7 +166,10 @@ export function SettingsScreen() {
               </button>
               <button
                 type="button"
-                onClick={() => setLanguage("id")}
+                onClick={() => {
+                  playSound("click");
+                  setLanguage("id");
+                }}
                 className={`text-sm font-bold py-3 rounded-2xl transition-all border-2 ${
                   settings.language === "id"
                     ? "bg-blue-50 border-blue-500 text-blue-700"
@@ -203,7 +264,10 @@ export function SettingsScreen() {
             </div>
             <button
               type="button"
-              onClick={() => setShowResetConfirm(true)}
+              onClick={() => {
+                playSound("click");
+                setShowResetConfirm(true);
+              }}
               className="flex items-center gap-1.5 px-4 py-2.5 bg-red-600 hover:bg-red-700 active:scale-95 text-white text-xs font-bold rounded-2xl transition-all shadow-sm"
             >
               <Trash2 className="h-4 w-4" />{" "}
@@ -232,14 +296,20 @@ export function SettingsScreen() {
             <div className="flex gap-3">
               <button
                 type="button"
-                onClick={() => setShowResetConfirm(false)}
+                onClick={() => {
+                  playSound("click");
+                  setShowResetConfirm(false);
+                }}
                 className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs py-3 rounded-2xl transition-all"
               >
                 {t("settings.danger.cancel" as TranslationKey)}
               </button>
               <button
                 type="button"
-                onClick={resetAllData}
+                onClick={() => {
+                  playSound("click");
+                  resetAllData();
+                }}
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-3 rounded-2xl transition-all shadow-sm"
               >
                 {t("settings.danger.confirm" as TranslationKey)}
@@ -248,6 +318,6 @@ export function SettingsScreen() {
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

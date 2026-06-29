@@ -6,6 +6,7 @@ import { Activity, Flame, TrendingUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { simulateRace } from "@/engine/simulation/engine";
+import { useSound } from "@/hooks/use-sound";
 import { useTranslation } from "@/i18n/use-translation";
 import { generateDailyChallenge } from "@/services/challenge/generator";
 import { useGameStore } from "@/store/game-store";
@@ -21,6 +22,7 @@ export function RaceScreen() {
   const { currentChallenge, setResult } = useGameStore();
   const completeChallenge = usePlayerStore((state) => state.completeChallenge);
   const { preparation } = usePreparationStore();
+  const { playSound } = useSound();
 
   // Load/Generate today's challenge
   const challenge =
@@ -64,6 +66,7 @@ export function RaceScreen() {
       if (kmCounter > totalDist) {
         clearInterval(interval);
         setIsFinished(true);
+        playSound("success");
 
         // Save result and auto-redirect to results screen after 1.2s
         if (simResultRef.current) {
@@ -81,6 +84,7 @@ export function RaceScreen() {
         return;
       }
 
+      playSound("tick");
       setCurrentKm(kmCounter);
 
       // Check if any event resolved at this kilometer
@@ -102,7 +106,15 @@ export function RaceScreen() {
     }, intervalMs);
 
     return () => clearInterval(interval);
-  }, [challenge, preparation, setResult, router, completeChallenge, language]);
+  }, [
+    challenge,
+    preparation,
+    setResult,
+    router,
+    completeChallenge,
+    language,
+    playSound,
+  ]);
 
   const progressPercentage = Math.min(
     100,

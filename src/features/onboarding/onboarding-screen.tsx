@@ -1,7 +1,9 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { ArrowRight, Compass, Flame, HelpCircle } from "lucide-react";
 import { useState } from "react";
+import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { storageRepository } from "@/storage/storage-repository";
 import { useSettingsStore } from "@/store/settings-store";
@@ -13,6 +15,7 @@ interface OnboardingScreenProps {
 export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
   const { t, language } = useTranslation();
   const { setLanguage } = useSettingsStore();
+  const { playSound } = useSound();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const slides = [
@@ -40,6 +43,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
   ];
 
   const handleNext = () => {
+    playSound("click");
     if (currentSlide < slides.length - 1) {
       setCurrentSlide((prev) => prev + 1);
     } else {
@@ -62,7 +66,13 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
   const activeSlide = slides[currentSlide];
 
   return (
-    <div className="min-h-screen bg-[#FFFDF8] flex flex-col justify-between p-6">
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -15 }}
+      transition={{ duration: 0.25, ease: "easeInOut" }}
+      className="min-h-screen bg-background flex flex-col justify-between p-6"
+    >
       {/* Header Info with Language Toggle */}
       <header className="flex justify-between items-center max-w-md mx-auto w-full pt-8">
         <span className="text-xs font-extrabold uppercase tracking-widest text-indigo-650">
@@ -71,7 +81,10 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
         <div className="flex gap-1 bg-gray-100 p-1 rounded-full text-[10px]">
           <button
             type="button"
-            onClick={() => setLanguage("en")}
+            onClick={() => {
+              playSound("click");
+              setLanguage("en");
+            }}
             className={`px-3 py-1 rounded-full font-bold transition-all ${
               language === "en"
                 ? "bg-white text-indigo-600 shadow-sm"
@@ -82,7 +95,10 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
           </button>
           <button
             type="button"
-            onClick={() => setLanguage("id")}
+            onClick={() => {
+              playSound("click");
+              setLanguage("id");
+            }}
             className={`px-3 py-1 rounded-full font-bold transition-all ${
               language === "id"
                 ? "bg-white text-indigo-600 shadow-sm"
@@ -151,6 +167,6 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
           <ArrowRight className="w-5 h-5" />
         </button>
       </footer>
-    </div>
+    </motion.div>
   );
 }
