@@ -1,0 +1,19 @@
+{
+  "common": {
+    "start": "Start",
+    "cancel": "Cancel",
+    "save": "Save",
+    "loading": "Loading...",
+    "continue": "Continue"
+  },
+  "home": {
+    "title": "Today's Challenge",
+    "subtitle": "Are you ready to run?"
+  },
+  "language": {
+    "title": "Choose Your Language",
+    "subtitle": "You can change this later in settings.",
+    "english": "English",
+    "indonesian": "Bahasa Indonesia"
+  }
+}

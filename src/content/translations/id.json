@@ -1,0 +1,19 @@
+{
+  "common": {
+    "start": "Mulai",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "loading": "Memuat...",
+    "continue": "Lanjutkan"
+  },
+  "home": {
+    "title": "Tantangan Hari Ini",
+    "subtitle": "Apakah kamu siap berlari?"
+  },
+  "language": {
+    "title": "Pilih Bahasa",
+    "subtitle": "Kamu bisa mengubah ini nanti di pengaturan.",
+    "english": "English",
+    "indonesian": "Bahasa Indonesia"
+  }
+}
