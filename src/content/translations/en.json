@@ -17,6 +17,16 @@
       "distance": "Distance"
     }
   },
+  "history": {
+    "title": "Race History",
+    "subtitle": "Your past challenges and performance records.",
+    "empty": "No race records found. Start a daily challenge to build your history!",
+    "back_home": "Back to Home",
+    "score": "Score",
+    "grade": "Grade",
+    "distance": "Distance",
+    "time": "Time"
+  },
   "language": {
     "title": "Choose Your Language",
     "subtitle": "You can change this later in settings.",

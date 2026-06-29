@@ -76,13 +76,22 @@ export function HomeScreen() {
         {/* Player Stats Panel */}
         {player && (
           <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl p-6 text-white shadow-md flex items-center justify-between">
-            <div className="flex flex-col gap-1">
-              <span className="text-xs text-blue-200 uppercase tracking-wider font-semibold">
-                Player Profile
-              </span>
-              <span className="text-lg font-bold font-heading">
-                Runner #{player.id.slice(0, 5).toUpperCase()}
-              </span>
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-1">
+                <span className="text-xs text-blue-200 uppercase tracking-wider font-semibold">
+                  Player Profile
+                </span>
+                <span className="text-lg font-bold font-heading">
+                  Runner #{player.id.slice(0, 5).toUpperCase()}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => router.push("/history")}
+                className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-bold tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-1 rounded-full transition-all border border-white/10"
+              >
+                View History →
+              </button>
             </div>
             <div className="flex gap-6">
               <div className="flex flex-col items-center">

@@ -17,6 +17,16 @@
       "distance": "Jarak"
     }
   },
+  "history": {
+    "title": "Riwayat Balapan",
+    "subtitle": "Tantangan masa lalu dan catatan performa kamu.",
+    "empty": "Belum ada catatan lari. Mulai tantangan harian untuk membuat riwayat!",
+    "back_home": "Kembali ke Menu Utama",
+    "score": "Skor",
+    "grade": "Grade",
+    "distance": "Jarak",
+    "time": "Waktu"
+  },
   "language": {
     "title": "Pilih Bahasa",
     "subtitle": "Kamu bisa mengubah ini nanti di pengaturan.",
