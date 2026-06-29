@@ -9,6 +9,7 @@ import { simulateRace } from "@/engine/simulation/engine";
 import { useTranslation } from "@/i18n/use-translation";
 import { generateDailyChallenge } from "@/services/challenge/generator";
 import { useGameStore } from "@/store/game-store";
+import { usePlayerStore } from "@/store/player-store";
 import { usePreparationStore } from "@/store/preparation-store";
 import type { RaceEvent, SimulationResult } from "@/types/engine";
 
@@ -18,6 +19,7 @@ export function RaceScreen() {
   const lang = (language === "id" ? "id" : "en") as "en" | "id";
 
   const { currentChallenge, setResult } = useGameStore();
+  const completeChallenge = usePlayerStore((state) => state.completeChallenge);
   const { preparation } = usePreparationStore();
 
   // Load/Generate today's challenge
@@ -66,6 +68,12 @@ export function RaceScreen() {
         // Save result and auto-redirect to results screen after 1.2s
         if (simResultRef.current) {
           setResult(simResultRef.current);
+          completeChallenge(
+            challenge.id,
+            challenge.race.distance,
+            simResultRef.current,
+            language,
+          );
           setTimeout(() => {
             router.push("/result");
           }, 1200);
@@ -94,7 +102,7 @@ export function RaceScreen() {
     }, intervalMs);
 
     return () => clearInterval(interval);
-  }, [challenge, preparation, setResult, router]);
+  }, [challenge, preparation, setResult, router, completeChallenge, language]);
 
   const progressPercentage = Math.min(
     100,

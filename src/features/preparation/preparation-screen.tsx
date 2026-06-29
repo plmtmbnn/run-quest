@@ -11,9 +11,11 @@ import {
   Wind,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import type { TranslationKey } from "@/i18n/use-translation";
 import { useTranslation } from "@/i18n/use-translation";
 import { generateDailyChallenge } from "@/services/challenge/generator";
+import { storageRepository } from "@/storage/storage-repository";
 import { useGameStore } from "@/store/game-store";
 import { usePreparationStore } from "@/store/preparation-store";
 
@@ -25,6 +27,17 @@ export function PreparationScreen() {
 
   const challenge =
     currentChallenge || generateDailyChallenge(dayjs().format("YYYY-MM-DD"));
+
+  useEffect(() => {
+    const daily = storageRepository.loadDaily();
+    if (
+      daily &&
+      daily.challengeId === challenge.id &&
+      daily.status === "completed"
+    ) {
+      router.replace("/");
+    }
+  }, [challenge.id, router]);
 
   const {
     preparation,

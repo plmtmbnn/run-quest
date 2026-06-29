@@ -3,8 +3,10 @@
 import dayjs from "dayjs";
 import { ArrowLeft, Clock, Flame, MapPin, Sparkles, Wind } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { generateDailyChallenge } from "@/services/challenge/generator";
+import { storageRepository } from "@/storage/storage-repository";
 import { useGameStore } from "@/store/game-store";
 
 export function BriefingScreen() {
@@ -16,6 +18,17 @@ export function BriefingScreen() {
 
   const challenge =
     currentChallenge || generateDailyChallenge(dayjs().format("YYYY-MM-DD"));
+
+  useEffect(() => {
+    const daily = storageRepository.loadDaily();
+    if (
+      daily &&
+      daily.challengeId === challenge.id &&
+      daily.status === "completed"
+    ) {
+      router.replace("/");
+    }
+  }, [challenge.id, router]);
 
   const formatTargetTime = (seconds: number) => {
     const hrs = Math.floor(seconds / 3600);

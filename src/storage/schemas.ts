@@ -60,7 +60,7 @@ export const RaceHistoryEntrySchema = z.object({
   challengeId: z.string(),
   playedAt: z.string(),
   finishTime: z.number(),
-  grade: z.enum(["S", "A", "B", "C", "D"]),
+  grade: z.enum(["S", "A", "B", "C", "D", "F"]),
   headline: z.string(),
   score: z.number(),
 });

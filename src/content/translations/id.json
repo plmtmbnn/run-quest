@@ -8,7 +8,14 @@
   },
   "home": {
     "title": "Tantangan Hari Ini",
-    "subtitle": "Apakah kamu siap berlari?"
+    "subtitle": "Apakah kamu siap berlari?",
+    "completed": "Perlombaan Selesai",
+    "completed_subtitle": "Kamu telah menyelesaikan perlombaan hari ini! Kembali lagi besok untuk tantangan baru.",
+    "stats": {
+      "runs": "Sesi Lari",
+      "streak": "Streak",
+      "distance": "Jarak"
+    }
   },
   "language": {
     "title": "Pilih Bahasa",

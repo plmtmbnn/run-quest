@@ -1,11 +1,12 @@
 "use client";
 
 import dayjs from "dayjs";
-import { Clock, Flame, MapPin, Wind } from "lucide-react";
+import { Clock, Flame, MapPin, Trophy, Wind } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { generateDailyChallenge } from "@/services/challenge/generator";
+import { storageRepository } from "@/storage/storage-repository";
 import { useGameStore } from "@/store/game-store";
 import { usePlayerStore } from "@/store/player-store";
 
@@ -19,6 +20,7 @@ export function HomeScreen() {
   const player = usePlayerStore((state) => state.player);
 
   const { currentChallenge, setChallenge } = useGameStore();
+  const [dailyCompleted, setDailyCompleted] = useState(false);
 
   // Determine today's challenge
   const todayStr = dayjs().format("YYYY-MM-DD");
@@ -29,6 +31,17 @@ export function HomeScreen() {
       setChallenge(challenge);
     }
   }, [currentChallenge, challenge, setChallenge]);
+
+  useEffect(() => {
+    const daily = storageRepository.loadDaily();
+    if (
+      daily &&
+      daily.challengeId === challenge.id &&
+      daily.status === "completed"
+    ) {
+      setDailyCompleted(true);
+    }
+  }, [challenge.id]);
 
   const formatTargetTime = (seconds: number) => {
     const hrs = Math.floor(seconds / 3600);
@@ -47,15 +60,60 @@ export function HomeScreen() {
           RunQuest
         </p>
         <h1 className="text-3xl font-bold text-gray-900 font-heading">
-          {t("home.title" as TranslationKey)}
+          {dailyCompleted
+            ? t("home.completed" as TranslationKey)
+            : t("home.title" as TranslationKey)}
         </h1>
         <p className="text-sm text-gray-500 mt-1">
-          {t("home.subtitle" as TranslationKey)}
+          {dailyCompleted
+            ? t("home.completed_subtitle" as TranslationKey)
+            : t("home.subtitle" as TranslationKey)}
         </p>
       </header>
 
-      {/* Daily Challenge Card */}
-      <main className="flex-1 px-6 py-4 flex flex-col gap-4">
+      {/* Main Container */}
+      <main className="flex-1 px-6 py-4 flex flex-col gap-6">
+        {/* Player Stats Panel */}
+        {player && (
+          <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl p-6 text-white shadow-md flex items-center justify-between">
+            <div className="flex flex-col gap-1">
+              <span className="text-xs text-blue-200 uppercase tracking-wider font-semibold">
+                Player Profile
+              </span>
+              <span className="text-lg font-bold font-heading">
+                Runner #{player.id.slice(0, 5).toUpperCase()}
+              </span>
+            </div>
+            <div className="flex gap-6">
+              <div className="flex flex-col items-center">
+                <span className="text-xs text-blue-200 uppercase font-medium">
+                  {t("home.stats.streak" as TranslationKey)}
+                </span>
+                <span className="text-xl font-bold flex items-center gap-1 mt-0.5">
+                  🔥 {player.statistics.currentStreak}
+                </span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-xs text-blue-200 uppercase font-medium">
+                  {t("home.stats.runs" as TranslationKey)}
+                </span>
+                <span className="text-xl font-bold mt-0.5">
+                  {player.statistics.totalRuns}
+                </span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-xs text-blue-200 uppercase font-medium">
+                  {t("home.stats.distance" as TranslationKey)}
+                </span>
+                <span className="text-xl font-bold mt-0.5">
+                  {player.statistics.totalDistance} km
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Daily Challenge Card */}
         <div className="bg-white rounded-3xl border-2 border-[#E5E7EB] shadow-[0_8px_24px_rgba(0,0,0,0.08)] p-6">
           {/* Date badge */}
           <div className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-600 text-xs font-semibold px-3 py-1 rounded-full mb-4">
@@ -100,15 +158,22 @@ export function HomeScreen() {
             </span>
           </div>
 
-          {/* Primary CTA */}
-          <button
-            id="start-race-cta"
-            type="button"
-            onClick={() => router.push("/briefing")}
-            className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold text-base py-4 rounded-full transition-all duration-200 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-          >
-            {t("common.start" as TranslationKey)} Today&apos;s Race
-          </button>
+          {/* Primary CTA / Locked Info */}
+          {dailyCompleted ? (
+            <div className="bg-emerald-50 border-2 border-emerald-250 rounded-2xl p-4 text-center text-emerald-800 font-semibold text-sm flex items-center justify-center gap-2">
+              <Trophy className="h-5 w-5 text-emerald-500 animate-bounce" />
+              <span>You completed today&apos;s challenge successfully!</span>
+            </div>
+          ) : (
+            <button
+              id="start-race-cta"
+              type="button"
+              onClick={() => router.push("/briefing")}
+              className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold text-base py-4 rounded-full transition-all duration-200 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+            >
+              {t("common.start" as TranslationKey)} Today&apos;s Race
+            </button>
+          )}
         </div>
 
         {/* Player ID (dev helper) */}

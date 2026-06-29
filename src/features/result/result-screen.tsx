@@ -1,5 +1,7 @@
 "use client";
 
+import dayjs from "dayjs";
+import { toPng } from "html-to-image";
 import {
   Award,
   BookOpen,
@@ -7,11 +9,13 @@ import {
   Copy,
   Home,
   RefreshCw,
+  Share2,
   Sparkles,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+import { generateDailyChallenge } from "@/services/challenge/generator";
 import { useGameStore } from "@/store/game-store";
 import { usePreparationStore } from "@/store/preparation-store";
 
@@ -20,10 +24,12 @@ export function ResultScreen() {
   const { t, language } = useTranslation();
   const lang = (language === "id" ? "id" : "en") as "en" | "id";
 
-  const { lastResult, clearState } = useGameStore();
+  const { lastResult, currentChallenge, clearState } = useGameStore();
   const { reset } = usePreparationStore();
 
   const [copied, setCopied] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   // Safely fallback if result is missing (navigated directly)
   if (!lastResult) {
@@ -44,6 +50,8 @@ export function ResultScreen() {
     );
   }
 
+  const challenge =
+    currentChallenge || generateDailyChallenge(dayjs().format("YYYY-MM-DD"));
   const { finishTime, score, grade, outcome, story } = lastResult;
 
   const formatTime = (secs: number) => {
@@ -85,6 +93,27 @@ Play now at: https://runquest.game`;
       }
     } catch (err) {
       console.error("Failed to copy result:", err);
+    }
+  };
+
+  const handleDownloadCard = async () => {
+    if (!cardRef.current) return;
+    setDownloading(true);
+    try {
+      const dataUrl = await toPng(cardRef.current, {
+        cacheBust: true,
+        style: {
+          transform: "scale(1)",
+        },
+      });
+      const link = document.createElement("a");
+      link.download = `runquest-result-${outcome}-${challenge.date}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (error) {
+      console.error("Failed to generate image:", error);
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -154,6 +183,109 @@ Play now at: https://runquest.game`;
               <span>{formatTime(finishTime)}</span>
             </div>
           </div>
+        </div>
+
+        {/* Visual Share Card */}
+        <div className="flex flex-col gap-3">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
+            Share Card
+          </h3>
+          <div
+            ref={cardRef}
+            className="w-full bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border-2 border-slate-800 rounded-3xl p-8 text-white relative overflow-hidden shadow-lg select-none"
+            style={{ minHeight: "340px" }}
+          >
+            {/* Absolute decorative gradient circles */}
+            <div className="absolute top-[-80px] right-[-80px] w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-[-80px] left-[-80px] w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+
+            {/* Content layout */}
+            <div className="flex flex-col justify-between h-full min-h-[280px]">
+              {/* Logo / Title */}
+              <div className="flex justify-between items-start">
+                <div>
+                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-indigo-400">
+                    RunQuest Challenge
+                  </span>
+                  <h4 className="text-lg font-bold font-heading text-slate-100 mt-1">
+                    {challenge.race.title[lang]}
+                  </h4>
+                </div>
+                <div className="text-[10px] font-mono text-slate-400 bg-slate-800/40 border border-slate-700/50 rounded-full px-3 py-1">
+                  {challenge.date}
+                </div>
+              </div>
+
+              {/* Center Medal and Grade */}
+              <div className="flex items-center gap-6 my-6">
+                <div
+                  className={`p-4 rounded-2xl border ${getOutcomeColor()} bg-white/5`}
+                >
+                  <Award className="h-12 w-12" />
+                </div>
+                <div>
+                  <div className="text-xs text-slate-400 uppercase tracking-widest font-semibold">
+                    Grade
+                  </div>
+                  <div className="text-4xl font-black font-heading mt-0.5">
+                    {grade}
+                  </div>
+                </div>
+                <div className="ml-auto text-right">
+                  <div className="text-xs text-slate-400 uppercase tracking-widest font-semibold">
+                    Score
+                  </div>
+                  <div className="text-3xl font-extrabold text-blue-400 mt-0.5">
+                    {score}
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom stats and URL */}
+              <div className="flex justify-between items-end border-t border-slate-800/60 pt-4">
+                <div className="flex gap-4">
+                  <div>
+                    <span className="text-[10px] text-slate-500 uppercase tracking-wider block">
+                      Distance
+                    </span>
+                    <span className="text-sm font-bold text-slate-200">
+                      {challenge.race.distance} km
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-500 uppercase tracking-wider block">
+                      Time
+                    </span>
+                    <span className="text-sm font-bold text-slate-200">
+                      {formatTime(finishTime)}
+                    </span>
+                  </div>
+                </div>
+                <div className="text-xs font-semibold text-indigo-400 select-none">
+                  runquest.game
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleDownloadCard}
+            disabled={downloading}
+            className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-full text-sm font-semibold transition active:scale-[0.99] border border-slate-850"
+          >
+            {downloading ? (
+              <>
+                <RefreshCw className="h-4 w-4 animate-spin" />
+                <span>Generating Image...</span>
+              </>
+            ) : (
+              <>
+                <Share2 className="h-4 w-4" />
+                <span>Download Result Card (PNG)</span>
+              </>
+            )}
+          </button>
         </div>
 
         {/* Narrative & Highlights Section */}
