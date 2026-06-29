@@ -1,8 +1,12 @@
 "use client";
 
+import dayjs from "dayjs";
 import { Clock, Flame, MapPin, Wind } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useTranslation } from "@/i18n/use-translation";
+import { useEffect } from "react";
+import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+import { generateDailyChallenge } from "@/services/challenge/generator";
+import { useGameStore } from "@/store/game-store";
 import { usePlayerStore } from "@/store/player-store";
 
 /**
@@ -10,8 +14,30 @@ import { usePlayerStore } from "@/store/player-store";
  */
 export function HomeScreen() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
+  const lang = (language === "id" ? "id" : "en") as "en" | "id";
   const player = usePlayerStore((state) => state.player);
+
+  const { currentChallenge, setChallenge } = useGameStore();
+
+  // Determine today's challenge
+  const todayStr = dayjs().format("YYYY-MM-DD");
+  const challenge = currentChallenge || generateDailyChallenge(todayStr);
+
+  useEffect(() => {
+    if (!currentChallenge) {
+      setChallenge(challenge);
+    }
+  }, [currentChallenge, challenge, setChallenge]);
+
+  const formatTargetTime = (seconds: number) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    if (hrs > 0) {
+      return `${hrs}h ${mins}m`;
+    }
+    return `${mins}m`;
+  };
 
   return (
     <div className="min-h-screen bg-[#FFFDF8] flex flex-col">
@@ -21,9 +47,11 @@ export function HomeScreen() {
           RunQuest
         </p>
         <h1 className="text-3xl font-bold text-gray-900 font-heading">
-          {t("home.title")}
+          {t("home.title" as TranslationKey)}
         </h1>
-        <p className="text-sm text-gray-500 mt-1">{t("home.subtitle")}</p>
+        <p className="text-sm text-gray-500 mt-1">
+          {t("home.subtitle" as TranslationKey)}
+        </p>
       </header>
 
       {/* Daily Challenge Card */}
@@ -36,29 +64,30 @@ export function HomeScreen() {
           </div>
 
           <h2 className="text-xl font-bold text-gray-900 font-heading mb-1">
-            Morning Tempo
+            {challenge.race.title[lang]}
           </h2>
           <p className="text-sm text-gray-500 mb-6">
-            A rolling road race under the morning heat. Stay patient and manage
-            your hydration.
+            {challenge.race.description[lang]}
           </p>
 
           {/* Race details */}
           <div className="grid grid-cols-3 gap-3 mb-6">
             <StatChip
               icon={<MapPin className="w-4 h-4" />}
-              label="Distance"
-              value="21.1 km"
+              label={t("challenge.briefing.distance" as TranslationKey)}
+              value={`${challenge.race.distance} km`}
             />
             <StatChip
               icon={<Flame className="w-4 h-4" />}
-              label="Weather"
-              value="Hot 31°"
+              label={t("challenge.briefing.weather_temp" as TranslationKey)}
+              value={`${t(`challenge.weather.${challenge.environment.weather}` as TranslationKey)} ${challenge.environment.temperature}°`}
             />
             <StatChip
               icon={<Wind className="w-4 h-4" />}
-              label="Surface"
-              value="Road"
+              label={t("challenge.briefing.surface_type" as TranslationKey)}
+              value={t(
+                `challenge.surface.${challenge.race.surface}` as TranslationKey,
+              )}
             />
           </div>
 
@@ -66,7 +95,8 @@ export function HomeScreen() {
           <div className="flex items-center gap-2 bg-orange-50 rounded-2xl p-3 mb-6">
             <Clock className="w-4 h-4 text-orange-500 flex-shrink-0" />
             <span className="text-sm text-orange-800 font-medium">
-              Target: finish under 2:00:00
+              Target: finish under{" "}
+              {formatTargetTime(challenge.objective.targetTime)}
             </span>
           </div>
 
@@ -74,10 +104,10 @@ export function HomeScreen() {
           <button
             id="start-race-cta"
             type="button"
-            onClick={() => router.push("/preparation")}
+            onClick={() => router.push("/briefing")}
             className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold text-base py-4 rounded-full transition-all duration-200 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
           >
-            {t("common.start")} Today&apos;s Race
+            {t("common.start" as TranslationKey)} Today&apos;s Race
           </button>
         </div>
 
@@ -102,10 +132,12 @@ function StatChip({ icon, label, value }: StatChipProps) {
   return (
     <div className="flex flex-col items-center gap-1 bg-gray-50 rounded-2xl p-3">
       <span className="text-gray-400">{icon}</span>
-      <span className="text-[10px] text-gray-400 uppercase tracking-wider">
+      <span className="text-[10px] text-gray-400 uppercase tracking-wider text-center">
         {label}
       </span>
-      <span className="text-sm font-bold text-gray-800">{value}</span>
+      <span className="text-sm font-bold text-gray-800 text-center">
+        {value}
+      </span>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import dayjs from "dayjs";
 import {
   ArrowLeft,
   Clock,
@@ -12,11 +13,19 @@ import {
 import { useRouter } from "next/navigation";
 import type { TranslationKey } from "@/i18n/use-translation";
 import { useTranslation } from "@/i18n/use-translation";
+import { generateDailyChallenge } from "@/services/challenge/generator";
+import { useGameStore } from "@/store/game-store";
 import { usePreparationStore } from "@/store/preparation-store";
 
 export function PreparationScreen() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
+  const lang = (language === "id" ? "id" : "en") as "en" | "id";
+  const { currentChallenge } = useGameStore();
+
+  const challenge =
+    currentChallenge || generateDailyChallenge(dayjs().format("YYYY-MM-DD"));
+
   const {
     preparation,
     setShoes,
@@ -28,7 +37,6 @@ export function PreparationScreen() {
   } = usePreparationStore();
 
   const handleStartSimulation = () => {
-    // Navigate to simulation / race screen in future sprint
     router.push("/race");
   };
 
@@ -459,54 +467,66 @@ export function PreparationScreen() {
             <div className="flex flex-col gap-4 text-sm">
               <div>
                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                  Race
+                  {t("challenge.briefing.surface_type" as TranslationKey)}
                 </p>
-                <p className="font-bold text-gray-800">Morning Tempo</p>
+                <p className="font-bold text-gray-800">
+                  {challenge.race.title[lang]}
+                </p>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-gray-400" />
                   <div>
                     <p className="text-[10px] text-gray-400 uppercase">
-                      Distance
+                      {t("challenge.briefing.distance" as TranslationKey)}
                     </p>
-                    <p className="font-semibold text-gray-700">21.1 km</p>
+                    <p className="font-semibold text-gray-700">
+                      {challenge.race.distance} km
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Flame className="h-4 w-4 text-gray-400" />
                   <div>
                     <p className="text-[10px] text-gray-400 uppercase">
-                      Weather
+                      {t("challenge.briefing.weather_temp" as TranslationKey)}
                     </p>
-                    <p className="font-semibold text-gray-700">Hot 31°C</p>
+                    <p className="font-semibold text-gray-700">
+                      {t(
+                        `challenge.weather.${challenge.environment.weather}` as TranslationKey,
+                      )}{" "}
+                      {challenge.environment.temperature}°C
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Wind className="h-4 w-4 text-gray-400" />
                   <div>
                     <p className="text-[10px] text-gray-400 uppercase">
-                      Surface
+                      {t("challenge.briefing.surface_type" as TranslationKey)}
                     </p>
-                    <p className="font-semibold text-gray-700">Road</p>
+                    <p className="font-semibold text-gray-700">
+                      {t(
+                        `challenge.surface.${challenge.race.surface}` as TranslationKey,
+                      )}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-gray-400" />
                   <div>
                     <p className="text-[10px] text-gray-400 uppercase">
-                      Target
+                      {t("challenge.briefing.target_time" as TranslationKey)}
                     </p>
-                    <p className="font-semibold text-gray-700">&lt; 2h</p>
+                    <p className="font-semibold text-gray-700">
+                      {Math.floor(challenge.objective.targetTime / 60)}m
+                    </p>
                   </div>
                 </div>
               </div>
-              <div className="border-t border-[#E5E7EB] pt-3 text-xs text-amber-600 bg-amber-50 rounded-2xl p-3 flex items-start gap-2">
-                <Sparkles className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
-                <p>
-                  Tip: It is hot. Hydration like electrolytes and protective
-                  gear like a cap are highly advised.
-                </p>
+              <div className="border-t border-[#E5E7EB] pt-3 text-xs text-blue-600 bg-blue-50 rounded-2xl p-3 flex items-start gap-2">
+                <Sparkles className="h-4 w-4 text-blue-500 flex-shrink-0 mt-0.5" />
+                <p>{challenge.race.description[lang]}</p>
               </div>
             </div>
           </div>

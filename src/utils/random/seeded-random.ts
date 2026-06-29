@@ -30,7 +30,7 @@ export class SeededRandom {
   /**
    * Picks a random element from an array.
    */
-  pick<T>(array: T[]): T {
+  pick<T>(array: readonly T[]): T {
     const index = Math.floor(this.next() * array.length);
     return array[index];
   }
@@ -38,7 +38,7 @@ export class SeededRandom {
   /**
    * Picks an item from an array with weighted probabilities.
    */
-  pickWeighted<T>(items: T[], weights: number[]): T {
+  pickWeighted<T>(items: readonly T[], weights: readonly number[]): T {
     const totalWeight = weights.reduce((sum, w) => sum + w, 0);
     const randomValue = this.next() * totalWeight;
 

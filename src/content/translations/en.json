@@ -126,5 +126,51 @@
         "desc": "Ignores fatigue. May cause over-exertion."
       }
     }
+  },
+  "challenge": {
+    "weather": {
+      "sunny": "Sunny",
+      "cloudy": "Cloudy",
+      "rain": "Rainy",
+      "storm": "Stormy",
+      "hot": "Hot",
+      "cold": "Cold",
+      "fog": "Foggy"
+    },
+    "surface": {
+      "road": "Road",
+      "track": "Track",
+      "trail": "Trail"
+    },
+    "elevation": {
+      "flat": "Flat",
+      "rolling": "Rolling Hills",
+      "hilly": "Hilly"
+    },
+    "briefing": {
+      "title": "Daily Briefing",
+      "subtitle": "Analyze the conditions and plan your strategy",
+      "distance": "Distance",
+      "weather_temp": "Weather & Temp",
+      "surface_type": "Surface Type",
+      "elevation_profile": "Elevation Profile",
+      "target_time": "Target Time",
+      "wind_speed": "Wind Speed",
+      "start_prep": "Start Preparation"
+    },
+    "race": {
+      "running": "Running the simulation...",
+      "finish": "Analyzing performance..."
+    },
+    "result": {
+      "title": "Race Result",
+      "medal": "Medal",
+      "grade": "Grade",
+      "time": "Finish Time",
+      "story_headline": "Highlights & Story",
+      "lessons_learned": "Coaching Lessons",
+      "share": "Share Result",
+      "back_home": "Back to Home"
+    }
   }
 }

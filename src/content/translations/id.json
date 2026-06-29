@@ -126,5 +126,51 @@
         "desc": "Mengabaikan rasa lelah. Dapat menyebabkan pemaksaan berlebih."
       }
     }
+  },
+  "challenge": {
+    "weather": {
+      "sunny": "Cerah",
+      "cloudy": "Berawan",
+      "rain": "Hujan",
+      "storm": "Badai",
+      "hot": "Panas",
+      "cold": "Dingin",
+      "fog": "Berkabut"
+    },
+    "surface": {
+      "road": "Jalan Raya",
+      "track": "Lintasan Lari",
+      "trail": "Jalan Setapak (Trail)"
+    },
+    "elevation": {
+      "flat": "Datar",
+      "rolling": "Bukit Landai",
+      "hilly": "Berbukit"
+    },
+    "briefing": {
+      "title": "Taklimat Harian",
+      "subtitle": "Analisis kondisi lintasan dan rencanakan strategimu",
+      "distance": "Jarak",
+      "weather_temp": "Cuaca & Suhu",
+      "surface_type": "Tipe Permukaan",
+      "elevation_profile": "Profil Ketinggian",
+      "target_time": "Target Waktu",
+      "wind_speed": "Kecepatan Angin",
+      "start_prep": "Mulai Persiapan"
+    },
+    "race": {
+      "running": "Menjalankan simulasi...",
+      "finish": "Menganalisis performa..."
+    },
+    "result": {
+      "title": "Hasil Perlombaan",
+      "medal": "Medali",
+      "grade": "Nilai",
+      "time": "Waktu Finish",
+      "story_headline": "Sorotan & Kisah",
+      "lessons_learned": "Pelajaran Pelatih",
+      "share": "Bagikan Hasil",
+      "back_home": "Kembali ke Menu"
+    }
   }
 }
