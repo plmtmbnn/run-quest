@@ -9,6 +9,10 @@ const DEFAULT_SETTINGS: StoredSettings = {
   language: "en",
   reducedMotion: false,
   sound: true,
+  preferences: {
+    preferredSurface: "any",
+    preferredDistance: "any",
+  },
 };
 
 export interface SettingsState {
@@ -19,6 +23,8 @@ export interface SettingsState {
   setTheme: (theme: "light" | "dark" | "system") => void;
   setReducedMotion: (value: boolean) => void;
   setSound: (value: boolean) => void;
+  setPreferences: (prefs: StoredSettings["preferences"]) => void;
+  resetAllData: () => void;
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({
@@ -55,5 +61,16 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     const updated = { ...get().settings, sound };
     storageRepository.saveSettings(updated);
     set({ settings: updated });
+  },
+
+  setPreferences(preferences) {
+    const updated = { ...get().settings, preferences };
+    storageRepository.saveSettings(updated);
+    set({ settings: updated });
+  },
+
+  resetAllData() {
+    storageRepository.clearAll();
+    globalThis.location.reload();
   },
 }));

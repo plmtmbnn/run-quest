@@ -1,6 +1,7 @@
 "use client";
 
 import dayjs from "dayjs";
+import { Settings, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
@@ -9,6 +10,7 @@ import { storageRepository } from "@/storage/storage-repository";
 import type { StoredDailyBoard } from "@/storage/types";
 import { useGameStore } from "@/store/game-store";
 import { usePlayerStore } from "@/store/player-store";
+import { useSettingsStore } from "@/store/settings-store";
 import type { RaceEntry } from "@/types/engine";
 
 export function HomeScreen() {
@@ -16,6 +18,7 @@ export function HomeScreen() {
   const { t } = useTranslation();
   const player = usePlayerStore((state) => state.player);
   const { setChallenge } = useGameStore();
+  const { settings } = useSettingsStore();
 
   const todayStr = dayjs().format("YYYY-MM-DD");
   const board = generateDailyRaceBoard(todayStr);
@@ -93,25 +96,66 @@ export function HomeScreen() {
     }
   };
 
+  const getPreferenceScore = (entry: RaceEntry) => {
+    let score = 0;
+    const { preferredSurface, preferredDistance } = settings.preferences;
+
+    if (preferredSurface !== "any" && entry.surface === preferredSurface) {
+      score += 1;
+    }
+
+    if (preferredDistance !== "any") {
+      const d = entry.distance;
+      const cat = d <= 5 ? "short" : d <= 12 ? "medium" : "long";
+      if (cat === preferredDistance) {
+        score += 1;
+      }
+    }
+
+    return score;
+  };
+
+  const hasActivePreferences =
+    settings.preferences.preferredSurface !== "any" ||
+    settings.preferences.preferredDistance !== "any";
+
+  // Sort board entries based on preference score
+  const sortedEntries = [...board.entries].sort((a, b) => {
+    const scoreA = getPreferenceScore(a);
+    const scoreB = getPreferenceScore(b);
+    return scoreB - scoreA;
+  });
+
+  const maxScore = Math.max(...sortedEntries.map(getPreferenceScore));
   const isBoardCompleted = boardStatus?.completedEntryId !== null;
 
   return (
     <div className="min-h-screen bg-[#FFFDF8] flex flex-col pb-12">
       {/* Header */}
-      <header className="px-6 pt-10 pb-4">
-        <p className="text-sm font-medium text-gray-400 uppercase tracking-widest mb-1">
-          RunQuest
-        </p>
-        <h1 className="text-3xl font-bold text-gray-900 font-heading">
-          {isBoardCompleted
-            ? t("home.completed" as TranslationKey)
-            : t("home.title" as TranslationKey)}
-        </h1>
-        <p className="text-sm text-gray-500 mt-1">
-          {isBoardCompleted
-            ? t("home.completed_subtitle" as TranslationKey)
-            : t("home.subtitle" as TranslationKey)}
-        </p>
+      <header className="px-6 pt-10 pb-4 flex justify-between items-start">
+        <div>
+          <p className="text-sm font-medium text-gray-400 uppercase tracking-widest mb-1">
+            RunQuest
+          </p>
+          <h1 className="text-3xl font-bold text-gray-900 font-heading">
+            {isBoardCompleted
+              ? t("home.completed" as TranslationKey)
+              : t("home.title" as TranslationKey)}
+          </h1>
+          <p className="text-sm text-gray-500 mt-1">
+            {isBoardCompleted
+              ? t("home.completed_subtitle" as TranslationKey)
+              : t("home.subtitle" as TranslationKey)}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => router.push("/settings")}
+          className="rounded-full p-2.5 bg-white border-2 border-[#E5E7EB] hover:bg-gray-50 text-gray-700 shadow-sm transition-all active:scale-95 mt-2"
+          aria-label="Settings"
+        >
+          <Settings className="h-5 w-5" />
+        </button>
       </header>
 
       {/* Main Container */}
@@ -177,7 +221,7 @@ export function HomeScreen() {
 
         {/* Race Entries List */}
         <div className="flex flex-col gap-4">
-          {board.entries.map((entry) => {
+          {sortedEntries.map((entry) => {
             const isCompleted =
               boardStatus?.completedEntryId === entry.scenario.id;
             const isSelected =
@@ -186,6 +230,10 @@ export function HomeScreen() {
               !isCompleted &&
               !isSelected &&
               boardStatus?.entriesRemaining === 0;
+
+            const score = getPreferenceScore(entry);
+            const isRecommended =
+              hasActivePreferences && maxScore > 0 && score === maxScore;
 
             let buttonText = "Choose Race";
             let buttonStyle = "bg-blue-600 hover:bg-blue-700 text-white";
@@ -207,15 +255,13 @@ export function HomeScreen() {
             return (
               <div
                 key={entry.id}
-                className={`bg-white rounded-3xl border-2 border-[#E5E7EB] shadow-sm p-6 flex flex-col gap-4 transition-all duration-205 ${
-                  isLocked
-                    ? "opacity-60"
-                    : "hover:border-blue-500/50 hover:shadow-md"
-                }`}
+                className={`bg-white rounded-3xl border-2 shadow-sm p-6 flex flex-col gap-4 transition-all duration-200 ${
+                  isLocked ? "opacity-60" : "hover:shadow-md"
+                } ${isRecommended ? "border-amber-300 ring-2 ring-amber-100" : "border-[#E5E7EB]"}`}
               >
                 {/* Badges */}
                 <div className="flex items-center justify-between">
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center">
                     <span
                       className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border ${getCategoryColor(
                         entry.category,
@@ -226,6 +272,12 @@ export function HomeScreen() {
                     <span className="text-[10px] font-bold text-gray-450 bg-gray-50 border border-gray-100 rounded-full px-2.5 py-1">
                       {entry.surface.toUpperCase()}
                     </span>
+                    {isRecommended && (
+                      <span className="inline-flex items-center gap-0.5 text-[9px] font-black text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5 uppercase tracking-wide">
+                        <Sparkles className="h-2.5 w-2.5 text-amber-550 fill-amber-500" />{" "}
+                        Recommended
+                      </span>
+                    )}
                   </div>
                   {renderStars(entry.difficulty)}
                 </div>

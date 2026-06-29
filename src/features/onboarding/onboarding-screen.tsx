@@ -49,6 +49,10 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
         language: "en",
         reducedMotion: false,
         sound: true,
+        preferences: {
+          preferredSurface: "any",
+          preferredDistance: "any",
+        },
       });
       onComplete();
     }

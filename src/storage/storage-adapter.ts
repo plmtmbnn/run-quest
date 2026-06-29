@@ -60,6 +60,7 @@ export const storageAdapter = {
       "runquest.settings",
       "runquest.history",
       "runquest.daily",
+      "runquest.board",
       "runquest.cache",
     ];
     for (const key of keysToRemove) {

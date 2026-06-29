@@ -40,6 +40,12 @@ export const StoredSettingsSchema = z.object({
   language: z.enum(["en", "id"]),
   reducedMotion: z.boolean(),
   sound: z.boolean(),
+  preferences: z
+    .object({
+      preferredSurface: z.enum(["road", "trail", "track", "any"]),
+      preferredDistance: z.enum(["short", "medium", "long", "any"]),
+    })
+    .default({ preferredSurface: "any", preferredDistance: "any" }),
 });
 
 /**
