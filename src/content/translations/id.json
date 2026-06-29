@@ -15,5 +15,116 @@
     "subtitle": "Kamu bisa mengubah ini nanti di pengaturan.",
     "english": "English",
     "indonesian": "Bahasa Indonesia"
+  },
+  "preparation": {
+    "title": "Persiapan",
+    "subtitle": "Pilih strategi dan peralatanmu",
+    "ready": "Siap Berlomba",
+    "shoes": {
+      "title": "Sepatu",
+      "daily_trainer": {
+        "name": "Daily Trainer",
+        "desc": "Seimbang dan tahan lama. Kecepatan standar, kelelahan normal."
+      },
+      "carbon_racer": {
+        "name": "Carbon Racer",
+        "desc": "Sangat cepat tetapi meningkatkan kelelahan otot."
+      },
+      "lightweight": {
+        "name": "Lightweight Trainer",
+        "desc": "Ringan untuk kecepatan lebih cepat, kenyamanan sedang."
+      },
+      "trail": {
+        "name": "Trail Shoes",
+        "desc": "Cengkeraman luar biasa di medan trail, lebih lambat di jalan raya."
+      }
+    },
+    "nutrition": {
+      "title": "Nutrisi",
+      "water": {
+        "name": "Air Putih",
+        "desc": "Hidrasi penting. Bagus untuk kondisi standar."
+      },
+      "electrolyte": {
+        "name": "Elektrolit",
+        "desc": "Sangat baik untuk cuaca panas. Mencegah kram."
+      },
+      "energy_gel": {
+        "name": "Gel Energi",
+        "desc": "Dorongan energi tinggi, kurang membantu hidrasi."
+      },
+      "none": {
+        "name": "Tanpa Nutrisi",
+        "desc": "Risiko dehidrasi dan energi rendah."
+      }
+    },
+    "gear": {
+      "title": "Perlengkapan (Opsional)",
+      "cap": {
+        "name": "Topi",
+        "desc": "Melindungi dari panas dan hujan ringan."
+      },
+      "sunglasses": {
+        "name": "Kacamata Hitam",
+        "desc": "Mengurangi silau di bawah terik matahari."
+      },
+      "arm_sleeves": {
+        "name": "Arm Sleeves",
+        "desc": "Memberikan kehangatan dalam kondisi dingin."
+      },
+      "hydration_vest": {
+        "name": "Hydration Vest",
+        "desc": "Kapasitas air ekstra. Sedikit meningkatkan kelelahan."
+      }
+    },
+    "warmup": {
+      "title": "Pemanasan",
+      "none": {
+        "name": "Tidak Ada",
+        "desc": "Menghemat energi tetapi meningkatkan risiko cedera dini."
+      },
+      "dynamic": {
+        "name": "Pemanasan Dinamis",
+        "desc": "Mempersiapkan otot, pendekatan seimbang."
+      },
+      "full": {
+        "name": "Rutinitas Lengkap",
+        "desc": "Kesiapan puncak, memakan sedikit energi awal."
+      }
+    },
+    "pacing": {
+      "title": "Rencana Kecepatan",
+      "negative_split": {
+        "name": "Negative Split",
+        "desc": "Mulai lambat, selesai kuat. Aman dan efisien."
+      },
+      "steady": {
+        "name": "Kecepatan Konstan",
+        "desc": "Pertahankan kecepatan konstan. Hasil yang dapat diprediksi."
+      },
+      "aggressive": {
+        "name": "Agresif",
+        "desc": "Dorong keras sejak awal. Risiko tinggi, imbalan tinggi."
+      },
+      "conservative": {
+        "name": "Konservatif",
+        "desc": "Hemat energi, tetap nyaman. Selesai dengan aman."
+      }
+    },
+    "mindset": {
+      "title": "Pola Pikir",
+      "calm": {
+        "name": "Tenang",
+        "desc": "Menjaga detak jantung tetap rendah. Menahan panik."
+      },
+      "confident": {
+        "name": "Percaya Diri",
+        "desc": "Meningkatkan performa saat berlari dengan baik."
+      },
+      "fearless": {
+        "name": "Tanpa Rasa Takut",
+        "desc": "Mengabaikan rasa lelah. Dapat menyebabkan pemaksaan berlebih."
+      }
+    }
   }
 }

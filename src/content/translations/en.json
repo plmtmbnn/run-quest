@@ -15,5 +15,116 @@
     "subtitle": "You can change this later in settings.",
     "english": "English",
     "indonesian": "Bahasa Indonesia"
+  },
+  "preparation": {
+    "title": "Preparation",
+    "subtitle": "Choose your strategy and equipment",
+    "ready": "Ready to Race",
+    "shoes": {
+      "title": "Shoes",
+      "daily_trainer": {
+        "name": "Daily Trainer",
+        "desc": "Balanced and durable. Standard pace, normal fatigue."
+      },
+      "carbon_racer": {
+        "name": "Carbon Racer",
+        "desc": "Extremely fast but increases muscle fatigue."
+      },
+      "lightweight": {
+        "name": "Lightweight Trainer",
+        "desc": "Lightweight for faster pacing, moderate comfort."
+      },
+      "trail": {
+        "name": "Trail Shoes",
+        "desc": "Excellent grip on trails, slower on road."
+      }
+    },
+    "nutrition": {
+      "title": "Nutrition",
+      "water": {
+        "name": "Water",
+        "desc": "Essential hydration. Good for standard conditions."
+      },
+      "electrolyte": {
+        "name": "Electrolytes",
+        "desc": "Excellent for hot weather. Prevents cramping."
+      },
+      "energy_gel": {
+        "name": "Energy Gel",
+        "desc": "High energy boost, doesn't help hydration much."
+      },
+      "none": {
+        "name": "No Nutrition",
+        "desc": "Risk of dehydration and low energy."
+      }
+    },
+    "gear": {
+      "title": "Gear (Optional)",
+      "cap": {
+        "name": "Cap",
+        "desc": "Protects from heat and light rain."
+      },
+      "sunglasses": {
+        "name": "Sunglasses",
+        "desc": "Reduces glare under bright sun."
+      },
+      "arm_sleeves": {
+        "name": "Arm Sleeves",
+        "desc": "Provides warmth in cool conditions."
+      },
+      "hydration_vest": {
+        "name": "Hydration Vest",
+        "desc": "Extra water capacity. Increases fatigue slightly."
+      }
+    },
+    "warmup": {
+      "title": "Warm-up",
+      "none": {
+        "name": "None",
+        "desc": "Saves energy but increases early injury risk."
+      },
+      "dynamic": {
+        "name": "Dynamic Warm-up",
+        "desc": "Prepares muscles, balanced approach."
+      },
+      "full": {
+        "name": "Full Routine",
+        "desc": "Peak readiness, consumes a bit of initial energy."
+      }
+    },
+    "pacing": {
+      "title": "Pacing Plan",
+      "negative_split": {
+        "name": "Negative Split",
+        "desc": "Start slow, finish strong. Safe and efficient."
+      },
+      "steady": {
+        "name": "Steady Pace",
+        "desc": "Maintain constant speed. Predictable outcome."
+      },
+      "aggressive": {
+        "name": "Aggressive",
+        "desc": "Push hard from the start. High risk, high reward."
+      },
+      "conservative": {
+        "name": "Conservative",
+        "desc": "Save energy, stay comfortable. Safe completion."
+      }
+    },
+    "mindset": {
+      "title": "Mindset",
+      "calm": {
+        "name": "Calm",
+        "desc": "Keeps heart rate low. Resists panic."
+      },
+      "confident": {
+        "name": "Confident",
+        "desc": "Boosts performance when running well."
+      },
+      "fearless": {
+        "name": "Fearless",
+        "desc": "Ignores fatigue. May cause over-exertion."
+      }
+    }
   }
 }

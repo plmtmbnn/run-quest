@@ -1,47 +1,38 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { HomeScreen } from "@/features/home/home-screen";
 import { LanguageSelectionScreen } from "@/features/language/language-selection-screen";
-import { useSettingsStore } from "@/store/settings-store";
+
+type AppScreen = "loading" | "language" | "home";
 
 /**
- * Root page — routes the player to the correct screen based on state:
- * - No language set → Language Selection Screen
- * - Language set → Home Screen
+ * Root page — routes the player to the correct screen.
+ *
+ * Rendering is deferred to the client to avoid SSR/hydration mismatches
+ * when reading from LocalStorage. We show nothing until the stores have
+ * been initialized by AppProvider's useEffect.
  */
 export default function Page() {
-  const settings = useSettingsStore((state) => state.settings);
+  const [screen, setScreen] = useState<AppScreen>("loading");
 
-  // During SSR / before hydration, settings has the default value (language: "en").
-  // We use a sentinel: if the settings have never been explicitly saved, the
-  // storage key won't exist yet — but since we can't check localStorage during SSR,
-  // we rely on the AppProvider to have called initializeSettings, which sets language
-  // only if it exists in storage. A null player signals first visit.
-  //
-  // For Phase 0 simplicity: always show language screen if language was never persisted.
-  // The AppProvider runs initializeSettings on mount; until then we render nothing
-  // to avoid flicker.
+  useEffect(() => {
+    // After hydration, check whether the player has previously saved settings.
+    const hasSavedSettings =
+      globalThis.localStorage?.getItem("runquest.settings") !== null;
 
-  return (
-    <>
-      {settings.language === "en" && !hasPersistedLanguage() ? (
-        <LanguageSelectionScreen onComplete={() => {}} />
-      ) : (
-        <HomeScreen />
-      )}
-    </>
-  );
-}
+    setScreen(hasSavedSettings ? "home" : "language");
+  }, []);
 
-/**
- * Check whether the player has previously selected a language.
- * Only called client-side (guarded by "use client").
- */
-function hasPersistedLanguage(): boolean {
-  try {
-    const raw = globalThis.localStorage?.getItem("runquest.settings");
-    return raw !== null;
-  } catch {
-    return false;
+  if (screen === "loading") {
+    // Render nothing until the client has checked localStorage.
+    // This avoids the SSR/client hydration mismatch.
+    return null;
   }
+
+  if (screen === "language") {
+    return <LanguageSelectionScreen onComplete={() => setScreen("home")} />;
+  }
+
+  return <HomeScreen />;
 }

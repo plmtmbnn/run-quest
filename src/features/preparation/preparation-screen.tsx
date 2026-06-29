@@ -1,0 +1,617 @@
+"use client";
+
+import {
+  ArrowLeft,
+  Clock,
+  Flame,
+  Info,
+  MapPin,
+  Sparkles,
+  Wind,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import type { TranslationKey } from "@/i18n/use-translation";
+import { useTranslation } from "@/i18n/use-translation";
+import { usePreparationStore } from "@/store/preparation-store";
+
+export function PreparationScreen() {
+  const router = useRouter();
+  const { t } = useTranslation();
+  const {
+    preparation,
+    setShoes,
+    setNutrition,
+    toggleGear,
+    setWarmup,
+    setPacing,
+    setMindset,
+  } = usePreparationStore();
+
+  const handleStartSimulation = () => {
+    // Navigate to simulation / race screen in future sprint
+    router.push("/race");
+  };
+
+  return (
+    <div className="min-h-screen bg-[#FFFDF8] pb-24 text-gray-900">
+      {/* Header */}
+      <header className="sticky top-0 z-10 border-b border-[#E5E7EB] bg-[#FFFDF8]/90 px-6 py-4 backdrop-blur-md">
+        <div className="mx-auto flex max-w-5xl items-center gap-4">
+          <button
+            id="back-to-home"
+            type="button"
+            onClick={() => router.back()}
+            className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#E5E7EB] bg-white transition-all duration-200 hover:border-blue-500 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            aria-label="Go back"
+          >
+            <ArrowLeft className="h-4 w-4 text-gray-600" />
+          </button>
+          <div>
+            <h1 className="font-heading text-2xl font-bold text-gray-900">
+              {t("preparation.title" as TranslationKey)}
+            </h1>
+            <p className="text-xs text-gray-500">
+              {t("preparation.subtitle" as TranslationKey)}
+            </p>
+          </div>
+        </div>
+      </header>
+
+      <main className="mx-auto grid max-w-5xl gap-8 px-6 py-6 lg:grid-cols-[1fr_320px]">
+        {/* Left Side: Preparation Options */}
+        <div className="flex flex-col gap-10">
+          {/* Category: Shoes */}
+          <section className="flex flex-col gap-4">
+            <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-2">
+              <span className="text-xl">👟</span>
+              <h2 className="font-heading text-lg font-bold text-gray-800">
+                {t("preparation.shoes.title" as TranslationKey)}
+              </h2>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <OptionCard
+                id="shoe-daily"
+                selected={preparation.shoes === "daily_trainer"}
+                onClick={() => setShoes("daily_trainer")}
+                title={t(
+                  "preparation.shoes.daily_trainer.name" as TranslationKey,
+                )}
+                desc={t(
+                  "preparation.shoes.daily_trainer.desc" as TranslationKey,
+                )}
+                badges={[
+                  { text: "⚖️ Balanced", color: "bg-gray-100 text-gray-700" },
+                ]}
+              />
+              <OptionCard
+                id="shoe-carbon"
+                selected={preparation.shoes === "carbon_racer"}
+                onClick={() => setShoes("carbon_racer")}
+                title={t(
+                  "preparation.shoes.carbon_racer.name" as TranslationKey,
+                )}
+                desc={t(
+                  "preparation.shoes.carbon_racer.desc" as TranslationKey,
+                )}
+                badges={[
+                  {
+                    text: "⚡ + Pace",
+                    color: "bg-emerald-100 text-emerald-800",
+                  },
+                  { text: "⚠️ + Fatigue", color: "bg-red-100 text-red-800" },
+                ]}
+              />
+              <OptionCard
+                id="shoe-lightweight"
+                selected={preparation.shoes === "lightweight"}
+                onClick={() => setShoes("lightweight")}
+                title={t(
+                  "preparation.shoes.lightweight.name" as TranslationKey,
+                )}
+                desc={t("preparation.shoes.lightweight.desc" as TranslationKey)}
+                badges={[
+                  { text: "🏃 Lightweight", color: "bg-sky-100 text-sky-800" },
+                  { text: "📉 Comfort", color: "bg-amber-100 text-amber-800" },
+                ]}
+              />
+              <OptionCard
+                id="shoe-trail"
+                selected={preparation.shoes === "trail"}
+                onClick={() => setShoes("trail")}
+                title={t("preparation.shoes.trail.name" as TranslationKey)}
+                desc={t("preparation.shoes.trail.desc" as TranslationKey)}
+                badges={[
+                  {
+                    text: "🥾 + Trail Grip",
+                    color: "bg-orange-100 text-orange-800",
+                  },
+                  {
+                    text: "🐢 - Road Speed",
+                    color: "bg-amber-100 text-amber-700",
+                  },
+                ]}
+              />
+            </div>
+          </section>
+
+          {/* Category: Nutrition */}
+          <section className="flex flex-col gap-4">
+            <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-2">
+              <span className="text-xl">🥤</span>
+              <h2 className="font-heading text-lg font-bold text-gray-800">
+                {t("preparation.nutrition.title" as TranslationKey)}
+              </h2>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <OptionCard
+                id="nutr-water"
+                selected={preparation.nutrition === "water"}
+                onClick={() => setNutrition("water")}
+                title={t("preparation.nutrition.water.name" as TranslationKey)}
+                desc={t("preparation.nutrition.water.desc" as TranslationKey)}
+                badges={[
+                  { text: "💧 Hydration", color: "bg-blue-100 text-blue-800" },
+                ]}
+              />
+              <OptionCard
+                id="nutr-elect"
+                selected={preparation.nutrition === "electrolyte"}
+                onClick={() => setNutrition("electrolyte")}
+                title={t(
+                  "preparation.nutrition.electrolyte.name" as TranslationKey,
+                )}
+                desc={t(
+                  "preparation.nutrition.electrolyte.desc" as TranslationKey,
+                )}
+                badges={[
+                  {
+                    text: "🧪 Optimal Hydration",
+                    color: "bg-teal-100 text-teal-800",
+                  },
+                  {
+                    text: "☀️ Heat Protection",
+                    color: "bg-amber-100 text-amber-800",
+                  },
+                ]}
+              />
+              <OptionCard
+                id="nutr-gel"
+                selected={preparation.nutrition === "energy_gel"}
+                onClick={() => setNutrition("energy_gel")}
+                title={t(
+                  "preparation.nutrition.energy_gel.name" as TranslationKey,
+                )}
+                desc={t(
+                  "preparation.nutrition.energy_gel.desc" as TranslationKey,
+                )}
+                badges={[
+                  {
+                    text: "💥 High Energy",
+                    color: "bg-yellow-100 text-yellow-800",
+                  },
+                  {
+                    text: "🥵 Dry Mouth Risk",
+                    color: "bg-orange-100 text-orange-800",
+                  },
+                ]}
+              />
+              <OptionCard
+                id="nutr-none"
+                selected={preparation.nutrition === "none"}
+                onClick={() => setNutrition("none")}
+                title={t("preparation.nutrition.none.name" as TranslationKey)}
+                desc={t("preparation.nutrition.none.desc" as TranslationKey)}
+                badges={[
+                  {
+                    text: "💀 High Dehydration",
+                    color: "bg-rose-100 text-rose-800",
+                  },
+                ]}
+              />
+            </div>
+          </section>
+
+          {/* Category: Gear */}
+          <section className="flex flex-col gap-4">
+            <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-2">
+              <span className="text-xl">🎒</span>
+              <h2 className="font-heading text-lg font-bold text-gray-800">
+                {t("preparation.gear.title" as TranslationKey)}
+              </h2>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <OptionCard
+                id="gear-cap"
+                selected={preparation.gear.includes("cap")}
+                onClick={() => toggleGear("cap")}
+                title={t("preparation.gear.cap.name" as TranslationKey)}
+                desc={t("preparation.gear.cap.desc" as TranslationKey)}
+                badges={[
+                  {
+                    text: "🧢 Sun/Rain",
+                    color: "bg-indigo-100 text-indigo-800",
+                  },
+                ]}
+                isMultiSelect
+              />
+              <OptionCard
+                id="gear-glasses"
+                selected={preparation.gear.includes("sunglasses")}
+                onClick={() => toggleGear("sunglasses")}
+                title={t("preparation.gear.sunglasses.name" as TranslationKey)}
+                desc={t("preparation.gear.sunglasses.desc" as TranslationKey)}
+                badges={[
+                  {
+                    text: "🕶️ Glare Block",
+                    color: "bg-purple-100 text-purple-800",
+                  },
+                ]}
+                isMultiSelect
+              />
+              <OptionCard
+                id="gear-sleeves"
+                selected={preparation.gear.includes("arm_sleeves")}
+                onClick={() => toggleGear("arm_sleeves")}
+                title={t("preparation.gear.arm_sleeves.name" as TranslationKey)}
+                desc={t("preparation.gear.arm_sleeves.desc" as TranslationKey)}
+                badges={[
+                  { text: "🧣 Warmth", color: "bg-pink-100 text-pink-800" },
+                ]}
+                isMultiSelect
+              />
+              <OptionCard
+                id="gear-vest"
+                selected={preparation.gear.includes("hydration_vest")}
+                onClick={() => toggleGear("hydration_vest")}
+                title={t(
+                  "preparation.gear.hydration_vest.name" as TranslationKey,
+                )}
+                desc={t(
+                  "preparation.gear.hydration_vest.desc" as TranslationKey,
+                )}
+                badges={[
+                  { text: "🎒 Capacity", color: "bg-cyan-100 text-cyan-800" },
+                  { text: "⚖️ Heavy", color: "bg-gray-100 text-gray-700" },
+                ]}
+                isMultiSelect
+              />
+            </div>
+          </section>
+
+          {/* Category: Warmup */}
+          <section className="flex flex-col gap-4">
+            <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-2">
+              <span className="text-xl">🧘</span>
+              <h2 className="font-heading text-lg font-bold text-gray-800">
+                {t("preparation.warmup.title" as TranslationKey)}
+              </h2>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <OptionCard
+                id="warm-none"
+                selected={preparation.warmup === "none"}
+                onClick={() => setWarmup("none")}
+                title={t("preparation.warmup.none.name" as TranslationKey)}
+                desc={t("preparation.warmup.none.desc" as TranslationKey)}
+                badges={[
+                  { text: "🛌 Cold Start", color: "bg-gray-100 text-gray-700" },
+                ]}
+              />
+              <OptionCard
+                id="warm-dynamic"
+                selected={preparation.warmup === "dynamic"}
+                onClick={() => setWarmup("dynamic")}
+                title={t("preparation.warmup.dynamic.name" as TranslationKey)}
+                desc={t("preparation.warmup.dynamic.desc" as TranslationKey)}
+                badges={[
+                  { text: "⚖️ Optimal", color: "bg-green-100 text-green-800" },
+                ]}
+              />
+              <OptionCard
+                id="warm-full"
+                selected={preparation.warmup === "full"}
+                onClick={() => setWarmup("full")}
+                title={t("preparation.warmup.full.name" as TranslationKey)}
+                desc={t("preparation.warmup.full.desc" as TranslationKey)}
+                badges={[
+                  {
+                    text: "🔥 High Readiness",
+                    color: "bg-orange-100 text-orange-800",
+                  },
+                  { text: "🔋 Energy Cost", color: "bg-red-100 text-red-800" },
+                ]}
+              />
+            </div>
+          </section>
+
+          {/* Category: Pacing */}
+          <section className="flex flex-col gap-4">
+            <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-2">
+              <span className="text-xl">📉</span>
+              <h2 className="font-heading text-lg font-bold text-gray-800">
+                {t("preparation.pacing.title" as TranslationKey)}
+              </h2>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <OptionCard
+                id="pace-neg"
+                selected={preparation.pacing === "negative_split"}
+                onClick={() => setPacing("negative_split")}
+                title={t(
+                  "preparation.pacing.negative_split.name" as TranslationKey,
+                )}
+                desc={t(
+                  "preparation.pacing.negative_split.desc" as TranslationKey,
+                )}
+                badges={[
+                  {
+                    text: "🧠 Strategic",
+                    color: "bg-emerald-100 text-emerald-800",
+                  },
+                ]}
+              />
+              <OptionCard
+                id="pace-steady"
+                selected={preparation.pacing === "steady"}
+                onClick={() => setPacing("steady")}
+                title={t("preparation.pacing.steady.name" as TranslationKey)}
+                desc={t("preparation.pacing.steady.desc" as TranslationKey)}
+                badges={[
+                  { text: "⏱️ Rhythm", color: "bg-blue-100 text-blue-800" },
+                ]}
+              />
+              <OptionCard
+                id="pace-aggressive"
+                selected={preparation.pacing === "aggressive"}
+                onClick={() => setPacing("aggressive")}
+                title={t(
+                  "preparation.pacing.aggressive.name" as TranslationKey,
+                )}
+                desc={t("preparation.pacing.aggressive.desc" as TranslationKey)}
+                badges={[
+                  {
+                    text: "🚀 Fast Start",
+                    color: "bg-amber-100 text-amber-800",
+                  },
+                  {
+                    text: "💀 High DNF Risk",
+                    color: "bg-rose-100 text-rose-800",
+                  },
+                ]}
+              />
+              <OptionCard
+                id="pace-conservative"
+                selected={preparation.pacing === "conservative"}
+                onClick={() => setPacing("conservative")}
+                title={t(
+                  "preparation.pacing.conservative.name" as TranslationKey,
+                )}
+                desc={t(
+                  "preparation.pacing.conservative.desc" as TranslationKey,
+                )}
+                badges={[
+                  { text: "🛡️ Ultra Safe", color: "bg-gray-100 text-gray-700" },
+                ]}
+              />
+            </div>
+          </section>
+
+          {/* Category: Mindset */}
+          <section className="flex flex-col gap-4">
+            <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-2">
+              <span className="text-xl">🧠</span>
+              <h2 className="font-heading text-lg font-bold text-gray-800">
+                {t("preparation.mindset.title" as TranslationKey)}
+              </h2>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <OptionCard
+                id="mind-calm"
+                selected={preparation.mindset === "calm"}
+                onClick={() => setMindset("calm")}
+                title={t("preparation.mindset.calm.name" as TranslationKey)}
+                desc={t("preparation.mindset.calm.desc" as TranslationKey)}
+                badges={[
+                  { text: "🧘 Low Stress", color: "bg-blue-100 text-blue-800" },
+                ]}
+              />
+              <OptionCard
+                id="mind-confident"
+                selected={preparation.mindset === "confident"}
+                onClick={() => setMindset("confident")}
+                title={t(
+                  "preparation.mindset.confident.name" as TranslationKey,
+                )}
+                desc={t("preparation.mindset.confident.desc" as TranslationKey)}
+                badges={[
+                  {
+                    text: "⭐ Morale Up",
+                    color: "bg-yellow-100 text-yellow-800",
+                  },
+                ]}
+              />
+              <OptionCard
+                id="mind-fearless"
+                selected={preparation.mindset === "fearless"}
+                onClick={() => setMindset("fearless")}
+                title={t("preparation.mindset.fearless.name" as TranslationKey)}
+                desc={t("preparation.mindset.fearless.desc" as TranslationKey)}
+                badges={[
+                  { text: "🔥 Ignore Pain", color: "bg-red-100 text-red-800" },
+                  {
+                    text: "⚠️ Crash Risk",
+                    color: "bg-orange-100 text-orange-800",
+                  },
+                ]}
+              />
+            </div>
+          </section>
+        </div>
+
+        {/* Right Side: Sticky Race briefing and CTA */}
+        <div className="flex flex-col gap-6 lg:sticky lg:top-24 lg:h-[fit-content]">
+          {/* Race Conditions Summary */}
+          <div className="rounded-3xl border-2 border-[#E5E7EB] bg-white p-6 shadow-sm">
+            <h3 className="font-heading font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Info className="h-4 w-4 text-blue-500" />
+              Conditions
+            </h3>
+            <div className="flex flex-col gap-4 text-sm">
+              <div>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                  Race
+                </p>
+                <p className="font-bold text-gray-800">Morning Tempo</p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-gray-400" />
+                  <div>
+                    <p className="text-[10px] text-gray-400 uppercase">
+                      Distance
+                    </p>
+                    <p className="font-semibold text-gray-700">21.1 km</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Flame className="h-4 w-4 text-gray-400" />
+                  <div>
+                    <p className="text-[10px] text-gray-400 uppercase">
+                      Weather
+                    </p>
+                    <p className="font-semibold text-gray-700">Hot 31°C</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Wind className="h-4 w-4 text-gray-400" />
+                  <div>
+                    <p className="text-[10px] text-gray-400 uppercase">
+                      Surface
+                    </p>
+                    <p className="font-semibold text-gray-700">Road</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-gray-400" />
+                  <div>
+                    <p className="text-[10px] text-gray-400 uppercase">
+                      Target
+                    </p>
+                    <p className="font-semibold text-gray-700">&lt; 2h</p>
+                  </div>
+                </div>
+              </div>
+              <div className="border-t border-[#E5E7EB] pt-3 text-xs text-amber-600 bg-amber-50 rounded-2xl p-3 flex items-start gap-2">
+                <Sparkles className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                <p>
+                  Tip: It is hot. Hydration like electrolytes and protective
+                  gear like a cap are highly advised.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Sticky ready CTA */}
+          <div className="rounded-3xl border-2 border-[#E5E7EB] bg-white p-6 shadow-[0_8px_24px_rgba(0,0,0,0.05)]">
+            <button
+              id="ready-race-cta"
+              type="button"
+              onClick={handleStartSimulation}
+              className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold text-base py-4 rounded-full transition-all duration-200 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 flex items-center justify-center gap-2"
+            >
+              {t("preparation.ready" as TranslationKey)} →
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+interface BadgeProp {
+  text: string;
+  color: string;
+}
+
+interface OptionCardProps {
+  id: string;
+  selected: boolean;
+  onClick: () => void;
+  title: string;
+  desc: string;
+  badges?: BadgeProp[];
+  isMultiSelect?: boolean;
+}
+
+function OptionCard({
+  id,
+  selected,
+  onClick,
+  title,
+  desc,
+  badges = [],
+  isMultiSelect = false,
+}: OptionCardProps) {
+  return (
+    <button
+      id={id}
+      type="button"
+      onClick={onClick}
+      className={`group relative flex w-full flex-col text-left bg-white rounded-2xl border-2 p-5 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 active:scale-[0.99] ${
+        selected
+          ? "border-blue-500 shadow-md ring-1 ring-blue-500"
+          : "border-[#E5E7EB] hover:border-blue-300 hover:shadow-sm"
+      }`}
+    >
+      <div className="flex w-full items-start justify-between mb-2">
+        <h3 className="font-heading font-semibold text-gray-900 leading-snug group-hover:text-blue-600 transition-colors duration-150">
+          {title}
+        </h3>
+        {/* Selection indicator */}
+        <div
+          className={`flex h-5 w-5 flex-shrink-0 items-center justify-center border-2 transition-all ${
+            isMultiSelect ? "rounded-md" : "rounded-full"
+          } ${
+            selected
+              ? "border-blue-500 bg-blue-500 text-white"
+              : "border-gray-300 bg-white group-hover:border-blue-400"
+          }`}
+        >
+          {selected && (
+            <svg
+              className="h-3 w-3"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              viewBox="0 0 24 24"
+              role="img"
+              aria-label="Checked"
+            >
+              <title>Checked</title>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          )}
+        </div>
+      </div>
+      <p className="text-xs text-gray-500 leading-relaxed mb-4 flex-grow">
+        {desc}
+      </p>
+      {badges.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mt-auto">
+          {badges.map((badge) => (
+            <span
+              key={badge.text}
+              className={`rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase ${badge.color}`}
+            >
+              {badge.text}
+            </span>
+          ))}
+        </div>
+      )}
+    </button>
+  );
+}

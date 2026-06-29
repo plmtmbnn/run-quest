@@ -1,6 +1,7 @@
 "use client";
 
 import { Clock, Flame, MapPin, Wind } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useTranslation } from "@/i18n/use-translation";
 import { usePlayerStore } from "@/store/player-store";
 
@@ -8,6 +9,7 @@ import { usePlayerStore } from "@/store/player-store";
  * Home screen — shows today's daily challenge summary and primary CTA.
  */
 export function HomeScreen() {
+  const router = useRouter();
   const { t } = useTranslation();
   const player = usePlayerStore((state) => state.player);
 
@@ -72,6 +74,7 @@ export function HomeScreen() {
           <button
             id="start-race-cta"
             type="button"
+            onClick={() => router.push("/preparation")}
             className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold text-base py-4 rounded-full transition-all duration-200 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
           >
             {t("common.start")} Today&apos;s Race
