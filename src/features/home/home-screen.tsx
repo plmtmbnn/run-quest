@@ -24,6 +24,7 @@ export function HomeScreen() {
   const board = generateDailyRaceBoard(todayStr);
 
   const [boardStatus, setBoardStatus] = useState<StoredDailyBoard | null>(null);
+  const [secondsLeft, setSecondsLeft] = useState(0);
 
   useEffect(() => {
     let status = storageRepository.loadDailyBoard();
@@ -39,6 +40,33 @@ export function HomeScreen() {
     }
     setBoardStatus(status);
   }, [todayStr]);
+
+  // Countdown timer logic
+  useEffect(() => {
+    const getSecondsUntilMidnight = () => {
+      const now = new Date();
+      const midnight = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() + 1,
+        0,
+        0,
+        0,
+      );
+      return Math.max(
+        0,
+        Math.floor((midnight.getTime() - now.getTime()) / 1000),
+      );
+    };
+
+    setSecondsLeft(getSecondsUntilMidnight());
+
+    const timer = setInterval(() => {
+      setSecondsLeft(getSecondsUntilMidnight());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const handleSelectRace = (entry: RaceEntry) => {
     if (!boardStatus) return;
@@ -64,6 +92,13 @@ export function HomeScreen() {
       return `${hrs}h ${mins}m`;
     }
     return `${mins}m`;
+  };
+
+  const formatCountdown = (secs: number) => {
+    const h = Math.floor(secs / 3600);
+    const m = Math.floor((secs % 3600) / 60);
+    const s = secs % 60;
+    return `${h.toString().padStart(2, "0")}h ${m.toString().padStart(2, "0")}m ${s.toString().padStart(2, "0")}s`;
   };
 
   const renderStars = (difficulty: number) => {
@@ -206,6 +241,21 @@ export function HomeScreen() {
                 </span>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Countdown Timer for Daily Reset */}
+        {isBoardCompleted && (
+          <div className="bg-white border-2 border-amber-300 rounded-3xl p-6 shadow-sm flex flex-col items-center gap-3 text-center border-dashed">
+            <span className="text-xs uppercase font-extrabold tracking-widest text-amber-700 bg-amber-50 px-3.5 py-1 rounded-full animate-pulse">
+              {t("home.next_race_in" as TranslationKey)}
+            </span>
+            <span className="text-3xl font-black font-heading text-slate-850 tracking-tight">
+              {formatCountdown(secondsLeft)}
+            </span>
+            <p className="text-xs text-gray-500 max-w-xs leading-relaxed">
+              {t("home.countdown_desc" as TranslationKey)}
+            </p>
           </div>
         )}
 

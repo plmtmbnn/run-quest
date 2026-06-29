@@ -23,7 +23,9 @@
     "resume_race": "Lanjutkan Balapan →",
     "completed_badge": "✓ Selesai",
     "locked": "🔒 Terkunci",
-    "target_time": "Target Waktu"
+    "target_time": "Target Waktu",
+    "next_race_in": "Balapan berikutnya dalam:",
+    "countdown_desc": "Kembali lagi besok untuk rangkaian tantangan balapan baru!"
   },
   "history": {
     "title": "Riwayat Balapan",
@@ -45,6 +47,26 @@
     "subtitle": "Kamu bisa mengubah ini nanti di pengaturan.",
     "english": "English",
     "indonesian": "Bahasa Indonesia"
+  },
+  "onboarding": {
+    "header": "Pengenalan RunQuest",
+    "next": "Lanjut",
+    "start": "Mulai Berlari",
+    "slide_1": {
+      "title": "Selamat Datang di RunQuest",
+      "subtitle": "Game simulasi lari harian offline-first Anda.",
+      "content": "Setiap hari menyajikan tantangan lari baru yang dihasilkan secara prosedural. Masuklah ke posisi pelari yang bersiap untuk lari pamungkas."
+    },
+    "slide_2": {
+      "title": "Cara Bermain",
+      "subtitle": "Kelola aset, pola pikir, dan ambang batas fisik Anda.",
+      "content": "Pilih sepatu yang sempurna untuk cuaca dan permukaan jalan. Kemas nutrisi, pilih strategi kecepatan Anda, dan pertahankan fokus untuk menyelesaikan di bawah target waktu."
+    },
+    "slide_3": {
+      "title": "Apa yang Diharapkan",
+      "subtitle": "Fisika deterministik, peristiwa cerita, dan berbagi hasil.",
+      "content": "Tonton balapan berlangsung secara langsung. Baca narasi cerita dinamis yang dihasilkan dari keputusan Anda. Unduh Kartu Hasil indah Anda untuk memamerkan peringkat Anda!"
+    }
   },
   "settings": {
     "title": "Pengaturan",

@@ -23,7 +23,9 @@
     "resume_race": "Resume Race →",
     "completed_badge": "✓ Completed",
     "locked": "🔒 Locked",
-    "target_time": "Target Time"
+    "target_time": "Target Time",
+    "next_race_in": "Next races in:",
+    "countdown_desc": "Come back tomorrow for a new set of race challenges!"
   },
   "history": {
     "title": "Race History",
@@ -45,6 +47,26 @@
     "subtitle": "You can change this later in settings.",
     "english": "English",
     "indonesian": "Bahasa Indonesia"
+  },
+  "onboarding": {
+    "header": "RunQuest Onboarding",
+    "next": "Next",
+    "start": "Start Running",
+    "slide_1": {
+      "title": "Welcome to RunQuest",
+      "subtitle": "Your daily offline-first running simulation game.",
+      "content": "Every day presents a brand new, procedurally generated running challenge. Step into the shoes of a runner preparing for the ultimate run."
+    },
+    "slide_2": {
+      "title": "How to Play",
+      "subtitle": "Manage your assets, mindset, and physical thresholds.",
+      "content": "Choose the perfect shoes for the weather and road surfaces. Pack nutrition, pick your pacing strategy, and maintain focus to finish under target time."
+    },
+    "slide_3": {
+      "title": "What to Expect",
+      "subtitle": "Deterministic physics, story events, and results sharing.",
+      "content": "Watch the race unfold live. Read the dynamic story narrative generated from your decisions. Download your beautiful Share Card to show off your rank!"
+    }
   },
   "settings": {
     "title": "Settings",

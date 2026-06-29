@@ -2,37 +2,38 @@
 
 import { ArrowRight, Compass, Flame, HelpCircle } from "lucide-react";
 import { useState } from "react";
+import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { storageRepository } from "@/storage/storage-repository";
+import { useSettingsStore } from "@/store/settings-store";
 
 interface OnboardingScreenProps {
   onComplete: () => void;
 }
 
 export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
+  const { t, language } = useTranslation();
+  const { setLanguage } = useSettingsStore();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const slides = [
     {
-      title: "Welcome to RunQuest",
-      subtitle: "Your daily offline-first running simulation game.",
-      content:
-        "Every day presents a brand new, procedurally generated running challenge. Step into the shoes of a runner preparing for the ultimate run.",
+      titleKey: "onboarding.slide_1.title",
+      subtitleKey: "onboarding.slide_1.subtitle",
+      contentKey: "onboarding.slide_1.content",
       icon: <Flame className="w-12 h-12 text-orange-500 animate-pulse" />,
       color: "from-orange-500/20 to-red-500/20",
     },
     {
-      title: "How to Play",
-      subtitle: "Manage your assets, mindset, and physical thresholds.",
-      content:
-        "Choose the perfect shoes for the weather and road surfaces. Pack nutrition, pick your pacing strategy, and maintain focus to finish under target time.",
+      titleKey: "onboarding.slide_2.title",
+      subtitleKey: "onboarding.slide_2.subtitle",
+      contentKey: "onboarding.slide_2.content",
       icon: <Compass className="w-12 h-12 text-blue-500" />,
       color: "from-blue-500/20 to-indigo-500/20",
     },
     {
-      title: "What to Expect",
-      subtitle: "Deterministic physics, story events, and results sharing.",
-      content:
-        "Watch the race unfold live. Read the dynamic story narrative generated from your decisions. Download your beautiful Share Card to show off your rank!",
+      titleKey: "onboarding.slide_3.title",
+      subtitleKey: "onboarding.slide_3.subtitle",
+      contentKey: "onboarding.slide_3.content",
       icon: <HelpCircle className="w-12 h-12 text-emerald-500" />,
       color: "from-emerald-500/20 to-teal-500/20",
     },
@@ -42,11 +43,11 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
     if (currentSlide < slides.length - 1) {
       setCurrentSlide((prev) => prev + 1);
     } else {
-      // Save default settings (English theme/etc.) to mark onboarding as complete
+      // Save default settings (retaining chosen language) to mark onboarding as complete
       storageRepository.saveSettings({
         version: 1,
         theme: "system",
-        language: "en",
+        language,
         reducedMotion: false,
         sound: true,
         preferences: {
@@ -62,11 +63,35 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
 
   return (
     <div className="min-h-screen bg-[#FFFDF8] flex flex-col justify-between p-6">
-      {/* Header Info */}
-      <header className="text-center pt-8">
+      {/* Header Info with Language Toggle */}
+      <header className="flex justify-between items-center max-w-md mx-auto w-full pt-8">
         <span className="text-xs font-extrabold uppercase tracking-widest text-indigo-650">
-          RunQuest Onboarding
+          {t("onboarding.header" as TranslationKey)}
         </span>
+        <div className="flex gap-1 bg-gray-100 p-1 rounded-full text-[10px]">
+          <button
+            type="button"
+            onClick={() => setLanguage("en")}
+            className={`px-3 py-1 rounded-full font-bold transition-all ${
+              language === "en"
+                ? "bg-white text-indigo-600 shadow-sm"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            EN
+          </button>
+          <button
+            type="button"
+            onClick={() => setLanguage("id")}
+            className={`px-3 py-1 rounded-full font-bold transition-all ${
+              language === "id"
+                ? "bg-white text-indigo-600 shadow-sm"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            ID
+          </button>
+        </div>
       </header>
 
       {/* Main Slide Card Container */}
@@ -83,13 +108,13 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
           <div className="flex-1 p-8 flex flex-col justify-between">
             <div className="flex flex-col gap-2">
               <h2 className="text-2xl font-black font-heading text-gray-900 leading-tight">
-                {activeSlide.title}
+                {t(activeSlide.titleKey as TranslationKey)}
               </h2>
-              <p className="text-sm font-semibold text-gray-505 leading-snug">
-                {activeSlide.subtitle}
+              <p className="text-sm font-semibold text-gray-550 leading-snug">
+                {t(activeSlide.subtitleKey as TranslationKey)}
               </p>
               <p className="text-xs text-gray-400 mt-2 leading-relaxed">
-                {activeSlide.content}
+                {t(activeSlide.contentKey as TranslationKey)}
               </p>
             </div>
 
@@ -97,7 +122,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
             <div className="flex gap-2 justify-center mt-6">
               {slides.map((slide, idx) => (
                 <button
-                  key={slide.title}
+                  key={slide.titleKey}
                   type="button"
                   onClick={() => setCurrentSlide(idx)}
                   className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
@@ -119,7 +144,9 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
           className="w-full bg-slate-900 hover:bg-slate-800 active:scale-[0.98] text-white font-bold text-base py-4 rounded-full transition duration-200 flex items-center justify-center gap-2"
         >
           <span>
-            {currentSlide === slides.length - 1 ? "Start Running" : "Next"}
+            {currentSlide === slides.length - 1
+              ? t("onboarding.start" as TranslationKey)
+              : t("onboarding.next" as TranslationKey)}
           </span>
           <ArrowRight className="w-5 h-5" />
         </button>
