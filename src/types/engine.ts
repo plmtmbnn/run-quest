@@ -1,6 +1,6 @@
 export type Shoe = "daily_trainer" | "carbon_racer" | "lightweight" | "trail";
 
-export type Nutrition = "water" | "electrolyte" | "energy_gel" | "none";
+export type Nutrition = "water" | "electrolyte" | "energy_gel" | "caffeine";
 
 export type Gear = "cap" | "sunglasses" | "arm_sleeves" | "hydration_vest";
 
@@ -16,7 +16,7 @@ export type Mindset = "calm" | "confident" | "fearless";
 
 export interface Preparation {
   shoes: Shoe;
-  nutrition: Nutrition;
+  nutrition: Nutrition[];
   gear: Gear[];
   warmup: Warmup;
   pacing: PacingPlan;
@@ -177,8 +177,6 @@ export interface SimulationResult {
   stateLog: SimulationState[];
 }
 
-
-// Running simulation state at checkpoints
 export interface SimulationState {
   distanceCovered: number;
   energy: number; // 0 to 100
@@ -188,4 +186,61 @@ export interface SimulationState {
   confidence: number; // 0 to 100
   accumulatedTime: number; // in seconds
   eventsResolved: RaceEvent[];
+  // Sprint 13.1 Expanded Runner Attributes
+  muscleFatigue: number; // 0 to 100
+  mentalFatigue: number; // 0 to 100
+  momentum: number; // 0 to 100
+  paceStability: number; // 0 to 100
+  riskLevel: number; // 0 to 100
+  // Sprint 13 Interactive Decision Engine additions
+  decisionTimeline?: Record<number, string>; // Maps KM -> DecisionCard ID
+  decisionHistory?: ChoiceBehavior[]; // Tracks historical choice behaviors
+  pendingDecision?: DecisionCard; // Track currently active decision waiting to be resolved
+  randomSeedState?: number; // Stores the seed state for the random generator
+  specialEventKm?: number; // Scheduled km for rare event
+  specialEventId?: string; // Rare event ID
+  delayedEffects?: {
+    km: number;
+    stamina: number;
+    hydration: number;
+    morale: number;
+    pace: number;
+  }[];
+  accumulatedStateLog?: Omit<SimulationState, "accumulatedStateLog">[]; // Complete history of state logs
 }
+
+export type DecisionCategory =
+  | "environment"
+  | "physical"
+  | "tactical"
+  | "mental"
+  | "unexpected";
+
+export type ChoiceBehavior = "aggressive" | "balanced" | "conservative";
+
+export interface DecisionChoice {
+  id: string;
+  label: LocalizedText;
+  description: LocalizedText;
+  effects: Effect; // maps stamina, hydration, morale (focus), pace
+  behavior: ChoiceBehavior;
+}
+
+export interface DecisionCard {
+  id: string;
+  title: LocalizedText;
+  category: DecisionCategory;
+  description: LocalizedText;
+  rarity: "common" | "uncommon" | "rare";
+  choices: DecisionChoice[];
+}
+
+export interface DecisionPrompt {
+  km: number;
+  decisionCard: DecisionCard;
+  timeoutSeconds: number;
+}
+
+export type SimulationStepResult =
+  | { type: "decision"; state: SimulationState; prompt: DecisionPrompt }
+  | { type: "finished"; result: SimulationResult };

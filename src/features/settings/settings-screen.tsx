@@ -104,38 +104,41 @@ export function SettingsScreen() {
             </button>
           </div>
 
-          <hr className="border-[#E5E7EB]" />
-
-          {/* Theme selection */}
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-col">
-              <span className="text-sm font-bold text-gray-900 dark:text-white">
-                {t("settings.theme.title" as TranslationKey)}
-              </span>
-              <span className="text-xs text-gray-400">
-                {t("settings.theme.desc" as TranslationKey)}
-              </span>
-            </div>
-            <div className="grid grid-cols-3 gap-2 mt-2">
-              {(["light", "dark", "system"] as const).map((themeMode) => (
-                <button
-                  key={themeMode}
-                  type="button"
-                  onClick={() => {
-                    playSound("click");
-                    setTheme(themeMode);
-                  }}
-                  className={`text-xs font-bold py-3 rounded-2xl transition-all border-2 capitalize ${
-                    settings.theme === themeMode
-                      ? "bg-blue-50 border-blue-500 text-blue-700"
-                      : "border-gray-200 bg-white dark:bg-slate-900 text-gray-600 hover:border-gray-300"
-                  }`}
-                >
-                  {t(`settings.theme.${themeMode}` as TranslationKey)}
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* Theme selection (temporarily disabled for Sprint 13.1) */}
+          {false && (
+            <>
+              <hr className="border-[#E5E7EB]" />
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-col">
+                  <span className="text-sm font-bold text-gray-900 dark:text-white">
+                    {t("settings.theme.title" as TranslationKey)}
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    {t("settings.theme.desc" as TranslationKey)}
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-2 mt-2">
+                  {(["light", "dark", "system"] as const).map((themeMode) => (
+                    <button
+                      key={themeMode}
+                      type="button"
+                      onClick={() => {
+                        playSound("click");
+                        setTheme(themeMode);
+                      }}
+                      className={`text-xs font-bold py-3 rounded-2xl transition-all border-2 capitalize ${
+                        settings.theme === themeMode
+                          ? "bg-blue-50 border-blue-500 text-blue-700"
+                          : "border-gray-200 bg-white dark:bg-slate-900 text-gray-600 hover:border-gray-300"
+                      }`}
+                    >
+                      {t(`settings.theme.${themeMode}` as TranslationKey)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
 
           <hr className="border-[#E5E7EB]" />
 

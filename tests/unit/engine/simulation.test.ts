@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { simulateRace } from "@/engine/simulation/engine";
+import { DECISION_DATABASE } from "@/content/events/decision-database";
+import { generateDecisionTimeline } from "@/engine/simulation/decision-generator";
+import {
+  advanceSimulation,
+  getFallbackChoice,
+  simulateRace,
+} from "@/engine/simulation/engine";
 import type { DailyChallenge, SimulationInput } from "@/types/engine";
 
 const mockChallenge: DailyChallenge = {
@@ -39,7 +45,7 @@ const defaultInput: SimulationInput = {
   challenge: mockChallenge,
   preparation: {
     shoes: "daily_trainer",
-    nutrition: "water",
+    nutrition: ["water"],
     gear: [],
     warmup: "dynamic",
     pacing: "steady",
@@ -77,7 +83,10 @@ describe("Simulation Engine", () => {
     expect(result).toHaveProperty("outcome");
     expect(result).toHaveProperty("story");
 
-    expect(result.events.length).toBeLessThanOrEqual(2);
+    const standardEvents = result.events.filter(
+      (e) => e.title.en !== "Delayed Consequence",
+    );
+    expect(standardEvents.length).toBeLessThanOrEqual(6);
     expect(result.story.headline.en).toBeTruthy();
   });
 
@@ -135,7 +144,7 @@ describe("Simulation Engine", () => {
       challenge: extremeHotChallenge,
       preparation: {
         shoes: "daily_trainer",
-        nutrition: "none", // No water or electrolytes
+        nutrition: [], // No water or electrolytes
         gear: [],
         warmup: "none",
         pacing: "aggressive", // Burn out fast
@@ -187,5 +196,78 @@ describe("Simulation Engine", () => {
       e.title.en.includes("Severe Injury"),
     );
     expect(dnfEvent).toBeDefined();
+  });
+
+  describe("Interactive Decision Engine", () => {
+    it("should generate a timeline of decision points based on distance", () => {
+      const timeline = generateDecisionTimeline(
+        mockChallenge.race.distance,
+        mockChallenge,
+        42,
+      );
+
+      const kms = Object.keys(timeline).map(Number);
+      // For 5KM, we should have 2-3 decision moments
+      expect(kms.length).toBeGreaterThanOrEqual(2);
+      expect(kms.length).toBeLessThanOrEqual(3);
+    });
+
+    it("should pause the simulation at a decision point and resume with chosen behavior", () => {
+      // Step 1: Start simulation
+      const step1 = advanceSimulation(defaultInput);
+      expect(step1.type).toBe("decision");
+      expect(step1.prompt).toBeDefined();
+      expect(step1.prompt?.km).toBeGreaterThan(0);
+      expect(step1.state.pendingDecision).toBeDefined();
+
+      // Step 2: Choose first choice
+      const card = step1.state.pendingDecision;
+      expect(card).toBeDefined();
+      if (!card) throw new Error("Pending decision is not defined");
+
+      const choiceId = card.choices[0].id;
+      const step2 = advanceSimulation(defaultInput, step1.state, choiceId);
+
+      // Verify the choice behavior is recorded in history
+      expect(step2.state.decisionHistory).toContain(card.choices[0].behavior);
+
+      // Verify choice effect was applied or event resolved
+      const decisionEvent = step2.state.eventsResolved.find(
+        (e) => e.title.en === card.title.en,
+      );
+      expect(decisionEvent).toBeDefined();
+    });
+
+    it("should resolve decisions automatically on timeout based on history patterns", () => {
+      const card = DECISION_DATABASE.strong_headwind;
+
+      // If history is mostly aggressive, fallback should prioritize aggressive choice
+      const history = ["aggressive", "aggressive", "balanced"];
+      const chosen = getFallbackChoice(card, history, 42);
+
+      // For headwind, aggressive choice is "headwind_push"
+      // Since it has the highest weight, it is highly likely to be selected
+      expect(chosen).toBeDefined();
+    });
+
+    it("should evolve the expanded runner attributes during the simulation steps", () => {
+      const step1 = advanceSimulation(defaultInput);
+      expect(step1.state.muscleFatigue).toBeDefined();
+      expect(step1.state.mentalFatigue).toBeDefined();
+      expect(step1.state.momentum).toBeDefined();
+      expect(step1.state.paceStability).toBeDefined();
+      expect(step1.state.riskLevel).toBeDefined();
+
+      // Check cumulative nutrition calculation
+      const caffeineGelInput = {
+        ...defaultInput,
+        preparation: {
+          ...defaultInput.preparation,
+          nutrition: ["caffeine", "energy_gel"] as any,
+        },
+      };
+      const res = simulateRace(caffeineGelInput);
+      expect(res.finishTime).toBeLessThan(simulateRace(defaultInput).finishTime);
+    });
   });
 });

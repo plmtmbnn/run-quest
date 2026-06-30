@@ -136,19 +136,19 @@
       "title": "Nutrition",
       "water": {
         "name": "Water",
-        "desc": "Essential hydration. Good for standard conditions."
+        "desc": "Essential hydration. Provides hydration stability."
       },
       "electrolyte": {
         "name": "Electrolytes",
-        "desc": "Excellent for hot weather. Prevents cramping."
+        "desc": "Reduces cramp risk and helps sustain hydration."
       },
       "energy_gel": {
         "name": "Energy Gel",
-        "desc": "High energy boost, doesn't help hydration much."
+        "desc": "Provides a mid-race energy boost, but risks stomach stress."
       },
-      "none": {
-        "name": "No Nutrition",
-        "desc": "Risk of dehydration and low energy."
+      "caffeine": {
+        "name": "Caffeine",
+        "desc": "Boosts early focus and aggressive pace potential, but increases risk of a later energy crash."
       }
     },
     "gear": {
@@ -270,7 +270,12 @@
       "feed": "// Race Feed",
       "started_on": "> Race started on {{surface}} terrain...",
       "finished_rendering": "> Finish line crossed! Rendering report...",
-      "engine_version": "RunQuest Simulation Engine v1.0.0"
+      "engine_version": "RunQuest Simulation Engine v1.0.0",
+      "decision_title": "Critical Moment",
+      "remaining_seconds": "seconds remaining",
+      "strategic_choices": "What will you do?",
+      "timeout": "Time's Up!",
+      "timeout_instinct": "Timeout! Your runner acts on instinct..."
     },
     "result": {
       "title": "Race Result",

@@ -55,23 +55,31 @@ export function calculatePreparationScore(
       break;
   }
 
-  // 2. Nutrition
-  switch (prep.nutrition) {
-    case "water":
-      modifiers.hydrationModifier -= 2.0;
-      break;
-    case "electrolyte":
-      modifiers.hydrationModifier -= 3.5;
-      modifiers.fatigueModifier -= 0.5;
-      break;
-    case "energy_gel":
-      modifiers.basePaceModifier -= 5;
-      modifiers.fatigueModifier -= 0.8;
-      break;
-    case "none":
-      modifiers.hydrationModifier += 2.0; // Fast dehydration
-      modifiers.fatigueModifier += 2.0;
-      break;
+  // 2. Nutrition (Sprint 13.1 Multi-select scoring)
+  if (prep.nutrition.length === 0) {
+    modifiers.hydrationModifier += 2.0; // Fast dehydration
+    modifiers.fatigueModifier += 2.0;
+  } else {
+    for (const item of prep.nutrition) {
+      switch (item) {
+        case "water":
+          modifiers.hydrationModifier -= 2.0; // Water: + Hydration Stability
+          break;
+        case "electrolyte":
+          modifiers.hydrationModifier -= 3.5; // Electrolytes: + Reduced Cramp Risk
+          modifiers.fatigueModifier -= 0.5;
+          break;
+        case "energy_gel":
+          modifiers.basePaceModifier -= 5; // Energy Gel: + Mid-Race Energy Boost
+          modifiers.fatigueModifier -= 0.8;
+          break;
+        case "caffeine":
+          modifiers.focusModifier += 2.0; // Caffeine: + Early Focus
+          modifiers.basePaceModifier -= 8; // Caffeine: + Aggressive Pace Potential
+          modifiers.fatigueModifier += 0.5; // Caffeine: higher strain/fatigue
+          break;
+      }
+    }
   }
 
   // 3. Gear (Multi-select)

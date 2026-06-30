@@ -40,7 +40,7 @@ export interface Dictionary {
       water: ChoiceText;
       electrolyte: ChoiceText;
       energy_gel: ChoiceText;
-      none: ChoiceText;
+      caffeine: ChoiceText;
     };
     gear: {
       title: string;
@@ -120,6 +120,11 @@ export interface Dictionary {
       started_on: string;
       finished_rendering: string;
       engine_version: string;
+      decision_title: string;
+      remaining_seconds: string;
+      strategic_choices: string;
+      timeout: string;
+      timeout_instinct: string;
     };
     result: {
       title: string;

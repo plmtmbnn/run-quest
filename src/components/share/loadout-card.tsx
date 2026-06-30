@@ -13,7 +13,7 @@ interface LoadoutCardProps {
 export function LoadoutCard({
   preparation,
   raceTitle,
-  lang,
+  lang: _lang,
   date,
 }: LoadoutCardProps) {
   const { t } = useTranslation();
@@ -50,9 +50,15 @@ export function LoadoutCard({
               🥤 Nutrition
             </span>
             <span className="font-semibold text-slate-100">
-              {t(
-                `preparation.nutrition.${preparation.nutrition}.name` as TranslationKey,
-              )}
+              {preparation.nutrition.length > 0
+                ? preparation.nutrition
+                    .map((item) =>
+                      t(
+                        `preparation.nutrition.${item}.name` as TranslationKey,
+                      ),
+                    )
+                    .join(", ")
+                : "None"}
             </span>
           </div>
 

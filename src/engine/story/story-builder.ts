@@ -97,6 +97,36 @@ export function generateStory(
     });
   }
 
+  // Analyze decision behaviors for narrative summary
+  if (state.decisionHistory && state.decisionHistory.length > 0) {
+    const counts = { aggressive: 0, balanced: 0, conservative: 0 };
+    for (const b of state.decisionHistory) {
+      counts[b] = (counts[b] || 0) + 1;
+    }
+    if (
+      counts.aggressive > counts.conservative &&
+      counts.aggressive > counts.balanced
+    ) {
+      highlights.push({
+        en: "Tactical style: Aggressive. You pushed through challenges relentlessly, trading energy for speed.",
+        id: "Gaya taktis: Agresif. Kamu menerobos rintangan tanpa henti, menukar energi dengan kecepatan.",
+      });
+    } else if (
+      counts.conservative > counts.aggressive &&
+      counts.conservative > counts.balanced
+    ) {
+      highlights.push({
+        en: "Tactical style: Conservative. You played it safe, prioritizing pacing and physical preservation.",
+        id: "Gaya taktis: Konservatif. Kamu bermain aman, memprioritaskan ritme dan menjaga kondisi fisik.",
+      });
+    } else {
+      highlights.push({
+        en: "Tactical style: Balanced. You managed your efforts evenly throughout the race conditions.",
+        id: "Gaya taktis: Seimbang. Kamu mengatur usahamu dengan merata di seluruh kondisi perlombaan.",
+      });
+    }
+  }
+
   for (const event of state.eventsResolved) {
     highlights.push({
       en: `At km ${event.km}: ${event.title.en} — ${event.description.en}`,
@@ -106,7 +136,7 @@ export function generateStory(
 
   // 4. Lessons
   const lessons: LocalizedText[] = [];
-  if (prep.nutrition === "none") {
+  if (prep.nutrition.length === 0) {
     lessons.push({
       en: "Running without nutrition severely affected your stamina and hydration.",
       id: "Berlari tanpa nutrisi sangat menguras stamina dan hidrasi kamu.",
@@ -122,7 +152,7 @@ export function generateStory(
 
   if (
     challenge.environment.weather === "hot" &&
-    prep.nutrition !== "electrolyte"
+    !prep.nutrition.includes("electrolyte")
   ) {
     lessons.push({
       en: "Under scorching heat, electrolytes are superior to plain water to prevent cramps.",

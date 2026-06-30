@@ -30,8 +30,8 @@ export function AppProvider({ children }: AppProviderProps) {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
     const updateTheme = () => {
-      const isDark =
-        theme === "dark" || (theme === "system" && mediaQuery.matches);
+      // Temporarily force Light Theme only globally for Sprint 13.1
+      const isDark = false;
       if (isDark) {
         root.classList.add("dark");
       } else {

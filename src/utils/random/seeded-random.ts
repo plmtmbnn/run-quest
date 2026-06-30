@@ -3,7 +3,7 @@
  * Provides deterministic randomness given a numeric seed.
  */
 export class SeededRandom {
-  private seed: number;
+  seed: number;
 
   constructor(seed: number) {
     this.seed = seed;

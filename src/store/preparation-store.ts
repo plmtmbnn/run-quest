@@ -12,7 +12,7 @@ import type {
 export interface PreparationState {
   preparation: Preparation;
   setShoes: (shoes: Shoe) => void;
-  setNutrition: (nutrition: Nutrition) => void;
+  toggleNutrition: (nutrition: Nutrition) => void;
   toggleGear: (gear: Gear) => void;
   setWarmup: (warmup: Warmup) => void;
   setPacing: (pacing: PacingPlan) => void;
@@ -22,7 +22,7 @@ export interface PreparationState {
 
 const DEFAULT_PREPARATION: Preparation = {
   shoes: "daily_trainer",
-  nutrition: "water",
+  nutrition: ["water"],
   gear: [],
   warmup: "none",
   pacing: "steady",
@@ -37,10 +37,18 @@ export const usePreparationStore = create<PreparationState>((set) => ({
       preparation: { ...state.preparation, shoes },
     })),
 
-  setNutrition: (nutrition) =>
-    set((state) => ({
-      preparation: { ...state.preparation, nutrition },
-    })),
+  toggleNutrition: (nutritionItem) =>
+    set((state) => {
+      const currentNutrition = state.preparation.nutrition;
+      const exists = currentNutrition.includes(nutritionItem);
+      const updatedNutrition = exists
+        ? currentNutrition.filter((n) => n !== nutritionItem)
+        : [...currentNutrition, nutritionItem];
+
+      return {
+        preparation: { ...state.preparation, nutrition: updatedNutrition },
+      };
+    }),
 
   toggleGear: (gearItem) =>
     set((state) => {

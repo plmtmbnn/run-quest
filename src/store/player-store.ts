@@ -103,7 +103,9 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     if (result.outcome !== "dns") {
       stats.totalRuns += 1;
     }
-    stats.totalDistance = Number((stats.totalDistance + distanceRun).toFixed(2));
+    stats.totalDistance = Number(
+      (stats.totalDistance + distanceRun).toFixed(2),
+    );
 
     if (result.outcome !== "dnf" && result.outcome !== "dns") {
       stats.totalWins += 1;

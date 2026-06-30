@@ -136,19 +136,19 @@
       "title": "Nutrisi",
       "water": {
         "name": "Air Putih",
-        "desc": "Hidrasi penting. Bagus untuk kondisi standar."
+        "desc": "Hidrasi esensial. Memberikan stabilitas hidrasi."
       },
       "electrolyte": {
         "name": "Elektrolit",
-        "desc": "Sangat baik untuk cuaca panas. Mencegah kram."
+        "desc": "Mengurangi risiko kram dan membantu hidrasi tetap stabil."
       },
       "energy_gel": {
         "name": "Gel Energi",
-        "desc": "Dorongan energi tinggi, kurang membantu hidrasi."
+        "desc": "Memberikan dorongan energi di tengah balapan, tetapi berisiko stres lambung."
       },
-      "none": {
-        "name": "Tanpa Nutrisi",
-        "desc": "Risiko dehidrasi dan energi rendah."
+      "caffeine": {
+        "name": "Kafein",
+        "desc": "Meningkatkan fokus awal dan potensi kecepatan agresif, tetapi meningkatkan risiko crash energi kemudian."
       }
     },
     "gear": {
@@ -270,7 +270,12 @@
       "feed": "// Laporan Balapan",
       "started_on": "> Balapan dimulai di medan {{surface}}...",
       "finished_rendering": "> Garis finis dilewati! Membuat laporan...",
-      "engine_version": "Mesin Simulasi RunQuest v1.0.0"
+      "engine_version": "Mesin Simulasi RunQuest v1.0.0",
+      "decision_title": "Momen Kritis",
+      "remaining_seconds": "detik tersisa",
+      "strategic_choices": "Apa yang akan kamu lakukan?",
+      "timeout": "Waktu Habis!",
+      "timeout_instinct": "Waktu habis! Pelarimu bertindak berdasarkan insting..."
     },
     "result": {
       "title": "Hasil Perlombaan",

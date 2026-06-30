@@ -47,7 +47,7 @@ export function PreparationScreen() {
   const {
     preparation,
     setShoes: _setShoes,
-    setNutrition: _setNutrition,
+    toggleNutrition: _toggleNutrition,
     toggleGear: _toggleGear,
     setWarmup: _setWarmup,
     setPacing: _setPacing,
@@ -59,9 +59,9 @@ export function PreparationScreen() {
     playSound("click");
     _setShoes(val);
   };
-  const setNutrition = (val: Parameters<typeof _setNutrition>[0]) => {
+  const toggleNutrition = (val: Parameters<typeof _toggleNutrition>[0]) => {
     playSound("click");
-    _setNutrition(val);
+    _toggleNutrition(val);
   };
   const toggleGear = (val: Parameters<typeof _toggleGear>[0]) => {
     playSound("click");
@@ -87,7 +87,7 @@ export function PreparationScreen() {
 🏁 ${challenge.race.title[lang]}
 
 👟 ${t(`preparation.shoes.${preparation.shoes}.name` as TranslationKey)}
-🥤 ${t(`preparation.nutrition.${preparation.nutrition}.name` as TranslationKey)}
+🥤 Nutrition: ${preparation.nutrition.length > 0 ? preparation.nutrition.map((n) => t(`preparation.nutrition.${n}.name` as TranslationKey)).join(", ") : "None"}
 🔥 ${t(`preparation.warmup.${preparation.warmup}.name` as TranslationKey)}
 📊 ${t(`preparation.pacing.${preparation.pacing}.name` as TranslationKey)}
 🧠 ${t(`preparation.mindset.${preparation.mindset}.name` as TranslationKey)}
@@ -241,13 +241,13 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
             <div className="grid gap-4 sm:grid-cols-2">
               <OptionCard
                 id="nutr-water"
-                selected={preparation.nutrition === "water"}
-                onClick={() => setNutrition("water")}
+                selected={preparation.nutrition.includes("water")}
+                onClick={() => toggleNutrition("water")}
                 title={t("preparation.nutrition.water.name" as TranslationKey)}
                 desc={t("preparation.nutrition.water.desc" as TranslationKey)}
                 badges={[
                   {
-                    text: "💧 Hydration",
+                    text: "💧 Hydration Stability",
                     color:
                       "bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300",
                   },
@@ -255,8 +255,8 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
               />
               <OptionCard
                 id="nutr-elect"
-                selected={preparation.nutrition === "electrolyte"}
-                onClick={() => setNutrition("electrolyte")}
+                selected={preparation.nutrition.includes("electrolyte")}
+                onClick={() => toggleNutrition("electrolyte")}
                 title={t(
                   "preparation.nutrition.electrolyte.name" as TranslationKey,
                 )}
@@ -265,21 +265,16 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 )}
                 badges={[
                   {
-                    text: "🧪 Optimal Hydration",
+                    text: "🧪 Reduced Cramp Risk",
                     color:
                       "bg-teal-100 dark:bg-teal-950/40 text-teal-800 dark:text-teal-300",
-                  },
-                  {
-                    text: "☀️ Heat Protection",
-                    color:
-                      "bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300",
                   },
                 ]}
               />
               <OptionCard
                 id="nutr-gel"
-                selected={preparation.nutrition === "energy_gel"}
-                onClick={() => setNutrition("energy_gel")}
+                selected={preparation.nutrition.includes("energy_gel")}
+                onClick={() => toggleNutrition("energy_gel")}
                 title={t(
                   "preparation.nutrition.energy_gel.name" as TranslationKey,
                 )}
@@ -288,26 +283,31 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 )}
                 badges={[
                   {
-                    text: "💥 High Energy",
+                    text: "⚡ Mid-Race Energy Boost",
                     color:
                       "bg-yellow-100 dark:bg-yellow-950/40 text-yellow-800 dark:text-yellow-300",
                   },
                   {
-                    text: "🥵 Dry Mouth Risk",
+                    text: "🤢 Stomach Stress Risk",
                     color:
                       "bg-orange-100 dark:bg-orange-950/40 text-orange-800 dark:text-orange-350",
                   },
                 ]}
               />
               <OptionCard
-                id="nutr-none"
-                selected={preparation.nutrition === "none"}
-                onClick={() => setNutrition("none")}
-                title={t("preparation.nutrition.none.name" as TranslationKey)}
-                desc={t("preparation.nutrition.none.desc" as TranslationKey)}
+                id="nutr-caff"
+                selected={preparation.nutrition.includes("caffeine")}
+                onClick={() => toggleNutrition("caffeine")}
+                title={t("preparation.nutrition.caffeine.name" as TranslationKey)}
+                desc={t("preparation.nutrition.caffeine.desc" as TranslationKey)}
                 badges={[
                   {
-                    text: "💀 High Dehydration",
+                    text: "🧠 Early Focus",
+                    color:
+                      "bg-purple-100 dark:bg-purple-950/40 text-purple-800 dark:text-purple-300",
+                  },
+                  {
+                    text: "📉 Energy Crash Risk",
                     color:
                       "bg-rose-100 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300",
                   },

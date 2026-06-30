@@ -54,6 +54,18 @@ export function adjustEventEffect(
     }
   }
 
+  // Electrolyte reduces cramp/stitch severity (Sprint 13.1)
+  if (
+    event.id.includes("cramp") ||
+    event.id.includes("muscle_tightness") ||
+    event.id.includes("stitch")
+  ) {
+    if (prep.nutrition.includes("electrolyte")) {
+      adjusted.stamina = Math.floor(adjusted.stamina * 0.4);
+      adjusted.pace = Math.floor(adjusted.pace * 0.4);
+    }
+  }
+
   return adjusted;
 }
 
@@ -120,6 +132,55 @@ export function simulateKmStep(
   checkpoint: Checkpoint | undefined,
   random: SeededRandom,
 ): void {
+  // Initialize new state variables safely (Sprint 13.1)
+  state.muscleFatigue = state.muscleFatigue ?? 0;
+  state.mentalFatigue = state.mentalFatigue ?? 0;
+  state.momentum = state.momentum ?? 50;
+  state.paceStability = state.paceStability ?? 80;
+  state.riskLevel = state.riskLevel ?? 20;
+  state.delayedEffects = state.delayedEffects ?? [];
+
+  // Apply delayed effects scheduled for this kilometer (Sprint 13.1)
+  let delayedPaceAdjustment = 0;
+  const activeDelayed = state.delayedEffects.filter(
+    (e) => Math.floor(e.km) === km,
+  );
+  for (const effect of activeDelayed) {
+    state.energy = Math.max(0, Math.min(100, state.energy + effect.stamina));
+    state.hydration = Math.max(
+      0,
+      Math.min(100, state.hydration + effect.hydration),
+    );
+    state.focus = Math.max(0, Math.min(100, state.focus + effect.morale));
+    state.confidence = Math.max(
+      0,
+      Math.min(100, state.confidence + effect.morale * 0.5),
+    );
+    delayedPaceAdjustment += effect.pace;
+
+    state.eventsResolved.push({
+      km,
+      title: { en: "Delayed Consequence", id: "Konsekuensi Tertunda" },
+      description: {
+        en: "A delayed consequence from a previous decision affects your stats.",
+        id: "Konsekuensi tertunda dari keputusan sebelumnya memengaruhi statistik Anda.",
+      },
+      effect: {
+        stamina: effect.stamina,
+        hydration: effect.hydration,
+        morale: effect.morale,
+        pace: effect.pace,
+      },
+    });
+  }
+  state.delayedEffects = state.delayedEffects.filter(
+    (e) => Math.floor(e.km) !== km,
+  );
+
+  // Caffeine crash calculation (Sprint 13.1)
+  const hasCaffeine = prep.nutrition.includes("caffeine");
+  const isCaffeineCrash = hasCaffeine && km >= 6;
+
   // 1. Fatigue & Hydration consumption calculation
   const baseFatigueKm = 2.0;
   const baseHydrationKm = 2.2;
@@ -128,26 +189,86 @@ export function simulateKmStep(
     0.5,
     baseFatigueKm + prepMods.fatigueModifier + envMods.fatigueModifier,
   );
-  const calculatedHydration = Math.max(
+  let calculatedHydration = Math.max(
     0.5,
     baseHydrationKm + prepMods.hydrationModifier + envMods.hydrationModifier,
   );
+
+  // Water provides hydration stability
+  if (prep.nutrition.includes("water")) {
+    calculatedHydration *= 0.75;
+  }
 
   state.fatigue = Math.min(100, state.fatigue + calculatedFatigue);
   state.energy = Math.max(0, 100 - state.fatigue);
   state.hydration = Math.max(0, state.hydration - calculatedHydration);
 
-  // Focus and Confidence decay over distance
-  state.focus = Math.max(0, state.focus - (1.0 - prepMods.focusModifier));
-  state.confidence = Math.max(0, state.confidence - 0.5);
+  // Focus and Confidence decay over distance (caffeine boosts or crashes focus)
+  if (hasCaffeine) {
+    if (isCaffeineCrash) {
+      state.focus = Math.max(0, state.focus - 4.0); // crash drops focus fast
+      state.confidence = Math.max(0, state.confidence - 1.5);
+    } else {
+      state.focus = Math.min(100, state.focus + 2.0); // caffeine boosts focus early
+      state.confidence = Math.min(100, state.confidence + 1.0);
+    }
+  } else {
+    state.focus = Math.max(0, state.focus - (1.0 - prepMods.focusModifier));
+    state.confidence = Math.max(0, state.confidence - 0.5);
+  }
+
+  // Runner attribute evolution (Sprint 13.1)
+  let muscleFatigueDelta = calculatedFatigue * 0.7;
+  if (prep.shoes === "carbon_racer") muscleFatigueDelta += 0.8;
+  if (envMods.fatigueModifier > 0) muscleFatigueDelta += 0.4;
+  state.muscleFatigue = Math.max(
+    0,
+    Math.min(100, state.muscleFatigue + muscleFatigueDelta),
+  );
+
+  let mentalFatigueDelta = (100 - state.focus) * 0.1 + 0.6;
+  if (isCaffeineCrash) mentalFatigueDelta += 1.8;
+  state.mentalFatigue = Math.max(
+    0,
+    Math.min(100, state.mentalFatigue + mentalFatigueDelta),
+  );
+
+  let momentumDelta = (state.energy - 50) * 0.08;
+  if (prep.nutrition.includes("energy_gel")) momentumDelta += 0.8;
+  if (hasCaffeine && !isCaffeineCrash) momentumDelta += 1.5;
+  if (isCaffeineCrash) momentumDelta -= 2.0;
+  state.momentum = Math.max(
+    0,
+    Math.min(100, state.momentum + momentumDelta),
+  );
+
+  state.paceStability = Math.max(
+    10,
+    Math.min(
+      100,
+      90 - (state.muscleFatigue * 0.5 + state.mentalFatigue * 0.4),
+    ),
+  );
+
+  let riskDelta = (state.confidence - 50) * 0.05;
+  state.riskLevel = Math.max(5, Math.min(100, state.riskLevel + riskDelta));
 
   // 2. Pace determination for this kilometer (in seconds/km)
-  // Base pace: 310 seconds/km (roughly 5:10 min/km)
   let paceSeconds = 310;
 
   // Apply preparation and environmental modifiers
   paceSeconds += prepMods.basePaceModifier;
   paceSeconds += envMods.paceModifier;
+
+  // Muscle & Mental fatigue penalties
+  if (state.muscleFatigue > 50) {
+    paceSeconds += (state.muscleFatigue - 50) * 1.0;
+  }
+  if (state.mentalFatigue > 50) {
+    paceSeconds += (state.mentalFatigue - 50) * 0.4;
+  }
+  // Momentum speed adjustment
+  paceSeconds -= (state.momentum - 50) * 0.3;
 
   // Fatigue penalties
   if (state.energy < 40) {
@@ -167,8 +288,10 @@ export function simulateKmStep(
     paceSeconds += focusPenalty;
   }
 
-  // Seeded random variation (+- 3%)
-  const variationPercent = random.nextRange(-0.03, 0.03);
+  // Seeded random variation based on pace stability
+  const stabilityFactor = (100 - state.paceStability) / 100;
+  const maxVariation = 0.03 + 0.05 * stabilityFactor;
+  const variationPercent = random.nextRange(-maxVariation, maxVariation);
   paceSeconds += paceSeconds * variationPercent;
 
   // 3. Resolve Checkpoint Events if present
@@ -186,7 +309,10 @@ export function simulateKmStep(
   }
 
   // Calculate final elapsed time for this kilometer step
-  const kmDuration = Math.max(180, paceSeconds + eventPaceAdjustment); // cap speed at 3:00/km max
+  const kmDuration = Math.max(
+    180,
+    paceSeconds + eventPaceAdjustment + delayedPaceAdjustment,
+  );
   state.accumulatedTime += kmDuration;
   state.distanceCovered = km;
 }
