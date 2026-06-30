@@ -340,5 +340,20 @@
     "copied": "Copied!",
     "downloading": "Saving...",
     "native_title": "RunQuest Share"
+  },
+  "analysis": {
+    "title": "Race Analysis",
+    "subtitle": "Study the course and prepare your strategy",
+    "key_recommendations": "Key Recommendations",
+    "tactical_warnings": "Tactical Warnings",
+    "course_segments": "Course Segment Breakdown",
+    "weather_forecast": "Dynamic Weather Forecast",
+    "hazards_detected": "Detected Hazard Warnings",
+    "distance": "Distance",
+    "difficulty": "Difficulty",
+    "segment_climb": "Steep Climb Segment",
+    "segment_descent": "Technical Descent Segment",
+    "segment_sprint": "Final Sprint Segment",
+    "segment_flat": "Flat Section Segment"
   }
 }

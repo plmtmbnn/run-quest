@@ -190,4 +190,19 @@ export interface Dictionary {
     downloading: string;
     native_title: string;
   };
+  analysis: {
+    title: string;
+    subtitle: string;
+    key_recommendations: string;
+    tactical_warnings: string;
+    course_segments: string;
+    weather_forecast: string;
+    hazards_detected: string;
+    distance: string;
+    difficulty: string;
+    segment_climb: string;
+    segment_descent: string;
+    segment_sprint: string;
+    segment_flat: string;
+  };
 }

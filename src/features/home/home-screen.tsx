@@ -173,8 +173,18 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
     settings.preferences.preferredSurface !== "any" ||
     settings.preferences.preferredDistance !== "any";
 
-  // Sort board entries based on preference score
+  // Sort board entries (Completed first, then Active/Selected, then by Preference Score)
   const sortedEntries = [...board.entries].sort((a, b) => {
+    const isCompletedA = boardStatus?.completedEntryId === a.scenario.id;
+    const isCompletedB = boardStatus?.completedEntryId === b.scenario.id;
+    if (isCompletedA && !isCompletedB) return -1;
+    if (!isCompletedA && isCompletedB) return 1;
+
+    const isSelectedA = boardStatus?.selectedEntryId === a.scenario.id;
+    const isSelectedB = boardStatus?.selectedEntryId === b.scenario.id;
+    if (isSelectedA && !isSelectedB) return -1;
+    if (!isSelectedA && isSelectedB) return 1;
+
     const scoreA = getPreferenceScore(a);
     const scoreB = getPreferenceScore(b);
     return scoreB - scoreA;
@@ -368,11 +378,13 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
                         `challenge.surface.${entry.category}` as TranslationKey,
                       )}
                     </span>
-                    <span className="text-[10px] font-bold text-gray-450 bg-gray-50 border border-gray-100 rounded-full px-2.5 py-1">
-                      {t(
-                        `challenge.surface.${entry.surface}` as TranslationKey,
-                      ).toUpperCase()}
-                    </span>
+                    {entry.surface !== entry.category && (
+                      <span className="text-[10px] font-bold text-gray-450 bg-gray-50 border border-gray-100 rounded-full px-2.5 py-1">
+                        {t(
+                          `challenge.surface.${entry.surface}` as TranslationKey,
+                        ).toUpperCase()}
+                      </span>
+                    )}
                     {isRecommended && (
                       <span className="inline-flex items-center gap-0.5 text-[9px] font-black text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5 uppercase tracking-wide">
                         <Sparkles className="h-2.5 w-2.5 text-amber-550 fill-amber-500" />{" "}

@@ -14,7 +14,27 @@ export function useShareCard() {
         return true;
       }
     } catch (err) {
-      console.error("Failed to copy text:", err);
+      console.error("Failed to copy text via clipboard API, trying fallback:", err);
+    }
+
+    // Fallback copy method for non-HTTPS or legacy environments
+    try {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed"; // avoid page scrolling
+      textArea.style.left = "-9999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      const successful = document.execCommand("copy");
+      document.body.removeChild(textArea);
+      if (successful) {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+        return true;
+      }
+    } catch (err) {
+      console.error("Fallback copy failed:", err);
     }
     return false;
   };
@@ -26,10 +46,12 @@ export function useShareCard() {
     if (!ref.current) return false;
     setIsSharing(true);
     try {
-      // Small delay to ensure styles are evaluated
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      // Small delay to ensure styles and layouts are fully parsed
+      await new Promise((resolve) => setTimeout(resolve, 150));
       const dataUrl = await toPng(ref.current, {
         cacheBust: true,
+        pixelRatio: 2, // High-DPI output for premium look
+        backgroundColor: "#000000",
         style: {
           transform: "scale(1)",
         },
@@ -58,6 +80,8 @@ export function useShareCard() {
       if (navigator.share) {
         const dataUrl = await toPng(ref.current, {
           cacheBust: true,
+          pixelRatio: 2,
+          backgroundColor: "#000000",
           style: { transform: "scale(1)" },
         });
 
@@ -84,6 +108,15 @@ export function useShareCard() {
           });
           return true;
         }
+      } else {
+        // Fallback: copy to clipboard and alert the user
+        const didCopy = await copyText(text);
+        if (didCopy) {
+          alert("Sharing is not supported on this browser. The text results have been copied to your clipboard!");
+        } else {
+          alert("Sharing is not supported on this browser.");
+        }
+        return true;
       }
     } catch (err) {
       console.error("Native share failed:", err);

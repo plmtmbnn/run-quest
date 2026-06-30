@@ -94,6 +94,7 @@ export interface Scenario {
   race: Race;
   objective: Objective;
   storySeed: StorySeed;
+  analysis?: RaceAnalysis;
 }
 
 export type DailyChallenge = Scenario;
@@ -244,3 +245,44 @@ export interface DecisionPrompt {
 export type SimulationStepResult =
   | { type: "decision"; state: SimulationState; prompt: DecisionPrompt }
   | { type: "finished"; result: SimulationResult };
+
+export interface RaceSegment {
+  id: string;
+  type: "flat" | "rolling" | "climb" | "descent" | "sprint";
+  distance: number; // in km
+  elevation: Elevation;
+  weather: Weather;
+  terrain: Surface;
+  difficulty: number; // 1 to 5
+  eventWeight: number;
+}
+
+export interface WeatherTimeline {
+  id: string;
+  checkpoints: number[]; // km checkpoints
+  temperature: number[];
+  humidity: number[];
+  wind: Wind[];
+  rain: boolean[];
+  visibility: number[];
+}
+
+export interface CoachBriefing {
+  id: string;
+  title: LocalizedText;
+  summary: LocalizedText;
+  recommendations: LocalizedText[];
+  warnings: LocalizedText[];
+}
+
+export interface RaceAnalysis {
+  id: string;
+  raceId: string;
+  weather: WeatherTimeline;
+  elevation: Elevation;
+  segments: RaceSegment[];
+  hazards: LocalizedText[];
+  briefing: CoachBriefing;
+  knownConditions: string[];
+  hiddenConditions: string[];
+}

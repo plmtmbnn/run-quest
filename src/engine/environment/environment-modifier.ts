@@ -1,4 +1,4 @@
-import type { DailyChallenge, EnvironmentModifiers } from "@/types/engine";
+import type { DailyChallenge, EnvironmentModifiers, Weather, Wind, Surface, Elevation } from "@/types/engine";
 
 /**
  * Calculates how environmental conditions (weather, temperature, humidity, wind, surface, elevation)
@@ -98,6 +98,113 @@ export function calculateEnvironmentModifiers(
   switch (race.elevation) {
     case "flat":
       // Baseline
+      break;
+    case "rolling":
+      modifiers.paceModifier += 6;
+      modifiers.fatigueModifier += 0.8;
+      break;
+    case "hilly":
+      modifiers.paceModifier += 22;
+      modifiers.fatigueModifier += 2.2;
+      break;
+  }
+
+  return modifiers;
+}
+
+export function calculateDynamicEnvironmentModifiers(
+  weather: Weather,
+  temperature: number,
+  humidity: number,
+  wind: Wind,
+  surface: Surface,
+  elevation: Elevation,
+): EnvironmentModifiers {
+  const modifiers: EnvironmentModifiers = {
+    paceModifier: 0,
+    fatigueModifier: 0,
+    hydrationModifier: 0,
+    focusModifier: 0,
+    confidenceModifier: 0,
+  };
+
+  // 1. Weather Effect
+  switch (weather) {
+    case "sunny":
+      modifiers.hydrationModifier += 0.8;
+      break;
+    case "cloudy":
+      modifiers.paceModifier -= 4;
+      modifiers.fatigueModifier -= 0.3;
+      break;
+    case "rain":
+      modifiers.paceModifier += 12;
+      modifiers.fatigueModifier += 0.5;
+      modifiers.focusModifier -= 1.0;
+      break;
+    case "storm":
+      modifiers.paceModifier += 35;
+      modifiers.fatigueModifier += 2.5;
+      modifiers.focusModifier -= 3.0;
+      modifiers.confidenceModifier -= 15;
+      break;
+    case "hot":
+      modifiers.paceModifier += 15;
+      modifiers.hydrationModifier += 3.0;
+      modifiers.fatigueModifier += 1.2;
+      break;
+    case "cold":
+      modifiers.paceModifier += 3;
+      modifiers.hydrationModifier -= 0.8;
+      break;
+    case "fog":
+      modifiers.paceModifier += 8;
+      modifiers.focusModifier -= 1.5;
+      break;
+  }
+
+  // 2. Temperature & Humidity scaling
+  if (temperature > 25) {
+    const excessHeat = temperature - 25;
+    modifiers.hydrationModifier += excessHeat * 0.25;
+    modifiers.paceModifier += excessHeat * 1.5;
+    modifiers.fatigueModifier += excessHeat * 0.1;
+  } else if (temperature < 10) {
+    const excessCold = 10 - temperature;
+    modifiers.paceModifier += excessCold * 0.8;
+    modifiers.fatigueModifier += excessCold * 0.05;
+  }
+
+  if (humidity > 70) {
+    const excessHumidity = humidity - 70;
+    modifiers.fatigueModifier += excessHumidity * 0.05;
+    modifiers.hydrationModifier += excessHumidity * 0.05;
+  }
+
+  // 3. Wind speed drag
+  if (wind.speed > 10) {
+    modifiers.paceModifier += (wind.speed - 10) * 0.4;
+    modifiers.focusModifier -= (wind.speed - 10) * 0.05;
+  }
+
+  // 4. Surface modifiers
+  switch (surface) {
+    case "road":
+      break;
+    case "track":
+      modifiers.paceModifier -= 10;
+      modifiers.fatigueModifier -= 0.5;
+      break;
+    case "trail":
+      modifiers.paceModifier += 25;
+      modifiers.fatigueModifier += 1.8;
+      modifiers.confidenceModifier -= 5;
+      break;
+  }
+
+  // 5. Elevation modifiers
+  switch (elevation) {
+    case "flat":
       break;
     case "rolling":
       modifiers.paceModifier += 6;

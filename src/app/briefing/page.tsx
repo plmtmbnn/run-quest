@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { BriefingScreen } from "@/features/briefing/briefing-screen";
+import { RaceAnalysisScreen } from "@/features/briefing/race-analysis-screen";
 
 export const metadata: Metadata = {
-  title: "Daily Briefing | RunQuest",
+  title: "Race Analysis | RunQuest",
   description:
-    "Review today's running challenge details and target benchmarks.",
+    "Review today's running challenge details, course segments, and dynamic weather timeline.",
 };
 
 export default function Page() {
-  return <BriefingScreen />;
+  return <RaceAnalysisScreen />;
 }

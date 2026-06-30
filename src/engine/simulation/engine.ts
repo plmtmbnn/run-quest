@@ -372,6 +372,7 @@ export function advanceSimulation(
       envMods,
       checkpoint,
       random,
+      challenge,
     );
 
     // Apply special rare event if scheduled for this kilometer

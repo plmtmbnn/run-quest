@@ -340,5 +340,20 @@
     "copied": "Tersalin!",
     "downloading": "Menyimpan...",
     "native_title": "Bagikan RunQuest"
+  },
+  "analysis": {
+    "title": "Analisis Balapan",
+    "subtitle": "Pelajari rute dan persiapkan taktik Anda",
+    "key_recommendations": "Rekomendasi Utama",
+    "tactical_warnings": "Peringatan Taktis",
+    "course_segments": "Analisis Segmen Rute",
+    "weather_forecast": "Prakiraan Cuaca Dinamis",
+    "hazards_detected": "Peringatan Bahaya Terdeteksi",
+    "distance": "Jarak",
+    "difficulty": "Kesulitan",
+    "segment_climb": "Segmen Tanjakan Terjal",
+    "segment_descent": "Segmen Turunan Teknis",
+    "segment_sprint": "Segmen Sprint Akhir",
+    "segment_flat": "Segmen Jalan Datar"
   }
 }

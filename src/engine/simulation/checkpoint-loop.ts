@@ -10,8 +10,11 @@ import type {
   Preparation,
   RaceEvent,
   SimulationState,
+  DailyChallenge,
+  RaceSegment,
 } from "@/types/engine";
 import type { SeededRandom } from "@/utils/random/seeded-random";
+import { calculateDynamicEnvironmentModifiers } from "@/engine/environment/environment-modifier";
 
 /**
  * Adjusts event effects dynamically based on player equipment and strategy.
@@ -131,6 +134,7 @@ export function simulateKmStep(
   envMods: EnvironmentModifiers,
   checkpoint: Checkpoint | undefined,
   random: SeededRandom,
+  challenge: DailyChallenge,
 ): void {
   // Initialize new state variables safely (Sprint 13.1)
   state.muscleFatigue = state.muscleFatigue ?? 0;
@@ -139,6 +143,78 @@ export function simulateKmStep(
   state.paceStability = state.paceStability ?? 80;
   state.riskLevel = state.riskLevel ?? 20;
   state.delayedEffects = state.delayedEffects ?? [];
+
+  // Determine dynamic weather and active segment at this kilometer
+  let activeWeather = challenge.environment.weather;
+  let activeTemp = challenge.environment.temperature;
+  let activeHumidity = challenge.environment.humidity;
+  let activeWind = challenge.environment.wind;
+  let activeElevation = challenge.race.elevation;
+
+  const analysis = challenge.analysis;
+  let activeSegment: RaceSegment | null = null;
+
+  if (analysis) {
+    // 1. Resolve active segment at this kilometer
+    if (analysis.segments && analysis.segments.length > 0) {
+      let accumulatedDistance = 0;
+      for (const seg of analysis.segments) {
+        accumulatedDistance += seg.distance;
+        if (km <= accumulatedDistance + 0.001) {
+          activeSegment = seg;
+          break;
+        }
+      }
+      if (!activeSegment) {
+        activeSegment = analysis.segments[analysis.segments.length - 1];
+      }
+    }
+
+    // 2. Resolve active weather at this kilometer from weather timeline
+    if (analysis.weather) {
+      const timeline = analysis.weather;
+      let activeIdx = 0;
+      for (let i = 0; i < timeline.checkpoints.length; i++) {
+        if (timeline.checkpoints[i] <= km) {
+          activeIdx = i;
+        }
+      }
+      activeWeather = timeline.rain[activeIdx] ? "rain" : challenge.environment.weather;
+      activeTemp = timeline.temperature[activeIdx];
+      activeHumidity = timeline.humidity[activeIdx];
+      activeWind = timeline.wind[activeIdx];
+    }
+  }
+
+  if (activeSegment) {
+    activeElevation = activeSegment.elevation;
+  }
+
+  // Calculate dynamic environmental modifiers for this kilometer step
+  const currentEnvMods = calculateDynamicEnvironmentModifiers(
+    activeWeather,
+    activeTemp,
+    activeHumidity,
+    activeWind,
+    challenge.race.surface,
+    activeElevation
+  );
+
+  // Apply segment-specific modifiers
+  let segmentPaceModifier = 0;
+  let segmentFatigueModifier = 0;
+  if (activeSegment) {
+    if (activeSegment.type === "climb") {
+      segmentPaceModifier += 20; // +20 seconds/km climbing penalty
+      segmentFatigueModifier += 1.5;
+    } else if (activeSegment.type === "descent") {
+      segmentPaceModifier -= 15; // -15 seconds/km descending boost
+      segmentFatigueModifier -= 0.5;
+    } else if (activeSegment.type === "sprint") {
+      segmentPaceModifier -= 25; // -25 seconds/km sprint kick
+      segmentFatigueModifier += 2.0;
+    }
+  }
 
   // Apply delayed effects scheduled for this kilometer (Sprint 13.1)
   let delayedPaceAdjustment = 0;
@@ -187,11 +263,11 @@ export function simulateKmStep(
 
   const calculatedFatigue = Math.max(
     0.5,
-    baseFatigueKm + prepMods.fatigueModifier + envMods.fatigueModifier,
+    baseFatigueKm + prepMods.fatigueModifier + currentEnvMods.fatigueModifier + segmentFatigueModifier,
   );
   let calculatedHydration = Math.max(
     0.5,
-    baseHydrationKm + prepMods.hydrationModifier + envMods.hydrationModifier,
+    baseHydrationKm + prepMods.hydrationModifier + currentEnvMods.hydrationModifier,
   );
 
   // Water provides hydration stability
@@ -199,28 +275,32 @@ export function simulateKmStep(
     calculatedHydration *= 0.75;
   }
 
-  state.fatigue = Math.min(100, state.fatigue + calculatedFatigue);
+  // Momentum improves energy efficiency (better momentum reduces fatigue rate)
+  const momentumEfficiency = 1.0 - ((state.momentum ?? 50) - 50) * 0.003;
+  state.fatigue = Math.min(100, state.fatigue + calculatedFatigue * momentumEfficiency);
   state.energy = Math.max(0, 100 - state.fatigue);
   state.hydration = Math.max(0, state.hydration - calculatedHydration);
 
   // Focus and Confidence decay over distance (caffeine boosts or crashes focus)
+  // Confidence influences focus recovery/decay
+  const confidenceFocusBoost = ((state.confidence ?? 50) - 50) * 0.02;
   if (hasCaffeine) {
     if (isCaffeineCrash) {
-      state.focus = Math.max(0, state.focus - 4.0); // crash drops focus fast
+      state.focus = Math.max(0, state.focus - 4.0 + confidenceFocusBoost);
       state.confidence = Math.max(0, state.confidence - 1.5);
     } else {
-      state.focus = Math.min(100, state.focus + 2.0); // caffeine boosts focus early
+      state.focus = Math.min(100, state.focus + 2.0 + confidenceFocusBoost);
       state.confidence = Math.min(100, state.confidence + 1.0);
     }
   } else {
-    state.focus = Math.max(0, state.focus - (1.0 - prepMods.focusModifier));
+    state.focus = Math.max(0, state.focus - (1.0 - prepMods.focusModifier) + confidenceFocusBoost);
     state.confidence = Math.max(0, state.confidence - 0.5);
   }
 
   // Runner attribute evolution (Sprint 13.1)
   let muscleFatigueDelta = calculatedFatigue * 0.7;
   if (prep.shoes === "carbon_racer") muscleFatigueDelta += 0.8;
-  if (envMods.fatigueModifier > 0) muscleFatigueDelta += 0.4;
+  if (currentEnvMods.fatigueModifier > 0) muscleFatigueDelta += 0.4;
   state.muscleFatigue = Math.max(
     0,
     Math.min(100, state.muscleFatigue + muscleFatigueDelta),
@@ -237,9 +317,31 @@ export function simulateKmStep(
   if (prep.nutrition.includes("energy_gel")) momentumDelta += 0.8;
   if (hasCaffeine && !isCaffeineCrash) momentumDelta += 1.5;
   if (isCaffeineCrash) momentumDelta -= 2.0;
+
+  // Segment influences on momentum and confidence
+  if (activeSegment) {
+    if (activeSegment.type === "climb") {
+      momentumDelta -= 1.0;
+      state.confidence = Math.max(0, state.confidence - 0.4);
+    } else if (activeSegment.type === "descent") {
+      momentumDelta += 0.8;
+      state.confidence = Math.min(100, state.confidence + 0.6);
+    } else if (activeSegment.type === "sprint") {
+      momentumDelta += 2.0;
+      state.confidence = Math.min(100, state.confidence + 1.2);
+    }
+  }
+
+  // Momentum affects confidence recovery
+  const momentumConfidenceBoost = ((state.momentum ?? 50) - 50) * 0.05;
   state.momentum = Math.max(
     0,
     Math.min(100, state.momentum + momentumDelta),
+  );
+
+  state.confidence = Math.max(
+    0,
+    Math.min(100, state.confidence + momentumConfidenceBoost),
   );
 
   state.paceStability = Math.max(
@@ -256,9 +358,9 @@ export function simulateKmStep(
   // 2. Pace determination for this kilometer (in seconds/km)
   let paceSeconds = 310;
 
-  // Apply preparation and environmental modifiers
+  // Apply preparation and dynamic environmental modifiers
   paceSeconds += prepMods.basePaceModifier;
-  paceSeconds += envMods.paceModifier;
+  paceSeconds += currentEnvMods.paceModifier + segmentPaceModifier;
 
   // Muscle & Mental fatigue penalties
   if (state.muscleFatigue > 50) {
@@ -293,6 +395,37 @@ export function simulateKmStep(
   const maxVariation = 0.03 + 0.05 * stabilityFactor;
   const variationPercent = random.nextRange(-maxVariation, maxVariation);
   paceSeconds += paceSeconds * variationPercent;
+
+  // Sprint 14.5: Risk checks (Cramp risk)
+  const segmentDifficulty = activeSegment ? activeSegment.difficulty : 3;
+  const crampProbability = 0.01 + (state.riskLevel * 0.001) + (segmentDifficulty * 0.01);
+  const isCrampTriggered = !prep.nutrition.includes("electrolyte") && (random.next() < crampProbability);
+
+  if (isCrampTriggered) {
+    const staminaLoss = Math.floor(random.nextRange(10, 25));
+    const paceLoss = Math.floor(random.nextRange(15, 30));
+
+    state.energy = Math.max(0, state.energy - staminaLoss);
+    state.muscleFatigue = Math.min(100, state.muscleFatigue + 15);
+    state.confidence = Math.max(0, state.confidence - 10);
+    state.momentum = Math.max(0, state.momentum - 20);
+
+    state.eventsResolved.push({
+      km,
+      title: { en: "Muscle Cramping", id: "Kram Otot" },
+      description: {
+        en: "You feel a sharp muscle contraction. You are forced to reduce your speed.",
+        id: "Anda merasakan kontraksi otot yang tajam. Anda terpaksa mengurangi kecepatan.",
+      },
+      effect: {
+        stamina: -staminaLoss,
+        hydration: 0,
+        morale: -10,
+        pace: paceLoss,
+      },
+    });
+    paceSeconds += paceLoss;
+  }
 
   // 3. Resolve Checkpoint Events if present
   let eventPaceAdjustment = 0;

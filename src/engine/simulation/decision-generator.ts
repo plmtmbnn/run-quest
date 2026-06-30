@@ -25,18 +25,94 @@ export function generateDecisionTimeline(
   seed: number,
 ): Record<number, string> {
   const random = new SeededRandom(seed);
+
+  // If segment analysis exists, generate timeline based on segment parameters
+  const analysis = scenario.analysis;
+  if (analysis && analysis.segments && analysis.segments.length > 0) {
+    const timeline: Record<number, string> = {};
+    let accumulatedDistance = 0;
+
+    for (const segment of analysis.segments) {
+      const startKm = Math.ceil(accumulatedDistance);
+      accumulatedDistance += segment.distance;
+      const endKm = Math.min(Math.ceil(distance), Math.floor(accumulatedDistance));
+
+      for (let km = startKm + 1; km <= endKm; km++) {
+        // Deterministic probability check per kilometer in this segment
+        const baseProb = 0.3 * (segment.eventWeight ?? 1.0) * ((segment.difficulty ?? 2) / 3);
+        const randVal = random.next();
+
+        if (randVal < baseProb) {
+          const pool = Object.values(DECISION_DATABASE);
+          const weightedPool = pool
+            .map((card) => {
+              let weight = 10;
+              if (card.rarity === "rare") {
+                weight = 1;
+              } else if (card.rarity === "uncommon") {
+                weight = 5;
+              }
+
+              // Segment context
+              if (segment.type === "climb") {
+                if (card.id === "steep_climb") weight *= 10;
+                if (card.id === "stitch" || card.id === "heavy_legs") weight *= 3;
+              } else if (segment.type === "descent") {
+                if (card.id === "steep_climb") weight = 0;
+              } else if (segment.type === "flat") {
+                if (card.id === "steep_climb") weight = 0;
+              }
+
+              // Weather context
+              const activeWeather = segment.weather;
+              if (card.id === "heat_wave") {
+                if (activeWeather === "hot" || activeWeather === "sunny") {
+                  weight *= 4;
+                } else if (activeWeather === "cold" || activeWeather === "rain") {
+                  weight = 0;
+                }
+              }
+
+              if (card.id === "strong_headwind" && activeWeather === "storm") {
+                weight *= 3;
+              }
+
+              return { card, weight };
+            })
+            .filter((item) => item.weight > 0);
+
+          if (weightedPool.length > 0) {
+            const totalWeight = weightedPool.reduce(
+              (sum, item) => sum + item.weight,
+              0,
+            );
+            let roll = random.nextRange(0, totalWeight);
+            let selectedId = weightedPool[0].card.id;
+
+            for (const item of weightedPool) {
+              roll -= item.weight;
+              if (roll <= 0) {
+                selectedId = item.card.id;
+                break;
+              }
+            }
+            timeline[km] = selectedId;
+          }
+        }
+      }
+    }
+    return timeline;
+  }
+
+  // Fallback: Uniform distribution across kilometers
   const numDecisions = getNumDecisionsForDistance(distance, random);
   const totalKms = Math.ceil(distance);
 
-  // We want to distribute decisions across kilometers.
-  // Avoid km 0 (before race) and don't place them after the final km.
-  // We can pick unique kilometers between 1 and totalKms.
   const availableKms: number[] = [];
   for (let i = 1; i <= totalKms; i++) {
     availableKms.push(i);
   }
 
-  // Shuffle available kilometers
   for (let i = availableKms.length - 1; i > 0; i--) {
     const j = Math.floor(random.nextRange(0, i + 1));
     const temp = availableKms[i];
@@ -44,39 +120,32 @@ export function generateDecisionTimeline(
     availableKms[j] = temp;
   }
 
-  // Take the first numDecisions kilometers and sort them
   const selectedKms = availableKms.slice(0, numDecisions).sort((a, b) => a - b);
-
   const timeline: Record<number, string> = {};
 
   for (const km of selectedKms) {
-    // Select an appropriate decision card based on scenario conditions
     const pool = Object.values(DECISION_DATABASE);
-
-    // Calculate weights for cards
     const weightedPool = pool
       .map((card) => {
-        let weight = 10; // base weight
+        let weight = 10;
 
-        // Rarity checks
         if (card.rarity === "rare") {
-          weight = 1; // rare events are 10x less likely
+          weight = 1;
         } else if (card.rarity === "uncommon") {
           weight = 5;
         }
 
-        // Contextual adjustments
         if (card.id === "heat_wave") {
           if (
             scenario.environment.weather === "hot" ||
             scenario.environment.weather === "sunny"
           ) {
-            weight *= 4; // much more common in hot/sunny weather
+            weight *= 4;
           } else if (
             scenario.environment.weather === "cold" ||
             scenario.environment.weather === "rain"
           ) {
-            weight = 0; // cannot have heat wave in cold/rain
+            weight = 0;
           }
         }
 
@@ -88,12 +157,12 @@ export function generateDecisionTimeline(
 
         if (card.id === "steep_climb") {
           if (scenario.race.surface === "trail") {
-            weight *= 4; // very common in trails
+            weight *= 4;
           }
           if (scenario.race.elevation === "hilly") {
             weight *= 3;
           } else if (scenario.race.elevation === "flat") {
-            weight = 0; // no steep climbs on flat track/road
+            weight = 0;
           }
         }
 
@@ -101,7 +170,6 @@ export function generateDecisionTimeline(
       })
       .filter((item) => item.weight > 0);
 
-    // Pick from weighted pool
     if (weightedPool.length > 0) {
       const totalWeight = weightedPool.reduce(
         (sum, item) => sum + item.weight,

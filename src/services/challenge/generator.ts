@@ -9,6 +9,7 @@ import type {
   Weather,
 } from "@/types/engine";
 import { SeededRandom } from "@/utils/random/seeded-random";
+import { generateRaceAnalysis } from "@/engine/intelligence/intelligence-engine";
 
 const ADJECTIVES = [
   { en: "Dawn", id: "Pagi" },
@@ -170,7 +171,7 @@ function generateScenarioForEntry(
     )}m ${targetTime % 60}s.`,
   };
 
-  return {
+  const scenarioBase: Omit<Scenario, "analysis"> = {
     id: `challenge_${seed}`,
     date: dateStr,
     environment: {
@@ -197,6 +198,13 @@ function generateScenarioForEntry(
     storySeed: {
       mood: weather === "storm" ? "survival" : "optimistic",
     },
+  };
+
+  const analysis = generateRaceAnalysis(scenarioBase, seed);
+
+  return {
+    ...scenarioBase,
+    analysis,
   };
 }
 
