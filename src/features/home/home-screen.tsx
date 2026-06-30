@@ -2,9 +2,11 @@
 
 import dayjs from "dayjs";
 import { motion } from "framer-motion";
-import { Settings, Sparkles } from "lucide-react";
+import { Settings, Share2, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { DailyStatsCard } from "@/components/share/daily-stats-card";
+import { ShareModal } from "@/components/share/share-modal";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { generateDailyRaceBoard } from "@/services/challenge/generator";
@@ -22,6 +24,19 @@ export function HomeScreen() {
   const { setChallenge } = useGameStore();
   const { settings } = useSettingsStore();
   const { playSound } = useSound();
+
+  const [isShareOpen, setIsShareOpen] = useState(false);
+
+  const shareTitle = t("share.stats.title" as TranslationKey);
+  const shareText = `📊 RunQuest — ${t("share.stats.title" as TranslationKey)}:
+🏃 Runner #${player?.id.slice(0, 8).toUpperCase()}
+
+🔥 Streak: ${player?.statistics.currentStreak} Days
+⚡ Total Runs: ${player?.statistics.totalRuns}
+📏 Total Distance: ${player?.statistics.totalDistance} km
+⭐ Perfect Runs: ${player?.statistics.perfectRuns || 0}
+
+${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
 
   const todayStr = dayjs().format("YYYY-MM-DD");
   const board = generateDailyRaceBoard(todayStr);
@@ -182,7 +197,7 @@ export function HomeScreen() {
           <p className="text-sm font-medium text-gray-400 uppercase tracking-widest mb-1">
             RunQuest
           </p>
-          <h1 className="text-3xl font-bold text-gray-900 font-heading">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white font-heading">
             {isBoardCompleted
               ? t("home.completed" as TranslationKey)
               : t("home.title" as TranslationKey)}
@@ -199,7 +214,7 @@ export function HomeScreen() {
             playSound("click");
             router.push("/settings");
           }}
-          className="rounded-full p-2.5 bg-white border-2 border-[#E5E7EB] hover:bg-gray-50 text-gray-700 shadow-sm transition-all active:scale-95 mt-2"
+          className="rounded-full p-2.5 bg-white dark:bg-slate-900 border-2 border-[#E5E7EB] dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm transition-all active:scale-95 mt-2"
           aria-label="Settings"
         >
           <Settings className="h-5 w-5" />
@@ -213,9 +228,22 @@ export function HomeScreen() {
           <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl p-6 text-white shadow-md flex items-center justify-between">
             <div className="flex flex-col gap-2">
               <div className="flex flex-col gap-1">
-                <span className="text-xs text-blue-200 uppercase tracking-wider font-semibold">
-                  Player Profile
-                </span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs text-blue-200 uppercase tracking-wider font-semibold">
+                    Player Profile
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playSound("click");
+                      setIsShareOpen(true);
+                    }}
+                    className="p-1 rounded-full hover:bg-white/10 text-blue-200 hover:text-white transition active:scale-90"
+                    aria-label="Share career stats"
+                  >
+                    <Share2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
                 <span className="text-lg font-bold font-heading">
                   Runner #{player.id.slice(0, 5).toUpperCase()}
                 </span>
@@ -262,11 +290,11 @@ export function HomeScreen() {
 
         {/* Countdown Timer for Daily Reset */}
         {isBoardCompleted && (
-          <div className="bg-white border-2 border-amber-300 rounded-3xl p-6 shadow-sm flex flex-col items-center gap-3 text-center border-dashed">
+          <div className="bg-white dark:bg-slate-900 border-2 border-amber-300 dark:border-amber-600 rounded-3xl p-6 shadow-sm flex flex-col items-center gap-3 text-center border-dashed">
             <span className="text-xs uppercase font-extrabold tracking-widest text-amber-700 bg-amber-50 px-3.5 py-1 rounded-full animate-pulse">
               {t("home.next_race_in" as TranslationKey)}
             </span>
-            <span className="text-3xl font-black font-heading text-slate-850 tracking-tight">
+            <span className="text-3xl font-black font-heading text-slate-850 dark:text-slate-100 tracking-tight">
               {formatCountdown(secondsLeft)}
             </span>
             <p className="text-xs text-gray-500 max-w-xs leading-relaxed">
@@ -276,8 +304,8 @@ export function HomeScreen() {
         )}
 
         {/* Daily Entry Tracker */}
-        <div className="flex items-center justify-between bg-white border-2 border-[#E5E7EB] rounded-2xl px-6 py-4 shadow-sm">
-          <span className="text-sm font-bold text-gray-700">
+        <div className="flex items-center justify-between bg-white dark:bg-slate-900 border-2 border-[#E5E7EB] dark:border-slate-800 rounded-2xl px-6 py-4 shadow-sm">
+          <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
             {t("home.entry_tickets" as TranslationKey)}
           </span>
           <span className="bg-indigo-50 border border-indigo-100 text-indigo-750 text-xs font-black px-3.5 py-1.5 rounded-full">
@@ -324,9 +352,9 @@ export function HomeScreen() {
             return (
               <div
                 key={entry.id}
-                className={`bg-white rounded-3xl border-2 shadow-sm p-6 flex flex-col gap-4 transition-all duration-200 ${
+                className={`bg-white dark:bg-slate-900 rounded-3xl border-2 shadow-sm p-6 flex flex-col gap-4 transition-all duration-200 ${
                   isLocked ? "opacity-60" : "hover:shadow-md"
-                } ${isRecommended ? "border-amber-300 ring-2 ring-amber-100" : "border-[#E5E7EB]"}`}
+                } ${isRecommended ? "border-amber-300 dark:border-amber-500 ring-2 ring-amber-100 dark:ring-amber-900" : "border-[#E5E7EB] dark:border-slate-800"}`}
               >
                 {/* Badges */}
                 <div className="flex items-center justify-between">
@@ -357,29 +385,29 @@ export function HomeScreen() {
 
                 {/* Main Content */}
                 <div>
-                  <h3 className="text-lg font-black text-gray-900 font-heading leading-tight mb-1">
+                  <h3 className="text-lg font-black text-gray-900 dark:text-white font-heading leading-tight mb-1">
                     {entry.title[lang]}
                   </h3>
-                  <p className="text-xs text-gray-550 leading-relaxed">
+                  <p className="text-xs text-gray-550 dark:text-gray-300 leading-relaxed">
                     {entry.scenario.race.description[lang]}
                   </p>
                 </div>
 
                 {/* Details grid */}
-                <div className="grid grid-cols-2 gap-2 bg-gray-50/50 rounded-2xl p-3 text-center text-xs">
+                <div className="grid grid-cols-2 gap-2 bg-gray-50/50 dark:bg-slate-800/50 rounded-2xl p-3 text-center text-xs">
                   <div className="flex flex-col gap-0.5">
                     <span className="text-[9px] text-gray-400 uppercase tracking-widest font-semibold">
                       {t("history.distance" as TranslationKey)}
                     </span>
-                    <span className="font-bold text-gray-800">
+                    <span className="font-bold text-gray-800 dark:text-gray-100">
                       {entry.distance} KM
                     </span>
                   </div>
-                  <div className="flex flex-col gap-0.5 border-l border-gray-200">
+                  <div className="flex flex-col gap-0.5 border-l border-gray-200 dark:border-slate-700">
                     <span className="text-[9px] text-gray-400 uppercase tracking-widest font-semibold">
                       {t("home.target_time" as TranslationKey)}
                     </span>
-                    <span className="font-bold text-gray-800">
+                    <span className="font-bold text-gray-800 dark:text-gray-100">
                       {formatTargetTime(entry.scenario.objective.targetTime)}
                     </span>
                   </div>
@@ -406,6 +434,22 @@ export function HomeScreen() {
           </p>
         )}
       </main>
+
+      {player && (
+        <ShareModal
+          isOpen={isShareOpen}
+          onClose={() => setIsShareOpen(false)}
+          shareText={shareText}
+          shareTitle={shareTitle}
+          fileName={`runquest-stats-${player.id.slice(0, 8)}.png`}
+        >
+          <DailyStatsCard
+            player={player}
+            lang={language as "en" | "id"}
+            date={todayStr}
+          />
+        </ShareModal>
+      )}
     </motion.div>
   );
 }

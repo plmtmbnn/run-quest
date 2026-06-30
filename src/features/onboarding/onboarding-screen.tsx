@@ -112,7 +112,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
 
       {/* Main Slide Card Container */}
       <main className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full py-8">
-        <div className="bg-white rounded-3xl border-2 border-[#E5E7EB] shadow-[0_12px_32px_rgba(0,0,0,0.06)] overflow-hidden flex flex-col min-h-[420px]">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-[#E5E7EB] dark:border-slate-800 shadow-[0_12px_32px_rgba(0,0,0,0.06)] overflow-hidden flex flex-col min-h-[420px]">
           {/* Top visual graphic area */}
           <div
             className={`h-40 bg-gradient-to-br ${activeSlide.color} flex items-center justify-center border-b border-gray-100`}
@@ -123,10 +123,10 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
           {/* Slide Text Content */}
           <div className="flex-1 p-8 flex flex-col justify-between">
             <div className="flex flex-col gap-2">
-              <h2 className="text-2xl font-black font-heading text-gray-900 leading-tight">
+              <h2 className="text-2xl font-black font-heading text-gray-900 dark:text-gray-50 leading-tight">
                 {t(activeSlide.titleKey as TranslationKey)}
               </h2>
-              <p className="text-sm font-semibold text-gray-550 leading-snug">
+              <p className="text-sm font-semibold text-gray-550 dark:text-gray-300 leading-snug">
                 {t(activeSlide.subtitleKey as TranslationKey)}
               </p>
               <p className="text-xs text-gray-400 mt-2 leading-relaxed">
@@ -157,7 +157,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
         <button
           type="button"
           onClick={handleNext}
-          className="w-full bg-slate-900 hover:bg-slate-800 active:scale-[0.98] text-white font-bold text-base py-4 rounded-full transition duration-200 flex items-center justify-center gap-2"
+          className="w-full bg-slate-900 hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-500 active:scale-[0.98] text-white font-bold text-base py-4 rounded-full transition duration-200 flex items-center justify-center gap-2"
         >
           <span>
             {currentSlide === slides.length - 1

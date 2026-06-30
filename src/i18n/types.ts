@@ -68,4 +68,29 @@ export interface Dictionary {
       fearless: ChoiceText;
     };
   };
+  share: {
+    race_choice: {
+      title: string;
+      cta: string;
+      button: string;
+    };
+    loadout: {
+      title: string;
+      cta: string;
+      button: string;
+    };
+    coach: {
+      title: string;
+    };
+    event: {
+      title: string;
+    };
+    stats: {
+      title: string;
+      cta: string;
+    };
+    copied: string;
+    downloading: string;
+    native_title: string;
+  };
 }

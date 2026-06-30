@@ -2,9 +2,19 @@
 
 import dayjs from "dayjs";
 import { motion } from "framer-motion";
-import { ArrowLeft, Clock, Flame, MapPin, Sparkles, Wind } from "lucide-react";
+import {
+  ArrowLeft,
+  Clock,
+  Flame,
+  MapPin,
+  Share2,
+  Sparkles,
+  Wind,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { RaceChoiceCard } from "@/components/share/race-choice-card";
+import { ShareModal } from "@/components/share/share-modal";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { generateDailyChallenge } from "@/services/challenge/generator";
@@ -19,8 +29,27 @@ export function BriefingScreen() {
   const { currentChallenge } = useGameStore();
   const { playSound } = useSound();
 
+  const formatTargetTime = (seconds: number) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    if (hrs > 0) {
+      return `${hrs}h ${mins}m`;
+    }
+    return `${mins}m`;
+  };
+
   const challenge =
     currentChallenge || generateDailyChallenge(dayjs().format("YYYY-MM-DD"));
+
+  const [isShareOpen, setIsShareOpen] = useState(false);
+
+  const shareTitle = t("share.race_choice.title" as TranslationKey);
+  const shareText = `🏃 RunQuest — ${t("share.race_choice.title" as TranslationKey)}
+🏁 ${challenge.race.title[lang]}
+🛣️ ${t(`challenge.surface.${challenge.race.surface}` as TranslationKey)} • ☀️ ${t(`challenge.weather.${challenge.environment.weather}` as TranslationKey)} ${challenge.environment.temperature}°C • ⛰️ ${t(`challenge.elevation.${challenge.race.elevation}` as TranslationKey)}
+🎯 ${t("home.target_time" as TranslationKey)}: Under ${formatTargetTime(challenge.objective.targetTime)}
+
+${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
 
   useEffect(() => {
     const daily = storageRepository.loadDaily();
@@ -33,22 +62,13 @@ export function BriefingScreen() {
     }
   }, [challenge.id, router]);
 
-  const formatTargetTime = (seconds: number) => {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    if (hrs > 0) {
-      return `${hrs}h ${mins}m`;
-    }
-    return `${mins}m`;
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.25, ease: "easeInOut" }}
-      className="min-h-screen bg-background pb-24 text-gray-900"
+      className="min-h-screen bg-background pb-24 text-gray-900 dark:text-white"
     >
       {/* Header */}
       <header className="sticky top-0 z-10 border-b border-[#E5E7EB] bg-surface/90 px-6 py-4 backdrop-blur-md">
@@ -59,16 +79,16 @@ export function BriefingScreen() {
               playSound("click");
               router.back();
             }}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white transition hover:bg-gray-50 active:scale-95"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white dark:bg-slate-900 transition hover:bg-gray-50 active:scale-95"
             aria-label="Back"
           >
             <ArrowLeft className="h-4.5 w-4.5 text-gray-600" />
           </button>
           <div>
-            <h1 className="font-heading text-xl font-bold text-gray-900">
+            <h1 className="font-heading text-xl font-bold text-gray-900 dark:text-white">
               {t("challenge.briefing.title" as TranslationKey)}
             </h1>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 dark:text-gray-300">
               {t("challenge.briefing.subtitle" as TranslationKey)}
             </p>
           </div>
@@ -76,13 +96,13 @@ export function BriefingScreen() {
       </header>
 
       <main className="mx-auto max-w-2xl px-6 py-8 flex flex-col gap-6">
-        <div className="rounded-3xl border-2 border-[#E5E7EB] bg-white p-6 shadow-sm">
+        <div className="rounded-3xl border-2 border-[#E5E7EB] bg-white dark:bg-slate-900 p-6 shadow-sm">
           <div className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-600 text-xs font-semibold px-3 py-1 rounded-full mb-4">
             <Flame className="w-3.5 h-3.5" />
             <span>Today&apos;s Race Details</span>
           </div>
 
-          <h2 className="text-2xl font-bold text-gray-900 font-heading mb-2">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white font-heading mb-2">
             {challenge.race.title[lang]}
           </h2>
           <p className="text-sm leading-relaxed text-gray-600 mb-6">
@@ -96,7 +116,7 @@ export function BriefingScreen() {
                 <p className="text-[10px] text-gray-400 uppercase font-semibold">
                   {t("challenge.briefing.distance" as TranslationKey)}
                 </p>
-                <p className="font-bold text-gray-800">
+                <p className="font-bold text-gray-800 dark:text-gray-100">
                   {challenge.race.distance} km
                 </p>
               </div>
@@ -108,7 +128,7 @@ export function BriefingScreen() {
                 <p className="text-[10px] text-gray-400 uppercase font-semibold">
                   {t("challenge.briefing.weather_temp" as TranslationKey)}
                 </p>
-                <p className="font-bold text-gray-800">
+                <p className="font-bold text-gray-800 dark:text-gray-100">
                   {t(
                     `challenge.weather.${challenge.environment.weather}` as TranslationKey,
                   )}{" "}
@@ -123,7 +143,7 @@ export function BriefingScreen() {
                 <p className="text-[10px] text-gray-400 uppercase font-semibold">
                   {t("challenge.briefing.surface_type" as TranslationKey)}
                 </p>
-                <p className="font-bold text-gray-800">
+                <p className="font-bold text-gray-800 dark:text-gray-100">
                   {t(
                     `challenge.surface.${challenge.race.surface}` as TranslationKey,
                   )}
@@ -137,7 +157,7 @@ export function BriefingScreen() {
                 <p className="text-[10px] text-gray-400 uppercase font-semibold">
                   {t("challenge.briefing.elevation_profile" as TranslationKey)}
                 </p>
-                <p className="font-bold text-gray-800">
+                <p className="font-bold text-gray-800 dark:text-gray-100">
                   {t(
                     `challenge.elevation.${challenge.race.elevation}` as TranslationKey,
                   )}
@@ -173,18 +193,48 @@ export function BriefingScreen() {
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={() => {
-              playSound("click");
-              router.push("/preparation");
-            }}
-            className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold text-base py-4 rounded-full transition-all duration-200 shadow-sm"
-          >
-            {t("challenge.briefing.start_prep" as TranslationKey)} →
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                playSound("click");
+                setIsShareOpen(true);
+              }}
+              className="flex-grow flex items-center justify-center gap-2 px-6 py-4 border-2 border-blue-500 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 active:scale-[0.98] rounded-full text-base font-semibold transition duration-200"
+            >
+              <Share2 className="w-5 h-5" />
+              <span>{t("share.race_choice.button" as TranslationKey)}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                playSound("click");
+                router.push("/preparation");
+              }}
+              className="flex-grow bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold text-base py-4 rounded-full transition-all duration-200 shadow-sm flex items-center justify-center gap-1.5"
+            >
+              <span>
+                {t("challenge.briefing.start_prep" as TranslationKey)}
+              </span>
+              <span>→</span>
+            </button>
+          </div>
         </div>
       </main>
+
+      <ShareModal
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        shareText={shareText}
+        shareTitle={shareTitle}
+        fileName={`runquest-choice-${challenge.date}.png`}
+      >
+        <RaceChoiceCard
+          challenge={challenge}
+          lang={lang}
+          date={challenge.date}
+        />
+      </ShareModal>
     </motion.div>
   );
 }

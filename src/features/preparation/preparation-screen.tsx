@@ -8,11 +8,14 @@ import {
   Flame,
   Info,
   MapPin,
+  Share2,
   Sparkles,
   Wind,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { LoadoutCard } from "@/components/share/loadout-card";
+import { ShareModal } from "@/components/share/share-modal";
 import { useSound } from "@/hooks/use-sound";
 import type { TranslationKey } from "@/i18n/use-translation";
 import { useTranslation } from "@/i18n/use-translation";
@@ -77,6 +80,21 @@ export function PreparationScreen() {
     _setMindset(val);
   };
 
+  const [isShareOpen, setIsShareOpen] = useState(false);
+
+  const shareTitle = t("share.loadout.title" as TranslationKey);
+  const shareText = `⚙️ RunQuest — ${t("share.loadout.title" as TranslationKey)}
+🏁 ${challenge.race.title[lang]}
+
+👟 ${t(`preparation.shoes.${preparation.shoes}.name` as TranslationKey)}
+🥤 ${t(`preparation.nutrition.${preparation.nutrition}.name` as TranslationKey)}
+🔥 ${t(`preparation.warmup.${preparation.warmup}.name` as TranslationKey)}
+📊 ${t(`preparation.pacing.${preparation.pacing}.name` as TranslationKey)}
+🧠 ${t(`preparation.mindset.${preparation.mindset}.name` as TranslationKey)}
+🎒 Gear: ${preparation.gear.length > 0 ? preparation.gear.map((g) => t(`preparation.gear.${g}.name` as TranslationKey)).join(", ") : "None"}
+
+${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
+
   const handleStartSimulation = () => {
     playSound("click");
     router.push("/race");
@@ -88,7 +106,7 @@ export function PreparationScreen() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.25, ease: "easeInOut" }}
-      className="min-h-screen bg-background pb-24 text-gray-900"
+      className="min-h-screen bg-background pb-24 text-gray-900 dark:text-white"
     >
       {/* Header */}
       <header className="sticky top-0 z-10 border-b border-[#E5E7EB] bg-surface/90 px-6 py-4 backdrop-blur-md">
@@ -100,16 +118,16 @@ export function PreparationScreen() {
               playSound("click");
               router.back();
             }}
-            className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#E5E7EB] bg-white transition-all duration-200 hover:border-blue-500 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#E5E7EB] bg-white dark:bg-slate-900 transition-all duration-200 hover:border-blue-500 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             aria-label="Go back"
           >
             <ArrowLeft className="h-4 w-4 text-gray-600" />
           </button>
           <div>
-            <h1 className="font-heading text-2xl font-bold text-gray-900">
+            <h1 className="font-heading text-2xl font-bold text-gray-900 dark:text-white">
               {t("preparation.title" as TranslationKey)}
             </h1>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 dark:text-gray-300">
               {t("preparation.subtitle" as TranslationKey)}
             </p>
           </div>
@@ -123,7 +141,7 @@ export function PreparationScreen() {
           <section className="flex flex-col gap-4">
             <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-2">
               <span className="text-xl">👟</span>
-              <h2 className="font-heading text-lg font-bold text-gray-800">
+              <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
                 {t("preparation.shoes.title" as TranslationKey)}
               </h2>
             </div>
@@ -139,7 +157,10 @@ export function PreparationScreen() {
                   "preparation.shoes.daily_trainer.desc" as TranslationKey,
                 )}
                 badges={[
-                  { text: "⚖️ Balanced", color: "bg-gray-100 text-gray-700" },
+                  {
+                    text: "⚖️ Balanced",
+                    color: "bg-gray-100 text-gray-700 dark:text-gray-200",
+                  },
                 ]}
               />
               <OptionCard
@@ -197,7 +218,7 @@ export function PreparationScreen() {
           <section className="flex flex-col gap-4">
             <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-2">
               <span className="text-xl">🥤</span>
-              <h2 className="font-heading text-lg font-bold text-gray-800">
+              <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
                 {t("preparation.nutrition.title" as TranslationKey)}
               </h2>
             </div>
@@ -274,7 +295,7 @@ export function PreparationScreen() {
           <section className="flex flex-col gap-4">
             <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-2">
               <span className="text-xl">🎒</span>
-              <h2 className="font-heading text-lg font-bold text-gray-800">
+              <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
                 {t("preparation.gear.title" as TranslationKey)}
               </h2>
             </div>
@@ -330,7 +351,10 @@ export function PreparationScreen() {
                 )}
                 badges={[
                   { text: "🎒 Capacity", color: "bg-cyan-100 text-cyan-800" },
-                  { text: "⚖️ Heavy", color: "bg-gray-100 text-gray-700" },
+                  {
+                    text: "⚖️ Heavy",
+                    color: "bg-gray-100 text-gray-700 dark:text-gray-200",
+                  },
                 ]}
                 isMultiSelect
               />
@@ -341,7 +365,7 @@ export function PreparationScreen() {
           <section className="flex flex-col gap-4">
             <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-2">
               <span className="text-xl">🧘</span>
-              <h2 className="font-heading text-lg font-bold text-gray-800">
+              <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
                 {t("preparation.warmup.title" as TranslationKey)}
               </h2>
             </div>
@@ -353,7 +377,10 @@ export function PreparationScreen() {
                 title={t("preparation.warmup.none.name" as TranslationKey)}
                 desc={t("preparation.warmup.none.desc" as TranslationKey)}
                 badges={[
-                  { text: "🛌 Cold Start", color: "bg-gray-100 text-gray-700" },
+                  {
+                    text: "🛌 Cold Start",
+                    color: "bg-gray-100 text-gray-700 dark:text-gray-200",
+                  },
                 ]}
               />
               <OptionCard
@@ -387,7 +414,7 @@ export function PreparationScreen() {
           <section className="flex flex-col gap-4">
             <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-2">
               <span className="text-xl">📉</span>
-              <h2 className="font-heading text-lg font-bold text-gray-800">
+              <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
                 {t("preparation.pacing.title" as TranslationKey)}
               </h2>
             </div>
@@ -449,7 +476,10 @@ export function PreparationScreen() {
                   "preparation.pacing.conservative.desc" as TranslationKey,
                 )}
                 badges={[
-                  { text: "🛡️ Ultra Safe", color: "bg-gray-100 text-gray-700" },
+                  {
+                    text: "🛡️ Ultra Safe",
+                    color: "bg-gray-100 text-gray-700 dark:text-gray-200",
+                  },
                 ]}
               />
             </div>
@@ -459,7 +489,7 @@ export function PreparationScreen() {
           <section className="flex flex-col gap-4">
             <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-2">
               <span className="text-xl">🧠</span>
-              <h2 className="font-heading text-lg font-bold text-gray-800">
+              <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
                 {t("preparation.mindset.title" as TranslationKey)}
               </h2>
             </div>
@@ -510,8 +540,8 @@ export function PreparationScreen() {
         {/* Right Side: Sticky Race briefing and CTA */}
         <div className="flex flex-col gap-6 lg:sticky lg:top-24 lg:h-[fit-content]">
           {/* Race Conditions Summary */}
-          <div className="rounded-3xl border-2 border-[#E5E7EB] bg-white p-6 shadow-sm">
-            <h3 className="font-heading font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <div className="rounded-3xl border-2 border-[#E5E7EB] bg-white dark:bg-slate-900 p-6 shadow-sm">
+            <h3 className="font-heading font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <Info className="h-4 w-4 text-blue-500" />
               Conditions
             </h3>
@@ -520,7 +550,7 @@ export function PreparationScreen() {
                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
                   {t("challenge.briefing.surface_type" as TranslationKey)}
                 </p>
-                <p className="font-bold text-gray-800">
+                <p className="font-bold text-gray-800 dark:text-gray-100">
                   {challenge.race.title[lang]}
                 </p>
               </div>
@@ -531,7 +561,7 @@ export function PreparationScreen() {
                     <p className="text-[10px] text-gray-400 uppercase">
                       {t("challenge.briefing.distance" as TranslationKey)}
                     </p>
-                    <p className="font-semibold text-gray-700">
+                    <p className="font-semibold text-gray-700 dark:text-gray-200">
                       {challenge.race.distance} km
                     </p>
                   </div>
@@ -542,7 +572,7 @@ export function PreparationScreen() {
                     <p className="text-[10px] text-gray-400 uppercase">
                       {t("challenge.briefing.weather_temp" as TranslationKey)}
                     </p>
-                    <p className="font-semibold text-gray-700">
+                    <p className="font-semibold text-gray-700 dark:text-gray-200">
                       {t(
                         `challenge.weather.${challenge.environment.weather}` as TranslationKey,
                       )}{" "}
@@ -556,7 +586,7 @@ export function PreparationScreen() {
                     <p className="text-[10px] text-gray-400 uppercase">
                       {t("challenge.briefing.surface_type" as TranslationKey)}
                     </p>
-                    <p className="font-semibold text-gray-700">
+                    <p className="font-semibold text-gray-700 dark:text-gray-200">
                       {t(
                         `challenge.surface.${challenge.race.surface}` as TranslationKey,
                       )}
@@ -569,7 +599,7 @@ export function PreparationScreen() {
                     <p className="text-[10px] text-gray-400 uppercase">
                       {t("challenge.briefing.target_time" as TranslationKey)}
                     </p>
-                    <p className="font-semibold text-gray-700">
+                    <p className="font-semibold text-gray-700 dark:text-gray-200">
                       {Math.floor(challenge.objective.targetTime / 60)}m
                     </p>
                   </div>
@@ -583,7 +613,7 @@ export function PreparationScreen() {
           </div>
 
           {/* Sticky ready CTA */}
-          <div className="rounded-3xl border-2 border-[#E5E7EB] bg-white p-6 shadow-[0_8px_24px_rgba(0,0,0,0.05)]">
+          <div className="rounded-3xl border-2 border-[#E5E7EB] dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-[0_8px_24px_rgba(0,0,0,0.05)] flex flex-col gap-3">
             <button
               id="ready-race-cta"
               type="button"
@@ -592,9 +622,35 @@ export function PreparationScreen() {
             >
               {t("preparation.ready" as TranslationKey)} →
             </button>
+            <button
+              type="button"
+              onClick={() => {
+                playSound("click");
+                setIsShareOpen(true);
+              }}
+              className="w-full border-2 border-blue-500 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 active:scale-[0.98] font-semibold text-sm py-3 rounded-full transition duration-200 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            >
+              <Share2 className="h-4.5 w-4.5" />
+              <span>{t("share.loadout.button" as TranslationKey)}</span>
+            </button>
           </div>
         </div>
       </main>
+
+      <ShareModal
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        shareText={shareText}
+        shareTitle={shareTitle}
+        fileName={`runquest-loadout-${challenge.date}.png`}
+      >
+        <LoadoutCard
+          preparation={preparation}
+          raceTitle={challenge.race.title[lang]}
+          lang={lang}
+          date={challenge.date}
+        />
+      </ShareModal>
     </motion.div>
   );
 }
@@ -628,14 +684,14 @@ function OptionCard({
       id={id}
       type="button"
       onClick={onClick}
-      className={`group relative flex w-full flex-col text-left bg-white rounded-2xl border-2 p-5 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 active:scale-[0.99] ${
+      className={`group relative flex w-full flex-col text-left bg-white dark:bg-slate-900 rounded-2xl border-2 p-5 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 active:scale-[0.99] ${
         selected
           ? "border-blue-500 shadow-md ring-1 ring-blue-500"
           : "border-[#E5E7EB] hover:border-blue-300 hover:shadow-sm"
       }`}
     >
       <div className="flex w-full items-start justify-between mb-2">
-        <h3 className="font-heading font-semibold text-gray-900 leading-snug group-hover:text-blue-600 transition-colors duration-150">
+        <h3 className="font-heading font-semibold text-gray-900 dark:text-white leading-snug group-hover:text-blue-600 transition-colors duration-150">
           {title}
         </h3>
         {/* Selection indicator */}
@@ -645,7 +701,7 @@ function OptionCard({
           } ${
             selected
               ? "border-blue-500 bg-blue-500 text-white"
-              : "border-gray-300 bg-white group-hover:border-blue-400"
+              : "border-gray-300 bg-white dark:bg-slate-900 group-hover:border-blue-400"
           }`}
         >
           {selected && (
@@ -668,7 +724,7 @@ function OptionCard({
           )}
         </div>
       </div>
-      <p className="text-xs text-gray-500 leading-relaxed mb-4 flex-grow">
+      <p className="text-xs text-gray-500 dark:text-gray-300 leading-relaxed mb-4 flex-grow">
         {desc}
       </p>
       {badges.length > 0 && (

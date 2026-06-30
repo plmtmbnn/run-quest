@@ -282,5 +282,30 @@
       "outcome_finish": "Finisher",
       "outcome_dnf": "Did Not Finish"
     }
+  },
+  "share": {
+    "race_choice": {
+      "title": "Today I'm Running...",
+      "cta": "What race are YOU picking today?",
+      "button": "Share My Pick"
+    },
+    "loadout": {
+      "title": "My Race Loadout",
+      "cta": "Think I'll survive? 😅",
+      "button": "Share Loadout"
+    },
+    "coach": {
+      "title": "RunQuest Coach Says:"
+    },
+    "event": {
+      "title": "Race Moment"
+    },
+    "stats": {
+      "title": "My RunQuest Stats",
+      "cta": "Can you beat my streak?"
+    },
+    "copied": "Copied!",
+    "downloading": "Saving...",
+    "native_title": "RunQuest Share"
   }
 }

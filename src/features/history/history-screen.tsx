@@ -2,17 +2,33 @@
 
 import dayjs from "dayjs";
 import { motion } from "framer-motion";
-import { ArrowLeft, Calendar, Clock, Trophy } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Share2, Trophy } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { DailyStatsCard } from "@/components/share/daily-stats-card";
+import { ShareModal } from "@/components/share/share-modal";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { storageRepository } from "@/storage/storage-repository";
 import type { RaceHistoryEntry } from "@/storage/types";
+import { usePlayerStore } from "@/store/player-store";
 
 export function HistoryScreen() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [entries, setEntries] = useState<RaceHistoryEntry[]>([]);
+  const player = usePlayerStore((state) => state.player);
+  const [isShareOpen, setIsShareOpen] = useState(false);
+
+  const shareTitle = t("share.stats.title" as TranslationKey);
+  const shareText = `📊 RunQuest — ${t("share.stats.title" as TranslationKey)}:
+🏃 Runner #${player?.id.slice(0, 8).toUpperCase()}
+
+🔥 Streak: ${player?.statistics.currentStreak} Days
+⚡ Total Runs: ${player?.statistics.totalRuns}
+📏 Total Distance: ${player?.statistics.totalDistance} km
+⭐ Perfect Runs: ${player?.statistics.perfectRuns || 0}
+
+${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
 
   useEffect(() => {
     const history = storageRepository.loadHistory();
@@ -61,23 +77,33 @@ export function HistoryScreen() {
     >
       {/* Sticky Header */}
       <header className="sticky top-0 z-10 border-b border-[#E5E7EB] bg-surface/90 px-6 py-4 backdrop-blur-md">
-        <div className="mx-auto flex max-w-3xl items-center gap-3">
+        <div className="mx-auto flex max-w-3xl items-center justify-between w-full">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => router.push("/")}
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white dark:bg-slate-900 transition hover:bg-gray-50 active:scale-95"
+              aria-label="Back to Home"
+            >
+              <ArrowLeft className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+            </button>
+            <div>
+              <h1 className="font-heading text-xl font-bold text-gray-900 dark:text-white">
+                {t("history.title" as TranslationKey)}
+              </h1>
+              <p className="text-xs text-gray-500 dark:text-gray-300">
+                {t("history.subtitle" as TranslationKey)}
+              </p>
+            </div>
+          </div>
           <button
             type="button"
-            onClick={() => router.push("/")}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white transition hover:bg-gray-50 active:scale-95"
-            aria-label="Back to Home"
+            onClick={() => setIsShareOpen(true)}
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 dark:border-slate-850 bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 active:scale-95 shadow-sm text-gray-650 dark:text-gray-300"
+            aria-label="Share career stats"
           >
-            <ArrowLeft className="h-5 w-5 text-gray-600" />
+            <Share2 className="h-4.5 w-4.5" />
           </button>
-          <div>
-            <h1 className="font-heading text-xl font-bold text-gray-900">
-              {t("history.title" as TranslationKey)}
-            </h1>
-            <p className="text-xs text-gray-500">
-              {t("history.subtitle" as TranslationKey)}
-            </p>
-          </div>
         </div>
       </header>
 
@@ -174,6 +200,22 @@ export function HistoryScreen() {
           </div>
         )}
       </main>
+
+      {player && (
+        <ShareModal
+          isOpen={isShareOpen}
+          onClose={() => setIsShareOpen(false)}
+          shareText={shareText}
+          shareTitle={shareTitle}
+          fileName={`runquest-stats-${player.id.slice(0, 8)}.png`}
+        >
+          <DailyStatsCard
+            player={player}
+            lang={language as "en" | "id"}
+            date={dayjs().format("YYYY-MM-DD")}
+          />
+        </ShareModal>
+      )}
     </motion.div>
   );
 }

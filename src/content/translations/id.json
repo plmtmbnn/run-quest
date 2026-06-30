@@ -282,5 +282,30 @@
       "outcome_finish": "Finisher",
       "outcome_dnf": "Gagal Menyelesaikan (DNF)"
     }
+  },
+  "share": {
+    "race_choice": {
+      "title": "Hari Ini Saya Berlari...",
+      "cta": "Balapan apa yang KAMU pilih hari ini?",
+      "button": "Bagikan Pilihan Saya"
+    },
+    "loadout": {
+      "title": "Strategi Balap Saya",
+      "cta": "Kira-kira saya bakal selamat? 😅",
+      "button": "Bagikan Strategi"
+    },
+    "coach": {
+      "title": "Kata Pelatih RunQuest:"
+    },
+    "event": {
+      "title": "Momen Balapan"
+    },
+    "stats": {
+      "title": "Statistik RunQuest Saya",
+      "cta": "Bisa kalahkan streak saya?"
+    },
+    "copied": "Tersalin!",
+    "downloading": "Menyimpan...",
+    "native_title": "Bagikan RunQuest"
   }
 }

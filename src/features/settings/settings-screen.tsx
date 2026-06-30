@@ -54,13 +54,13 @@ export function SettingsScreen() {
             }}
             className="rounded-full p-2 hover:bg-gray-100 transition-colors"
           >
-            <ArrowLeft className="h-5 w-5 text-gray-700" />
+            <ArrowLeft className="h-5 w-5 text-gray-700 dark:text-gray-200" />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-gray-900 font-heading">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white font-heading">
               {t("settings.title" as TranslationKey)}
             </h1>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 dark:text-gray-300">
               {t("settings.subtitle" as TranslationKey)}
             </p>
           </div>
@@ -70,15 +70,15 @@ export function SettingsScreen() {
       {/* Main Content */}
       <main className="flex-1 max-w-3xl w-full mx-auto px-6 py-6 flex flex-col gap-8">
         {/* General Settings */}
-        <section className="bg-white rounded-3xl border-2 border-[#E5E7EB] shadow-sm p-6 flex flex-col gap-6">
-          <h2 className="text-base font-bold text-gray-800 uppercase tracking-wider">
+        <section className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-[#E5E7EB] shadow-sm p-6 flex flex-col gap-6">
+          <h2 className="text-base font-bold text-gray-800 dark:text-gray-100 uppercase tracking-wider">
             {t("settings.sections.general" as TranslationKey)}
           </h2>
 
           {/* Sound Toggle */}
           <div className="flex items-center justify-between">
             <div className="flex flex-col">
-              <span className="text-sm font-bold text-gray-900 flex items-center gap-1.5">
+              <span className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
                 <Volume2 className="h-4.5 w-4.5 text-gray-550" />{" "}
                 {t("settings.sound.title" as TranslationKey)}
               </span>
@@ -97,7 +97,7 @@ export function SettingsScreen() {
               }`}
             >
               <div
-                className={`bg-white w-6 h-6 rounded-full shadow-md transform transition-transform duration-200 ${
+                className={`bg-white dark:bg-slate-900 w-6 h-6 rounded-full shadow-md transform transition-transform duration-200 ${
                   settings.sound ? "translate-x-6" : "translate-x-0"
                 }`}
               />
@@ -109,7 +109,7 @@ export function SettingsScreen() {
           {/* Theme selection */}
           <div className="flex flex-col gap-2">
             <div className="flex flex-col">
-              <span className="text-sm font-bold text-gray-900">
+              <span className="text-sm font-bold text-gray-900 dark:text-white">
                 {t("settings.theme.title" as TranslationKey)}
               </span>
               <span className="text-xs text-gray-400">
@@ -128,7 +128,7 @@ export function SettingsScreen() {
                   className={`text-xs font-bold py-3 rounded-2xl transition-all border-2 capitalize ${
                     settings.theme === themeMode
                       ? "bg-blue-50 border-blue-500 text-blue-700"
-                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                      : "border-gray-200 bg-white dark:bg-slate-900 text-gray-600 hover:border-gray-300"
                   }`}
                 >
                   {t(`settings.theme.${themeMode}` as TranslationKey)}
@@ -142,7 +142,7 @@ export function SettingsScreen() {
           {/* Language selection */}
           <div className="flex flex-col gap-2">
             <div className="flex flex-col">
-              <span className="text-sm font-bold text-gray-900">
+              <span className="text-sm font-bold text-gray-900 dark:text-white">
                 {t("settings.language.title" as TranslationKey)}
               </span>
               <span className="text-xs text-gray-400">
@@ -159,7 +159,7 @@ export function SettingsScreen() {
                 className={`text-sm font-bold py-3 rounded-2xl transition-all border-2 ${
                   settings.language === "en"
                     ? "bg-blue-50 border-blue-500 text-blue-700"
-                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                    : "border-gray-200 bg-white dark:bg-slate-900 text-gray-600 hover:border-gray-300"
                 }`}
               >
                 {t("language.english" as TranslationKey)}
@@ -173,7 +173,7 @@ export function SettingsScreen() {
                 className={`text-sm font-bold py-3 rounded-2xl transition-all border-2 ${
                   settings.language === "id"
                     ? "bg-blue-50 border-blue-500 text-blue-700"
-                    : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                    : "border-gray-200 bg-white dark:bg-slate-900 text-gray-600 hover:border-gray-300"
                 }`}
               >
                 {t("language.indonesian" as TranslationKey)}
@@ -183,8 +183,8 @@ export function SettingsScreen() {
         </section>
 
         {/* Running Preferences */}
-        <section className="bg-white rounded-3xl border-2 border-[#E5E7EB] shadow-sm p-6 flex flex-col gap-6">
-          <h2 className="text-base font-bold text-gray-800 uppercase tracking-wider">
+        <section className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-[#E5E7EB] shadow-sm p-6 flex flex-col gap-6">
+          <h2 className="text-base font-bold text-gray-800 dark:text-gray-100 uppercase tracking-wider">
             {t("settings.sections.race_preferences" as TranslationKey)}
           </h2>
           <p className="text-xs text-gray-400 -mt-2">
@@ -193,7 +193,7 @@ export function SettingsScreen() {
 
           {/* Preferred Surface */}
           <div className="flex flex-col gap-2">
-            <span className="text-sm font-bold text-gray-900">
+            <span className="text-sm font-bold text-gray-900 dark:text-white">
               {t("settings.preferences.surface" as TranslationKey)}
             </span>
             <div className="grid grid-cols-4 gap-2 mt-1">
@@ -207,7 +207,7 @@ export function SettingsScreen() {
                   className={`text-xs font-bold py-3 rounded-2xl transition-all border-2 ${
                     settings.preferences.preferredSurface === surface
                       ? "border-blue-500 bg-blue-50 text-blue-700"
-                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                      : "border-gray-200 bg-white dark:bg-slate-900 text-gray-600 hover:border-gray-300"
                   }`}
                 >
                   {t(
@@ -220,7 +220,7 @@ export function SettingsScreen() {
 
           {/* Preferred Distance */}
           <div className="flex flex-col gap-2">
-            <span className="text-sm font-bold text-gray-900">
+            <span className="text-sm font-bold text-gray-900 dark:text-white">
               {t("settings.preferences.distance" as TranslationKey)}
             </span>
             <div className="grid grid-cols-4 gap-2 mt-1">
@@ -234,7 +234,7 @@ export function SettingsScreen() {
                   className={`text-xs font-bold py-3 rounded-2xl transition-all border-2 ${
                     settings.preferences.preferredDistance === distance
                       ? "border-blue-500 bg-blue-50 text-blue-700"
-                      : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
+                      : "border-gray-200 bg-white dark:bg-slate-900 text-gray-600 hover:border-gray-300"
                   }`}
                 >
                   {t(
@@ -255,7 +255,7 @@ export function SettingsScreen() {
 
           <div className="flex items-center justify-between">
             <div className="flex flex-col max-w-[70%]">
-              <span className="text-sm font-bold text-gray-900">
+              <span className="text-sm font-bold text-gray-900 dark:text-white">
                 {t("settings.danger.reset" as TranslationKey)}
               </span>
               <span className="text-xs text-gray-550 leading-relaxed">
@@ -280,12 +280,12 @@ export function SettingsScreen() {
       {/* Confirmation Modal */}
       {showResetConfirm && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-6 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl border-2 border-red-200 p-6 max-w-sm w-full shadow-lg flex flex-col gap-6 animate-in fade-in zoom-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-red-200 p-6 max-w-sm w-full shadow-lg flex flex-col gap-6 animate-in fade-in zoom-in duration-200">
             <div className="flex flex-col gap-2 text-center items-center">
               <div className="bg-red-100 p-3 rounded-full text-red-650 mb-2">
                 <Trash2 className="h-6 w-6" />
               </div>
-              <h3 className="text-lg font-black text-gray-900 font-heading">
+              <h3 className="text-lg font-black text-gray-900 dark:text-white font-heading">
                 {t("settings.danger.modal_title" as TranslationKey)}
               </h3>
               <p className="text-xs text-gray-550 leading-relaxed">
@@ -300,7 +300,7 @@ export function SettingsScreen() {
                   playSound("click");
                   setShowResetConfirm(false);
                 }}
-                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs py-3 rounded-2xl transition-all"
+                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 dark:text-gray-200 font-bold text-xs py-3 rounded-2xl transition-all"
               >
                 {t("settings.danger.cancel" as TranslationKey)}
               </button>
