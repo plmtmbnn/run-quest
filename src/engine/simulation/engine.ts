@@ -80,6 +80,10 @@ export function simulateRace(input: SimulationInput): SimulationResult {
     eventsResolved: [],
   };
 
+  const stateLog: SimulationState[] = [
+    { ...state, eventsResolved: [...state.eventsResolved] }
+  ];
+
   const totalDistance = challenge.race.distance;
 
   // 4. Roll for rare special event (1:500 chance)
@@ -112,6 +116,7 @@ export function simulateRace(input: SimulationInput): SimulationResult {
         effect: eventDef.effect,
       });
     }
+    stateLog.push({ ...state, eventsResolved: [...state.eventsResolved] });
   } else {
     // 5. Run the checkpoint kilometer loop
     for (let km = 1; km <= Math.ceil(totalDistance); km++) {
@@ -167,6 +172,9 @@ export function simulateRace(input: SimulationInput): SimulationResult {
         }
       }
 
+      // Push copy of simulation state
+      stateLog.push({ ...state, eventsResolved: [...state.eventsResolved] });
+
       // If runner is depleted, they DNF immediately
       if (state.energy <= 0 || state.hydration <= 0) {
         break;
@@ -197,5 +205,6 @@ export function simulateRace(input: SimulationInput): SimulationResult {
     events: state.eventsResolved,
     outcome: performance.outcome,
     story,
+    stateLog,
   };
 }

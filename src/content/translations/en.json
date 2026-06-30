@@ -7,6 +7,7 @@
     "continue": "Continue"
   },
   "home": {
+    "player_profile": "Player Profile",
     "title": "Today's Race Board",
     "subtitle": "Choose today's race challenge. You only get one daily entry.",
     "completed": "Race Completed",
@@ -259,7 +260,17 @@
     },
     "race": {
       "running": "Running the simulation...",
-      "finish": "Analyzing performance..."
+      "finish": "Analyzing performance...",
+      "live_simulation": "Live Simulation",
+      "simulating": "Simulating",
+      "energy": "Energy",
+      "hydration": "Hydration",
+      "focus": "Focus",
+      "of_distance": "of {{distance}} km",
+      "feed": "// Race Feed",
+      "started_on": "> Race started on {{surface}} terrain...",
+      "finished_rendering": "> Finish line crossed! Rendering report...",
+      "engine_version": "RunQuest Simulation Engine v1.0.0"
     },
     "result": {
       "title": "Race Result",
@@ -287,6 +298,20 @@
     }
   },
   "share": {
+    "card_title": {
+      "loadout": "RunQuest Race Loadout",
+      "result": "RunQuest Race Result"
+    },
+    "card_subtitle": {
+      "loadout": "My Race Loadout",
+      "result": "Race Performance Report"
+    },
+    "card_footer": {
+      "loadout": "Think I'll survive? 😅",
+      "dns": "Did Not Start ❌",
+      "dnf": "Did Not Finish ❌",
+      "finished": "Proudly finished! 🏁"
+    },
     "race_choice": {
       "title": "Today I'm Running...",
       "cta": "What race are YOU picking today?",

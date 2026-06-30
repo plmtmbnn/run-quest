@@ -230,7 +230,7 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs text-blue-200 uppercase tracking-wider font-semibold">
-                    Player Profile
+                    {t("home.player_profile" as TranslationKey)}
                   </span>
                   <button
                     type="button"

@@ -14,6 +14,7 @@ export interface Dictionary {
     continue: string;
   };
   home: {
+    player_profile: string;
     title: string;
     subtitle: string;
   };
@@ -68,7 +69,98 @@ export interface Dictionary {
       fearless: ChoiceText;
     };
   };
+  challenge: {
+    weather: {
+      sunny: string;
+      cloudy: string;
+      rain: string;
+      storm: string;
+      hot: string;
+      cold: string;
+      fog: string;
+    };
+    surface: {
+      road: string;
+      track: string;
+      trail: string;
+      any: string;
+    };
+    distance_types: {
+      any: string;
+      short: string;
+      medium: string;
+      long: string;
+    };
+    elevation: {
+      flat: string;
+      rolling: string;
+      hilly: string;
+    };
+    briefing: {
+      title: string;
+      subtitle: string;
+      distance: string;
+      weather_temp: string;
+      surface_type: string;
+      elevation_profile: string;
+      target_time: string;
+      wind_speed: string;
+      start_prep: string;
+    };
+    race: {
+      running: string;
+      finish: string;
+      live_simulation: string;
+      simulating: string;
+      energy: string;
+      hydration: string;
+      focus: string;
+      of_distance: string;
+      feed: string;
+      started_on: string;
+      finished_rendering: string;
+      engine_version: string;
+    };
+    result: {
+      title: string;
+      medal: string;
+      grade: string;
+      time: string;
+      story_headline: string;
+      lessons_learned: string;
+      share: string;
+      back_home: string;
+      no_results_title: string;
+      no_results_desc: string;
+      go_home: string;
+      score_out_of: string;
+      share_card: string;
+      download_png: string;
+      generating_image: string;
+      copied: string;
+      outcome_gold: string;
+      outcome_silver: string;
+      outcome_bronze: string;
+      outcome_finish: string;
+      outcome_dnf: string;
+      outcome_dns: string;
+    };
+  };
   share: {
+    card_title: {
+      loadout: string;
+      result: string;
+    };
+    card_subtitle: {
+      loadout: string;
+      result: string;
+    };
+    card_footer: {
+      loadout: string;
+      dns: string;
+      dnf: string;
+      finished: string;
+    };
     race_choice: {
       title: string;
       cta: string;

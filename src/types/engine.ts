@@ -174,7 +174,9 @@ export interface SimulationResult {
   events: RaceEvent[];
   outcome: Outcome;
   story: Story;
+  stateLog: SimulationState[];
 }
+
 
 // Running simulation state at checkpoints
 export interface SimulationState {

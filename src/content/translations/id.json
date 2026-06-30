@@ -7,6 +7,7 @@
     "continue": "Lanjutkan"
   },
   "home": {
+    "player_profile": "Profil Pelari",
     "title": "Papan Balap Hari Ini",
     "subtitle": "Pilih tantangan balapan hari ini. Kamu hanya mendapat satu entri harian.",
     "completed": "Perlombaan Selesai",
@@ -259,7 +260,17 @@
     },
     "race": {
       "running": "Menjalankan simulasi...",
-      "finish": "Menganalisis performa..."
+      "finish": "Menganalisis performa...",
+      "live_simulation": "Simulasi Langsung",
+      "simulating": "Mensimulasikan",
+      "energy": "Energi",
+      "hydration": "Hidrasi",
+      "focus": "Fokus",
+      "of_distance": "dari {{distance}} km",
+      "feed": "// Laporan Balapan",
+      "started_on": "> Balapan dimulai di medan {{surface}}...",
+      "finished_rendering": "> Garis finis dilewati! Membuat laporan...",
+      "engine_version": "Mesin Simulasi RunQuest v1.0.0"
     },
     "result": {
       "title": "Hasil Perlombaan",
@@ -287,6 +298,20 @@
     }
   },
   "share": {
+    "card_title": {
+      "loadout": "RunQuest Strategi Balap",
+      "result": "RunQuest Hasil Balapan"
+    },
+    "card_subtitle": {
+      "loadout": "Strategi Balap Saya",
+      "result": "Laporan Hasil Balapan"
+    },
+    "card_footer": {
+      "loadout": "Kira-kira saya bakal selamat? 😅",
+      "dns": "Tidak Memulai ❌",
+      "dnf": "Gagal Finish ❌",
+      "finished": "Selesai Balapan! 🏁"
+    },
     "race_choice": {
       "title": "Hari Ini Saya Berlari...",
       "cta": "Balapan apa yang KAMU pilih hari ini?",

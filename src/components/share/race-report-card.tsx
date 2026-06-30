@@ -52,16 +52,12 @@ export function RaceReportCard({
   return (
     <ShareCardRenderer
       date={date}
-      headerTitle={
-        lang === "id" ? "RunQuest Hasil Balapan" : "RunQuest Race Result"
-      }
+      headerTitle={t("share.card_title.result" as TranslationKey)}
     >
       <div className="flex flex-col gap-4">
         <div>
           <h2 className="text-xs font-extrabold uppercase tracking-widest text-indigo-400">
-            {lang === "id"
-              ? "Laporan Hasil Balapan"
-              : "Race Performance Report"}
+            {t("share.card_subtitle.result" as TranslationKey)}
           </h2>
           <h1 className="text-xl font-black font-heading text-white mt-0.5 truncate">
             {challenge.race.title[lang]}
@@ -94,7 +90,9 @@ export function RaceReportCard({
             <span className="text-4xl font-extrabold text-blue-400">
               {score}
             </span>
-            <span className="text-[9px] text-slate-500">out of 1000</span>
+            <span className="text-[9px] text-slate-500">
+              {t("challenge.result.score_out_of" as TranslationKey)}
+            </span>
           </div>
 
           <div className="flex flex-col items-center">
@@ -110,21 +108,15 @@ export function RaceReportCard({
 
         <div className="flex justify-between text-xs text-slate-400 px-1">
           <span>
-            {lang === "id" ? "Jarak" : "Distance"}:{" "}
+            {t("history.distance" as TranslationKey)}:{" "}
             {outcome === "dns" ? "0" : challenge.race.distance} km
           </span>
           <span className="italic text-indigo-400 font-medium">
             {outcome === "dns"
-              ? lang === "id"
-                ? "Tidak Memulai ❌"
-                : "Did Not Start ❌"
+              ? t("share.card_footer.dns" as TranslationKey)
               : outcome === "dnf"
-                ? lang === "id"
-                  ? "Gagal Finish ❌"
-                  : "Did Not Finish ❌"
-                : lang === "id"
-                  ? "Selesai Balapan! 🏁"
-                  : "Proudly finished! 🏁"}
+                ? t("share.card_footer.dnf" as TranslationKey)
+                : t("share.card_footer.finished" as TranslationKey)}
           </span>
         </div>
       </div>

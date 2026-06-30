@@ -21,14 +21,12 @@ export function LoadoutCard({
   return (
     <ShareCardRenderer
       date={date}
-      headerTitle={
-        lang === "id" ? "RunQuest Strategi Balap" : "RunQuest Race Loadout"
-      }
+      headerTitle={t("share.card_title.loadout" as TranslationKey)}
     >
       <div className="flex flex-col gap-4">
         <div>
           <h2 className="text-xs font-extrabold uppercase tracking-widest text-indigo-400">
-            {lang === "id" ? "Strategi Balap Saya" : "My Race Loadout"}
+            {t("share.card_subtitle.loadout" as TranslationKey)}
           </h2>
           <h1 className="text-xl font-black font-heading text-white mt-0.5 truncate">
             {raceTitle}
@@ -108,9 +106,7 @@ export function LoadoutCard({
         </div>
 
         <p className="text-sm font-semibold italic text-slate-300">
-          {lang === "id"
-            ? "Kira-kira saya bakal selamat? 😅"
-            : "Think I'll survive? 😅"}
+          {t("share.card_footer.loadout" as TranslationKey)}
         </p>
       </div>
     </ShareCardRenderer>

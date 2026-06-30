@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { simulateRace } from "@/engine/simulation/engine";
 import { useSound } from "@/hooks/use-sound";
-import { useTranslation } from "@/i18n/use-translation";
+import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { generateDailyChallenge } from "@/services/challenge/generator";
 import { useGameStore } from "@/store/game-store";
 import { usePlayerStore } from "@/store/player-store";
@@ -16,7 +16,7 @@ import type { RaceEvent, SimulationResult } from "@/types/engine";
 
 export function RaceScreen() {
   const router = useRouter();
-  const { language } = useTranslation();
+  const { t, language } = useTranslation();
   const lang = (language === "id" ? "id" : "en") as "en" | "id";
 
   const { currentChallenge, setResult } = useGameStore();
@@ -53,6 +53,15 @@ export function RaceScreen() {
         seed,
       });
       simResultRef.current = result;
+
+      // Initialize stats with km 0 snapshot
+      if (result.stateLog && result.stateLog[0]) {
+        setStats({
+          energy: Math.round(result.stateLog[0].energy),
+          hydration: Math.round(result.stateLog[0].hydration),
+          focus: Math.round(result.stateLog[0].focus),
+        });
+      }
     } catch (error) {
       console.error("Simulation failed:", error);
       router.push("/preparation");
@@ -60,8 +69,13 @@ export function RaceScreen() {
     }
 
     // 2. Play a ticker animation to show the progress to the user
-    const totalDist = Math.ceil(challenge.race.distance);
-    const intervalMs = Math.max(100, 3000 / totalDist); // scale so it takes ~3s max
+    const outcome = simResultRef.current?.outcome;
+    const totalDist = outcome === "dns" 
+      ? 0 
+      : (simResultRef.current?.stateLog 
+          ? simResultRef.current.stateLog.length - 1 
+          : Math.ceil(challenge.race.distance));
+    const intervalMs = totalDist === 0 ? 100 : Math.max(100, 3000 / totalDist); // scale so it takes ~3s max
 
     let kmCounter = 0;
     const interval = setInterval(() => {
@@ -97,15 +111,15 @@ export function RaceScreen() {
         setRunningEvents((prev) => [...prev, ...matchedEvents]);
       }
 
-      // Simulate a visual drain of stats for display purposes during ticking
-      setStats(() => {
-        const percentProgress = kmCounter / totalDist;
-        return {
-          energy: Math.max(5, Math.floor(100 - percentProgress * 60)),
-          hydration: Math.max(5, Math.floor(100 - percentProgress * 70)),
-          focus: Math.max(10, Math.floor(100 - percentProgress * 40)),
-        };
-      });
+      // Read actual stats from the stateLog snapshot
+      const snapshot = simResultRef.current?.stateLog?.[kmCounter];
+      if (snapshot) {
+        setStats({
+          energy: Math.round(snapshot.energy),
+          hydration: Math.round(snapshot.hydration),
+          focus: Math.round(snapshot.focus),
+        });
+      }
     }, intervalMs);
 
     return () => clearInterval(interval);
@@ -124,6 +138,18 @@ export function RaceScreen() {
     (currentKm / challenge.race.distance) * 100,
   );
 
+  const getStatCardStyle = (value: number) => {
+    if (value < 20) {
+      return "bg-red-950/20 border-red-900/50 text-red-500 animate-pulse transition-all duration-300";
+    }
+    return "bg-gray-900/60 border-gray-800 transition-all duration-300";
+  };
+
+  const getStatTextColor = (value: number, defaultColor: string) => {
+    if (value < 20) return "text-red-500 font-extrabold";
+    return defaultColor;
+  };
+
   return (
     <div className="min-h-screen bg-gray-950 text-white flex flex-col justify-between overflow-hidden">
       {/* Header */}
@@ -131,15 +157,23 @@ export function RaceScreen() {
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div>
             <span className="text-xs uppercase tracking-widest text-blue-400 font-semibold">
-              Live Simulation
+              {t("challenge.race.live_simulation" as TranslationKey)}
             </span>
             <h1 className="font-heading text-lg font-bold text-gray-100">
               {challenge.race.title[lang]}
             </h1>
+            {/* Weather & Environment details in header */}
+            <div className="flex items-center gap-2 mt-1 text-xs text-gray-400">
+              <span className="capitalize">{t(`challenge.weather.${challenge.environment.weather}` as TranslationKey)}</span>
+              <span>•</span>
+              <span>{challenge.environment.temperature}°C</span>
+              <span>•</span>
+              <span className="capitalize">{t(`challenge.surface.${challenge.race.surface}` as TranslationKey)}</span>
+            </div>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-semibold">
             <Activity className="h-4.5 w-4.5 animate-pulse" />
-            <span>Simulating</span>
+            <span>{t("challenge.race.simulating" as TranslationKey)}</span>
           </div>
         </div>
       </header>
@@ -184,7 +218,7 @@ export function RaceScreen() {
                 {currentKm}
               </span>
               <span className="text-xs text-gray-400 uppercase tracking-widest">
-                of {challenge.race.distance} km
+                {t("challenge.race.of_distance" as TranslationKey).replace("{{distance}}", challenge.race.distance.toString())}
               </span>
             </div>
           </div>
@@ -192,25 +226,25 @@ export function RaceScreen() {
 
         {/* Real-time stats display */}
         <div className="grid grid-cols-3 gap-4">
-          <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-4 flex flex-col items-center">
-            <span className="text-gray-400 text-xs mb-1">Energy</span>
-            <div className="flex items-center gap-1.5 text-amber-400">
+          <div className={`border rounded-2xl p-4 flex flex-col items-center ${getStatCardStyle(stats.energy)}`}>
+            <span className="text-gray-400 text-xs mb-1">{t("challenge.race.energy" as TranslationKey)}</span>
+            <div className={`flex items-center gap-1.5 ${getStatTextColor(stats.energy, "text-amber-400")}`}>
               <Flame className="h-4.5 w-4.5" />
               <span className="text-xl font-bold">{stats.energy}%</span>
             </div>
           </div>
 
-          <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-4 flex flex-col items-center">
-            <span className="text-gray-400 text-xs mb-1">Hydration</span>
-            <div className="flex items-center gap-1.5 text-blue-400">
+          <div className={`border rounded-2xl p-4 flex flex-col items-center ${getStatCardStyle(stats.hydration)}`}>
+            <span className="text-gray-400 text-xs mb-1">{t("challenge.race.hydration" as TranslationKey)}</span>
+            <div className={`flex items-center gap-1.5 ${getStatTextColor(stats.hydration, "text-blue-400")}`}>
               <Activity className="h-4.5 w-4.5" />
               <span className="text-xl font-bold">{stats.hydration}%</span>
             </div>
           </div>
 
-          <div className="bg-gray-900/60 border border-gray-800 rounded-2xl p-4 flex flex-col items-center">
-            <span className="text-gray-400 text-xs mb-1">Focus</span>
-            <div className="flex items-center gap-1.5 text-purple-400">
+          <div className={`border rounded-2xl p-4 flex flex-col items-center ${getStatCardStyle(stats.focus)}`}>
+            <span className="text-gray-400 text-xs mb-1">{t("challenge.race.focus" as TranslationKey)}</span>
+            <div className={`flex items-center gap-1.5 ${getStatTextColor(stats.focus, "text-purple-400")}`}>
               <TrendingUp className="h-4.5 w-4.5" />
               <span className="text-xl font-bold">{stats.focus}%</span>
             </div>
@@ -219,9 +253,14 @@ export function RaceScreen() {
 
         {/* Live Terminal Log Feed */}
         <div className="flex-grow bg-gray-950 border border-gray-800 rounded-2xl p-5 font-mono text-xs overflow-y-auto max-h-[160px]">
-          <div className="text-gray-500 mb-2">{"// Race Feed"}</div>
+          <div className="text-gray-500 mb-2">{t("challenge.race.feed" as TranslationKey)}</div>
           <div className="flex flex-col gap-2">
-            <div>&gt; Race started on {challenge.race.surface} terrain...</div>
+            <div>
+              &gt; {t("challenge.race.started_on" as TranslationKey).replace(
+                "{{surface}}",
+                t(`challenge.surface.${challenge.race.surface}` as TranslationKey)
+              )}
+            </div>
             <AnimatePresence>
               {runningEvents.map((event) => (
                 <motion.div
@@ -247,7 +286,7 @@ export function RaceScreen() {
                 animate={{ opacity: 1 }}
                 className="text-yellow-400 font-semibold"
               >
-                &gt; Finish line crossed! Rendering report...
+                &gt; {t("challenge.race.finished_rendering" as TranslationKey)}
               </motion.div>
             )}
           </div>
@@ -256,7 +295,7 @@ export function RaceScreen() {
 
       {/* Footer */}
       <footer className="p-6 border-t border-gray-900 bg-gray-900/30 text-center text-xs text-gray-500">
-        RunQuest Simulation Engine v1.0.0
+        {t("challenge.race.engine_version" as TranslationKey)}
       </footer>
     </div>
   );
