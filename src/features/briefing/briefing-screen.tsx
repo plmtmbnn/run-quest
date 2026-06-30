@@ -82,7 +82,7 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
             className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white dark:bg-slate-900 transition hover:bg-gray-50 active:scale-95"
             aria-label="Back"
           >
-            <ArrowLeft className="h-4.5 w-4.5 text-gray-600" />
+            <ArrowLeft className="h-4.5 w-4.5 text-gray-600 dark:text-gray-300" />
           </button>
           <div>
             <h1 className="font-heading text-xl font-bold text-gray-900 dark:text-white">
@@ -97,7 +97,7 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
 
       <main className="mx-auto max-w-2xl px-6 py-8 flex flex-col gap-6">
         <div className="rounded-3xl border-2 border-[#E5E7EB] bg-white dark:bg-slate-900 p-6 shadow-sm">
-          <div className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-600 text-xs font-semibold px-3 py-1 rounded-full mb-4">
+          <div className="inline-flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 text-xs font-semibold px-3 py-1 rounded-full mb-4">
             <Flame className="w-3.5 h-3.5" />
             <span>Today&apos;s Race Details</span>
           </div>
@@ -105,11 +105,11 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white font-heading mb-2">
             {challenge.race.title[lang]}
           </h2>
-          <p className="text-sm leading-relaxed text-gray-600 mb-6">
+          <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300 mb-6">
             {challenge.race.description[lang]}
           </p>
 
-          <div className="grid grid-cols-2 gap-4 border-t border-b border-gray-100 py-6 mb-6">
+          <div className="grid grid-cols-2 gap-4 border-t border-b border-gray-100 dark:border-slate-800/40 py-6 mb-6">
             <div className="flex items-center gap-3">
               <MapPin className="h-5 w-5 text-gray-400" />
               <div>
@@ -167,11 +167,11 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-orange-50/50 rounded-2xl p-4 flex flex-col justify-center">
-              <span className="text-[10px] text-orange-400 uppercase font-bold mb-1">
+            <div className="bg-orange-50/50 dark:bg-orange-950/40 rounded-2xl p-4 flex flex-col justify-center">
+              <span className="text-[10px] text-orange-400 dark:text-orange-350 uppercase font-bold mb-1">
                 {t("challenge.briefing.target_time" as TranslationKey)}
               </span>
-              <div className="flex items-center gap-1.5 text-orange-800 font-bold text-lg">
+              <div className="flex items-center gap-1.5 text-orange-800 dark:text-orange-250 font-bold text-lg">
                 <Clock className="w-5 h-5 text-orange-500" />
                 <span>
                   Under {formatTargetTime(challenge.objective.targetTime)}
@@ -179,11 +179,11 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
               </div>
             </div>
 
-            <div className="bg-blue-50/50 rounded-2xl p-4 flex flex-col justify-center">
-              <span className="text-[10px] text-blue-400 uppercase font-bold mb-1">
+            <div className="bg-blue-50/50 dark:bg-blue-950/40 rounded-2xl p-4 flex flex-col justify-center">
+              <span className="text-[10px] text-blue-400 dark:text-blue-350 uppercase font-bold mb-1">
                 {t("challenge.briefing.wind_speed" as TranslationKey)}
               </span>
-              <div className="flex items-center gap-1.5 text-blue-800 font-bold text-lg">
+              <div className="flex items-center gap-1.5 text-blue-800 dark:text-blue-250 font-bold text-lg">
                 <Wind className="w-5 h-5 text-blue-500" />
                 <span>
                   {challenge.environment.wind.speed} km/h{" "}

@@ -24,9 +24,12 @@ export function RaceScreen() {
   const { preparation } = usePreparationStore();
   const { playSound } = useSound();
 
-  // Load/Generate today's challenge
-  const challenge =
-    currentChallenge || generateDailyChallenge(dayjs().format("YYYY-MM-DD"));
+  // Load/Generate today's challenge once on mount
+  const [challenge] = useState(() => {
+    return (
+      currentChallenge || generateDailyChallenge(dayjs().format("YYYY-MM-DD"))
+    );
+  });
 
   const [currentKm, setCurrentKm] = useState(0);
   const [isFinished, setIsFinished] = useState(false);

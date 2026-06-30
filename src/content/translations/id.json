@@ -38,9 +38,11 @@
     "time": "Waktu",
     "subtitle_desc": "Lihat hasil tantangan sebelumnya, rekor, dan catatan latihan.",
     "dnf": "DNF",
+    "dns": "DNS",
     "status": "Status",
     "completed_status": "Selesai",
-    "dnf_status": "DNF"
+    "dnf_status": "DNF",
+    "dns_status": "DNS"
   },
   "language": {
     "title": "Pilih Bahasa",
@@ -280,7 +282,8 @@
       "outcome_silver": "Medali Perak",
       "outcome_bronze": "Medali Perunggu",
       "outcome_finish": "Finisher",
-      "outcome_dnf": "Gagal Menyelesaikan (DNF)"
+      "outcome_dnf": "Gagal Menyelesaikan (DNF)",
+      "outcome_dns": "Tidak Start (DNS)"
     }
   },
   "share": {

@@ -19,12 +19,18 @@ export function generateStory(
   outcome: Outcome,
 ): Story {
   const isDNF = outcome === "dnf";
+  const isDNS = outcome === "dns";
   const raceTitleEn = challenge.race.title.en;
   const raceTitleId = challenge.race.title.id;
 
   // 1. Headline
   let headline: LocalizedText;
-  if (isDNF) {
+  if (isDNS) {
+    headline = {
+      en: `DNS: Did Not Start at ${challenge.race.title.en}`,
+      id: `DNS: Gagal Start di ${challenge.race.title.id}`,
+    };
+  } else if (isDNF) {
     headline = {
       en: `DNF: Race cut short at ${challenge.race.title.en}`,
       id: `DNF: Perlombaan terhenti di ${challenge.race.title.id}`,
@@ -64,7 +70,12 @@ export function generateStory(
 
   // 2. Summary
   let summary: LocalizedText;
-  if (isDNF) {
+  if (isDNS) {
+    summary = {
+      en: `Unfortunately, you missed the start of the race. Did Not Start. Better luck next time!`,
+      id: `Sayang sekali, kamu ketinggalan start perlombaan. Did Not Start. Semoga beruntung di lain waktu!`,
+    };
+  } else if (isDNF) {
     summary = {
       en: `Unfortunately, you collapsed at km ${state.distanceCovered.toFixed(0)} due to extreme physical depletion. Better preparation next time!`,
       id: `Sayang sekali, kamu kolaps di km ${state.distanceCovered.toFixed(0)} karena kelelahan fisik ekstrem. Persiapan lebih baik di kesempatan berikutnya!`,

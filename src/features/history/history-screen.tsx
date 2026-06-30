@@ -136,7 +136,7 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
                     <Calendar className="w-3.5 h-3.5" />
                     <span>{dayjs(entry.playedAt).format("MMMM D, YYYY")}</span>
                   </div>
-                  <div className="text-[10px] font-mono text-gray-400 bg-gray-50 border border-gray-100 rounded-full px-2.5 py-0.5">
+                  <div className="text-[10px] font-mono text-gray-400 bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700/50 rounded-full px-2.5 py-0.5">
                     {entry.challengeId.slice(0, 10)}
                   </div>
                 </div>
@@ -144,7 +144,7 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
                 {/* Card Body */}
                 <div className="flex justify-between items-center gap-4">
                   <div className="flex-1 flex flex-col gap-1">
-                    <h3 className="font-bold text-gray-800 text-base font-heading leading-snug">
+                    <h3 className="font-bold text-gray-800 dark:text-gray-100 text-base font-heading leading-snug">
                       {entry.headline}
                     </h3>
                   </div>
@@ -189,9 +189,11 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
                           : "text-emerald-600"
                       }`}
                     >
-                      {entry.grade === "F"
-                        ? t("history.dnf_status" as TranslationKey)
-                        : t("history.completed_status" as TranslationKey)}
+                      {entry.outcome === "dns"
+                        ? t("history.dns_status" as TranslationKey)
+                        : entry.outcome === "dnf"
+                          ? t("history.dnf_status" as TranslationKey)
+                          : t("history.completed_status" as TranslationKey)}
                     </span>
                   </div>
                 </div>

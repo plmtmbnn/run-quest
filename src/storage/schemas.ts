@@ -69,6 +69,10 @@ export const RaceHistoryEntrySchema = z.object({
   grade: z.enum(["S", "A", "B", "C", "D", "F"]),
   headline: z.string(),
   score: z.number(),
+  outcome: z
+    .enum(["gold", "silver", "bronze", "finish", "dnf", "dns"])
+    .optional()
+    .default("finish"),
 });
 
 /**

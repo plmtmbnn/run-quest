@@ -148,4 +148,44 @@ describe("Simulation Engine", () => {
     expect(dnfResult.grade).toBe("F");
     expect(dnfResult.score).toBe(0);
   });
+
+  it("should trigger a rare DNS event for seed 585", () => {
+    const dnsRes = simulateRace({ ...defaultInput, seed: 585 });
+    expect(dnsRes.outcome).toBe("dns");
+    expect(dnsRes.grade).toBe("F");
+    expect(dnsRes.score).toBe(0);
+    expect(dnsRes.events.length).toBe(1);
+    expect(dnsRes.events[0].title.en).toContain("Missed Transportation");
+  });
+
+  it("should trigger a rare Booster event for seed 510", () => {
+    const boosterRes = simulateRace({ ...defaultInput, seed: 510 });
+    expect(boosterRes.outcome).not.toBe("dnf");
+    expect(boosterRes.outcome).not.toBe("dns");
+    const boosterEvent = boosterRes.events.find((e) =>
+      e.title.en.includes("Runner High"),
+    );
+    expect(boosterEvent).toBeDefined();
+    expect(boosterEvent?.effect.pace).toBeLessThan(0);
+  });
+
+  it("should trigger a rare Accident event for seed 530", () => {
+    const accidentRes = simulateRace({ ...defaultInput, seed: 530 });
+    const accidentEvent = accidentRes.events.find((e) =>
+      e.title.en.includes("Ankle Sprain"),
+    );
+    expect(accidentEvent).toBeDefined();
+    expect(accidentEvent?.effect.pace).toBeGreaterThan(0);
+  });
+
+  it("should trigger a rare DNF injury event for seed 949", () => {
+    const dnfInjuryRes = simulateRace({ ...defaultInput, seed: 949 });
+    expect(dnfInjuryRes.outcome).toBe("dnf");
+    expect(dnfInjuryRes.grade).toBe("F");
+    expect(dnfInjuryRes.score).toBe(0);
+    const dnfEvent = dnfInjuryRes.events.find((e) =>
+      e.title.en.includes("Severe Injury"),
+    );
+    expect(dnfEvent).toBeDefined();
+  });
 });

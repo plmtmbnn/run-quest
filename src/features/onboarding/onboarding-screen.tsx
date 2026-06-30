@@ -78,7 +78,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
         <span className="text-xs font-extrabold uppercase tracking-widest text-indigo-650">
           {t("onboarding.header" as TranslationKey)}
         </span>
-        <div className="flex gap-1 bg-gray-100 p-1 rounded-full text-[10px]">
+        <div className="flex gap-1 bg-gray-100 dark:bg-slate-800 p-1 rounded-full text-[10px]">
           <button
             type="button"
             onClick={() => {
@@ -87,8 +87,8 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
             }}
             className={`px-3 py-1 rounded-full font-bold transition-all ${
               language === "en"
-                ? "bg-white text-indigo-600 shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
+                ? "bg-white dark:bg-slate-750 text-indigo-600 dark:text-indigo-400 shadow-sm"
+                : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
             }`}
           >
             EN
@@ -101,8 +101,8 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
             }}
             className={`px-3 py-1 rounded-full font-bold transition-all ${
               language === "id"
-                ? "bg-white text-indigo-600 shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
+                ? "bg-white dark:bg-slate-750 text-indigo-600 dark:text-indigo-400 shadow-sm"
+                : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
             }`}
           >
             ID
@@ -115,7 +115,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
         <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-[#E5E7EB] dark:border-slate-800 shadow-[0_12px_32px_rgba(0,0,0,0.06)] overflow-hidden flex flex-col min-h-[420px]">
           {/* Top visual graphic area */}
           <div
-            className={`h-40 bg-gradient-to-br ${activeSlide.color} flex items-center justify-center border-b border-gray-100`}
+            className={`h-40 bg-gradient-to-br ${activeSlide.color} flex items-center justify-center border-b border-gray-100 dark:border-slate-800/40`}
           >
             {activeSlide.icon}
           </div>
@@ -142,7 +142,9 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                   type="button"
                   onClick={() => setCurrentSlide(idx)}
                   className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                    idx === currentSlide ? "bg-indigo-600 w-6" : "bg-gray-200"
+                    idx === currentSlide
+                      ? "bg-indigo-650 dark:bg-indigo-500 w-6"
+                      : "bg-gray-200 dark:bg-slate-700"
                   }`}
                   aria-label={`Go to slide ${idx + 1}`}
                 />

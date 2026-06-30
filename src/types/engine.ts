@@ -163,7 +163,7 @@ export interface Story {
   lessons: LocalizedText[];
 }
 
-export type Outcome = "gold" | "silver" | "bronze" | "finish" | "dnf";
+export type Outcome = "gold" | "silver" | "bronze" | "finish" | "dnf" | "dns";
 
 export type Grade = "S" | "A" | "B" | "C" | "D" | "F";
 

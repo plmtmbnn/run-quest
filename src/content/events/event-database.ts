@@ -117,4 +117,76 @@ export const EVENT_DATABASE: Record<string, EventDefinition> = {
       pace: 4,
     },
   },
+  special_booster: {
+    id: "special_booster",
+    type: "positive",
+    title: {
+      en: "Perfect Runner High (Super Rare)",
+      id: "Runner High Sempurna (Sangat Langka)",
+    },
+    description: {
+      en: "You feel an incredible wave of energy and focus, pushing your speed to the limit!",
+      id: "Kamu merasakan gelombang energi dan fokus luar biasa, mendorong kecepatanmu ke batas!",
+    },
+    effect: {
+      stamina: 50,
+      hydration: 20,
+      morale: 40,
+      pace: -35,
+    },
+  },
+  special_accident: {
+    id: "special_accident",
+    type: "negative",
+    title: {
+      en: "Ankle Sprain (Super Rare)",
+      id: "Pergelangan Kaki Terkilir (Sangat Langka)",
+    },
+    description: {
+      en: "You tripped on an uneven stone and sprained your ankle, forcing you to slow down.",
+      id: "Kamu tersandung batu yang tidak rata dan pergelangan kaki terkilir, memaksamu melambat.",
+    },
+    effect: {
+      stamina: -30,
+      hydration: 0,
+      morale: -30,
+      pace: 50,
+    },
+  },
+  special_dnf: {
+    id: "special_dnf",
+    type: "negative",
+    title: {
+      en: "Sudden Severe Injury (DNF) (Super Rare)",
+      id: "Cedera Parah Mendadak (DNF) (Sangat Langka)",
+    },
+    description: {
+      en: "A sharp pain in your hamstring forces you to halt. You cannot continue the race.",
+      id: "Rasa sakit yang tajam di hamstring memaksamu berhenti. Kamu tidak bisa melanjutkan balapan.",
+    },
+    effect: {
+      stamina: -100,
+      hydration: 0,
+      morale: -100,
+      pace: 999,
+    },
+  },
+  special_dns: {
+    id: "special_dns",
+    type: "negative",
+    title: {
+      en: "Missed Transportation (DNS) (Super Rare)",
+      id: "Ketinggalan Transportasi (DNS) (Sangat Langka)",
+    },
+    description: {
+      en: "You failed to arrive at the race course on time. Did Not Start.",
+      id: "Kamu gagal tiba di lokasi balapan tepat waktu. Did Not Start.",
+    },
+    effect: {
+      stamina: 0,
+      hydration: 0,
+      morale: 0,
+      pace: 0,
+    },
+  },
 };

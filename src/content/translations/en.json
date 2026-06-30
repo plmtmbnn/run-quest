@@ -38,9 +38,11 @@
     "time": "Time",
     "subtitle_desc": "View your past challenge outcomes, records, and training logs.",
     "dnf": "DNF",
+    "dns": "DNS",
     "status": "Status",
     "completed_status": "Completed",
-    "dnf_status": "DNF"
+    "dnf_status": "DNF",
+    "dns_status": "DNS"
   },
   "language": {
     "title": "Choose Your Language",
@@ -280,7 +282,8 @@
       "outcome_silver": "Silver Medal",
       "outcome_bronze": "Bronze Medal",
       "outcome_finish": "Finisher",
-      "outcome_dnf": "Did Not Finish"
+      "outcome_dnf": "Did Not Finish",
+      "outcome_dns": "Did Not Start"
     }
   },
   "share": {

@@ -20,6 +20,19 @@ export function calculatePerformance(
   objective: Objective,
   finalState: SimulationState,
 ): GradeAndOutcome {
+  // Check for DNS (Did Not Start)
+  const isDNS = finalState.eventsResolved.some((e) =>
+    e.title.en.includes("DNS"),
+  );
+
+  if (isDNS) {
+    return {
+      grade: "F",
+      outcome: "dns",
+      score: 0,
+    };
+  }
+
   // Check for DNF (Did Not Finish)
   // Runner DNFs if energy or hydration drops to 0
   const isDNF = finalState.energy <= 0 || finalState.hydration <= 0;

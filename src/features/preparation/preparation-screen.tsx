@@ -118,10 +118,10 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
               playSound("click");
               router.back();
             }}
-            className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#E5E7EB] bg-white dark:bg-slate-900 transition-all duration-200 hover:border-blue-500 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#E5E7EB] dark:border-slate-800 bg-white dark:bg-slate-900 transition-all duration-200 hover:border-blue-500 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             aria-label="Go back"
           >
-            <ArrowLeft className="h-4 w-4 text-gray-600" />
+            <ArrowLeft className="h-4 w-4 text-gray-600 dark:text-gray-300" />
           </button>
           <div>
             <h1 className="font-heading text-2xl font-bold text-gray-900 dark:text-white">
@@ -159,7 +159,8 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 badges={[
                   {
                     text: "⚖️ Balanced",
-                    color: "bg-gray-100 text-gray-700 dark:text-gray-200",
+                    color:
+                      "bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-200",
                   },
                 ]}
               />
@@ -176,9 +177,14 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 badges={[
                   {
                     text: "⚡ + Pace",
-                    color: "bg-emerald-100 text-emerald-800",
+                    color:
+                      "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300",
                   },
-                  { text: "⚠️ + Fatigue", color: "bg-red-100 text-red-800" },
+                  {
+                    text: "⚠️ + Fatigue",
+                    color:
+                      "bg-red-100 dark:bg-red-950/40 text-red-800 dark:text-red-300",
+                  },
                 ]}
               />
               <OptionCard
@@ -190,8 +196,16 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 )}
                 desc={t("preparation.shoes.lightweight.desc" as TranslationKey)}
                 badges={[
-                  { text: "🏃 Lightweight", color: "bg-sky-100 text-sky-800" },
-                  { text: "📉 Comfort", color: "bg-amber-100 text-amber-800" },
+                  {
+                    text: "🏃 Lightweight",
+                    color:
+                      "bg-sky-100 dark:bg-sky-950/40 text-sky-800 dark:text-sky-300",
+                  },
+                  {
+                    text: "📉 Comfort",
+                    color:
+                      "bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300",
+                  },
                 ]}
               />
               <OptionCard
@@ -203,11 +217,13 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 badges={[
                   {
                     text: "🥾 + Trail Grip",
-                    color: "bg-orange-100 text-orange-800",
+                    color:
+                      "bg-orange-100 dark:bg-orange-950/40 text-orange-800 dark:text-orange-300",
                   },
                   {
                     text: "🐢 - Road Speed",
-                    color: "bg-amber-100 text-amber-700",
+                    color:
+                      "bg-amber-100 dark:bg-amber-950/40 text-amber-750 dark:text-amber-300",
                   },
                 ]}
               />
@@ -230,7 +246,11 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 title={t("preparation.nutrition.water.name" as TranslationKey)}
                 desc={t("preparation.nutrition.water.desc" as TranslationKey)}
                 badges={[
-                  { text: "💧 Hydration", color: "bg-blue-100 text-blue-800" },
+                  {
+                    text: "💧 Hydration",
+                    color:
+                      "bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300",
+                  },
                 ]}
               />
               <OptionCard
@@ -246,11 +266,13 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 badges={[
                   {
                     text: "🧪 Optimal Hydration",
-                    color: "bg-teal-100 text-teal-800",
+                    color:
+                      "bg-teal-100 dark:bg-teal-950/40 text-teal-800 dark:text-teal-300",
                   },
                   {
                     text: "☀️ Heat Protection",
-                    color: "bg-amber-100 text-amber-800",
+                    color:
+                      "bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300",
                   },
                 ]}
               />
@@ -267,11 +289,13 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 badges={[
                   {
                     text: "💥 High Energy",
-                    color: "bg-yellow-100 text-yellow-800",
+                    color:
+                      "bg-yellow-100 dark:bg-yellow-950/40 text-yellow-800 dark:text-yellow-300",
                   },
                   {
                     text: "🥵 Dry Mouth Risk",
-                    color: "bg-orange-100 text-orange-800",
+                    color:
+                      "bg-orange-100 dark:bg-orange-950/40 text-orange-800 dark:text-orange-350",
                   },
                 ]}
               />
@@ -284,7 +308,8 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 badges={[
                   {
                     text: "💀 High Dehydration",
-                    color: "bg-rose-100 text-rose-800",
+                    color:
+                      "bg-rose-100 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300",
                   },
                 ]}
               />
@@ -309,7 +334,8 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 badges={[
                   {
                     text: "🧢 Sun/Rain",
-                    color: "bg-indigo-100 text-indigo-800",
+                    color:
+                      "bg-indigo-100 dark:bg-indigo-950/40 text-indigo-800 dark:text-indigo-300",
                   },
                 ]}
                 isMultiSelect
@@ -323,7 +349,8 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 badges={[
                   {
                     text: "🕶️ Glare Block",
-                    color: "bg-purple-100 text-purple-800",
+                    color:
+                      "bg-purple-100 dark:bg-purple-950/40 text-purple-800 dark:text-purple-300",
                   },
                 ]}
                 isMultiSelect
@@ -335,7 +362,11 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 title={t("preparation.gear.arm_sleeves.name" as TranslationKey)}
                 desc={t("preparation.gear.arm_sleeves.desc" as TranslationKey)}
                 badges={[
-                  { text: "🧣 Warmth", color: "bg-pink-100 text-pink-800" },
+                  {
+                    text: "🧣 Warmth",
+                    color:
+                      "bg-pink-100 dark:bg-pink-950/40 text-pink-800 dark:text-pink-300",
+                  },
                 ]}
                 isMultiSelect
               />
@@ -350,10 +381,15 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                   "preparation.gear.hydration_vest.desc" as TranslationKey,
                 )}
                 badges={[
-                  { text: "🎒 Capacity", color: "bg-cyan-100 text-cyan-800" },
+                  {
+                    text: "🎒 Capacity",
+                    color:
+                      "bg-cyan-100 dark:bg-cyan-950/40 text-cyan-800 dark:text-cyan-300",
+                  },
                   {
                     text: "⚖️ Heavy",
-                    color: "bg-gray-100 text-gray-700 dark:text-gray-200",
+                    color:
+                      "bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-200",
                   },
                 ]}
                 isMultiSelect
@@ -379,7 +415,8 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 badges={[
                   {
                     text: "🛌 Cold Start",
-                    color: "bg-gray-100 text-gray-700 dark:text-gray-200",
+                    color:
+                      "bg-gray-100 dark:bg-slate-805 text-gray-700 dark:text-gray-200",
                   },
                 ]}
               />
@@ -390,7 +427,11 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 title={t("preparation.warmup.dynamic.name" as TranslationKey)}
                 desc={t("preparation.warmup.dynamic.desc" as TranslationKey)}
                 badges={[
-                  { text: "⚖️ Optimal", color: "bg-green-100 text-green-800" },
+                  {
+                    text: "⚖️ Optimal",
+                    color:
+                      "bg-green-100 dark:bg-green-950/40 text-green-800 dark:text-green-300",
+                  },
                 ]}
               />
               <OptionCard
@@ -402,9 +443,14 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 badges={[
                   {
                     text: "🔥 High Readiness",
-                    color: "bg-orange-100 text-orange-800",
+                    color:
+                      "bg-orange-100 dark:bg-orange-950/40 text-orange-800 dark:text-orange-300",
                   },
-                  { text: "🔋 Energy Cost", color: "bg-red-100 text-red-800" },
+                  {
+                    text: "🔋 Energy Cost",
+                    color:
+                      "bg-red-100 dark:bg-red-950/40 text-red-800 dark:text-red-300",
+                  },
                 ]}
               />
             </div>
@@ -432,7 +478,8 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 badges={[
                   {
                     text: "🧠 Strategic",
-                    color: "bg-emerald-100 text-emerald-800",
+                    color:
+                      "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300",
                   },
                 ]}
               />
@@ -443,7 +490,11 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 title={t("preparation.pacing.steady.name" as TranslationKey)}
                 desc={t("preparation.pacing.steady.desc" as TranslationKey)}
                 badges={[
-                  { text: "⏱️ Rhythm", color: "bg-blue-100 text-blue-800" },
+                  {
+                    text: "⏱️ Rhythm",
+                    color:
+                      "bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300",
+                  },
                 ]}
               />
               <OptionCard
@@ -457,11 +508,13 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 badges={[
                   {
                     text: "🚀 Fast Start",
-                    color: "bg-amber-100 text-amber-800",
+                    color:
+                      "bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300",
                   },
                   {
                     text: "💀 High DNF Risk",
-                    color: "bg-rose-100 text-rose-800",
+                    color:
+                      "bg-rose-100 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300",
                   },
                 ]}
               />
@@ -478,7 +531,8 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 badges={[
                   {
                     text: "🛡️ Ultra Safe",
-                    color: "bg-gray-100 text-gray-700 dark:text-gray-200",
+                    color:
+                      "bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-200",
                   },
                 ]}
               />
@@ -501,7 +555,11 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 title={t("preparation.mindset.calm.name" as TranslationKey)}
                 desc={t("preparation.mindset.calm.desc" as TranslationKey)}
                 badges={[
-                  { text: "🧘 Low Stress", color: "bg-blue-100 text-blue-800" },
+                  {
+                    text: "🧘 Low Stress",
+                    color:
+                      "bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300",
+                  },
                 ]}
               />
               <OptionCard
@@ -515,7 +573,8 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 badges={[
                   {
                     text: "⭐ Morale Up",
-                    color: "bg-yellow-100 text-yellow-800",
+                    color:
+                      "bg-yellow-100 dark:bg-yellow-950/40 text-yellow-800 dark:text-yellow-300",
                   },
                 ]}
               />
@@ -526,10 +585,15 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 title={t("preparation.mindset.fearless.name" as TranslationKey)}
                 desc={t("preparation.mindset.fearless.desc" as TranslationKey)}
                 badges={[
-                  { text: "🔥 Ignore Pain", color: "bg-red-100 text-red-800" },
+                  {
+                    text: "🔥 Ignore Pain",
+                    color:
+                      "bg-red-100 dark:bg-red-950/40 text-red-800 dark:text-red-300",
+                  },
                   {
                     text: "⚠️ Crash Risk",
-                    color: "bg-orange-100 text-orange-800",
+                    color:
+                      "bg-orange-100 dark:bg-orange-950/40 text-orange-800 dark:text-orange-350",
                   },
                 ]}
               />
@@ -605,7 +669,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                   </div>
                 </div>
               </div>
-              <div className="border-t border-[#E5E7EB] pt-3 text-xs text-blue-600 bg-blue-50 rounded-2xl p-3 flex items-start gap-2">
+              <div className="border-t border-[#E5E7EB] dark:border-slate-800/40 pt-3 text-xs text-blue-650 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/30 rounded-2xl p-3 flex items-start gap-2">
                 <Sparkles className="h-4 w-4 text-blue-500 flex-shrink-0 mt-0.5" />
                 <p>{challenge.race.description[lang]}</p>
               </div>

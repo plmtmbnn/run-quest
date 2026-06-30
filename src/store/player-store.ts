@@ -92,16 +92,20 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
         grade: result.grade as "S" | "A" | "B" | "C" | "D" | "F",
         headline,
         score: result.score,
+        outcome: result.outcome,
       });
       storageRepository.saveHistory(history);
     }
 
     // 2. Update player stats
     const stats = { ...player.statistics };
-    stats.totalRuns += 1;
-    stats.totalDistance = Number((stats.totalDistance + distance).toFixed(2));
+    const distanceRun = result.outcome === "dns" ? 0 : distance;
+    if (result.outcome !== "dns") {
+      stats.totalRuns += 1;
+    }
+    stats.totalDistance = Number((stats.totalDistance + distanceRun).toFixed(2));
 
-    if (result.outcome !== "dnf") {
+    if (result.outcome !== "dnf" && result.outcome !== "dns") {
       stats.totalWins += 1;
     }
     if (result.grade === "S") {

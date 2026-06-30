@@ -44,6 +44,8 @@ export function RaceReportCard({
         return "text-blue-500 bg-blue-500/10 border-blue-500/30";
       case "dnf":
         return "text-red-500 bg-red-50/10 border-red-500/30";
+      case "dns":
+        return "text-red-500 bg-red-50/10 border-red-500/30";
     }
   };
 
@@ -107,9 +109,22 @@ export function RaceReportCard({
         </div>
 
         <div className="flex justify-between text-xs text-slate-400 px-1">
-          <span>Distance: {challenge.race.distance} km</span>
+          <span>
+            {lang === "id" ? "Jarak" : "Distance"}:{" "}
+            {outcome === "dns" ? "0" : challenge.race.distance} km
+          </span>
           <span className="italic text-indigo-400 font-medium">
-            Proudly finished! 🏁
+            {outcome === "dns"
+              ? lang === "id"
+                ? "Tidak Memulai ❌"
+                : "Did Not Start ❌"
+              : outcome === "dnf"
+                ? lang === "id"
+                  ? "Gagal Finish ❌"
+                  : "Did Not Finish ❌"
+                : lang === "id"
+                  ? "Selesai Balapan! 🏁"
+                  : "Proudly finished! 🏁"}
           </span>
         </div>
       </div>
