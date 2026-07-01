@@ -1,4 +1,3 @@
-import { toPng } from "html-to-image";
 import { useState } from "react";
 
 export function useShareCard() {
@@ -14,7 +13,10 @@ export function useShareCard() {
         return true;
       }
     } catch (err) {
-      console.error("Failed to copy text via clipboard API, trying fallback:", err);
+      console.error(
+        "Failed to copy text via clipboard API, trying fallback:",
+        err,
+      );
     }
 
     // Fallback copy method for non-HTTPS or legacy environments
@@ -48,6 +50,7 @@ export function useShareCard() {
     try {
       // Small delay to ensure styles and layouts are fully parsed
       await new Promise((resolve) => setTimeout(resolve, 150));
+      const { toPng } = await import("html-to-image");
       const dataUrl = await toPng(ref.current, {
         cacheBust: true,
         pixelRatio: 2, // High-DPI output for premium look
@@ -78,6 +81,7 @@ export function useShareCard() {
     setIsSharing(true);
     try {
       if (navigator.share) {
+        const { toPng } = await import("html-to-image");
         const dataUrl = await toPng(ref.current, {
           cacheBust: true,
           pixelRatio: 2,
@@ -112,7 +116,9 @@ export function useShareCard() {
         // Fallback: copy to clipboard and alert the user
         const didCopy = await copyText(text);
         if (didCopy) {
-          alert("Sharing is not supported on this browser. The text results have been copied to your clipboard!");
+          alert(
+            "Sharing is not supported on this browser. The text results have been copied to your clipboard!",
+          );
         } else {
           alert("Sharing is not supported on this browser.");
         }

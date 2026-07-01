@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { ResultScreen } from "@/features/result/result-screen";
+import dynamic from "next/dynamic";
+
+const ResultScreen = dynamic(() =>
+  import("@/features/result/result-screen").then((mod) => mod.ResultScreen),
+);
 
 export const metadata: Metadata = {
   title: "Race Results | RunQuest",

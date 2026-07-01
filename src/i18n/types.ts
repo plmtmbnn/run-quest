@@ -186,6 +186,11 @@ export interface Dictionary {
       title: string;
       cta: string;
     };
+    button: {
+      copy_text: string;
+      download: string;
+      share: string;
+    };
     copied: string;
     downloading: string;
     native_title: string;

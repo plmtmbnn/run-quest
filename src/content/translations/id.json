@@ -337,6 +337,11 @@
       "title": "Statistik RunQuest Saya",
       "cta": "Bisa kalahkan streak saya?"
     },
+    "button": {
+      "copy_text": "Salin Teks",
+      "download": "Unduh",
+      "share": "Bagikan"
+    },
     "copied": "Tersalin!",
     "downloading": "Menyimpan...",
     "native_title": "Bagikan RunQuest"

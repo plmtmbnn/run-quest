@@ -1,4 +1,8 @@
-import { HistoryScreen } from "@/features/history/history-screen";
+import dynamic from "next/dynamic";
+
+const HistoryScreen = dynamic(() =>
+  import("@/features/history/history-screen").then((mod) => mod.HistoryScreen),
+);
 
 export const metadata = {
   title: "RunQuest - Race History",

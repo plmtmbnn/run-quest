@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
-import { RaceScreen } from "@/features/race/race-screen";
+import dynamic from "next/dynamic";
+
+const RaceScreen = dynamic(() =>
+  import("@/features/race/race-screen").then((mod) => mod.RaceScreen),
+);
 
 export const metadata: Metadata = {
   title: "Live Simulation | RunQuest",

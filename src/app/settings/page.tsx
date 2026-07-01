@@ -1,4 +1,10 @@
-import { SettingsScreen } from "@/features/settings/settings-screen";
+import dynamic from "next/dynamic";
+
+const SettingsScreen = dynamic(() =>
+  import("@/features/settings/settings-screen").then(
+    (mod) => mod.SettingsScreen,
+  ),
+);
 
 export const metadata = {
   title: "RunQuest - Settings & Preferences",

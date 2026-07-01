@@ -337,6 +337,11 @@
       "title": "My RunQuest Stats",
       "cta": "Can you beat my streak?"
     },
+    "button": {
+      "copy_text": "Copy Text",
+      "download": "Download",
+      "share": "Share"
+    },
     "copied": "Copied!",
     "downloading": "Saving...",
     "native_title": "RunQuest Share"

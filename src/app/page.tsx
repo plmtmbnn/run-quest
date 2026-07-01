@@ -1,8 +1,19 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import { HomeScreen } from "@/features/home/home-screen";
-import { OnboardingScreen } from "@/features/onboarding/onboarding-screen";
+
+const HomeScreen = dynamic(
+  () => import("@/features/home/home-screen").then((mod) => mod.HomeScreen),
+  { ssr: false },
+);
+const OnboardingScreen = dynamic(
+  () =>
+    import("@/features/onboarding/onboarding-screen").then(
+      (mod) => mod.OnboardingScreen,
+    ),
+  { ssr: false },
+);
 
 type AppScreen = "loading" | "onboarding" | "home";
 
