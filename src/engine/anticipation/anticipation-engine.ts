@@ -142,7 +142,7 @@ export function generateHiddenConditions(
 
   // 2. Hidden conditions from analysis
   if (analysis.hiddenConditions && analysis.hiddenConditions.length > 0) {
-    analysis.hiddenConditions.forEach((cond, idx) => {
+    analysis.hiddenConditions.forEach((_, idx) => {
       const triggers = [
         "weather_shift",
         "stamina_low",

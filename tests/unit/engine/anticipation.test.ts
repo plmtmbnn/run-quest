@@ -35,11 +35,6 @@ const mockChallengeBase: DailyChallenge = {
   storySeed: {
     mood: "survival",
   },
-  analysis: {
-    hazards: [],
-    hiddenConditions: [],
-    recommendations: [],
-  },
 };
 
 const mockAnalysis = generateRaceAnalysis(mockChallengeBase, 12345);

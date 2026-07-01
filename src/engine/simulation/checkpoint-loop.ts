@@ -131,7 +131,7 @@ export function simulateKmStep(
   state: SimulationState,
   prep: Preparation,
   prepMods: PrepScoreModifiers,
-  envMods: EnvironmentModifiers,
+  _envMods: EnvironmentModifiers,
   checkpoint: Checkpoint | undefined,
   random: SeededRandom,
   challenge: DailyChallenge,

@@ -25,7 +25,7 @@ export function DailyStatsCard({ player, lang, date }: DailyStatsCardProps) {
             {lang === "id" ? "Statistik Karir Runner" : "Runner Career Stats"}
           </h2>
           <h1 className="text-2xl font-black font-heading text-white mt-0.5">
-            Runner #{player.id.slice(0, 8).toUpperCase()}
+            {player.name || `Runner #${player.id.slice(0, 8).toUpperCase()}`}
           </h1>
         </div>
 

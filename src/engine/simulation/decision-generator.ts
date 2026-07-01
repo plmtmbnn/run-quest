@@ -28,7 +28,7 @@ export function generateDecisionTimeline(
 
   // If segment analysis exists, generate timeline based on segment parameters
   const analysis = scenario.analysis;
-  if (analysis && analysis.segments && analysis.segments.length > 0) {
+  if (analysis?.segments && analysis.segments.length > 0) {
     const timeline: Record<number, string> = {};
     let accumulatedDistance = 0;
 

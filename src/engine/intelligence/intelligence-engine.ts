@@ -5,7 +5,6 @@ import type {
   LocalizedText,
   RaceAnalysis,
   RaceSegment,
-  Scenario,
   Surface,
   Weather,
   WeatherTimeline,
@@ -124,13 +123,13 @@ export function generateRaceSegments(
     segmentTypes = ["flat", "rolling", "rolling", "flat", "sprint"].slice(
       0,
       segmentCount,
-    ) as any;
+    ) as ("flat" | "rolling" | "climb" | "descent" | "sprint")[];
   } else {
     // hilly
     segmentTypes = ["climb", "rolling", "descent", "climb", "sprint"].slice(
       0,
       segmentCount,
-    ) as any;
+    ) as ("flat" | "rolling" | "climb" | "descent" | "sprint")[];
   }
 
   for (let i = 0; i < segmentCount; i++) {
@@ -186,8 +185,6 @@ export function generateCoachBriefing(
   weather: Weather,
   temp: number,
 ): CoachBriefing {
-  const random = new SeededRandom(seed);
-
   const recommendations: LocalizedText[] = [];
   const warnings: LocalizedText[] = [];
 
@@ -283,8 +280,6 @@ export function generateRaceAnalysis(
   challenge: Omit<DailyChallenge, "analysis">,
   seed: number,
 ): RaceAnalysis {
-  const random = new SeededRandom(seed);
-
   const weatherTimeline = generateWeatherTimeline(
     seed,
     challenge.race.distance,

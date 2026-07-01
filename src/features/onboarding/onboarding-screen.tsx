@@ -1,12 +1,21 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Compass, Flame, HelpCircle } from "lucide-react";
-import { useState } from "react";
+import {
+  ArrowRight,
+  Compass,
+  Dices,
+  Flame,
+  HelpCircle,
+  User,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { storageRepository } from "@/storage/storage-repository";
+import { usePlayerStore } from "@/store/player-store";
 import { useSettingsStore } from "@/store/settings-store";
+import { generateRunnerName } from "@/utils/name-generator";
 
 interface OnboardingScreenProps {
   onComplete: () => void;
@@ -16,7 +25,17 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
   const { t, language } = useTranslation();
   const { setLanguage } = useSettingsStore();
   const { playSound } = useSound();
+  const player = usePlayerStore((state) => state.player);
+  const setPlayerName = usePlayerStore((state) => state.setPlayerName);
+
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [nameInput, setNameInput] = useState("");
+
+  useEffect(() => {
+    if (player?.name && !nameInput) {
+      setNameInput(player.name);
+    }
+  }, [player?.name, nameInput]);
 
   const slides = [
     {
@@ -48,13 +67,29 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       color: "from-emerald-500/10 via-emerald-100/20 to-teal-200/10",
       accent: "border-emerald-200",
     },
+    {
+      titleKey: "onboarding.slide_4.title",
+      subtitleKey: "onboarding.slide_4.subtitle",
+      contentKey: "onboarding.slide_4.content",
+      icon: <User className="w-16 h-16 text-blue-500" />,
+      color: "from-blue-500/10 via-blue-100/20 to-indigo-200/10",
+      accent: "border-blue-200",
+    },
   ];
+
+  const handleRegenerate = () => {
+    playSound("click");
+    setNameInput(generateRunnerName());
+  };
 
   const handleNext = () => {
     playSound("click");
     if (currentSlide < slides.length - 1) {
       setCurrentSlide((prev) => prev + 1);
     } else {
+      if (nameInput.trim()) {
+        setPlayerName(nameInput.trim());
+      }
       storageRepository.saveSettings({
         version: 1,
         theme: "light", // Forced light theme globally
@@ -161,9 +196,35 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
               <p className="text-sm font-bold text-blue-600 leading-snug">
                 {t(activeSlide.subtitleKey as TranslationKey)}
               </p>
-              <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                {t(activeSlide.contentKey as TranslationKey)}
-              </p>
+              {currentSlide === 3 ? (
+                <div className="flex flex-col gap-4 mt-2">
+                  <p className="text-xs text-gray-500 leading-relaxed">
+                    {t(activeSlide.contentKey as TranslationKey)}
+                  </p>
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="text"
+                      value={nameInput}
+                      onChange={(e) => setNameInput(e.target.value)}
+                      maxLength={24}
+                      className="flex-1 border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 bg-slate-50 focus:bg-white text-gray-800 font-bold transition-all"
+                      placeholder="Runner Name"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleRegenerate}
+                      className="p-3 bg-gray-100 hover:bg-gray-200 active:scale-95 text-gray-650 rounded-2xl transition-all shadow-sm flex items-center justify-center"
+                      title="Roll for random name"
+                    >
+                      <Dices className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                  {t(activeSlide.contentKey as TranslationKey)}
+                </p>
+              )}
             </motion.div>
 
             {/* Carousel indicator dots */}

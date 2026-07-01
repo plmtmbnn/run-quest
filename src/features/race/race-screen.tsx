@@ -2,15 +2,7 @@
 
 import dayjs from "dayjs";
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  Activity,
-  Brain,
-  Dumbbell,
-  Flame,
-  Gauge,
-  ShieldAlert,
-  TrendingUp,
-} from "lucide-react";
+import { Activity, Flame, Gauge, TrendingUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { advanceSimulation } from "@/engine/simulation/engine";
@@ -246,18 +238,6 @@ export function RaceScreen() {
     100,
     (currentKm / challenge.race.distance) * 100,
   );
-
-  const getStatCardStyle = (value: number) => {
-    if (value < 20) {
-      return "bg-red-950/20 border-red-900/50 text-red-500 animate-pulse transition-all duration-300";
-    }
-    return "bg-gray-900/60 border-gray-800 transition-all duration-300";
-  };
-
-  const getStatTextColor = (value: number, defaultColor: string) => {
-    if (value < 20) return "text-red-500 font-extrabold";
-    return defaultColor;
-  };
 
   const formatPace = (seconds: number) => {
     if (!seconds || seconds <= 0) return "--:--";

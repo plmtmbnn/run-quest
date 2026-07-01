@@ -7,6 +7,7 @@ import type {
   StoredPlayer,
 } from "@/storage/types";
 import type { SimulationResult } from "@/types/engine";
+import { generateRunnerName } from "@/utils/name-generator";
 
 const DEFAULT_STATISTICS: PlayerStatistics = {
   totalRuns: 0,
@@ -24,6 +25,7 @@ function createNewPlayer(): StoredPlayer {
   return {
     version: 1,
     id: uuidv4(),
+    name: generateRunnerName(),
     language: "en",
     createdAt: new Date().toISOString(),
     lastPlayedAt: null,
@@ -35,6 +37,8 @@ export interface PlayerState {
   player: StoredPlayer | null;
   /** Load from storage or create a new player. Must be called once on app boot. */
   initializePlayer: () => void;
+  /** Update runner name. */
+  setPlayerName: (name: string) => void;
   /** Persist language preference on the player record. */
   setLanguage: (language: "en" | "id") => void;
   /** Complete today's run and update all statistics and daily lockout markers. */
@@ -52,12 +56,24 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   initializePlayer() {
     const existing = storageRepository.loadPlayer();
     if (existing) {
+      if (!existing.name) {
+        existing.name = generateRunnerName();
+        storageRepository.savePlayer(existing);
+      }
       set({ player: existing });
     } else {
       const newPlayer = createNewPlayer();
       storageRepository.savePlayer(newPlayer);
       set({ player: newPlayer });
     }
+  },
+
+  setPlayerName(name) {
+    const { player } = get();
+    if (!player) return;
+    const updated: StoredPlayer = { ...player, name };
+    storageRepository.savePlayer(updated);
+    set({ player: updated });
   },
 
   setLanguage(language) {

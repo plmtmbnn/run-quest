@@ -69,6 +69,11 @@
       "title": "What to Expect",
       "subtitle": "Deterministic physics, story events, and results sharing.",
       "content": "Watch the race unfold live. Read the dynamic story narrative generated from your decisions. Download your beautiful Share Card to show off your rank!"
+    },
+    "slide_4": {
+      "title": "Your Runner Profile",
+      "subtitle": "Choose your runner name before you start.",
+      "content": "We've generated a runner name for you. Feel free to edit it below, or roll the dice to get a new one!"
     }
   },
   "settings": {
@@ -78,6 +83,10 @@
       "general": "General",
       "race_preferences": "Race Preferences",
       "danger_zone": "Danger Zone"
+    },
+    "name": {
+      "title": "Runner Name",
+      "desc": "Change your runner name"
     },
     "sound": {
       "title": "Sound Effects",

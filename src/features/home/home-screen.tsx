@@ -255,7 +255,8 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
                   </button>
                 </div>
                 <span className="text-lg font-bold font-heading">
-                  Runner #{player.id.slice(0, 5).toUpperCase()}
+                  {player.name ||
+                    `Runner #${player.id.slice(0, 5).toUpperCase()}`}
                 </span>
               </div>
               <button

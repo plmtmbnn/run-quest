@@ -69,6 +69,11 @@
       "title": "Apa yang Diharapkan",
       "subtitle": "Fisika deterministik, peristiwa cerita, dan berbagi hasil.",
       "content": "Tonton balapan berlangsung secara langsung. Baca narasi cerita dinamis yang dihasilkan dari keputusan Anda. Unduh Kartu Hasil indah Anda untuk memamerkan peringkat Anda!"
+    },
+    "slide_4": {
+      "title": "Profil Pelari Anda",
+      "subtitle": "Pilih nama pelari Anda sebelum memulai.",
+      "content": "Kami telah membuat nama pelari untuk Anda. Jangan ragu untuk mengubahnya di bawah ini, atau acak ulang untuk mendapatkan nama baru!"
     }
   },
   "settings": {
@@ -78,6 +83,10 @@
       "general": "Umum",
       "race_preferences": "Preferensi Balapan",
       "danger_zone": "Zona Bahaya"
+    },
+    "name": {
+      "title": "Nama Pelari",
+      "desc": "Ubah nama profil pelari Anda"
     },
     "sound": {
       "title": "Efek Suara",

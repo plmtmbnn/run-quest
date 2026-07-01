@@ -6,7 +6,11 @@ import {
   getFallbackChoice,
   simulateRace,
 } from "@/engine/simulation/engine";
-import type { DailyChallenge, SimulationInput } from "@/types/engine";
+import type {
+  ChoiceBehavior,
+  DailyChallenge,
+  SimulationInput,
+} from "@/types/engine";
 
 const mockChallenge: DailyChallenge = {
   id: "challenge_1",
@@ -216,8 +220,11 @@ describe("Simulation Engine", () => {
       // Step 1: Start simulation
       const step1 = advanceSimulation(defaultInput);
       expect(step1.type).toBe("decision");
+      if (step1.type !== "decision") {
+        throw new Error("Expected decision step");
+      }
       expect(step1.prompt).toBeDefined();
-      expect(step1.prompt?.km).toBeGreaterThan(0);
+      expect(step1.prompt.km).toBeGreaterThan(0);
       expect(step1.state.pendingDecision).toBeDefined();
 
       // Step 2: Choose first choice
@@ -227,6 +234,9 @@ describe("Simulation Engine", () => {
 
       const choiceId = card.choices[0].id;
       const step2 = advanceSimulation(defaultInput, step1.state, choiceId);
+      if (step2.type !== "decision") {
+        throw new Error("Expected decision step after advancing");
+      }
 
       // Verify the choice behavior is recorded in history
       expect(step2.state.decisionHistory).toContain(card.choices[0].behavior);
@@ -242,7 +252,11 @@ describe("Simulation Engine", () => {
       const card = DECISION_DATABASE.strong_headwind;
 
       // If history is mostly aggressive, fallback should prioritize aggressive choice
-      const history = ["aggressive", "aggressive", "balanced"];
+      const history: ChoiceBehavior[] = [
+        "aggressive",
+        "aggressive",
+        "balanced",
+      ];
       const chosen = getFallbackChoice(card, history, 42);
 
       // For headwind, aggressive choice is "headwind_push"
@@ -252,6 +266,9 @@ describe("Simulation Engine", () => {
 
     it("should evolve the expanded runner attributes during the simulation steps", () => {
       const step1 = advanceSimulation(defaultInput);
+      if (step1.type !== "decision") {
+        throw new Error("Expected decision step");
+      }
       expect(step1.state.muscleFatigue).toBeDefined();
       expect(step1.state.mentalFatigue).toBeDefined();
       expect(step1.state.momentum).toBeDefined();
@@ -259,11 +276,11 @@ describe("Simulation Engine", () => {
       expect(step1.state.riskLevel).toBeDefined();
 
       // Check cumulative nutrition calculation
-      const caffeineGelInput = {
+      const caffeineGelInput: SimulationInput = {
         ...defaultInput,
         preparation: {
           ...defaultInput.preparation,
-          nutrition: ["caffeine", "energy_gel"] as any,
+          nutrition: ["caffeine", "energy_gel"],
         },
       };
       const res = simulateRace(caffeineGelInput);

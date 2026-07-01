@@ -1,10 +1,8 @@
 "use client";
 
-import dayjs from "dayjs";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
-  Clock,
   CloudRain,
   Compass,
   Droplets,
@@ -181,8 +179,8 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
                   {t("analysis.key_recommendations" as TranslationKey)}
                 </span>
                 <ul className="list-disc pl-4 text-xs text-gray-600 space-y-1.5 leading-relaxed">
-                  {analysis.briefing.recommendations.map((rec, i) => (
-                    <li key={i}>{rec[lang]}</li>
+                  {analysis.briefing.recommendations.map((rec) => (
+                    <li key={rec.en}>{rec[lang]}</li>
                   ))}
                 </ul>
               </div>
@@ -192,8 +190,8 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
                   {t("analysis.tactical_warnings" as TranslationKey)}
                 </span>
                 <ul className="list-disc pl-4 text-xs text-gray-600 space-y-1.5 leading-relaxed">
-                  {analysis.briefing.warnings.map((warn, i) => (
-                    <li key={i} className="text-red-700 font-medium">
+                  {analysis.briefing.warnings.map((warn) => (
+                    <li key={warn.en} className="text-red-700 font-medium">
                       {warn[lang]}
                     </li>
                   ))}
@@ -292,7 +290,7 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
 
                 return (
                   <div
-                    key={idx}
+                    key={kmMark}
                     className="bg-white border-2 border-[#E5E7EB] rounded-2xl p-4 text-center shadow-sm"
                   >
                     <span className="text-xs font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
@@ -343,9 +341,9 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
               <span>{t("analysis.hazards_detected" as TranslationKey)}</span>
             </div>
             <div className="flex flex-wrap gap-2">
-              {analysis.hazards.map((haz, idx) => (
+              {analysis.hazards.map((haz) => (
                 <span
-                  key={idx}
+                  key={haz.en}
                   className="bg-white text-orange-700 border border-orange-200 font-bold text-xs px-3 py-1 rounded-full shadow-sm"
                 >
                   ⚠ {haz[lang]}

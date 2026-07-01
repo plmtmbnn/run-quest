@@ -1,16 +1,27 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowLeft, ShieldAlert, Trash2, Volume2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Dices,
+  ShieldAlert,
+  Trash2,
+  User,
+  Volume2,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+import { usePlayerStore } from "@/store/player-store";
 import { useSettingsStore } from "@/store/settings-store";
+import { generateRunnerName } from "@/utils/name-generator";
 
 export function SettingsScreen() {
   const router = useRouter();
   const { t } = useTranslation();
+  const player = usePlayerStore((state) => state.player);
+  const setPlayerName = usePlayerStore((state) => state.setPlayerName);
   const {
     settings,
     setSound,
@@ -21,7 +32,28 @@ export function SettingsScreen() {
   } = useSettingsStore();
   const { playSound } = useSound();
 
+  const [nameInput, setNameInput] = useState("");
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+
+  useEffect(() => {
+    if (player?.name && !nameInput) {
+      setNameInput(player.name);
+    }
+  }, [player?.name, nameInput]);
+
+  const handleNameChange = (val: string) => {
+    setNameInput(val);
+    if (val.trim()) {
+      setPlayerName(val.trim());
+    }
+  };
+
+  const handleRegenerateName = () => {
+    playSound("click");
+    const newName = generateRunnerName();
+    setNameInput(newName);
+    setPlayerName(newName);
+  };
 
   const handlePreferencesChange = (
     key: "preferredSurface" | "preferredDistance",
@@ -74,6 +106,39 @@ export function SettingsScreen() {
           <h2 className="text-base font-bold text-gray-800 dark:text-gray-100 uppercase tracking-wider">
             {t("settings.sections.general" as TranslationKey)}
           </h2>
+
+          {/* Runner Name */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                <User className="h-4.5 w-4.5 text-gray-550" />{" "}
+                {t("settings.name.title" as TranslationKey)}
+              </span>
+              <span className="text-xs text-gray-400">
+                {t("settings.name.desc" as TranslationKey)}
+              </span>
+            </div>
+            <div className="flex gap-2 w-full sm:max-w-xs items-center">
+              <input
+                type="text"
+                value={nameInput}
+                onChange={(e) => handleNameChange(e.target.value)}
+                maxLength={24}
+                className="flex-grow border border-gray-250 dark:border-gray-850 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-blue-500 bg-slate-50 focus:bg-white text-gray-800 dark:text-white font-bold transition-all"
+                placeholder="Runner Name"
+              />
+              <button
+                type="button"
+                onClick={handleRegenerateName}
+                className="p-2.5 bg-gray-100 dark:bg-slate-800 hover:bg-gray-205 dark:hover:bg-slate-700 active:scale-95 text-gray-650 dark:text-gray-300 rounded-xl transition-all shadow-sm flex items-center justify-center border border-gray-250/20"
+                title="Roll for random name"
+              >
+                <Dices className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <hr className="border-[#E5E7EB]" />
 
           {/* Sound Toggle */}
           <div className="flex items-center justify-between">
