@@ -35,11 +35,15 @@ export function generateDecisionTimeline(
     for (const segment of analysis.segments) {
       const startKm = Math.ceil(accumulatedDistance);
       accumulatedDistance += segment.distance;
-      const endKm = Math.min(Math.ceil(distance), Math.floor(accumulatedDistance));
+      const endKm = Math.min(
+        Math.ceil(distance),
+        Math.floor(accumulatedDistance),
+      );
 
       for (let km = startKm + 1; km <= endKm; km++) {
         // Deterministic probability check per kilometer in this segment
-        const baseProb = 0.3 * (segment.eventWeight ?? 1.0) * ((segment.difficulty ?? 2) / 3);
+        const baseProb =
+          0.3 * (segment.eventWeight ?? 1.0) * ((segment.difficulty ?? 2) / 3);
         const randVal = random.next();
 
         if (randVal < baseProb) {
@@ -56,7 +60,8 @@ export function generateDecisionTimeline(
               // Segment context
               if (segment.type === "climb") {
                 if (card.id === "steep_climb") weight *= 10;
-                if (card.id === "stitch" || card.id === "heavy_legs") weight *= 3;
+                if (card.id === "stitch" || card.id === "heavy_legs")
+                  weight *= 3;
               } else if (segment.type === "descent") {
                 if (card.id === "steep_climb") weight = 0;
               } else if (segment.type === "flat") {
@@ -68,7 +73,10 @@ export function generateDecisionTimeline(
               if (card.id === "heat_wave") {
                 if (activeWeather === "hot" || activeWeather === "sunny") {
                   weight *= 4;
-                } else if (activeWeather === "cold" || activeWeather === "rain") {
+                } else if (
+                  activeWeather === "cold" ||
+                  activeWeather === "rain"
+                ) {
                   weight = 0;
                 }
               }

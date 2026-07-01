@@ -138,8 +138,18 @@ export function advanceSimulation(
       muscleFatigue: 0,
       mentalFatigue: 0,
       momentum: 50,
-      paceStability: preparation.mindset === "calm" ? 90 : preparation.mindset === "fearless" ? 60 : 80,
-      riskLevel: preparation.pacing === "aggressive" ? 60 : preparation.pacing === "conservative" ? 10 : 30,
+      paceStability:
+        preparation.mindset === "calm"
+          ? 90
+          : preparation.mindset === "fearless"
+            ? 60
+            : 80,
+      riskLevel:
+        preparation.pacing === "aggressive"
+          ? 60
+          : preparation.pacing === "conservative"
+            ? 10
+            : 30,
       decisionTimeline: generateDecisionTimeline(
         totalDistance,
         challenge,
@@ -300,7 +310,10 @@ export function advanceSimulation(
             morale: 0,
             pace: 5,
           });
-        } else if (choice.id === "aid_water" || choice.id === "aid_electrolyte") {
+        } else if (
+          choice.id === "aid_water" ||
+          choice.id === "aid_electrolyte"
+        ) {
           state.delayedEffects.push({
             km: currentKm + 2,
             stamina: 10,

@@ -267,7 +267,9 @@ describe("Simulation Engine", () => {
         },
       };
       const res = simulateRace(caffeineGelInput);
-      expect(res.finishTime).toBeLessThan(simulateRace(defaultInput).finishTime);
+      expect(res.finishTime).toBeLessThan(
+        simulateRace(defaultInput).finishTime,
+      );
     });
   });
 });

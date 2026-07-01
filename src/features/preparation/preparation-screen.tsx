@@ -298,8 +298,12 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 id="nutr-caff"
                 selected={preparation.nutrition.includes("caffeine")}
                 onClick={() => toggleNutrition("caffeine")}
-                title={t("preparation.nutrition.caffeine.name" as TranslationKey)}
-                desc={t("preparation.nutrition.caffeine.desc" as TranslationKey)}
+                title={t(
+                  "preparation.nutrition.caffeine.name" as TranslationKey,
+                )}
+                desc={t(
+                  "preparation.nutrition.caffeine.desc" as TranslationKey,
+                )}
                 badges={[
                   {
                     text: "🧠 Early Focus",

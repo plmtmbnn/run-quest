@@ -31,7 +31,12 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       titleKey: "onboarding.slide_2.title",
       subtitleKey: "onboarding.slide_2.subtitle",
       contentKey: "onboarding.slide_2.content",
-      icon: <Compass className="w-16 h-16 text-blue-500 animate-bounce" style={{ animationDuration: '3s' }} />,
+      icon: (
+        <Compass
+          className="w-16 h-16 text-blue-500 animate-bounce"
+          style={{ animationDuration: "3s" }}
+        />
+      ),
       color: "from-blue-500/10 via-blue-100/20 to-indigo-200/10",
       accent: "border-blue-200",
     },
@@ -124,8 +129,9 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
 
       {/* Main Slide Card Container */}
       <main className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full py-8 z-10">
-        <div className={`bg-white rounded-3xl border-2 shadow-[0_20px_50px_rgba(15,23,42,0.06)] overflow-hidden flex flex-col min-h-[440px] transition-all duration-300 border-[#E5E7EB]`}>
-          
+        <div
+          className={`bg-white rounded-3xl border-2 shadow-[0_20px_50px_rgba(15,23,42,0.06)] overflow-hidden flex flex-col min-h-[440px] transition-all duration-300 border-[#E5E7EB]`}
+        >
           {/* Top visual graphic area */}
           <div
             className={`h-48 bg-gradient-to-b ${activeSlide.color} flex items-center justify-center border-b border-gray-150`}

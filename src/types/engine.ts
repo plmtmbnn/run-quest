@@ -286,3 +286,38 @@ export interface RaceAnalysis {
   knownConditions: string[];
   hiddenConditions: string[];
 }
+
+export interface Forecast {
+  temperature: number;
+  weather: Weather;
+  humidity: number;
+  windProbability: number;
+  rainProbability: number;
+  confidence: number;
+}
+
+export interface HiddenCondition {
+  id: string;
+  category: string;
+  visibility: "hidden" | "revealed";
+  revealTrigger: string;
+}
+
+export interface CoachPreview {
+  title: LocalizedText;
+  summary: LocalizedText;
+  recommendation: LocalizedText;
+}
+
+export interface TomorrowPreview {
+  id: string;
+  raceId: string;
+  category: RaceEntry["category"];
+  distance: number;
+  surface: Surface;
+  difficulty: number;
+  forecast: Forecast;
+  knownConditions: string[];
+  hiddenConditions: HiddenCondition[];
+  coachPreview: CoachPreview;
+}

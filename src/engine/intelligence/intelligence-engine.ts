@@ -1,15 +1,15 @@
 import type {
+  CoachBriefing,
+  DailyChallenge,
   Elevation,
+  LocalizedText,
+  RaceAnalysis,
+  RaceSegment,
   Scenario,
   Surface,
   Weather,
-  Wind,
-  LocalizedText,
-  RaceSegment,
   WeatherTimeline,
-  CoachBriefing,
-  RaceAnalysis,
-  DailyChallenge,
+  Wind,
 } from "@/types/engine";
 import { SeededRandom } from "@/utils/random/seeded-random";
 
@@ -26,7 +26,7 @@ export function generateWeatherTimeline(
   baseWind: Wind,
 ): WeatherTimeline {
   const random = new SeededRandom(seed);
-  
+
   // Decide checkpoints (in km)
   const checkpoints: number[] = [0];
   if (distance <= 5) {
@@ -37,7 +37,7 @@ export function generateWeatherTimeline(
     checkpoints.push(
       Math.round(distance / 3),
       Math.round((2 * distance) / 3),
-      distance
+      distance,
     );
   }
 
@@ -60,7 +60,8 @@ export function generateWeatherTimeline(
     const windSpeedShift = Math.floor(random.nextRange(-5, 6));
     const nextWindSpeed = Math.max(0, baseWind.speed + windSpeedShift);
     const windDirections = ["north", "south", "east", "west"] as const;
-    const nextWindDir = random.next() > 0.7 ? random.pick(windDirections) : baseWind.direction;
+    const nextWindDir =
+      random.next() > 0.7 ? random.pick(windDirections) : baseWind.direction;
     wind.push({ speed: nextWindSpeed, direction: nextWindDir });
 
     // Rain status
@@ -101,7 +102,7 @@ export function generateRaceSegments(
   baseWeather: Weather,
 ): RaceSegment[] {
   const random = new SeededRandom(seed);
-  
+
   // Decide number of segments
   let segmentCount = 3;
   if (distance <= 3) segmentCount = 2;
@@ -114,15 +115,22 @@ export function generateRaceSegments(
   let remainingDistance = distance;
 
   // Assign segment types based on elevation
-  let segmentTypes: ("flat" | "rolling" | "climb" | "descent" | "sprint")[] = [];
+  let segmentTypes: ("flat" | "rolling" | "climb" | "descent" | "sprint")[] =
+    [];
   if (elevation === "flat") {
     segmentTypes = Array(segmentCount).fill("flat");
     segmentTypes[segmentTypes.length - 1] = "sprint";
   } else if (elevation === "rolling") {
-    segmentTypes = ["flat", "rolling", "rolling", "flat", "sprint"].slice(0, segmentCount) as any;
+    segmentTypes = ["flat", "rolling", "rolling", "flat", "sprint"].slice(
+      0,
+      segmentCount,
+    ) as any;
   } else {
     // hilly
-    segmentTypes = ["climb", "rolling", "descent", "climb", "sprint"].slice(0, segmentCount) as any;
+    segmentTypes = ["climb", "rolling", "descent", "climb", "sprint"].slice(
+      0,
+      segmentCount,
+    ) as any;
   }
 
   for (let i = 0; i < segmentCount; i++) {
@@ -132,13 +140,14 @@ export function generateRaceSegments(
       segDist = Math.round(remainingDistance * 10) / 10;
     } else {
       const avg = distance / segmentCount;
-      segDist = Math.round((avg + random.nextRange(-avg * 0.3, avg * 0.3)) * 10) / 10;
+      segDist =
+        Math.round((avg + random.nextRange(-avg * 0.3, avg * 0.3)) * 10) / 10;
       segDist = Math.max(0.5, segDist);
       remainingDistance -= segDist;
     }
 
     const type = segmentTypes[i];
-    
+
     // Assign segment elevation matching type
     let segElevation: Elevation = "flat";
     if (type === "rolling") segElevation = "rolling";
@@ -178,7 +187,7 @@ export function generateCoachBriefing(
   temp: number,
 ): CoachBriefing {
   const random = new SeededRandom(seed);
-  
+
   const recommendations: LocalizedText[] = [];
   const warnings: LocalizedText[] = [];
 
@@ -275,14 +284,14 @@ export function generateRaceAnalysis(
   seed: number,
 ): RaceAnalysis {
   const random = new SeededRandom(seed);
-  
+
   const weatherTimeline = generateWeatherTimeline(
     seed,
     challenge.race.distance,
     challenge.environment.weather,
     challenge.environment.temperature,
     challenge.environment.humidity,
-    challenge.environment.wind
+    challenge.environment.wind,
   );
 
   const segments = generateRaceSegments(
@@ -290,7 +299,7 @@ export function generateRaceAnalysis(
     challenge.race.distance,
     challenge.race.elevation,
     challenge.race.surface,
-    challenge.environment.weather
+    challenge.environment.weather,
   );
 
   const briefing = generateCoachBriefing(
@@ -299,7 +308,7 @@ export function generateRaceAnalysis(
     challenge.race.elevation,
     challenge.race.surface,
     challenge.environment.weather,
-    challenge.environment.temperature
+    challenge.environment.temperature,
   );
 
   // Determine potential hazards based on conditions
@@ -311,9 +320,16 @@ export function generateRaceAnalysis(
     hazards.push({ en: "Flash Flood Risk", id: "Risiko Banjir Bandang" });
   }
   if (challenge.race.elevation === "hilly") {
-    hazards.push({ en: "Steep Mountain Gradients", id: "Kemiringan Gunung Terjal" });
+    hazards.push({
+      en: "Steep Mountain Gradients",
+      id: "Kemiringan Gunung Terjal",
+    });
   }
-  if (challenge.race.surface === "trail" && (challenge.environment.weather === "rain" || challenge.environment.weather === "storm")) {
+  if (
+    challenge.race.surface === "trail" &&
+    (challenge.environment.weather === "rain" ||
+      challenge.environment.weather === "storm")
+  ) {
     hazards.push({ en: "Deep Mud Slippage", id: "Licin Lumpur Dalam" });
   }
 
@@ -322,8 +338,13 @@ export function generateRaceAnalysis(
   }
 
   // Known conditions visible to the strategist
-  const knownConditions = ["distance", "surface", "elevation", "weather_timeline"];
-  
+  const knownConditions = [
+    "distance",
+    "surface",
+    "elevation",
+    "weather_timeline",
+  ];
+
   // Hidden conditions resolved mid-race
   const hiddenConditions: string[] = [];
   if (challenge.environment.weather === "cloudy") {

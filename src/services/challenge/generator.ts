@@ -1,3 +1,4 @@
+import { generateRaceAnalysis } from "@/engine/intelligence/intelligence-engine";
 import type {
   Checkpoint,
   DailyChallenge,
@@ -9,7 +10,6 @@ import type {
   Weather,
 } from "@/types/engine";
 import { SeededRandom } from "@/utils/random/seeded-random";
-import { generateRaceAnalysis } from "@/engine/intelligence/intelligence-engine";
 
 const ADJECTIVES = [
   { en: "Dawn", id: "Pagi" },

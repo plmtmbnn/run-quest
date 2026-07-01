@@ -14,7 +14,10 @@ const mockChallengeBase: Omit<DailyChallenge, "analysis"> = {
   },
   race: {
     title: { en: "Desert Run", id: "Lari Gurun" },
-    description: { en: "A dry run in extreme heat", id: "Lari kering di tengah panas ekstrem" },
+    description: {
+      en: "A dry run in extreme heat",
+      id: "Lari kering di tengah panas ekstrem",
+    },
     distance: 10.2,
     surface: "trail",
     elevation: "hilly",
@@ -37,25 +40,49 @@ describe("Race Intelligence Engine", () => {
 
   it("produces segment distances summing up precisely to the total distance", () => {
     const analysis = generateRaceAnalysis(mockChallengeBase, 54321);
-    const totalSegmentDistance = analysis.segments.reduce((sum, seg) => sum + seg.distance, 0);
+    const totalSegmentDistance = analysis.segments.reduce(
+      (sum, seg) => sum + seg.distance,
+      0,
+    );
     // Float rounding precision check
-    expect(totalSegmentDistance).toBeCloseTo(mockChallengeBase.race.distance, 4);
+    expect(totalSegmentDistance).toBeCloseTo(
+      mockChallengeBase.race.distance,
+      4,
+    );
   });
 
   it("creates contextual recommendations and warnings for extreme heat and hilly terrain", () => {
     const analysis = generateRaceAnalysis(mockChallengeBase, 7890);
-    expect(analysis.briefing.warnings.some(w => w.en.includes("heat") || w.en.includes("exhaustion"))).toBe(true);
-    expect(analysis.briefing.warnings.some(w => w.en.includes("hills") || w.en.includes("fatigue"))).toBe(true);
-    expect(analysis.briefing.recommendations.some(r => r.en.includes("Electrolytes"))).toBe(true);
+    expect(
+      analysis.briefing.warnings.some(
+        (w) => w.en.includes("heat") || w.en.includes("exhaustion"),
+      ),
+    ).toBe(true);
+    expect(
+      analysis.briefing.warnings.some(
+        (w) => w.en.includes("hills") || w.en.includes("fatigue"),
+      ),
+    ).toBe(true);
+    expect(
+      analysis.briefing.recommendations.some((r) =>
+        r.en.includes("Electrolytes"),
+      ),
+    ).toBe(true);
   });
 
   it("generates weather timeline with correct checkpoints terminating at the total distance", () => {
     const analysis = generateRaceAnalysis(mockChallengeBase, 999);
     const weatherTimeline = analysis.weather;
-    
+
     expect(weatherTimeline.checkpoints[0]).toBe(0);
-    expect(weatherTimeline.checkpoints[weatherTimeline.checkpoints.length - 1]).toBe(mockChallengeBase.race.distance);
-    expect(weatherTimeline.temperature.length).toBe(weatherTimeline.checkpoints.length);
-    expect(weatherTimeline.humidity.length).toBe(weatherTimeline.checkpoints.length);
+    expect(
+      weatherTimeline.checkpoints[weatherTimeline.checkpoints.length - 1],
+    ).toBe(mockChallengeBase.race.distance);
+    expect(weatherTimeline.temperature.length).toBe(
+      weatherTimeline.checkpoints.length,
+    );
+    expect(weatherTimeline.humidity.length).toBe(
+      weatherTimeline.checkpoints.length,
+    );
   });
 });

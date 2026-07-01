@@ -53,9 +53,7 @@ export function LoadoutCard({
               {preparation.nutrition.length > 0
                 ? preparation.nutrition
                     .map((item) =>
-                      t(
-                        `preparation.nutrition.${item}.name` as TranslationKey,
-                      ),
+                      t(`preparation.nutrition.${item}.name` as TranslationKey),
                     )
                     .join(", ")
                 : "None"}

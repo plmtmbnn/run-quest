@@ -1,4 +1,11 @@
-import type { DailyChallenge, EnvironmentModifiers, Weather, Wind, Surface, Elevation } from "@/types/engine";
+import type {
+  DailyChallenge,
+  Elevation,
+  EnvironmentModifiers,
+  Surface,
+  Weather,
+  Wind,
+} from "@/types/engine";
 
 /**
  * Calculates how environmental conditions (weather, temperature, humidity, wind, surface, elevation)

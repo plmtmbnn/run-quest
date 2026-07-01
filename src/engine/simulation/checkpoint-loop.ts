@@ -2,19 +2,19 @@ import {
   EVENT_DATABASE,
   type EventDefinition,
 } from "@/content/events/event-database";
+import { calculateDynamicEnvironmentModifiers } from "@/engine/environment/environment-modifier";
 import type { PrepScoreModifiers } from "@/engine/scoring/preparation-score";
 import type {
   Checkpoint,
+  DailyChallenge,
   Effect,
   EnvironmentModifiers,
   Preparation,
   RaceEvent,
-  SimulationState,
-  DailyChallenge,
   RaceSegment,
+  SimulationState,
 } from "@/types/engine";
 import type { SeededRandom } from "@/utils/random/seeded-random";
-import { calculateDynamicEnvironmentModifiers } from "@/engine/environment/environment-modifier";
 
 /**
  * Adjusts event effects dynamically based on player equipment and strategy.
@@ -179,7 +179,9 @@ export function simulateKmStep(
           activeIdx = i;
         }
       }
-      activeWeather = timeline.rain[activeIdx] ? "rain" : challenge.environment.weather;
+      activeWeather = timeline.rain[activeIdx]
+        ? "rain"
+        : challenge.environment.weather;
       activeTemp = timeline.temperature[activeIdx];
       activeHumidity = timeline.humidity[activeIdx];
       activeWind = timeline.wind[activeIdx];
@@ -197,7 +199,7 @@ export function simulateKmStep(
     activeHumidity,
     activeWind,
     challenge.race.surface,
-    activeElevation
+    activeElevation,
   );
 
   // Apply segment-specific modifiers
@@ -263,11 +265,16 @@ export function simulateKmStep(
 
   const calculatedFatigue = Math.max(
     0.5,
-    baseFatigueKm + prepMods.fatigueModifier + currentEnvMods.fatigueModifier + segmentFatigueModifier,
+    baseFatigueKm +
+      prepMods.fatigueModifier +
+      currentEnvMods.fatigueModifier +
+      segmentFatigueModifier,
   );
   let calculatedHydration = Math.max(
     0.5,
-    baseHydrationKm + prepMods.hydrationModifier + currentEnvMods.hydrationModifier,
+    baseHydrationKm +
+      prepMods.hydrationModifier +
+      currentEnvMods.hydrationModifier,
   );
 
   // Water provides hydration stability
@@ -277,7 +284,10 @@ export function simulateKmStep(
 
   // Momentum improves energy efficiency (better momentum reduces fatigue rate)
   const momentumEfficiency = 1.0 - ((state.momentum ?? 50) - 50) * 0.003;
-  state.fatigue = Math.min(100, state.fatigue + calculatedFatigue * momentumEfficiency);
+  state.fatigue = Math.min(
+    100,
+    state.fatigue + calculatedFatigue * momentumEfficiency,
+  );
   state.energy = Math.max(0, 100 - state.fatigue);
   state.hydration = Math.max(0, state.hydration - calculatedHydration);
 
@@ -293,7 +303,10 @@ export function simulateKmStep(
       state.confidence = Math.min(100, state.confidence + 1.0);
     }
   } else {
-    state.focus = Math.max(0, state.focus - (1.0 - prepMods.focusModifier) + confidenceFocusBoost);
+    state.focus = Math.max(
+      0,
+      state.focus - (1.0 - prepMods.focusModifier) + confidenceFocusBoost,
+    );
     state.confidence = Math.max(0, state.confidence - 0.5);
   }
 
@@ -334,10 +347,7 @@ export function simulateKmStep(
 
   // Momentum affects confidence recovery
   const momentumConfidenceBoost = ((state.momentum ?? 50) - 50) * 0.05;
-  state.momentum = Math.max(
-    0,
-    Math.min(100, state.momentum + momentumDelta),
-  );
+  state.momentum = Math.max(0, Math.min(100, state.momentum + momentumDelta));
 
   state.confidence = Math.max(
     0,
@@ -346,13 +356,10 @@ export function simulateKmStep(
 
   state.paceStability = Math.max(
     10,
-    Math.min(
-      100,
-      90 - (state.muscleFatigue * 0.5 + state.mentalFatigue * 0.4),
-    ),
+    Math.min(100, 90 - (state.muscleFatigue * 0.5 + state.mentalFatigue * 0.4)),
   );
 
-  let riskDelta = (state.confidence - 50) * 0.05;
+  const riskDelta = (state.confidence - 50) * 0.05;
   state.riskLevel = Math.max(5, Math.min(100, state.riskLevel + riskDelta));
 
   // 2. Pace determination for this kilometer (in seconds/km)
@@ -398,8 +405,10 @@ export function simulateKmStep(
 
   // Sprint 14.5: Risk checks (Cramp risk)
   const segmentDifficulty = activeSegment ? activeSegment.difficulty : 3;
-  const crampProbability = 0.01 + (state.riskLevel * 0.001) + (segmentDifficulty * 0.01);
-  const isCrampTriggered = !prep.nutrition.includes("electrolyte") && (random.next() < crampProbability);
+  const crampProbability =
+    0.01 + state.riskLevel * 0.001 + segmentDifficulty * 0.01;
+  const isCrampTriggered =
+    !prep.nutrition.includes("electrolyte") && random.next() < crampProbability;
 
   if (isCrampTriggered) {
     const staminaLoss = Math.floor(random.nextRange(10, 25));

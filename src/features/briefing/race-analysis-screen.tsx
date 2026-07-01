@@ -5,16 +5,16 @@ import { motion } from "framer-motion";
 import {
   ArrowLeft,
   Clock,
+  CloudRain,
+  Compass,
+  Droplets,
   Flame,
   MapPin,
   Share2,
-  Sparkles,
-  Wind,
-  Droplets,
-  Sun,
-  CloudRain,
   ShieldAlert,
-  Compass,
+  Sparkles,
+  Sun,
+  Wind,
   Zap,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -140,7 +140,9 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
           <div className="flex justify-between items-start mb-4">
             <div>
               <span className="text-xs font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
-                {t(`challenge.surface.${currentChallenge.race.surface}` as TranslationKey).toUpperCase()}
+                {t(
+                  `challenge.surface.${currentChallenge.race.surface}` as TranslationKey,
+                ).toUpperCase()}
               </span>
               <h2 className="text-2xl font-bold font-heading text-gray-900 mt-2">
                 {currentChallenge.race.title[lang]}
@@ -191,7 +193,9 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
                 </span>
                 <ul className="list-disc pl-4 text-xs text-gray-600 space-y-1.5 leading-relaxed">
                   {analysis.briefing.warnings.map((warn, i) => (
-                    <li key={i} className="text-red-700 font-medium">{warn[lang]}</li>
+                    <li key={i} className="text-red-700 font-medium">
+                      {warn[lang]}
+                    </li>
                   ))}
                 </ul>
               </div>
@@ -216,7 +220,7 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
                 <div
                   key={seg.id}
                   className={`border-2 rounded-2xl p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 transition shadow-sm ${getSegmentColor(
-                    seg.type
+                    seg.type,
                   )}`}
                 >
                   <div className="flex items-center gap-3">
@@ -236,7 +240,13 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
                         }`}
                       </h4>
                       <p className="text-xs text-gray-500">
-                        {t(`challenge.surface.${seg.terrain}` as TranslationKey)} • {t(`challenge.elevation.${seg.elevation}` as TranslationKey)}
+                        {t(
+                          `challenge.surface.${seg.terrain}` as TranslationKey,
+                        )}{" "}
+                        •{" "}
+                        {t(
+                          `challenge.elevation.${seg.elevation}` as TranslationKey,
+                        )}
                       </p>
                     </div>
                   </div>
@@ -246,14 +256,18 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
                       <span className="text-[10px] text-gray-400 font-bold uppercase block">
                         {t("analysis.distance" as TranslationKey)}
                       </span>
-                      <span className="font-bold text-sm text-gray-700">{seg.distance} km</span>
+                      <span className="font-bold text-sm text-gray-700">
+                        {seg.distance} km
+                      </span>
                     </div>
 
                     <div className="text-right border-l pl-4">
                       <span className="text-[10px] text-gray-400 font-bold uppercase block">
                         {t("analysis.difficulty" as TranslationKey)}
                       </span>
-                      <span className="font-bold text-sm text-gray-700">★ {seg.difficulty}/5</span>
+                      <span className="font-bold text-sm text-gray-700">
+                        ★ {seg.difficulty}/5
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -295,9 +309,13 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
                       )}
                     </div>
 
-                    <span className="font-bold text-gray-800 block text-lg">{tempVal}°C</span>
+                    <span className="font-bold text-gray-800 block text-lg">
+                      {tempVal}°C
+                    </span>
                     <span className="text-[10px] text-gray-450 uppercase font-bold block mt-1">
-                      {t(`challenge.weather.${isRain ? "rain" : currentChallenge.environment.weather}` as TranslationKey)}
+                      {t(
+                        `challenge.weather.${isRain ? "rain" : currentChallenge.environment.weather}` as TranslationKey,
+                      )}
                     </span>
 
                     <div className="border-t mt-3 pt-3 flex flex-col gap-1 text-[10px] text-gray-500 font-semibold align-middle justify-center">

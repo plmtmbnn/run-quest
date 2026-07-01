@@ -2,7 +2,15 @@
 
 import dayjs from "dayjs";
 import { AnimatePresence, motion } from "framer-motion";
-import { Activity, Flame, TrendingUp, Brain, Gauge, ShieldAlert, Dumbbell } from "lucide-react";
+import {
+  Activity,
+  Brain,
+  Dumbbell,
+  Flame,
+  Gauge,
+  ShieldAlert,
+  TrendingUp,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { advanceSimulation } from "@/engine/simulation/engine";
@@ -375,9 +383,7 @@ export function RaceScreen() {
                 </span>
                 <div className="flex items-center gap-1 text-blue-600 dark:text-blue-500">
                   <Activity className="h-4.5 w-4.5" />
-                  <span className="text-lg font-bold">
-                    {stats.hydration}%
-                  </span>
+                  <span className="text-lg font-bold">{stats.hydration}%</span>
                 </div>
               </div>
               <div className="border border-slate-200 dark:border-gray-800 rounded-2xl p-4 flex flex-col items-center bg-slate-50/50 dark:bg-gray-950/20">
