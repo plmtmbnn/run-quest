@@ -122,6 +122,15 @@ export interface RaceEntry {
   scenario: Scenario;
 }
 
+export interface DailyTheme {
+  id: string;
+  name: LocalizedText;
+  description: LocalizedText;
+  weatherOverride?: Weather;
+  elevationOverride?: Elevation;
+  rewardMultiplier: number;
+}
+
 export interface DailyRaceBoard {
   id: string;
   publishedAt: string;
@@ -130,6 +139,7 @@ export interface DailyRaceBoard {
   entryPolicy: {
     maxEntries: number;
   };
+  theme?: DailyTheme;
 }
 
 export interface Player {

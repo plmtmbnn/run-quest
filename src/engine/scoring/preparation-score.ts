@@ -164,5 +164,204 @@ export function calculatePreparationScore(
       break;
   }
 
+  // 7. Apply Synergies (dynamic combos)
+  const activeSynergies = detectActiveSynergies(prep, surface, weather);
+  for (const syn of activeSynergies) {
+    switch (syn) {
+      case "speed_demon":
+        modifiers.basePaceModifier -= 12;
+        modifiers.fatigueModifier += 1.5;
+        modifiers.hydrationModifier += 1.0;
+        break;
+      case "zen_runner":
+        modifiers.fatigueModifier -= 1.0;
+        modifiers.hydrationModifier -= 0.5;
+        modifiers.focusModifier += 1.0;
+        break;
+      case "storm_rider":
+        modifiers.basePaceModifier -= 10;
+        modifiers.focusModifier += 2.0;
+        break;
+      case "desert_fox":
+        modifiers.hydrationModifier -= 2.0;
+        modifiers.basePaceModifier -= 4;
+        modifiers.focusModifier += 1.5;
+        break;
+      case "caffeine_machine":
+        modifiers.focusModifier += 2.0;
+        modifiers.basePaceModifier -= 6;
+        modifiers.fatigueModifier += 0.8;
+        break;
+      case "peak_condition":
+        modifiers.initialEnergyOffset = 5; // Negates -10 and turns into +5
+        modifiers.confidenceModifier += 10;
+        break;
+      case "trail_master":
+        modifiers.basePaceModifier -= 8;
+        modifiers.fatigueModifier -= 0.8;
+        modifiers.confidenceModifier += 10;
+        break;
+      case "injury_risk":
+        modifiers.fatigueModifier += 2.0;
+        modifiers.basePaceModifier += 8;
+        modifiers.confidenceModifier -= 15;
+        break;
+    }
+  }
+
   return modifiers;
+}
+
+export interface SynergyDef {
+  id: string;
+  name: { en: string; id: string };
+  description: { en: string; id: string };
+}
+
+export const PREP_SYNERGIES: Record<string, SynergyDef> = {
+  speed_demon: {
+    id: "speed_demon",
+    name: { en: "Speed Demon 🔥", id: "Iblis Kecepatan 🔥" },
+    description: {
+      en: "Aggressive pace, carbon racer shoes, and caffeine trigger an intense speed injection at the cost of rapid fatigue.",
+      id: "Ritme agresif, sepatu carbon racer, dan kafein memicu injeksi kecepatan tinggi dengan konsekuensi kelelahan cepat.",
+    },
+  },
+  zen_runner: {
+    id: "zen_runner",
+    name: { en: "Zen Runner 🧘‍♂️", id: "Pelari Zen 🧘‍♂️" },
+    description: {
+      en: "A calm mindset, conservative pacing, and a warm-up maximize efficiency, minimizing fatigue and hydration loss.",
+      id: "Pikiran tenang, ritme konservatif, dan pemanasan memaksimalkan efisiensi, mengurangi kelelahan dan hidrasi.",
+    },
+  },
+  storm_rider: {
+    id: "storm_rider",
+    name: { en: "Storm Rider ⛈️", id: "Penantang Badai ⛈️" },
+    description: {
+      en: "Trail shoes and a cap in rainy/stormy conditions allow you to cut through the weather with perfect traction.",
+      id: "Sepatu trail dan topi dalam kondisi hujan/badai memungkinkan Anda menerobos cuaca dengan cengkeraman sempurna.",
+    },
+  },
+  desert_fox: {
+    id: "desert_fox",
+    name: { en: "Desert Fox 🏜️", id: "Rubah Gurun 🏜️" },
+    description: {
+      en: "Caps, sunglasses, electrolytes, and water in hot/sunny conditions keep you cool and sustain hydration.",
+      id: "Topi, kacamata hitam, elektrolit, dan air dalam kondisi panas/cerah menjaga tubuh tetap sejuk dan hidrasi stabil.",
+    },
+  },
+  caffeine_machine: {
+    id: "caffeine_machine",
+    name: { en: "Caffeine Machine ⚡", id: "Mesin Kafein ⚡" },
+    description: {
+      en: "Caffeine combined with energy gel and a confident mindset locks in ultimate alertness and high pace stability.",
+      id: "Kafein dikombinasikan dengan gel energi dan pikiran percaya diri mengunci fokus penuh dan kestabilan ritme lari.",
+    },
+  },
+  peak_condition: {
+    id: "peak_condition",
+    name: { en: "Peak Condition 🥇", id: "Kondisi Puncak 🥇" },
+    description: {
+      en: "A full warm-up combined with steady pacing and a confident mindset eliminates the initial fatigue cost of warming up.",
+      id: "Pemanasan penuh dikombinasikan dengan ritme stabil dan pikiran percaya diri menghilangkan konsekuensi kelelahan awal pemanasan.",
+    },
+  },
+  trail_master: {
+    id: "trail_master",
+    name: { en: "Trail Master 🌲", id: "Master Trail 🌲" },
+    description: {
+      en: "Trail shoes, dynamic warm-up, and steady strategy on trail terrain grant flawless grip and speed.",
+      id: "Sepatu trail, pemanasan dinamis, dan strategi stabil di medan trail memberikan cengkeraman dan kecepatan sempurna.",
+    },
+  },
+  injury_risk: {
+    id: "injury_risk",
+    name: { en: "Injury Risk ⚠️", id: "Risiko Cedera ⚠️" },
+    description: {
+      en: "Running with carbon racers without any warm-up is highly dangerous, causing early tightness and pace penalties.",
+      id: "Berlari dengan sepatu carbon racer tanpa pemanasan apa pun sangat berbahaya, menyebabkan kekakuan otot awal dan penalti ritme.",
+    },
+  },
+};
+
+export function detectActiveSynergies(
+  prep: Preparation,
+  surface: Surface,
+  weather: Weather,
+): string[] {
+  const synergies: string[] = [];
+
+  // 1. Speed Demon
+  if (
+    prep.shoes === "carbon_racer" &&
+    prep.pacing === "aggressive" &&
+    prep.nutrition.includes("caffeine")
+  ) {
+    synergies.push("speed_demon");
+  }
+
+  // 2. Zen Runner
+  if (
+    prep.mindset === "calm" &&
+    prep.pacing === "conservative" &&
+    prep.warmup !== "none"
+  ) {
+    synergies.push("zen_runner");
+  }
+
+  // 3. Storm Rider
+  if (
+    prep.shoes === "trail" &&
+    prep.gear.includes("cap") &&
+    (weather === "rain" || weather === "storm")
+  ) {
+    synergies.push("storm_rider");
+  }
+
+  // 4. Desert Fox
+  if (
+    prep.gear.includes("sunglasses") &&
+    prep.gear.includes("cap") &&
+    prep.nutrition.includes("electrolyte") &&
+    prep.nutrition.includes("water") &&
+    (weather === "hot" || weather === "sunny")
+  ) {
+    synergies.push("desert_fox");
+  }
+
+  // 5. Caffeine Machine
+  if (
+    prep.nutrition.includes("caffeine") &&
+    prep.nutrition.includes("energy_gel") &&
+    prep.mindset === "confident"
+  ) {
+    synergies.push("caffeine_machine");
+  }
+
+  // 6. Peak Condition
+  if (
+    prep.warmup === "full" &&
+    prep.mindset === "confident" &&
+    prep.pacing === "steady"
+  ) {
+    synergies.push("peak_condition");
+  }
+
+  // 7. Trail Master
+  if (
+    prep.shoes === "trail" &&
+    prep.pacing === "steady" &&
+    surface === "trail" &&
+    prep.warmup === "dynamic"
+  ) {
+    synergies.push("trail_master");
+  }
+
+  // 8. Anti-synergy: Injury Risk
+  if (prep.shoes === "carbon_racer" && prep.warmup === "none") {
+    synergies.push("injury_risk");
+  }
+
+  return synergies;
 }

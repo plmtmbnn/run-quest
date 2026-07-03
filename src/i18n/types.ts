@@ -210,4 +210,73 @@ export interface Dictionary {
     segment_sprint: string;
     segment_flat: string;
   };
+  onboarding: {
+    header: string;
+    next: string;
+    start: string;
+    name_error: string;
+    slide_1: {
+      title: string;
+      subtitle: string;
+      content: string;
+    };
+    slide_2: {
+      title: string;
+      subtitle: string;
+      content: string;
+    };
+    slide_3: {
+      title: string;
+      subtitle: string;
+      content: string;
+    };
+    slide_4: {
+      title: string;
+      subtitle: string;
+      content: string;
+    };
+  };
+  settings: {
+    title: string;
+    subtitle: string;
+    sections: {
+      general: string;
+      race_preferences: string;
+      danger_zone: string;
+    };
+    name: {
+      title: string;
+      desc: string;
+      error: string;
+    };
+    sound: {
+      title: string;
+      desc: string;
+    };
+    language: {
+      title: string;
+      desc: string;
+    };
+    theme: {
+      title: string;
+      desc: string;
+      light: string;
+      dark: string;
+      system: string;
+    };
+    preferences: {
+      desc: string;
+      surface: string;
+      distance: string;
+    };
+    danger: {
+      reset: string;
+      desc: string;
+      button: string;
+      modal_title: string;
+      modal_desc: string;
+      cancel: string;
+      confirm: string;
+    };
+  };
 }

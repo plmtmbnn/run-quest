@@ -1,3 +1,7 @@
+import {
+  detectActiveSynergies,
+  PREP_SYNERGIES,
+} from "@/engine/scoring/preparation-score";
 import type {
   DailyChallenge,
   Grade,
@@ -22,6 +26,12 @@ export function generateStory(
   const isDNS = outcome === "dns";
   const raceTitleEn = challenge.race.title.en;
   const raceTitleId = challenge.race.title.id;
+
+  const activeSynergies = detectActiveSynergies(
+    prep,
+    challenge.race.surface,
+    challenge.environment.weather,
+  );
 
   // 1. Headline
   let headline: LocalizedText;
@@ -49,9 +59,26 @@ export function generateStory(
           ? "Medali Perak 🥈"
           : "Medali Perunggu 🥉";
 
+    let prefixEn = "";
+    let prefixId = "";
+
+    if (grade === "S" && outcome === "gold") {
+      prefixEn = "🏆 FLAWLESS VICTORY! ";
+      prefixId = "🏆 KEMENANGAN SEMPURNA! ";
+    } else if (grade === "A" && outcome === "gold") {
+      prefixEn = "🔥 ELITE RUN! ";
+      prefixId = "🔥 LARI KELAS ELIT! ";
+    } else if (state.energy < 15 || state.hydration < 15) {
+      prefixEn = "🥵 SURVIVAL FINISH! ";
+      prefixId = "🥵 BERTAHAN HIDUP! ";
+    } else if (grade === "B" || grade === "C") {
+      prefixEn = "✨ STRONG FINISH! ";
+      prefixId = "✨ FINISH KUAT! ";
+    }
+
     headline = {
-      en: `${medalTextEn} finish at ${raceTitleEn}!`,
-      id: `Finish ${medalTextId} di ${raceTitleId}!`,
+      en: `${prefixEn}${medalTextEn} finish at ${raceTitleEn}!`,
+      id: `${prefixId}Finish ${medalTextId} di ${raceTitleId}!`,
     };
   }
 
@@ -77,20 +104,156 @@ export function generateStory(
     };
   } else if (isDNF) {
     summary = {
-      en: `Unfortunately, you collapsed at km ${state.distanceCovered.toFixed(0)} due to extreme physical depletion. Better preparation next time!`,
-      id: `Sayang sekali, kamu kolaps di km ${state.distanceCovered.toFixed(0)} karena kelelahan fisik ekstrem. Persiapan lebih baik di kesempatan berikutnya!`,
+      en: `Unfortunately, you collapsed at km ${state.distanceCovered.toFixed(1)} due to extreme physical depletion (Energy: ${state.energy.toFixed(0)}%, Hydration: ${state.hydration.toFixed(0)}%). Better preparation next time!`,
+      id: `Sayang sekali, kamu kolaps di km ${state.distanceCovered.toFixed(1)} karena kelelahan fisik ekstrem (Energi: ${state.energy.toFixed(0)}%, Hidrasi: ${state.hydration.toFixed(0)}%). Persiapan lebih baik di kesempatan berikutnya!`,
     };
   } else {
+    // Generate narrative sentence based on pacing strategy and shoes
+    let paceDetailEn = "";
+    let paceDetailId = "";
+    if (prep.pacing === "negative_split") {
+      paceDetailEn =
+        "Executing a calculated negative split, you conserved energy early and finished with a strong surge.";
+      paceDetailId =
+        "Menjalankan ritme split negatif yang terukur, kamu menghemat energi sejak awal dan mengakhirinya dengan lonjakan kuat.";
+    } else if (prep.pacing === "aggressive") {
+      paceDetailEn =
+        "Charging ahead at an aggressive pace from the gun, you traded stamina for maximum velocity.";
+      paceDetailId =
+        "Melesat maju dengan ritme agresif sejak awal, kamu menukar stamina untuk kecepatan maksimum.";
+    } else if (prep.pacing === "conservative") {
+      paceDetailEn =
+        "Prioritizing physical preservation, your conservative strategy ensured you finished with energy to spare.";
+      paceDetailId =
+        "Memprioritaskan pemeliharaan fisik, strategi konservatifmu memastikan kamu finish dengan energi tersisa.";
+    } else {
+      paceDetailEn =
+        "Maintaining a steady and consistent pace, you methodically ticked off the kilometers.";
+      paceDetailId =
+        "Menjaga ritme yang stabil dan konsisten, kamu melewati setiap kilometer dengan metodis.";
+    }
+
+    let shoeDetailEn = "";
+    let shoeDetailId = "";
+    if (prep.shoes === "carbon_racer") {
+      shoeDetailEn =
+        " The Carbon Racers provided an elite speed injection on flats, though your calves felt the severe fatigue burden.";
+      shoeDetailId =
+        " Sepatu Carbon Racer memberikan injeksi kecepatan elit di jalan datar, meskipun betismu merasakan beban kelelahan yang berat.";
+    } else if (prep.shoes === "trail" && challenge.race.surface === "trail") {
+      shoeDetailEn =
+        " Your trail shoes provided superior traction on the mud and loose gravel segments.";
+      shoeDetailId =
+        " Sepatu trailmu memberikan traksi unggul di segmen lumpur dan kerikil longgar.";
+    }
+
+    let statusDetailEn = "";
+    let statusDetailId = "";
+    if (state.energy < 15 || state.hydration < 15) {
+      statusDetailEn =
+        " It was a grueling final stretch as you crossed the line on absolute fumes.";
+      statusDetailId =
+        " Ini adalah bentangan akhir yang melelahkan saat kamu melintasi garis finish dengan sisa tenaga terakhir.";
+    } else if (state.energy > 60) {
+      statusDetailEn =
+        " You finished looking incredibly strong and fresh, ready for another lap.";
+      statusDetailId =
+        " Kamu menyelesaikan balapan dengan tampak sangat kuat dan segar, siap untuk putaran berikutnya.";
+    }
+
     summary = {
-      en: `You finished the ${challenge.race.distance} km course in ${finalTimeStr}. Your preparation grade was ${grade}.`,
-      id: `Kamu menyelesaikan lintasan ${challenge.race.distance} km dalam ${finalTimeStr}. Nilai persiapanmu adalah ${grade}.`,
+      en: `${paceDetailEn}${shoeDetailEn}${statusDetailEn} You completed the ${challenge.race.distance} km course in ${finalTimeStr} (Grade ${grade}).`,
+      id: `${paceDetailId}${shoeDetailId}${statusDetailId} Kamu menyelesaikan lintasan ${challenge.race.distance} km dalam ${finalTimeStr} (Nilai ${grade}).`,
     };
+
+    // Generate a shareable emoji block (Run Card)
+    const getRunCard = () => {
+      const outcomeEmoji =
+        outcome === "gold"
+          ? "🥇"
+          : outcome === "silver"
+            ? "🥈"
+            : outcome === "bronze"
+              ? "🥉"
+              : "🏃‍♂️ Finish";
+
+      const shoesLabel =
+        prep.shoes === "carbon_racer"
+          ? "👟 Carbon Racer"
+          : prep.shoes === "trail"
+            ? "🥾 Trail Shoes"
+            : prep.shoes === "lightweight"
+              ? "👟 Lightweight"
+              : "👟 Daily Trainer";
+
+      const synergyLabel =
+        activeSynergies.length > 0
+          ? `\n✨ Synergy: ${activeSynergies.map((s) => PREP_SYNERGIES[s]?.name.en.split(" ")[0]).join(", ")}`
+          : "";
+
+      return `\n\n---
+🏃‍♂️ **RUN CARD**
+📍 Race: ${challenge.race.title.en}
+🏅 Result: ${outcomeEmoji} (${grade}-Grade)
+⏱️ Time: ${finalTimeStr}
+👟 Gear: ${shoesLabel}${synergyLabel}
+🔋 Energy: ${state.energy.toFixed(0)}% | 💧 Hydration: ${state.hydration.toFixed(0)}%
+⚡ RunQuest.game`;
+    };
+
+    const getRunCardId = () => {
+      const outcomeEmoji =
+        outcome === "gold"
+          ? "🥇"
+          : outcome === "silver"
+            ? "🥈"
+            : outcome === "bronze"
+              ? "🥉"
+              : "🏃‍♂️ Finish";
+
+      const shoesLabel =
+        prep.shoes === "carbon_racer"
+          ? "👟 Carbon Racer"
+          : prep.shoes === "trail"
+            ? "🥾 Sepatu Trail"
+            : prep.shoes === "lightweight"
+              ? "👟 Ringan"
+              : "👟 Harian";
+
+      const synergyLabel =
+        activeSynergies.length > 0
+          ? `\n✨ Sinergi: ${activeSynergies.map((s) => PREP_SYNERGIES[s]?.name.id.split(" ")[0]).join(", ")}`
+          : "";
+
+      return `\n\n---
+🏃‍♂️ **RUN CARD**
+📍 Lomba: ${challenge.race.title.id}
+🏅 Hasil: ${outcomeEmoji} (Nilai-${grade})
+⏱️ Waktu: ${finalTimeStr}
+👟 Perlengkapan: ${shoesLabel}${synergyLabel}
+🔋 Energi: ${state.energy.toFixed(0)}% | 💧 Hidrasi: ${state.hydration.toFixed(0)}%
+⚡ RunQuest.game`;
+    };
+
+    summary.en += getRunCard();
+    summary.id += getRunCardId();
   }
 
   // 3. Highlights
   const highlights: LocalizedText[] = [];
 
-  if (prep.shoes === "carbon_racer") {
+  // Add active synergy highlights at the top
+  for (const synId of activeSynergies) {
+    const syn = PREP_SYNERGIES[synId];
+    if (syn) {
+      highlights.push({
+        en: `🌟 SYNERGY UNLOCKED: ${syn.name.en} — ${syn.description.en}`,
+        id: `🌟 SINERGI TERBUKA: ${syn.name.id} — ${syn.description.id}`,
+      });
+    }
+  }
+
+  if (prep.shoes === "carbon_racer" && activeSynergies.length === 0) {
     highlights.push({
       en: "The Carbon Racer shoes gave you a notable speed injection on flat sections.",
       id: "Sepatu Carbon Racer memberikan suntikan kecepatan yang nyata di jalanan datar.",

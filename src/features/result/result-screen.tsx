@@ -203,13 +203,12 @@ export function ResultScreen() {
               {t("challenge.result.story_headline" as TranslationKey)}
             </h3>
             <ul className="flex flex-col gap-2.5">
-              {story.highlights.map((h, idx) => {
-                const hasCarbonRacerHighlight =
-                  lastResult.events.length < story.highlights.length;
-                const isShoeHighlight = hasCarbonRacerHighlight && idx === 0;
-                const event = isShoeHighlight
-                  ? null
-                  : lastResult.events[hasCarbonRacerHighlight ? idx - 1 : idx];
+              {story.highlights.map((h) => {
+                const event = lastResult.events.find(
+                  (e) =>
+                    h.en.includes(`At km ${e.km}:`) ||
+                    h.id.includes(`Di km ${e.km}:`),
+                );
 
                 return (
                   <li

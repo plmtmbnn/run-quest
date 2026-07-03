@@ -20,6 +20,7 @@ import type { RaceEntry } from "@/types/engine";
 export function HomeScreen() {
   const router = useRouter();
   const { t, language } = useTranslation();
+  const lang = (language === "id" ? "id" : "en") as "en" | "id";
   const player = usePlayerStore((state) => state.player);
   const { setChallenge } = useGameStore();
   const { settings } = useSettingsStore();
@@ -310,6 +311,23 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
             </span>
             <p className="text-xs text-gray-500 max-w-xs leading-relaxed">
               {t("home.countdown_desc" as TranslationKey)}
+            </p>
+          </div>
+        )}
+
+        {/* Daily Theme Banner */}
+        {board.theme && (
+          <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 dark:from-amber-950/20 dark:to-orange-950/20 border-2 border-amber-500/20 dark:border-amber-500/10 rounded-3xl p-5 flex flex-col gap-1.5 shadow-sm">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] uppercase font-extrabold tracking-widest text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/50 px-2.5 py-0.5 rounded-full">
+                {lang === "id" ? "TEMA HARI INI" : "TODAY'S THEME"}
+              </span>
+              <h2 className="font-heading text-sm font-bold text-gray-850 dark:text-gray-200">
+                {board.theme.name[lang]}
+              </h2>
+            </div>
+            <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+              {board.theme.description[lang]}
             </p>
           </div>
         )}

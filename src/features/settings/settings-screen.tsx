@@ -34,17 +34,23 @@ export function SettingsScreen() {
 
   const [nameInput, setNameInput] = useState("");
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [hasInitializedName, setHasInitializedName] = useState(false);
+  const [hasNameError, setHasNameError] = useState(false);
 
   useEffect(() => {
-    if (player?.name && !nameInput) {
+    if (player?.name && !hasInitializedName) {
       setNameInput(player.name);
+      setHasInitializedName(true);
     }
-  }, [player?.name, nameInput]);
+  }, [player?.name, hasInitializedName]);
 
   const handleNameChange = (val: string) => {
     setNameInput(val);
     if (val.trim()) {
       setPlayerName(val.trim());
+      setHasNameError(false);
+    } else {
+      setHasNameError(true);
     }
   };
 
@@ -53,6 +59,7 @@ export function SettingsScreen() {
     const newName = generateRunnerName();
     setNameInput(newName);
     setPlayerName(newName);
+    setHasNameError(false);
   };
 
   const handlePreferencesChange = (
@@ -82,6 +89,10 @@ export function SettingsScreen() {
             type="button"
             onClick={() => {
               playSound("click");
+              if (!nameInput.trim()) {
+                setHasNameError(true);
+                return;
+              }
               router.push("/");
             }}
             className="rounded-full p-2 hover:bg-gray-100 transition-colors"
@@ -92,7 +103,7 @@ export function SettingsScreen() {
             <h1 className="text-xl font-bold text-gray-900 dark:text-white font-heading">
               {t("settings.title" as TranslationKey)}
             </h1>
-            <p className="text-xs text-gray-500 dark:text-gray-300">
+            <p className="text-xs text-gray-550 dark:text-gray-350">
               {t("settings.subtitle" as TranslationKey)}
             </p>
           </div>
@@ -118,23 +129,34 @@ export function SettingsScreen() {
                 {t("settings.name.desc" as TranslationKey)}
               </span>
             </div>
-            <div className="flex gap-2 w-full sm:max-w-xs items-center">
-              <input
-                type="text"
-                value={nameInput}
-                onChange={(e) => handleNameChange(e.target.value)}
-                maxLength={24}
-                className="flex-grow border border-gray-250 dark:border-gray-850 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-blue-500 bg-slate-50 focus:bg-white text-gray-800 dark:text-white font-bold transition-all"
-                placeholder="Runner Name"
-              />
-              <button
-                type="button"
-                onClick={handleRegenerateName}
-                className="p-2.5 bg-gray-100 dark:bg-slate-800 hover:bg-gray-205 dark:hover:bg-slate-700 active:scale-95 text-gray-650 dark:text-gray-300 rounded-xl transition-all shadow-sm flex items-center justify-center border border-gray-250/20"
-                title="Roll for random name"
-              >
-                <Dices className="w-4 h-4" />
-              </button>
+            <div className="flex flex-col gap-1.5 w-full sm:max-w-xs">
+              <div className="flex gap-2 items-center">
+                <input
+                  type="text"
+                  value={nameInput}
+                  onChange={(e) => handleNameChange(e.target.value)}
+                  maxLength={24}
+                  className={`flex-grow border rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-blue-500 bg-slate-50 focus:bg-white text-gray-800 dark:text-white font-bold transition-all ${
+                    hasNameError
+                      ? "border-red-500 focus:border-red-500"
+                      : "border-gray-250 dark:border-gray-850"
+                  }`}
+                  placeholder="Runner Name"
+                />
+                <button
+                  type="button"
+                  onClick={handleRegenerateName}
+                  className="p-2.5 bg-gray-100 dark:bg-slate-800 hover:bg-gray-205 dark:hover:bg-slate-700 active:scale-95 text-gray-650 dark:text-gray-300 rounded-xl transition-all shadow-sm flex items-center justify-center border border-gray-250/20"
+                  title="Roll for random name"
+                >
+                  <Dices className="w-4 h-4" />
+                </button>
+              </div>
+              {hasNameError && (
+                <p className="text-[11px] text-red-500 font-bold px-1 leading-none">
+                  {t("settings.name.error" as TranslationKey)}
+                </p>
+              )}
             </div>
           </div>
 

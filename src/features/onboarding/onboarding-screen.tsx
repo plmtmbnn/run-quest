@@ -30,12 +30,15 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [nameInput, setNameInput] = useState("");
+  const [hasInitializedName, setHasInitializedName] = useState(false);
+  const [hasNameError, setHasNameError] = useState(false);
 
   useEffect(() => {
-    if (player?.name && !nameInput) {
+    if (player?.name && !hasInitializedName) {
       setNameInput(player.name);
+      setHasInitializedName(true);
     }
-  }, [player?.name, nameInput]);
+  }, [player?.name, hasInitializedName]);
 
   const slides = [
     {
@@ -80,6 +83,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
   const handleRegenerate = () => {
     playSound("click");
     setNameInput(generateRunnerName());
+    setHasNameError(false);
   };
 
   const handleNext = () => {
@@ -87,9 +91,11 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
     if (currentSlide < slides.length - 1) {
       setCurrentSlide((prev) => prev + 1);
     } else {
-      if (nameInput.trim()) {
-        setPlayerName(nameInput.trim());
+      if (!nameInput.trim()) {
+        setHasNameError(true);
+        return;
       }
+      setPlayerName(nameInput.trim());
       storageRepository.saveSettings({
         version: 1,
         theme: "light", // Forced light theme globally
@@ -198,26 +204,43 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
               </p>
               {currentSlide === 3 ? (
                 <div className="flex flex-col gap-4 mt-2">
-                  <p className="text-xs text-gray-500 leading-relaxed">
+                  <p className="text-xs text-gray-550 leading-relaxed">
                     {t(activeSlide.contentKey as TranslationKey)}
                   </p>
-                  <div className="flex gap-2 items-center">
-                    <input
-                      type="text"
-                      value={nameInput}
-                      onChange={(e) => setNameInput(e.target.value)}
-                      maxLength={24}
-                      className="flex-1 border-2 border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 bg-slate-50 focus:bg-white text-gray-800 font-bold transition-all"
-                      placeholder="Runner Name"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleRegenerate}
-                      className="p-3 bg-gray-100 hover:bg-gray-200 active:scale-95 text-gray-650 rounded-2xl transition-all shadow-sm flex items-center justify-center"
-                      title="Roll for random name"
-                    >
-                      <Dices className="w-5 h-5" />
-                    </button>
+                  <div className="flex flex-col gap-1.5 w-full">
+                    <div className="flex gap-2 items-center">
+                      <input
+                        type="text"
+                        value={nameInput}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setNameInput(val);
+                          if (val.trim()) {
+                            setHasNameError(false);
+                          }
+                        }}
+                        maxLength={24}
+                        className={`flex-grow border-2 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 bg-slate-50 focus:bg-white text-gray-800 font-bold transition-all ${
+                          hasNameError
+                            ? "border-red-500 focus:border-red-500"
+                            : "border-gray-200"
+                        }`}
+                        placeholder="Runner Name"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleRegenerate}
+                        className="p-3 bg-gray-100 hover:bg-gray-200 active:scale-95 text-gray-650 rounded-2xl transition-all shadow-sm flex items-center justify-center"
+                        title="Roll for random name"
+                      >
+                        <Dices className="w-5 h-5" />
+                      </button>
+                    </div>
+                    {hasNameError && (
+                      <p className="text-xs text-red-500 font-bold px-1">
+                        {t("onboarding.name_error" as TranslationKey)}
+                      </p>
+                    )}
                   </div>
                 </div>
               ) : (

@@ -55,6 +55,7 @@
     "header": "Pengenalan RunQuest",
     "next": "Lanjut",
     "start": "Mulai Berlari",
+    "name_error": "Nama pelari tidak boleh kosong",
     "slide_1": {
       "title": "Selamat Datang di RunQuest",
       "subtitle": "Game simulasi lari harian offline-first Anda.",
@@ -86,7 +87,8 @@
     },
     "name": {
       "title": "Nama Pelari",
-      "desc": "Ubah nama profil pelari Anda"
+      "desc": "Ubah nama profil pelari Anda",
+      "error": "Nama pelari tidak boleh kosong"
     },
     "sound": {
       "title": "Efek Suara",

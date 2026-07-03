@@ -55,6 +55,7 @@
     "header": "RunQuest Onboarding",
     "next": "Next",
     "start": "Start Running",
+    "name_error": "Runner name cannot be empty",
     "slide_1": {
       "title": "Welcome to RunQuest",
       "subtitle": "Your daily offline-first running simulation game.",
@@ -86,7 +87,8 @@
     },
     "name": {
       "title": "Runner Name",
-      "desc": "Change your runner name"
+      "desc": "Change your runner name",
+      "error": "Runner name cannot be empty"
     },
     "sound": {
       "title": "Sound Effects",
