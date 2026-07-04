@@ -260,16 +260,38 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
                     `Runner #${player.id.slice(0, 5).toUpperCase()}`}
                 </span>
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  playSound("click");
-                  router.push("/history");
-                }}
-                className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-bold tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-1 rounded-full transition-all border border-white/10"
-              >
-                {t("history.title" as TranslationKey)} →
-              </button>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    playSound("click");
+                    router.push("/training");
+                  }}
+                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-bold tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-1 rounded-full transition-all border border-white/10"
+                >
+                  {t("home.daily_training" as TranslationKey)} →
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playSound("click");
+                    router.push("/profile");
+                  }}
+                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-bold tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-1 rounded-full transition-all border border-white/10"
+                >
+                  {t("home.runner_profile" as TranslationKey)} →
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playSound("click");
+                    router.push("/history");
+                  }}
+                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-bold tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-1 rounded-full transition-all border border-white/10"
+                >
+                  {t("history.title" as TranslationKey)} →
+                </button>
+              </div>
             </div>
             <div className="flex gap-6">
               <div className="flex flex-col items-center">

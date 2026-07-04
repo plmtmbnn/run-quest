@@ -1,0 +1,195 @@
+// runner-engine.ts
+// Business logic and calculations for the Runner Profile.
+
+import { loadRunnerState, saveRunnerState } from "./runner-persistence";
+import type { RunnerProfile, RunnerState } from "./runner-types";
+
+/**
+ * Calculates the runner's Race Readiness based on Fitness, Fatigue, and other factors.
+ * @param profile The RunnerProfile to calculate readiness for.
+ * @returns The calculated Race Readiness value.
+ */
+export const calculateRaceReadiness = (profile: RunnerProfile): number => {
+  // Readiness is influenced by Fitness, Fatigue, Consistency, and recent activity.
+  // This is a simplified calculation for the foundation.
+  const fitnessFactor = profile.currentFitness * 0.6;
+  const fatigueFactor = profile.currentFatigue * -0.4;
+  const consistencyFactor = profile.consistency * 0.2;
+
+  // Ensure readiness is within a reasonable range (0-100).
+  const readiness = Math.max(
+    0,
+    Math.min(100, 100 + fitnessFactor + fatigueFactor + consistencyFactor),
+  );
+  return Math.round(readiness);
+};
+
+/**
+ * Updates the runner's Fitness after a race or training session.
+ * @param profile The RunnerProfile to update.
+ * @param distance The distance run in kilometers.
+ * @param intensity The intensity of the session (0-1).
+ */
+export const updateFitness = (
+  profile: RunnerProfile,
+  distance: number,
+  intensity: number,
+): number => {
+  // Fitness increases slowly based on distance and intensity.
+  // This is a simplified model for the foundation.
+  const fitnessGain = distance * intensity * 0.1;
+  const newFitness = profile.currentFitness + fitnessGain;
+
+  // Ensure fitness does not exceed reasonable bounds.
+  return Math.min(100, Math.max(0, newFitness));
+};
+
+/**
+ * Updates the runner's Fatigue after a race or training session.
+ * @param profile The RunnerProfile to update.
+ * @param distance The distance run in kilometers.
+ * @param intensity The intensity of the session (0-1).
+ */
+export const updateFatigue = (
+  profile: RunnerProfile,
+  distance: number,
+  intensity: number,
+): number => {
+  // Fatigue increases based on distance and intensity.
+  // This is a simplified model for the foundation.
+  const fatigueGain = distance * intensity * 0.5;
+  const newFatigue = profile.currentFatigue + fatigueGain;
+
+  // Ensure fatigue does not exceed reasonable bounds.
+  return Math.min(100, Math.max(0, newFatigue));
+};
+
+/**
+ * Updates the runner's Consistency based on recent activity.
+ * @param profile The RunnerProfile to update.
+ * @param daysActive The number of days the runner has been active.
+ */
+export const updateConsistency = (
+  profile: RunnerProfile,
+  daysActive: number,
+): number => {
+  // Consistency increases with regular activity.
+  // This is a simplified model for the foundation.
+  const consistencyGain = daysActive * 0.5;
+  const newConsistency = profile.consistency + consistencyGain;
+
+  // Ensure consistency does not exceed reasonable bounds.
+  return Math.min(100, Math.max(0, newConsistency));
+};
+
+/**
+ * Updates the runner's profile after completing a race.
+ * @param distance The distance run in kilometers.
+ * @param time The time taken in seconds.
+ * @param intensity The intensity of the race (0-1).
+ */
+export const completeRace = (
+  distance: number,
+  time: number,
+  intensity: number,
+): void => {
+  const currentState = loadRunnerState();
+  const profile = currentState.profile;
+
+  // Update total runs, distance, and race time.
+  const updatedProfile: RunnerProfile = {
+    ...profile,
+    totalRuns: profile.totalRuns + 1,
+    totalDistance: profile.totalDistance + distance,
+    totalRaceTime: profile.totalRaceTime + time,
+    currentFitness: updateFitness(profile, distance, intensity),
+    currentFatigue: updateFatigue(profile, distance, intensity),
+    currentReadiness: 0, // Will be recalculated below.
+  };
+
+  // Recalculate Race Readiness.
+  updatedProfile.currentReadiness = calculateRaceReadiness(updatedProfile);
+
+  // Save the updated profile.
+  const updatedState: RunnerState = {
+    profile: updatedProfile,
+    lastUpdated: new Date().toISOString(),
+  };
+  saveRunnerState(updatedState);
+};
+
+/**
+ * Updates the runner's profile after a training day.
+ * @param distance The distance run in kilometers.
+ * @param intensity The intensity of the training (0-1).
+ * @param isActive Whether the runner was active today.
+ */
+export const updateTrainingDay = (
+  distance: number,
+  intensity: number,
+  isActive: boolean,
+): void => {
+  const currentState = loadRunnerState();
+  const profile = currentState.profile;
+
+  // Update total training days if active.
+  const totalTrainingDays = isActive
+    ? profile.totalTrainingDays + 1
+    : profile.totalTrainingDays;
+
+  // Update Consistency.
+  const daysActive = isActive ? 1 : 0;
+  const consistency = updateConsistency(profile, daysActive);
+
+  // Update Fitness and Fatigue if active.
+  const currentFitness = isActive
+    ? updateFitness(profile, distance, intensity)
+    : profile.currentFitness;
+  const currentFatigue = isActive
+    ? updateFatigue(profile, distance, intensity)
+    : profile.currentFatigue;
+
+  const updatedProfile: RunnerProfile = {
+    ...profile,
+    totalTrainingDays,
+    consistency,
+    currentFitness,
+    currentFatigue,
+    currentReadiness: 0, // Will be recalculated below.
+  };
+
+  // Recalculate Race Readiness.
+  updatedProfile.currentReadiness = calculateRaceReadiness(updatedProfile);
+
+  // Save the updated profile.
+  const updatedState: RunnerState = {
+    profile: updatedProfile,
+    lastUpdated: new Date().toISOString(),
+  };
+  saveRunnerState(updatedState);
+};
+
+/**
+ * Advances the runner's week and season.
+ */
+export const advanceWeekAndSeason = (): void => {
+  const currentState = loadRunnerState();
+  const profile = currentState.profile;
+
+  // Simplified logic for advancing week and season.
+  const currentWeek = profile.currentWeek + 1;
+  const currentSeason =
+    currentWeek > 12 ? profile.currentSeason + 1 : profile.currentSeason;
+
+  const updatedProfile: RunnerProfile = {
+    ...profile,
+    currentWeek: currentWeek > 12 ? 1 : currentWeek,
+    currentSeason,
+  };
+
+  const updatedState: RunnerState = {
+    profile: updatedProfile,
+    lastUpdated: new Date().toISOString(),
+  };
+  saveRunnerState(updatedState);
+};
