@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Activity, Flame, Gauge, TrendingUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { analyzeRace } from "@/coach/coach-analysis";
 import { advanceSimulation } from "@/engine/simulation/engine";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
@@ -134,6 +135,7 @@ export function RaceScreen() {
 
         // Save result and auto-redirect to results screen
         setResult(simResult);
+        analyzeRace(simResult, challenge, preparation);
         completeChallenge(
           challenge.id,
           challenge.race.distance,
@@ -202,6 +204,7 @@ export function RaceScreen() {
     completeChallenge,
     language,
     router,
+    preparation,
   ]);
 
   // Countdown timer decrement

@@ -1,6 +1,8 @@
 // training-engine.ts
 // Core training logic for the Training & Recovery System.
 
+import { analyzeTraining } from "@/coach/coach-analysis";
+import type { TrainingTelemetry } from "@/coach/coach-types";
 import { loadRunnerState, saveRunnerState } from "@/runner/runner-persistence";
 import { queueAdaptation } from "./adaptation-engine";
 import {
@@ -79,6 +81,43 @@ export const recordTrainingActivity = (activity: DailyActivity): void => {
     lastUpdated: new Date().toISOString(),
   };
   saveTrainingState(updatedTrainingState);
+
+  // Compute consecutive hard sessions ending on this day
+  let consecutiveHardDays = 0;
+  if (isHardActivity(activity)) {
+    consecutiveHardDays = 1;
+    const checkDate = new Date();
+    checkDate.setDate(checkDate.getDate() - 1);
+    while (true) {
+      const checkDateStr = checkDate.toISOString().split("T")[0];
+      const prevDay = updatedTrainingHistory.find(
+        (day) => day.date === checkDateStr,
+      );
+      if (prevDay && isHardActivity(prevDay.activity)) {
+        consecutiveHardDays++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+  }
+
+  const tomorrowDay = (new Date().getDay() + 1) % 7;
+  const isPreRaceDay = tomorrowDay === 0 || tomorrowDay === 6;
+
+  const telemetry: TrainingTelemetry = {
+    activity,
+    fatigueBefore: runnerState.profile.currentFatigue,
+    fatigueAfter: Math.min(100, Math.max(0, updatedFatigue)),
+    readinessBefore: runnerState.profile.currentReadiness,
+    stress: effect.stress,
+    consecutiveHardDays,
+    isPreRaceDay,
+    weeklyBalance: updatedWeeklyBalance,
+  };
+
+  // Run the training analysis (will save feedback and tendencies)
+  analyzeTraining(telemetry);
 };
 
 /**

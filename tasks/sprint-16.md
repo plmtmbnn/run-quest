@@ -1,4 +1,4 @@
-# Sprint 15 — Runner Profile & Long-Term Progression Foundation
+# Sprint 16 — Runner Profile & Long-Term Progression Foundation
 
 ## Objective
 

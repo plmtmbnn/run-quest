@@ -1,4 +1,4 @@
-# Sprint 16 — Training & Recovery System
+# Sprint 17 — Training & Recovery System
 
 ## Objective
 
