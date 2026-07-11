@@ -5,7 +5,7 @@ export function useSound() {
   const enabled = useSettingsStore((state) => state.settings.sound);
 
   const playSound = useCallback(
-    (type: "click" | "tick" | "success") => {
+    (type: "click" | "tick" | "success" | "alert") => {
       if (!enabled) return;
 
       try {
@@ -67,6 +67,26 @@ export function useSound() {
 
             osc.start(ctx.currentTime + index * 0.1);
             osc.stop(ctx.currentTime + index * 0.1 + 0.4);
+          });
+        } else if (type === "alert") {
+          const notes = [440.0, 554.37, 659.25]; // A4, C#5, E5 (A major chord arpeggio)
+          notes.forEach((freq, index) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(freq, ctx.currentTime + index * 0.08);
+
+            gain.gain.setValueAtTime(0.12, ctx.currentTime + index * 0.08);
+            gain.gain.exponentialRampToValueAtTime(
+              0.001,
+              ctx.currentTime + index * 0.08 + 0.35,
+            );
+
+            osc.start(ctx.currentTime + index * 0.08);
+            osc.stop(ctx.currentTime + index * 0.08 + 0.35);
           });
         }
       } catch (e) {

@@ -94,12 +94,17 @@ export function getFallbackChoice(
  * Incremental, step-by-step runner for simulation.
  * Simulates up to the next decision or finish.
  */
+const FIRST_NAMES = ["Racer", "Runner", "Sprint", "Dash", "Pace", "Chaser", "Fast", "Swift", "Bolt", "Shadow"];
+const LAST_NAMES = ["Alpha", "Beta", "Gamma", "Delta", "Omega", "One", "Two", "Three", "Pro", "Max"];
+
 export function advanceSimulation(
   input: SimulationInput,
   currentState?: SimulationState,
   lastChoiceId?: string,
+  nextPacing?: import("@/types/engine").PacingPlan,
+  stepByStep: boolean = false,
 ): SimulationStepResult {
-  const { challenge, preparation, seed } = input;
+  const { challenge, preparation, seed, runnerProfile } = input;
   const totalDistance = challenge.race.distance;
 
   let state: SimulationState;
@@ -114,23 +119,62 @@ export function advanceSimulation(
     );
     const envMods = calculateEnvironmentModifiers(challenge);
 
+    // Reduce starting energy based on any training fatigue carried over
+    const fatigueOffset = runnerProfile ? -runnerProfile.currentFatigue : 0;
+
+    let warmupBonusOffset = 0;
+    if (preparation.warmupBonus === "perfect") warmupBonusOffset = 15;
+    else if (preparation.warmupBonus === "good") warmupBonusOffset = 5;
+
     const initialEnergy = Math.max(
       0,
-      Math.min(100, 100 + prepMods.initialEnergyOffset),
+      Math.min(115, 100 + prepMods.initialEnergyOffset + fatigueOffset + warmupBonusOffset),
     );
+
+    // Adjust starting confidence based on readiness
+    const readinessConfidenceMod = runnerProfile ? (runnerProfile.currentReadiness - 100) * 0.2 : 0;
     const initialConfidence = Math.max(
       0,
       Math.min(
-        100,
-        100 + prepMods.confidenceModifier + envMods.confidenceModifier,
+        105,
+        100 + prepMods.confidenceModifier + envMods.confidenceModifier + readinessConfidenceMod,
       ),
     );
+
+    // Adjust starting focus based on readiness
+    const startingFocus = runnerProfile
+      ? Math.max(20, Math.min(100, 100 + (runnerProfile.currentReadiness - 100) * 0.4))
+      : 100;
+
+    // Generate 3-5 AI Opponents deterministically from the seed
+    const random = new SeededRandom(seed);
+    const opponentsCount = Math.floor(random.nextRange(3, 6)); // 3 to 5 opponents
+    const opponents: import("@/types/engine").OpponentState[] = [];
+    const archetypes: ("frontrunner" | "splitter" | "steady")[] = ["frontrunner", "splitter", "steady"];
+
+    for (let i = 0; i < opponentsCount; i++) {
+      const firstIdx = Math.floor(random.nextRange(0, FIRST_NAMES.length));
+      const lastIdx = Math.floor(random.nextRange(0, LAST_NAMES.length));
+      const name = `${FIRST_NAMES[firstIdx]} ${LAST_NAMES[lastIdx]}`;
+      const archetype = archetypes[Math.floor(random.nextRange(0, archetypes.length))];
+      opponents.push({
+        id: `opponent_${i}_${seed}`,
+        name,
+        archetype,
+        distanceCovered: 0,
+        accumulatedTime: 0,
+        energy: 100,
+        hydration: 100,
+        isDNF: false,
+        paceSeconds: 310,
+      });
+    }
 
     state = {
       distanceCovered: 0,
       energy: initialEnergy,
       hydration: 100,
-      focus: 100,
+      focus: startingFocus,
       fatigue: 100 - initialEnergy,
       confidence: initialConfidence,
       accumulatedTime: 0,
@@ -159,16 +203,18 @@ export function advanceSimulation(
       delayedEffects: [],
       randomSeedState: seed,
       accumulatedStateLog: [],
+      opponents,
+      currentPacing: preparation.pacing,
     };
 
     // DNS check (rare event roll on first step)
-    const random = new SeededRandom(seed);
-    const roll = Math.floor(random.nextRange(0, 500));
-    state.randomSeedState = random.seed;
+    const initRandom = new SeededRandom(seed);
+    const roll = Math.floor(initRandom.nextRange(0, 500));
+    state.randomSeedState = initRandom.seed;
 
     if (roll === 42) {
-      const rareEventRoll = Math.floor(random.nextRange(0, 4));
-      state.randomSeedState = random.seed;
+      const rareEventRoll = Math.floor(initRandom.nextRange(0, 4));
+      state.randomSeedState = initRandom.seed;
 
       if (rareEventRoll === 0) {
         // DNS
@@ -213,11 +259,11 @@ export function advanceSimulation(
         };
       } else {
         const maxKms = Math.ceil(totalDistance);
-        state.specialEventKm = Math.floor(random.nextRange(1, maxKms + 1));
+        state.specialEventKm = Math.floor(initRandom.nextRange(1, maxKms + 1));
         if (rareEventRoll === 1) state.specialEventId = "special_booster";
         else if (rareEventRoll === 2) state.specialEventId = "special_accident";
         else if (rareEventRoll === 3) state.specialEventId = "special_dnf";
-        state.randomSeedState = random.seed;
+        state.randomSeedState = initRandom.seed;
       }
     }
 
@@ -239,6 +285,10 @@ export function advanceSimulation(
       accumulatedStateLog: currentState.accumulatedStateLog
         ? [...currentState.accumulatedStateLog]
         : [],
+      opponents: currentState.opponents
+        ? currentState.opponents.map((o) => ({ ...o }))
+        : [],
+      currentPacing: nextPacing || currentState.currentPacing || preparation.pacing,
     };
 
     if (state.pendingDecision) {
@@ -350,21 +400,22 @@ export function advanceSimulation(
   );
   const envMods = calculateEnvironmentModifiers(challenge);
 
-  const nextKm = state.distanceCovered + 1;
+  const startKm = state.distanceCovered + 1;
   const maxKms = Math.ceil(totalDistance);
+  let currentStepState = state;
 
-  for (let km = nextKm; km <= maxKms; km++) {
+  for (let km = startKm; km <= maxKms; km++) {
     // Check if decision timeline triggers at this kilometer before simulating
-    if (state.decisionTimeline?.[km]) {
-      const cardId = state.decisionTimeline[km];
+    if (currentStepState.decisionTimeline?.[km]) {
+      const cardId = currentStepState.decisionTimeline[km];
       const card = DECISION_DATABASE[cardId];
       if (card) {
-        state.pendingDecision = card;
-        state.randomSeedState = random.seed;
-        delete state.decisionTimeline[km];
+        currentStepState.pendingDecision = card;
+        currentStepState.randomSeedState = random.seed;
+        delete currentStepState.decisionTimeline[km];
         return {
           type: "decision",
-          state,
+          state: currentStepState,
           prompt: {
             km,
             decisionCard: card,
@@ -376,48 +427,126 @@ export function advanceSimulation(
 
     const checkpoint = challenge.race.checkpoints.find((cp) => cp.km === km);
 
-    // Simulate km step
+    // Simulate AI Opponents first
+    if (currentStepState.opponents) {
+      const activeWeather = challenge.environment.weather;
+      const analysis = challenge.analysis;
+      let activeSegment: import("@/types/engine").RaceSegment | null = null;
+
+      if (analysis && analysis.segments && analysis.segments.length > 0) {
+        let accumulatedDistance = 0;
+        for (const seg of analysis.segments) {
+          accumulatedDistance += seg.distance;
+          if (km <= accumulatedDistance + 0.001) {
+            activeSegment = seg;
+            break;
+          }
+        }
+      }
+
+      for (const opp of currentStepState.opponents) {
+        if (opp.isDNF) continue;
+
+        let oppPace = challenge.objective.targetTime / challenge.race.distance;
+
+        // Archetype pacing profiles
+        if (opp.archetype === "frontrunner") {
+          if (km <= maxKms * 0.5) {
+            oppPace -= 15; // starts fast
+          } else {
+            oppPace += 20; // slows down
+          }
+        } else if (opp.archetype === "splitter") {
+          if (km <= maxKms * 0.6) {
+            oppPace += 12; // starts slow
+          } else {
+            oppPace -= 22; // negative split kick
+          }
+        } else {
+          oppPace += 3; // steady pacing
+        }
+
+        // Apply dynamic segment modifiers
+        if (activeSegment) {
+          if (activeSegment.type === "climb") {
+            oppPace += 20;
+          } else if (activeSegment.type === "descent") {
+            oppPace -= 15;
+          } else if (activeSegment.type === "sprint") {
+            oppPace -= 25;
+          }
+        }
+
+        // Random pace variation
+        const variation = random.nextRange(-6, 6);
+        oppPace += variation;
+
+        // Energy & Hydration depletion
+        let energyLoss = 2.0;
+        if (opp.archetype === "frontrunner" && km <= maxKms * 0.5) {
+          energyLoss = 3.5;
+        }
+        if (activeWeather === "hot" || activeWeather === "sunny") {
+          energyLoss += 1.0;
+          opp.hydration = Math.max(0, opp.hydration - 3.5);
+        } else {
+          opp.hydration = Math.max(0, opp.hydration - 2.0);
+        }
+
+        opp.energy = Math.max(0, opp.energy - energyLoss);
+        opp.paceSeconds = Math.max(180, Math.round(oppPace));
+        opp.accumulatedTime += opp.paceSeconds;
+        opp.distanceCovered = km;
+
+        if (opp.energy <= 0 || opp.hydration <= 0) {
+          opp.isDNF = true;
+        }
+      }
+    }
+
+    // Simulate player step
     simulateKmStep(
       km,
-      state,
+      currentStepState,
       preparation,
       prepMods,
       envMods,
       checkpoint,
       random,
       challenge,
+      runnerProfile,
     );
 
     // Apply special rare event if scheduled for this kilometer
-    if (km === state.specialEventKm && state.specialEventId) {
-      const eventDef = EVENT_DATABASE[state.specialEventId];
+    if (km === currentStepState.specialEventKm && currentStepState.specialEventId) {
+      const eventDef = EVENT_DATABASE[currentStepState.specialEventId];
       if (eventDef) {
-        state.energy = Math.max(
+        currentStepState.energy = Math.max(
           0,
-          Math.min(100, state.energy + eventDef.effect.stamina),
+          Math.min(100, currentStepState.energy + eventDef.effect.stamina),
         );
-        state.hydration = Math.max(
+        currentStepState.hydration = Math.max(
           0,
-          Math.min(100, state.hydration + eventDef.effect.hydration),
+          Math.min(100, currentStepState.hydration + eventDef.effect.hydration),
         );
-        state.focus = Math.max(
+        currentStepState.focus = Math.max(
           0,
-          Math.min(100, state.focus + eventDef.effect.morale),
+          Math.min(100, currentStepState.focus + eventDef.effect.morale),
         );
-        state.confidence = Math.max(
+        currentStepState.confidence = Math.max(
           0,
-          Math.min(100, state.confidence + eventDef.effect.morale * 0.5),
+          Math.min(100, currentStepState.confidence + eventDef.effect.morale * 0.5),
         );
-        state.accumulatedTime = Math.max(
+        currentStepState.accumulatedTime = Math.max(
           0,
-          state.accumulatedTime + eventDef.effect.pace,
+          currentStepState.accumulatedTime + eventDef.effect.pace,
         );
 
-        if (state.specialEventId === "special_dnf") {
-          state.energy = 0;
+        if (currentStepState.specialEventId === "special_dnf") {
+          currentStepState.energy = 0;
         }
 
-        state.eventsResolved.push({
+        currentStepState.eventsResolved.push({
           km,
           title: eventDef.title,
           description: eventDef.description,
@@ -426,27 +555,35 @@ export function advanceSimulation(
       }
     }
 
-    state.distanceCovered = km;
-    state.randomSeedState = random.seed;
+    currentStepState.distanceCovered = km;
+    currentStepState.randomSeedState = random.seed;
 
-    const { accumulatedStateLog: _, ...logState } = state;
-    state.accumulatedStateLog?.push(logState);
+    const { accumulatedStateLog: _, ...logState } = currentStepState;
+    currentStepState.accumulatedStateLog?.push(logState);
 
-    // DNF check
-    if (state.energy <= 0 || state.hydration <= 0) {
+    // Check if we should yield kilometer by kilometer (for live active pacing controls)
+    const isPlayerDNF = currentStepState.energy <= 0 || currentStepState.hydration <= 0;
+    if (stepByStep && km < maxKms && !isPlayerDNF) {
+      return {
+        type: "step",
+        state: currentStepState,
+      };
+    }
+
+    if (isPlayerDNF) {
       break;
     }
   }
 
   // Final performance & story build
   const performance = calculatePerformance(
-    state.accumulatedTime,
+    currentStepState.accumulatedTime,
     challenge.objective,
-    state,
+    currentStepState,
   );
 
   const story = generateStory(
-    state,
+    currentStepState,
     challenge,
     preparation,
     performance.grade,
@@ -456,31 +593,30 @@ export function advanceSimulation(
   return {
     type: "finished",
     result: {
-      finishTime: state.accumulatedTime,
+      finishTime: currentStepState.accumulatedTime,
       score: performance.score,
       grade: performance.grade,
-      events: state.eventsResolved,
+      events: currentStepState.eventsResolved,
       outcome: performance.outcome,
       story,
-      stateLog: state.accumulatedStateLog as SimulationState[],
+      stateLog: currentStepState.accumulatedStateLog as SimulationState[],
     },
   };
 }
 
-/**
- * Headless deterministic Simulation Engine.
- * Wrapper around advanceSimulation for compatibility with old interface.
- */
 export function simulateRace(input: SimulationInput): SimulationResult {
   let stepRes = advanceSimulation(input);
-  while (stepRes.type === "decision") {
-    // Timeout fallback resolution loop
-    const choiceId = getFallbackChoice(
-      stepRes.prompt.decisionCard,
-      stepRes.state.decisionHistory || [],
-      stepRes.state.randomSeedState ?? input.seed,
-    );
-    stepRes = advanceSimulation(input, stepRes.state, choiceId);
+  while (stepRes.type === "decision" || stepRes.type === "step") {
+    if (stepRes.type === "decision") {
+      const choiceId = getFallbackChoice(
+        stepRes.prompt.decisionCard,
+        stepRes.state.decisionHistory || [],
+        stepRes.state.randomSeedState ?? input.seed,
+      );
+      stepRes = advanceSimulation(input, stepRes.state, choiceId);
+    } else {
+      stepRes = advanceSimulation(input, stepRes.state);
+    }
   }
   return stepRes.result;
 }

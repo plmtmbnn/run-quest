@@ -52,6 +52,7 @@ export function PreparationScreen() {
     setWarmup: _setWarmup,
     setPacing: _setPacing,
     setMindset: _setMindset,
+    setWarmupBonus,
   } = usePreparationStore();
   const { playSound } = useSound();
 
@@ -81,6 +82,68 @@ export function PreparationScreen() {
   };
 
   const [isShareOpen, setIsShareOpen] = useState(false);
+  const [showWarmupGame, setShowWarmupGame] = useState(false);
+  const [warmupProgress, setWarmupProgress] = useState(0);
+  const [direction, setDirection] = useState(1);
+  const [gameResult, setGameResult] = useState<"perfect" | "good" | "normal" | null>(null);
+  const [isStopped, setIsStopped] = useState(false);
+
+  useEffect(() => {
+    if (!showWarmupGame || isStopped) return;
+    
+    const interval = setInterval(() => {
+      setWarmupProgress((prev) => {
+        let next = prev + direction * 5;
+        if (next >= 100) {
+          next = 100;
+          setDirection(-1);
+        } else if (next <= 0) {
+          next = 0;
+          setDirection(1);
+        }
+        return next;
+      });
+    }, 25);
+
+    return () => clearInterval(interval);
+  }, [showWarmupGame, direction, isStopped]);
+
+  const handleTapWarmup = () => {
+    if (isStopped) return;
+    setIsStopped(true);
+    
+    let outcome: "perfect" | "good" | "normal" = "normal";
+    if (warmupProgress >= 45 && warmupProgress <= 55) {
+      outcome = "perfect";
+      playSound("success");
+    } else if (warmupProgress >= 30 && warmupProgress <= 70) {
+      outcome = "good";
+      playSound("click");
+    } else {
+      playSound("tick");
+    }
+
+    setGameResult(outcome);
+    setWarmupBonus(outcome);
+
+    setTimeout(() => {
+      router.push("/race");
+    }, 1500);
+  };
+
+  const handleStartSimulation = () => {
+    playSound("click");
+    if (preparation.warmup !== "none") {
+      setShowWarmupGame(true);
+      setWarmupProgress(0);
+      setDirection(1);
+      setGameResult(null);
+      setIsStopped(false);
+    } else {
+      setWarmupBonus("normal");
+      router.push("/race");
+    }
+  };
 
   const shareTitle = t("share.loadout.title" as TranslationKey);
   const shareText = `⚙️ RunQuest — ${t("share.loadout.title" as TranslationKey)}
@@ -95,10 +158,6 @@ export function PreparationScreen() {
 
 ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
 
-  const handleStartSimulation = () => {
-    playSound("click");
-    router.push("/race");
-  };
 
   return (
     <motion.div
@@ -719,6 +778,63 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
           date={challenge.date}
         />
       </ShareModal>
+
+      {showWarmupGame && (
+        <div className="fixed inset-0 bg-slate-900/60 dark:bg-gray-950/90 backdrop-blur-md flex items-center justify-center p-6 z-50">
+          <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-3xl p-6 max-w-md w-full shadow-2xl flex flex-col gap-6 text-center">
+            <div>
+              <span className="text-[10px] uppercase tracking-widest text-blue-500 dark:text-amber-400 font-extrabold">
+                Warm-up Timing Challenge
+              </span>
+              <h3 className="font-heading text-lg font-black text-slate-800 dark:text-white mt-1">
+                Prime Your Muscle Memory!
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-gray-400 mt-2">
+                Tap when the slider is exactly in the center green zone to boost your starting stamina!
+              </p>
+            </div>
+
+            <div className="relative w-full h-8 bg-slate-100 dark:bg-gray-950 rounded-full border border-slate-200 dark:border-gray-800 overflow-hidden flex items-center">
+              <div className="absolute left-[30%] right-[30%] h-full bg-yellow-400/20 dark:bg-yellow-400/10 border-l border-r border-yellow-400/30" />
+              
+              <div className="absolute left-[45%] right-[45%] h-full bg-emerald-500/30 dark:bg-emerald-500/20 border-l border-r border-emerald-500/50 flex items-center justify-center">
+                <span className="text-[8px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest pointer-events-none">
+                  Target
+                </span>
+              </div>
+
+              <div
+                className="absolute w-2 h-full bg-blue-500 dark:bg-amber-400 shadow-lg rounded-full transition-all duration-75"
+                style={{ left: `calc(${warmupProgress}% - 4px)` }}
+              />
+            </div>
+
+            <div className="flex flex-col gap-4 items-center">
+              {gameResult ? (
+                <div
+                  className={`text-xs font-black px-4 py-2.5 rounded-2xl uppercase tracking-wider
+                    ${gameResult === "perfect" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-500/20" : ""}
+                    ${gameResult === "good" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-400 border border-yellow-500/20" : ""}
+                    ${gameResult === "normal" ? "bg-slate-100 text-slate-800 dark:bg-gray-800 dark:text-gray-405 border border-slate-300/30" : ""}
+                  `}
+                >
+                  {gameResult === "perfect" && "⭐ PERFECT WARM-UP (+15% Stamina) ⭐"}
+                  {gameResult === "good" && "👍 GOOD WARM-UP (+5% Stamina)"}
+                  {gameResult === "normal" && "Ready! (Normal Starting Stats)"}
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleTapWarmup}
+                  className="w-full py-4 px-6 rounded-2xl text-xs font-black text-white bg-blue-600 hover:bg-blue-700 dark:bg-amber-500 dark:hover:bg-amber-600 shadow-lg active:scale-95 transition-all transform uppercase tracking-widest cursor-pointer"
+                >
+                  TAP WARM-UP!
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }

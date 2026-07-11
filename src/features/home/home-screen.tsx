@@ -16,6 +16,8 @@ import { useGameStore } from "@/store/game-store";
 import { usePlayerStore } from "@/store/player-store";
 import { useSettingsStore } from "@/store/settings-store";
 import type { RaceEntry } from "@/types/engine";
+import { useRunnerStore } from "@/runner/runner-store";
+import { useTrainingStore } from "@/training/training-store";
 
 export function HomeScreen() {
   const router = useRouter();
@@ -25,6 +27,48 @@ export function HomeScreen() {
   const { setChallenge } = useGameStore();
   const { settings } = useSettingsStore();
   const { playSound } = useSound();
+  const { runnerState, setRunnerState } = useRunnerStore();
+  const { trainingState } = useTrainingStore();
+
+  const claimQuest = (questId: string) => {
+    const profile = runnerState.profile;
+    const claims = profile.questClaims || {};
+    if (claims[questId] === todayStr) return;
+
+    const coinsGained = 50;
+    const xpGained = 50;
+    
+    let xp = (profile.xp || 0) + xpGained;
+    let level = profile.level || 1;
+    let skillPoints = profile.skillPoints || 0;
+    let xpNeeded = level * 100;
+    while (xp >= xpNeeded) {
+      xp -= xpNeeded;
+      level += 1;
+      skillPoints += 3;
+      xpNeeded = level * 100;
+    }
+
+    const updatedProfile = {
+      ...profile,
+      coins: (profile.coins || 0) + coinsGained,
+      xp,
+      level,
+      skillPoints,
+      questClaims: {
+        ...claims,
+        [questId]: todayStr
+      }
+    };
+
+    setRunnerState({
+      ...runnerState,
+      profile: updatedProfile,
+      lastUpdated: new Date().toISOString()
+    });
+
+    playSound("success");
+  };
 
   const [isShareOpen, setIsShareOpen] = useState(false);
 
@@ -351,6 +395,84 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
             <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
               {board.theme.description[lang]}
             </p>
+          </div>
+        )}
+
+        {/* Daily Quest Board */}
+        {player && (
+          <div className="bg-white dark:bg-slate-900 border-2 border-[#E5E7EB] dark:border-slate-800 rounded-3xl p-6 shadow-sm flex flex-col gap-4">
+            <div className="flex justify-between items-center mb-2 border-b border-[#E5E7EB] dark:border-slate-800 pb-2">
+              <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                <span>📋</span> Daily Quest Board
+              </h2>
+              <span className="text-xs text-gray-400 font-medium">Claim rewards for completing daily runs</span>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              {[
+                {
+                  id: "daily_race",
+                  name: "Race Completion",
+                  desc: "Complete today's Daily Race challenge.",
+                  completed: boardStatus?.completedEntryId !== null,
+                  claimed: runnerState.profile.questClaims?.["daily_race"] === todayStr,
+                },
+                {
+                  id: "daily_upgrade",
+                  name: "Career Upgrade",
+                  desc: "Spend career points to upgrade attributes.",
+                  completed: (runnerState.profile.speedAttr + runnerState.profile.staminaAttr + runnerState.profile.hydrationAttr + runnerState.profile.willpowerAttr) > 40,
+                  claimed: runnerState.profile.questClaims?.["daily_upgrade"] === todayStr,
+                },
+                {
+                  id: "daily_training",
+                  name: "Daily Training",
+                  desc: "Record today's training or recovery activity.",
+                  completed: (trainingState.trainingHistory || []).some(day => day.date.startsWith(todayStr)),
+                  claimed: runnerState.profile.questClaims?.["daily_training"] === todayStr,
+                },
+              ].map((quest) => {
+                const canClaim = quest.completed && !quest.claimed;
+                return (
+                  <div key={quest.id} className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl">
+                    <div className="flex gap-2.5 items-start text-center sm:text-left w-full sm:w-auto">
+                      <div className="text-2xl flex-shrink-0 mt-0.5">
+                        {quest.claimed ? "✅" : quest.completed ? "🎁" : "⏳"}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-xs text-gray-900 dark:text-white">{quest.name}</h4>
+                        <p className="text-[10px] text-gray-450 dark:text-gray-500 mt-0.5">{quest.desc}</p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={!canClaim}
+                      onClick={() => claimQuest(quest.id)}
+                      className={`py-2 px-4 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all transform active:scale-95 border w-full sm:w-auto
+                        ${quest.claimed
+                          ? "bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-850 text-slate-400 dark:text-slate-650 cursor-not-allowed"
+                          : canClaim
+                            ? "bg-emerald-500 hover:bg-emerald-600 border-emerald-500 text-white cursor-pointer shadow-sm shadow-emerald-500/10"
+                            : "bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-gray-500 cursor-not-allowed opacity-50"
+                        }
+                      `}
+                    >
+                      {quest.claimed ? (
+                        "Claimed"
+                      ) : (
+                        <>
+                          <span>Claim</span>
+                          <span className="font-mono text-[10px] bg-black/10 px-1.5 py-0.5 rounded">
+                            +50 RC & +50 XP
+                          </span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 

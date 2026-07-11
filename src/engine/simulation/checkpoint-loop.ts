@@ -4,6 +4,7 @@ import {
 } from "@/content/events/event-database";
 import { calculateDynamicEnvironmentModifiers } from "@/engine/environment/environment-modifier";
 import type { PrepScoreModifiers } from "@/engine/scoring/preparation-score";
+import type { RunnerProfile } from "@/runner/runner-types";
 import type {
   Checkpoint,
   DailyChallenge,
@@ -135,7 +136,19 @@ export function simulateKmStep(
   checkpoint: Checkpoint | undefined,
   random: SeededRandom,
   challenge: DailyChallenge,
+  runnerProfile?: RunnerProfile,
 ): void {
+  // Load default/fallback values for the runner profile if missing
+  const profile = runnerProfile || {
+    currentFitness: 50,
+    currentFatigue: 0,
+    currentReadiness: 100,
+    speedAttr: 10,
+    staminaAttr: 10,
+    hydrationAttr: 10,
+    willpowerAttr: 10,
+  };
+
   // Initialize new state variables safely (Sprint 13.1)
   state.muscleFatigue = state.muscleFatigue ?? 0;
   state.mentalFatigue = state.mentalFatigue ?? 0;
@@ -263,18 +276,63 @@ export function simulateKmStep(
   const baseFatigueKm = 2.0;
   const baseHydrationKm = 2.2;
 
+  // Determine active pacing strategy (supporting mid-race adjustments)
+  const activePacing = state.currentPacing || prep.pacing;
+  
+  let dynamicFatigueModifier = 0;
+  
+  if (activePacing === "jog" || activePacing === "conservative") {
+    dynamicFatigueModifier = -2.5;
+  } else if (activePacing === "push" || activePacing === "aggressive") {
+    dynamicFatigueModifier = 3.5;
+  } else if (activePacing === "sprint") {
+    dynamicFatigueModifier = 8.5;
+  } else if (activePacing === "negative_split") {
+    const isSecondHalf = km > Math.ceil(challenge.race.distance / 2);
+    if (isSecondHalf) {
+      dynamicFatigueModifier = 2.0;
+    } else {
+      dynamicFatigueModifier = -1.5;
+    }
+  }
+
+  let initialFatigueOffset = 0;
+  switch (prep.pacing) {
+    case "negative_split":
+      initialFatigueOffset = -1.0;
+      break;
+    case "steady":
+      initialFatigueOffset = 0;
+      break;
+    case "aggressive":
+      initialFatigueOffset = 3.5;
+      break;
+    case "conservative":
+      initialFatigueOffset = -2.5;
+      break;
+  }
+
+  const netFatigueModifier = prepMods.fatigueModifier - initialFatigueOffset;
+
+  // Apply Stamina and Hydration attributes to reduce consumption rates
+  const staminaReductionFactor = (100 - (profile.staminaAttr || 10) * 0.4) / 100;
+  const hydrationReductionFactor = (100 - (profile.hydrationAttr || 10) * 0.4) / 100;
+
   const calculatedFatigue = Math.max(
     0.5,
-    baseFatigueKm +
-      prepMods.fatigueModifier +
+    (baseFatigueKm +
+      netFatigueModifier +
+      dynamicFatigueModifier +
       currentEnvMods.fatigueModifier +
-      segmentFatigueModifier,
+      segmentFatigueModifier) *
+      staminaReductionFactor,
   );
   let calculatedHydration = Math.max(
     0.5,
-    baseHydrationKm +
+    (baseHydrationKm +
       prepMods.hydrationModifier +
-      currentEnvMods.hydrationModifier,
+      currentEnvMods.hydrationModifier) *
+      hydrationReductionFactor,
   );
 
   // Water provides hydration stability
@@ -365,35 +423,77 @@ export function simulateKmStep(
   // 2. Pace determination for this kilometer (in seconds/km)
   let paceSeconds = 310;
 
-  // Apply preparation and dynamic environmental modifiers
-  paceSeconds += prepMods.basePaceModifier;
+  // Apply runner profile speed and fitness modifiers
+  paceSeconds += (50 - profile.currentFitness) * 0.4;
+  paceSeconds -= (profile.speedAttr || 10) * 0.3;
+
+  // Calculate dynamic pacing speed adjustments
+  let dynamicPaceModifier = 0;
+  if (activePacing === "jog" || activePacing === "conservative") {
+    dynamicPaceModifier = 15;
+  } else if (activePacing === "push" || activePacing === "aggressive") {
+    dynamicPaceModifier = -12;
+  } else if (activePacing === "sprint") {
+    dynamicPaceModifier = -35;
+  } else if (activePacing === "negative_split") {
+    const isSecondHalf = km > Math.ceil(challenge.race.distance / 2);
+    if (isSecondHalf) {
+      dynamicPaceModifier = -15;
+    } else {
+      dynamicPaceModifier = 5;
+    }
+  }
+
+  let initialPaceOffset = 0;
+  switch (prep.pacing) {
+    case "negative_split":
+      initialPaceOffset = -2;
+      break;
+    case "steady":
+      initialPaceOffset = 0;
+      break;
+    case "aggressive":
+      initialPaceOffset = -12;
+      break;
+    case "conservative":
+      initialPaceOffset = 15;
+      break;
+  }
+
+  const netBasePaceModifier = prepMods.basePaceModifier - initialPaceOffset;
+
+  // Apply preparation, dynamic pacing strategy, and environmental modifiers
+  paceSeconds += netBasePaceModifier + dynamicPaceModifier;
   paceSeconds += currentEnvMods.paceModifier + segmentPaceModifier;
+
+  // Willpower (Grit) reduces penalties by up to 50% at 100 willpower
+  const gritMitigation = (100 - (profile.willpowerAttr || 10) * 0.5) / 100;
 
   // Muscle & Mental fatigue penalties
   if (state.muscleFatigue > 50) {
-    paceSeconds += (state.muscleFatigue - 50) * 1.0;
+    paceSeconds += (state.muscleFatigue - 50) * 1.0 * gritMitigation;
   }
   if (state.mentalFatigue > 50) {
-    paceSeconds += (state.mentalFatigue - 50) * 0.4;
+    paceSeconds += (state.mentalFatigue - 50) * 0.4 * gritMitigation;
   }
   // Momentum speed adjustment
   paceSeconds -= (state.momentum - 50) * 0.3;
 
   // Fatigue penalties
   if (state.energy < 40) {
-    const exhaustionPenalty = (40 - state.energy) * 1.8;
+    const exhaustionPenalty = (40 - state.energy) * 1.8 * gritMitigation;
     paceSeconds += exhaustionPenalty;
   }
 
   // Dehydration penalties
   if (state.hydration < 30) {
-    const dehydrationPenalty = (30 - state.hydration) * 2.2;
+    const dehydrationPenalty = (30 - state.hydration) * 2.2 * gritMitigation;
     paceSeconds += dehydrationPenalty;
   }
 
   // Focus penalties
   if (state.focus < 40) {
-    const focusPenalty = (40 - state.focus) * 0.4;
+    const focusPenalty = (40 - state.focus) * 0.4 * gritMitigation;
     paceSeconds += focusPenalty;
   }
 
@@ -412,7 +512,7 @@ export function simulateKmStep(
 
   if (isCrampTriggered) {
     const staminaLoss = Math.floor(random.nextRange(10, 25));
-    const paceLoss = Math.floor(random.nextRange(15, 30));
+    const paceLoss = Math.floor(random.nextRange(15, 30) * gritMitigation);
 
     state.energy = Math.max(0, state.energy - staminaLoss);
     state.muscleFatigue = Math.min(100, state.muscleFatigue + 15);

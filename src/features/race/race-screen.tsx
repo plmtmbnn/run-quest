@@ -13,6 +13,7 @@ import { generateDailyChallenge } from "@/services/challenge/generator";
 import { useGameStore } from "@/store/game-store";
 import { usePlayerStore } from "@/store/player-store";
 import { usePreparationStore } from "@/store/preparation-store";
+import { useRunnerStore } from "@/runner/runner-store";
 import type {
   DecisionCard,
   DecisionPrompt,
@@ -30,7 +31,11 @@ export function RaceScreen() {
   const { currentChallenge, setResult } = useGameStore();
   const completeChallenge = usePlayerStore((state) => state.completeChallenge);
   const { preparation } = usePreparationStore();
+  const { runnerState, setRunnerState } = useRunnerStore();
   const { playSound } = useSound();
+  const [selectedPacing, setSelectedPacing] = useState<import("@/types/engine").PacingPlan>(
+    preparation.pacing
+  );
 
   // Load/Generate today's challenge once on mount
   const [challenge] = useState(() => {
@@ -82,6 +87,7 @@ export function RaceScreen() {
         challenge,
         preparation,
         seed,
+        runnerProfile: runnerState.profile,
       };
 
       let nextStep: SimulationStepResult;
@@ -90,6 +96,8 @@ export function RaceScreen() {
           input,
           simStateRef.current || undefined,
           choiceId,
+          selectedPacing,
+          true,
         );
       } catch (error) {
         console.error("Simulation failed:", error);
@@ -103,6 +111,12 @@ export function RaceScreen() {
         fullStateLogRef.current = nextStep.state.accumulatedStateLog || [];
         setTargetKm(nextStep.state.distanceCovered);
         setPendingPrompt(nextStep.prompt);
+      } else if (nextStep.type === "step") {
+        simStateRef.current = nextStep.state;
+        setSimState(nextStep.state);
+        fullStateLogRef.current = nextStep.state.accumulatedStateLog || [];
+        setTargetKm(nextStep.state.distanceCovered);
+        setPendingPrompt(null);
       } else {
         simStateRef.current = null;
         setSimState(null);
@@ -112,12 +126,16 @@ export function RaceScreen() {
         setPendingPrompt(null);
       }
     },
-    [challenge, preparation, router],
+    [challenge, preparation, router, runnerState, selectedPacing],
   );
 
   // Initial simulation load on mount
+  const hasLoadedRef = useRef(false);
   useEffect(() => {
-    handleAdvance();
+    if (!hasLoadedRef.current) {
+      hasLoadedRef.current = true;
+      handleAdvance();
+    }
   }, [handleAdvance]);
 
   // Ticker animation that catches up to targetKm one by one
@@ -129,6 +147,9 @@ export function RaceScreen() {
       if (pendingPrompt) {
         setActiveDecision(pendingPrompt.decisionCard);
         setCountdown(30);
+      } else if (simState && simState.distanceCovered < challenge.race.distance) {
+        // Ticker caught up, but simulation yielded at a step. Proactively advance for the next km!
+        handleAdvance();
       } else if (simResult) {
         setIsFinished(true);
         playSound("success");
@@ -233,8 +254,88 @@ export function RaceScreen() {
 
   // Selection callback for user choices
   const selectChoice = (choiceId: string) => {
+    playSound("click");
     setActiveDecision(null);
     handleAdvance(choiceId);
+  };
+
+  // Play alert sound when decision is active
+  useEffect(() => {
+    if (activeDecision) {
+      playSound("alert");
+    }
+  }, [activeDecision, playSound]);
+
+  const useConsumable = (item: "energy_gel" | "electrolytes" | "caffeine_gum") => {
+    if (!runnerState.profile.inventory || (runnerState.profile.inventory[item] || 0) <= 0) return;
+    
+    // 1. Deduct from inventory
+    const updatedInventory = {
+      ...runnerState.profile.inventory,
+      [item]: runnerState.profile.inventory[item] - 1
+    };
+    const updatedState = {
+      ...runnerState,
+      profile: {
+        ...runnerState.profile,
+        inventory: updatedInventory
+      }
+    };
+    setRunnerState(updatedState);
+    
+    // 2. Play sound
+    playSound("success");
+    
+    // 3. Apply modifier to active simulation state
+    let label = "";
+    let desc = "";
+    let effects = { stamina: 0, hydration: 0, morale: 0, pace: 0 };
+    
+    if (item === "energy_gel") {
+      label = "Consumed Energy Gel";
+      desc = "Stamina boosted by +25%!";
+      effects.stamina = 25;
+      
+      if (simStateRef.current) {
+        simStateRef.current.energy = Math.min(100, simStateRef.current.energy + 25);
+      }
+    } else if (item === "electrolytes") {
+      label = "Consumed Electrolytes";
+      desc = "Hydration boosted by +20%!";
+      effects.hydration = 20;
+      
+      if (simStateRef.current) {
+        simStateRef.current.hydration = Math.min(100, simStateRef.current.hydration + 20);
+      }
+    } else if (item === "caffeine_gum") {
+      label = "Consumed Caffeine Gum";
+      desc = "Focus / Morale boosted by +20%!";
+      effects.morale = 20;
+      
+      if (simStateRef.current) {
+        simStateRef.current.focus = Math.min(100, simStateRef.current.focus + 20);
+      }
+    }
+
+    // 4. Update local screen stats directly
+    setStats((prev) => {
+      const next = { ...prev };
+      if (item === "energy_gel") next.energy = Math.min(100, prev.energy + 25);
+      if (item === "electrolytes") next.hydration = Math.min(100, prev.hydration + 20);
+      if (item === "caffeine_gum") next.focus = Math.min(100, prev.focus + 20);
+      return next;
+    });
+
+    // 5. Append to runningEvents log
+    setRunningEvents((prev) => [
+      ...prev,
+      {
+        km: currentKm,
+        title: { en: label, id: label === "Consumed Energy Gel" ? "Mengonsumsi Gel Energi" : label === "Consumed Electrolytes" ? "Mengonsumsi Elektrolit" : "Mengonsumsi Permen Kafein" },
+        description: { en: desc, id: desc },
+        effect: effects
+      }
+    ]);
   };
 
   const progressPercentage = Math.min(
@@ -248,6 +349,59 @@ export function RaceScreen() {
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
+
+  // Compute live runners list for leaderboard and progress visualizer
+  const currentSnapshot = fullStateLogRef.current[currentKm];
+  const runners: {
+    name: string;
+    isPlayer: boolean;
+    distance: number;
+    accumulatedTime: number;
+    isDNF: boolean;
+  }[] = [];
+
+  if (currentSnapshot) {
+    runners.push({
+      name: "You",
+      isPlayer: true,
+      distance: currentSnapshot.distanceCovered,
+      accumulatedTime: currentSnapshot.accumulatedTime,
+      isDNF: stats.energy <= 0 || stats.hydration <= 0,
+    });
+
+    if (currentSnapshot.opponents) {
+      for (const opp of currentSnapshot.opponents) {
+        runners.push({
+          name: opp.name,
+          isPlayer: false,
+          distance: opp.distanceCovered,
+          accumulatedTime: opp.accumulatedTime,
+          isDNF: opp.isDNF,
+        });
+      }
+    }
+  }
+
+  if (runners.length === 0) {
+    runners.push({
+      name: "You",
+      isPlayer: true,
+      distance: 0,
+      accumulatedTime: 0,
+      isDNF: false,
+    });
+  }
+
+  // Sort: non-DNF runners first, then by distance desc, then by time asc
+  runners.sort((a, b) => {
+    if (a.isDNF && !b.isDNF) return 1;
+    if (!a.isDNF && b.isDNF) return -1;
+    if (a.isDNF && b.isDNF) return 0;
+    if (b.distance !== a.distance) {
+      return b.distance - a.distance;
+    }
+    return a.accumulatedTime - b.accumulatedTime;
+  });
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-gray-950 text-slate-900 dark:text-white flex flex-col justify-between overflow-hidden relative">
@@ -286,8 +440,9 @@ export function RaceScreen() {
 
       {/* Main content area */}
       <main className="flex-grow max-w-4xl w-full mx-auto px-6 py-8 flex flex-col justify-center gap-6 relative">
-        {/* Distance Circular Tracker */}
-        <div className="flex flex-col items-center justify-center">
+        {/* Distance Tracker & Visual Track Progress */}
+        <div className="flex flex-col gap-5 items-center justify-center bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-3xl p-6 shadow-sm">
+          {/* Distance Circular Tracker */}
           <div className="relative w-40 h-40 flex items-center justify-center">
             <svg
               className="w-full h-full transform -rotate-90"
@@ -299,7 +454,7 @@ export function RaceScreen() {
                 cx="80"
                 cy="80"
                 r="72"
-                className="stroke-slate-200 dark:stroke-gray-800 fill-none"
+                className="stroke-slate-200 dark:stroke-gray-850 fill-none"
                 strokeWidth="6"
               />
               <motion.circle
@@ -330,14 +485,191 @@ export function RaceScreen() {
               </span>
             </div>
           </div>
+
+          {/* Visual Race Track Progress */}
+          <div className="w-full flex flex-col gap-2 mt-2 border-t border-slate-100 dark:border-gray-800 pt-4">
+            <h4 className="text-[10px] uppercase font-extrabold tracking-wider text-slate-400 dark:text-gray-500">
+              Track Progress
+            </h4>
+            <div className="relative bg-slate-50 dark:bg-slate-950 h-10 rounded-2xl border border-slate-200 dark:border-slate-850 p-2 flex items-center overflow-hidden">
+              {/* Kilometer markers */}
+              <div className="absolute inset-0 flex justify-between px-4 pointer-events-none">
+                {Array.from({ length: Math.ceil(challenge.race.distance) + 1 }).map((_, i) => (
+                  <div key={i} className="flex flex-col items-center justify-center h-full">
+                    <div className="h-2.5 w-0.5 bg-slate-200 dark:bg-slate-800 mb-0.5" />
+                    <span className="text-[8px] font-bold text-slate-400 dark:text-slate-500 font-mono">{i}k</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Runners on the track */}
+              {runners.map((r) => {
+                const pct = (r.distance / challenge.race.distance) * 100;
+                return (
+                  <motion.div
+                    key={r.name}
+                    initial={{ left: 0 }}
+                    animate={{ left: `${Math.min(94, Math.max(2, pct))}%` }}
+                    transition={{ duration: 0.3 }}
+                    className={`absolute h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-black text-white shadow-md border-2 transition-colors
+                      ${r.isPlayer
+                        ? "bg-blue-600 border-white z-10 scale-110"
+                        : r.isDNF
+                          ? "bg-slate-400 border-slate-500 opacity-40"
+                          : "bg-indigo-900 border-indigo-700"
+                      }
+                    `}
+                    title={`${r.name} (${r.distance} km)`}
+                  >
+                    {r.isPlayer ? "You" : r.name[0]}
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
         {/* Live Simulation HUD Dashboard */}
         <div className="flex flex-col gap-6 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-3xl p-6 shadow-sm">
+          {/* Strategy Tactics & Leaderboard Section */}
+          <div className="grid md:grid-cols-2 gap-6 border-b border-slate-100 dark:border-gray-800 pb-6">
+            {/* Left Column: Real-Time Tactics (Pacing Buttons) */}
+            <div className="flex flex-col gap-3">
+              <h4 className="text-xs uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-500 flex items-center gap-1.5">
+                <span>⚡</span> Real-Time Tactics
+              </h4>
+              <p className="text-[10.5px] text-slate-450 dark:text-gray-400 leading-relaxed mb-1">
+                Select your pacing strategy. Changes apply to the next kilometer simulated. Sprints are locked until the final 2km.
+              </p>
+              <div className="grid grid-cols-2 gap-2.5">
+                {(["jog", "cruise", "push", "sprint"] as const).map((mode) => {
+                  const isActive = selectedPacing === mode;
+                  const isSprintLocked = mode === "sprint" && currentKm < challenge.race.distance - 2;
+                  return (
+                    <button
+                      key={mode}
+                      type="button"
+                      disabled={isSprintLocked}
+                      onClick={() => {
+                        setSelectedPacing(mode);
+                        playSound("click");
+                      }}
+                      className={`py-2 px-3 rounded-2xl text-xs font-bold transition-all transform active:scale-95 flex flex-col items-start gap-0.5 border
+                        ${isActive
+                          ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-500/20"
+                          : "bg-slate-50 hover:bg-slate-100 dark:bg-slate-950 dark:hover:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300"
+                        }
+                        ${isSprintLocked ? "opacity-40 cursor-not-allowed border-dashed" : ""}
+                      `}
+                    >
+                      <span className="capitalize text-sm font-extrabold">{mode}</span>
+                      <span className="text-[9px] font-semibold opacity-75">
+                        {mode === "jog" && "Conserve fatigue"}
+                        {mode === "cruise" && "Steady pace"}
+                        {mode === "push" && "Attack segments"}
+                        {mode === "sprint" && (isSprintLocked ? "Locked until 2km" : "Max speed kick!")}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Consumables Inventory */}
+              <div className="mt-4 border-t border-slate-100 dark:border-gray-800 pt-4 flex flex-col gap-2">
+                <h4 className="text-[10px] uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-550 flex items-center gap-1.5">
+                  <span>🥤</span> Active Consumables
+                </h4>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {Object.entries(runnerState.profile.inventory || {}).map(([item, qty]) => {
+                    const label = item === "energy_gel" ? "Energy Gel" : item === "electrolytes" ? "Electrolytes" : "Caffeine Gum";
+                    const icon = item === "energy_gel" ? "🔋" : item === "electrolytes" ? "💧" : "🧠";
+                    const isAvailable = qty > 0;
+                    
+                    return (
+                      <button
+                        key={item}
+                        type="button"
+                        disabled={!isAvailable || isFinished}
+                        onClick={() => useConsumable(item as any)}
+                        className={`py-2 px-3 rounded-xl text-[11px] font-extrabold flex items-center gap-1.5 transition-all transform active:scale-95 border
+                          ${isAvailable && !isFinished
+                            ? "bg-slate-50 hover:bg-slate-100 dark:bg-slate-950 dark:hover:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 cursor-pointer shadow-sm"
+                            : "bg-slate-100 dark:bg-slate-900 border-slate-150 dark:border-slate-850 text-slate-450 dark:text-slate-600 opacity-45 cursor-not-allowed"
+                          }
+                        `}
+                      >
+                        <span>{icon}</span>
+                        <span>{label} ({qty})</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Live Leaderboard */}
+            <div className="flex flex-col gap-3">
+              <h4 className="text-xs uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-550 flex items-center gap-1.5">
+                <span>🏆</span> Live Standings
+              </h4>
+              <div className="bg-slate-50 dark:bg-slate-950/40 rounded-2xl border border-slate-150 dark:border-gray-800 overflow-hidden text-xs">
+                <div className="grid grid-cols-12 gap-1 px-3 py-2 bg-slate-100 dark:bg-gray-800/40 border-b border-slate-200 dark:border-gray-800 font-extrabold text-[10px] text-slate-400 dark:text-gray-550 uppercase tracking-wider">
+                  <span className="col-span-2 text-center">Pos</span>
+                  <span className="col-span-6">Runner</span>
+                  <span className="col-span-4 text-right">Gap</span>
+                </div>
+                <div className="divide-y divide-slate-100 dark:divide-gray-850">
+                  {runners.map((r, idx) => {
+                    const medals = ["🥇", "🥈", "🥉"];
+                    const isLeader = idx === 0;
+                    const leaderTime = runners[0]?.accumulatedTime || 0;
+                    const gap = r.accumulatedTime - leaderTime;
+
+                    return (
+                      <div
+                        key={r.name}
+                        className={`grid grid-cols-12 gap-1 px-3 py-2.5 items-center font-medium
+                          ${r.isPlayer ? "bg-blue-50/50 dark:bg-blue-950/20 text-blue-900 dark:text-blue-100 font-bold" : "text-slate-700 dark:text-gray-300"}
+                          ${r.isDNF ? "opacity-50" : ""}
+                        `}
+                      >
+                        <span className="col-span-2 text-center text-sm">
+                          {idx < 3 && !r.isDNF ? medals[idx] : `${idx + 1}`}
+                        </span>
+                        <span className="col-span-6 truncate flex items-center gap-1.5">
+                          <span>{r.name}</span>
+                          {r.isPlayer && (
+                            <span className="text-[8px] bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-300 font-bold px-1.5 py-0.5 rounded uppercase">
+                              You
+                            </span>
+                          )}
+                          {r.isDNF && (
+                            <span className="text-[8px] bg-red-100 dark:bg-red-950/60 text-red-655 dark:text-red-400 font-bold px-1.5 py-0.5 rounded uppercase">
+                              DNF
+                            </span>
+                          )}
+                        </span>
+                        <span className="col-span-4 text-right font-mono text-[11px] font-bold text-slate-500 dark:text-gray-400">
+                          {r.isDNF ? (
+                            "Exhausted"
+                          ) : isLeader ? (
+                            formatPace(r.accumulatedTime)
+                          ) : (
+                            `+${gap.toFixed(1)}s`
+                          )}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Main Attributes Panel */}
           <div>
-            <h3 className="text-xs uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-500 mb-3">
-              Runner Metrics
+            <h3 className="text-xs uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-550 mb-3 flex items-center gap-1.5">
+              <span>📊</span> Live Runner Metrics
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div className="border border-slate-200 dark:border-gray-800 rounded-2xl p-4 flex flex-col items-center bg-slate-50/50 dark:bg-gray-950/20">
@@ -552,7 +884,7 @@ export function RaceScreen() {
 
       {/* Decision moments Overlay Modal */}
       {activeDecision && (
-        <div className="absolute inset-0 bg-slate-900/40 dark:bg-gray-950/80 backdrop-blur-md flex items-center justify-center p-6 z-40">
+        <div className="fixed inset-0 bg-slate-900/50 dark:bg-gray-950/85 backdrop-blur-md flex items-center justify-center p-6 z-50">
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}

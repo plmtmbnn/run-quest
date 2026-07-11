@@ -1,3 +1,5 @@
+import type { RunnerProfile } from "@/runner/runner-types";
+
 export type Shoe = "daily_trainer" | "carbon_racer" | "lightweight" | "trail";
 
 export type Nutrition = "water" | "electrolyte" | "energy_gel" | "caffeine";
@@ -10,7 +12,11 @@ export type PacingPlan =
   | "negative_split"
   | "steady"
   | "aggressive"
-  | "conservative";
+  | "conservative"
+  | "jog"
+  | "cruise"
+  | "push"
+  | "sprint";
 
 export type Mindset = "calm" | "confident" | "fearless";
 
@@ -21,6 +27,7 @@ export interface Preparation {
   warmup: Warmup;
   pacing: PacingPlan;
   mindset: Mindset;
+  warmupBonus?: "perfect" | "good" | "normal";
 }
 
 export type Weather =
@@ -151,6 +158,7 @@ export interface SimulationInput {
   challenge: DailyChallenge;
   preparation: Preparation;
   seed: number;
+  runnerProfile?: RunnerProfile;
 }
 
 export interface Effect {
@@ -218,6 +226,20 @@ export interface SimulationState {
     pace: number;
   }[];
   accumulatedStateLog?: Omit<SimulationState, "accumulatedStateLog">[]; // Complete history of state logs
+  opponents?: OpponentState[];
+  currentPacing?: PacingPlan;
+}
+
+export interface OpponentState {
+  id: string;
+  name: string;
+  archetype: "frontrunner" | "splitter" | "steady";
+  distanceCovered: number;
+  accumulatedTime: number;
+  energy: number;
+  hydration: number;
+  isDNF: boolean;
+  paceSeconds: number;
 }
 
 export type DecisionCategory =
@@ -254,6 +276,7 @@ export interface DecisionPrompt {
 
 export type SimulationStepResult =
   | { type: "decision"; state: SimulationState; prompt: DecisionPrompt }
+  | { type: "step"; state: SimulationState }
   | { type: "finished"; result: SimulationResult };
 
 export interface RaceSegment {

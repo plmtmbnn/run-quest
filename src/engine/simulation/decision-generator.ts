@@ -43,7 +43,7 @@ export function generateDecisionTimeline(
       for (let km = startKm + 1; km <= endKm; km++) {
         // Deterministic probability check per kilometer in this segment
         const baseProb =
-          0.3 * (segment.eventWeight ?? 1.0) * ((segment.difficulty ?? 2) / 3);
+          0.45 * (segment.eventWeight ?? 1.0) * ((segment.difficulty ?? 2) / 3);
         const randVal = random.next();
 
         if (randVal < baseProb) {
@@ -64,8 +64,25 @@ export function generateDecisionTimeline(
                   weight *= 3;
               } else if (segment.type === "descent") {
                 if (card.id === "steep_climb") weight = 0;
+                if (card.id === "steep_downhill") weight *= 8;
               } else if (segment.type === "flat") {
                 if (card.id === "steep_climb") weight = 0;
+                if (card.id === "steep_downhill") weight = 0;
+              }
+
+              // Distance context for specific events
+              if (card.id === "the_wall") {
+                if (km < distance * 0.6) {
+                  weight = 0;
+                } else {
+                  weight *= 2;
+                }
+              }
+
+              if (card.id === "crowd_cheer") {
+                if (km === 1 || km === Math.ceil(distance)) {
+                  weight *= 5;
+                }
               }
 
               // Weather context
@@ -171,6 +188,28 @@ export function generateDecisionTimeline(
             weight *= 3;
           } else if (scenario.race.elevation === "flat") {
             weight = 0;
+          }
+        }
+
+        if (card.id === "steep_downhill") {
+          if (scenario.race.elevation === "hilly") {
+            weight *= 3;
+          } else if (scenario.race.elevation === "flat") {
+            weight = 0;
+          }
+        }
+
+        if (card.id === "the_wall") {
+          if (km < distance * 0.6) {
+            weight = 0;
+          } else {
+            weight *= 2;
+          }
+        }
+
+        if (card.id === "crowd_cheer") {
+          if (km === 1 || km === totalKms) {
+            weight *= 5;
           }
         }
 

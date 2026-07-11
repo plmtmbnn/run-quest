@@ -61,6 +61,67 @@ export function ResultScreen() {
     return h > 0 ? `${h}h ${m}m ${s}s` : `${m}m ${s}s`;
   };
 
+  const formatPace = (seconds: number) => {
+    if (!seconds || seconds <= 0) return "--:--";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, "0")}/km`;
+  };
+
+  // Filter out km 0 and compute splits
+  const splits = (lastResult.stateLog || [])
+    .filter((state) => state.distanceCovered > 0)
+    .map((state, index, arr) => {
+      const prev = index === 0 ? lastResult.stateLog[0] : arr[index - 1];
+      const splitTime = state.accumulatedTime - prev.accumulatedTime;
+      return {
+        km: state.distanceCovered,
+        time: splitTime,
+        energy: state.energy,
+        hydration: state.hydration,
+        focus: state.focus,
+      };
+    });
+
+  const fastestSplit = splits.length > 0 ? Math.min(...splits.map((s) => s.time)) : 0;
+
+  const getMockComments = () => {
+    const comments: { author: string; avatar: string; text: string; time: string }[] = [];
+    
+    // Coach Sarah
+    let sarahText = "Solid effort out there! Consistency is the foundation of improvement.";
+    if (outcome === "gold") {
+      sarahText = "Incredible race! Your pacing strategy and split times were executed to perfection. Gold medal well deserved!";
+    } else if (outcome === "dnf") {
+      sarahText = "Don't beat yourself up. Physical depletion happens. Let's adjust attributes in the Career tab and prepare properly next time.";
+    } else if (outcome === "silver" || outcome === "bronze") {
+      sarahText = "Excellent podium finish! You paced yourself well. A bit more speed attribute and you'll grab gold.";
+    }
+    comments.push({ author: "Coach Sarah", avatar: "👩‍🏫", text: sarahText, time: "2m ago" });
+
+    // Rival Alex
+    let alexText = "Nice run today! I'm keeping an eye on your splits.";
+    if (outcome === "gold") {
+      alexText = "Wow, you flew past the pack! That final split was insane. Respect!";
+    } else if (outcome === "dnf") {
+      alexText = "Ouch, looked like a rough day out there. Rest up, we have another match tomorrow.";
+    } else {
+      alexText = "Good race! You had a solid cadence. I'm upgrading my speed stat to catch you next time.";
+    }
+    comments.push({ author: "Alex (Rival)", avatar: "🏃‍♂️", text: alexText, time: "10m ago" });
+
+    // GritBot
+    let botText = "beep boop... optimal efficiency detected. cadence stable.";
+    if (outcome === "dnf") {
+      botText = "beep boop... critical battery low. energy depletion detected at final segment. suggest hydration focus.";
+    } else if (grade === "S" || grade === "A") {
+      botText = "beep boop... precision execution! pace variance < 3%. grade validation optimal.";
+    }
+    comments.push({ author: "GritBot", avatar: "🤖", text: botText, time: "1h ago" });
+
+    return comments;
+  };
+
   const getOutcomeColor = () => {
     switch (outcome) {
       case "gold":
@@ -266,6 +327,85 @@ export function ResultScreen() {
               </li>
             ))}
           </ul>
+        </section>
+
+        {/* Interactive Splits Analysis */}
+        {splits.length > 0 && (
+          <section className="rounded-3xl border border-[#E5E7EB] bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-4">
+            <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-3">
+              <Clock className="h-5 w-5 text-blue-500" />
+              <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
+                Interactive Splits Analysis
+              </h2>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-left text-slate-500 dark:text-gray-400">
+                <thead className="text-[10px] text-slate-400 dark:text-gray-550 uppercase bg-slate-55 dark:bg-gray-800/40 rounded-xl">
+                  <tr>
+                    <th scope="col" className="px-4 py-3 text-center">KM</th>
+                    <th scope="col" className="px-4 py-3">Split Time</th>
+                    <th scope="col" className="px-4 py-3">Energy</th>
+                    <th scope="col" className="px-4 py-3">Hydration</th>
+                    <th scope="col" className="px-4 py-3">Pace Bar</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-150/40 dark:divide-slate-800">
+                  {splits.map((s) => {
+                    const isFastest = s.time === fastestSplit;
+                    return (
+                      <tr key={s.km} className="hover:bg-slate-50/50 dark:hover:bg-slate-850/20">
+                        <td className="px-4 py-3 font-bold text-center text-slate-700 dark:text-white font-mono">{s.km}</td>
+                        <td className="px-4 py-3 font-mono font-bold text-slate-800 dark:text-gray-250 flex items-center gap-1">
+                          {formatPace(s.time)}
+                          {isFastest && <span className="text-[10px] text-amber-500 animate-pulse" title="Fastest Split">⚡</span>}
+                        </td>
+                        <td className="px-4 py-3 font-mono">{s.energy.toFixed(0)}%</td>
+                        <td className="px-4 py-3 font-mono">{s.hydration.toFixed(0)}%</td>
+                        <td className="px-4 py-3 w-1/3">
+                          <div className="h-2 w-full bg-slate-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all duration-300 ${isFastest ? "bg-amber-400" : "bg-blue-500"}`}
+                              style={{ width: `${Math.min(100, Math.max(10, (fastestSplit / s.time) * 100))}%` }}
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {/* Strava-style Mock Comments Feed */}
+        <section className="rounded-3xl border border-[#E5E7EB] bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-4">
+          <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-3">
+            <span className="text-lg">💬</span>
+            <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
+              Social Comments Feed
+            </h2>
+          </div>
+          
+          <div className="flex flex-col gap-4">
+            {getMockComments().map((comment, index) => (
+              <div key={index} className="flex gap-3 items-start border-b border-slate-150/40 dark:border-slate-800/40 pb-3 last:border-0 last:pb-0">
+                <div className="h-9 w-9 rounded-full bg-slate-100 dark:bg-gray-800 flex items-center justify-center text-lg flex-shrink-0">
+                  {comment.avatar}
+                </div>
+                <div className="flex-grow">
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-xs font-black text-slate-850 dark:text-white">{comment.author}</span>
+                    <span className="text-[9px] font-mono text-slate-400">{comment.time}</span>
+                  </div>
+                  <p className="text-xs text-slate-600 dark:text-gray-300 mt-1 leading-relaxed">
+                    {comment.text}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </section>
 
         {/* Action Button Section */}

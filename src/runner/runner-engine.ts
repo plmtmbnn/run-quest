@@ -88,16 +88,55 @@ export const updateConsistency = (
  * @param time The time taken in seconds.
  * @param intensity The intensity of the race (0-1).
  */
+/**
+ * Awards XP to the runner profile and processes leveling up.
+ * @param profile The RunnerProfile to award XP to.
+ * @param xpGained The amount of XP gained.
+ * @returns The updated RunnerProfile with new levels and skill points if leveled up.
+ */
+export const awardXP = (
+  profile: RunnerProfile,
+  xpGained: number,
+): RunnerProfile => {
+  let xp = profile.xp + xpGained;
+  let level = profile.level;
+  let skillPoints = profile.skillPoints;
+
+  let xpNeeded = level * 100;
+  while (xp >= xpNeeded) {
+    xp -= xpNeeded;
+    level += 1;
+    skillPoints += 3; // Grant 3 skill points per level up
+    xpNeeded = level * 100;
+  }
+
+  return {
+    ...profile,
+    level,
+    xp,
+    skillPoints,
+  };
+};
+
+/**
+ * Updates the runner's profile after completing a race.
+ * @param distance The distance run in kilometers.
+ * @param time The time taken in seconds.
+ * @param intensity The intensity of the race (0-1).
+ * @param xpGained The amount of XP gained from the race outcome.
+ */
 export const completeRace = (
   distance: number,
   time: number,
   intensity: number,
+  xpGained?: number,
+  coinsGained?: number,
 ): void => {
   const currentState = loadRunnerState();
   const profile = currentState.profile;
 
   // Update total runs, distance, and race time.
-  const updatedProfile: RunnerProfile = {
+  let updatedProfile: RunnerProfile = {
     ...profile,
     totalRuns: profile.totalRuns + 1,
     totalDistance: profile.totalDistance + distance,
@@ -109,6 +148,14 @@ export const completeRace = (
 
   // Recalculate Race Readiness.
   updatedProfile.currentReadiness = calculateRaceReadiness(updatedProfile);
+
+  if (xpGained) {
+    updatedProfile = awardXP(updatedProfile, xpGained);
+  }
+
+  if (coinsGained) {
+    updatedProfile.coins = (updatedProfile.coins || 0) + coinsGained;
+  }
 
   // Save the updated profile.
   const updatedState: RunnerState = {
@@ -123,11 +170,14 @@ export const completeRace = (
  * @param distance The distance run in kilometers.
  * @param intensity The intensity of the training (0-1).
  * @param isActive Whether the runner was active today.
+ * @param xpGained The amount of XP gained from training.
  */
 export const updateTrainingDay = (
   distance: number,
   intensity: number,
   isActive: boolean,
+  xpGained?: number,
+  coinsGained?: number,
 ): void => {
   const currentState = loadRunnerState();
   const profile = currentState.profile;
@@ -149,7 +199,7 @@ export const updateTrainingDay = (
     ? updateFatigue(profile, distance, intensity)
     : profile.currentFatigue;
 
-  const updatedProfile: RunnerProfile = {
+  let updatedProfile: RunnerProfile = {
     ...profile,
     totalTrainingDays,
     consistency,
@@ -160,6 +210,14 @@ export const updateTrainingDay = (
 
   // Recalculate Race Readiness.
   updatedProfile.currentReadiness = calculateRaceReadiness(updatedProfile);
+
+  if (xpGained) {
+    updatedProfile = awardXP(updatedProfile, xpGained);
+  }
+
+  if (coinsGained) {
+    updatedProfile.coins = (updatedProfile.coins || 0) + coinsGained;
+  }
 
   // Save the updated profile.
   const updatedState: RunnerState = {

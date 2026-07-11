@@ -4,6 +4,7 @@
 import { analyzeTraining } from "@/coach/coach-analysis";
 import type { TrainingTelemetry } from "@/coach/coach-types";
 import { loadRunnerState, saveRunnerState } from "@/runner/runner-persistence";
+import { awardXP } from "@/runner/runner-engine";
 import { queueAdaptation } from "./adaptation-engine";
 import {
   ACTIVITY_EFFECTS,
@@ -38,10 +39,16 @@ export const recordTrainingActivity = (activity: DailyActivity): void => {
   const updatedReadiness =
     runnerState.profile.currentReadiness + effect.readiness;
 
+  // Award 20 XP and 30 Coins for training
+  const xpGained = 20;
+  const coinsGained = 30;
+  const runnerProfileWithXP = awardXP(runnerState.profile, xpGained);
+
   const updatedRunnerState = {
     ...runnerState,
     profile: {
-      ...runnerState.profile,
+      ...runnerProfileWithXP,
+      coins: (runnerProfileWithXP.coins || 0) + coinsGained,
       currentFatigue: Math.min(100, Math.max(0, updatedFatigue)),
       currentReadiness: Math.min(100, Math.max(0, updatedReadiness)),
     },

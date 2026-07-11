@@ -15,9 +15,11 @@ const RUNNER_STORAGE_KEY = "runnerProfile";
  */
 export const loadRunnerState = (): RunnerState => {
   try {
-    const storedState = localStorage.getItem(RUNNER_STORAGE_KEY);
-    if (storedState) {
-      return JSON.parse(storedState) as RunnerState;
+    if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
+      const storedState = localStorage.getItem(RUNNER_STORAGE_KEY);
+      if (storedState) {
+        return JSON.parse(storedState) as RunnerState;
+      }
     }
   } catch (error) {
     console.error("Failed to load runner state from local storage:", error);
@@ -31,7 +33,9 @@ export const loadRunnerState = (): RunnerState => {
  */
 export const saveRunnerState = (state: RunnerState): void => {
   try {
-    localStorage.setItem(RUNNER_STORAGE_KEY, JSON.stringify(state));
+    if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
+      localStorage.setItem(RUNNER_STORAGE_KEY, JSON.stringify(state));
+    }
   } catch (error) {
     console.error("Failed to save runner state to local storage:", error);
   }

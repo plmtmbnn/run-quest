@@ -25,6 +25,16 @@ export interface RunnerProfile {
   runningIdentity?: string; // Locked initially
   coachRelationship?: number; // Future feature
   knowledgeProgress?: number; // Future feature
+  level: number;
+  xp: number;
+  skillPoints: number;
+  speedAttr: number;
+  staminaAttr: number;
+  hydrationAttr: number;
+  willpowerAttr: number;
+  coins: number;
+  inventory: Record<string, number>;
+  questClaims?: Record<string, string>;
 }
 
 /**
@@ -44,6 +54,16 @@ export const DEFAULT_RUNNER_PROFILE: RunnerProfile = {
   currentFatigue: 0,
   currentReadiness: 100, // Neutral starting value
   consistency: 0,
+  level: 1,
+  xp: 0,
+  skillPoints: 0,
+  speedAttr: 10,
+  staminaAttr: 10,
+  hydrationAttr: 10,
+  willpowerAttr: 10,
+  coins: 100,
+  inventory: { energy_gel: 1, electrolytes: 1, caffeine_gum: 0 },
+  questClaims: {},
 };
 
 /**

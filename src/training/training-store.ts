@@ -13,9 +13,11 @@ const TRAINING_STORAGE_KEY = "trainingState";
  */
 export const loadTrainingState = (): TrainingState => {
   try {
-    const storedState = localStorage.getItem(TRAINING_STORAGE_KEY);
-    if (storedState) {
-      return JSON.parse(storedState) as TrainingState;
+    if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
+      const storedState = localStorage.getItem(TRAINING_STORAGE_KEY);
+      if (storedState) {
+        return JSON.parse(storedState) as TrainingState;
+      }
     }
   } catch (error) {
     console.error("Failed to load training state from local storage:", error);
@@ -29,7 +31,9 @@ export const loadTrainingState = (): TrainingState => {
  */
 export const saveTrainingState = (state: TrainingState): void => {
   try {
-    localStorage.setItem(TRAINING_STORAGE_KEY, JSON.stringify(state));
+    if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
+      localStorage.setItem(TRAINING_STORAGE_KEY, JSON.stringify(state));
+    }
   } catch (error) {
     console.error("Failed to save training state to local storage:", error);
   }

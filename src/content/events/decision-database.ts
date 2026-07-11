@@ -351,4 +351,234 @@ export const DECISION_DATABASE: Record<string, DecisionCard> = {
       },
     ],
   },
+  stray_dog: {
+    id: "stray_dog",
+    category: "unexpected",
+    rarity: "rare",
+    title: {
+      en: "Stray Dog Chase",
+      id: "Dikejar Anjing Liar",
+    },
+    description: {
+      en: "An off-leash dog starts barking and running after you!",
+      id: "Seekor anjing liar mulai menggonggong dan mengejarmu!",
+    },
+    choices: [
+      {
+        id: "dog_sprint",
+        label: { en: "Sprint Away", id: "Lari Kencang" },
+        description: {
+          en: "Sprint to shake the dog off. Fast but burns energy.",
+          id: "Berlari secepatnya untuk menghindari anjing. Cepat tapi menguras energi.",
+        },
+        behavior: "aggressive",
+        effects: { stamina: -20, hydration: -10, morale: 10, pace: -40 },
+      },
+      {
+        id: "dog_stop",
+        label: { en: "Stop and Shout", id: "Berhenti & Teriak" },
+        description: {
+          en: "Stop running, turn, and shout firmly to scare it off. Safer but costs time.",
+          id: "Berhenti berlari, berbalik, dan berteriak tegas untuk menakutinya. Lebih aman tetapi memakan waktu.",
+        },
+        behavior: "conservative",
+        effects: { stamina: 5, hydration: 0, morale: -15, pace: 35 },
+      },
+    ],
+  },
+  cramp: {
+    id: "cramp",
+    category: "physical",
+    rarity: "uncommon",
+    title: {
+      en: "Severe Side Stitch",
+      id: "Kram Perut Mendadak",
+    },
+    description: {
+      en: "A sharp pain flares up in your side, making breathing difficult.",
+      id: "Rasa sakit tajam menusuk di perut samping, membuat bernapas menjadi sulit.",
+    },
+    choices: [
+      {
+        id: "cramp_stretch",
+        label: { en: "Slow and Stretch", id: "Melambat & Peregangan" },
+        description: {
+          en: "Ease off and alter your breathing pattern to clear the stitch.",
+          id: "Kurangi kecepatan dan ubah pola napas untuk meredakan kram.",
+        },
+        behavior: "conservative",
+        effects: { stamina: 10, hydration: 0, morale: 5, pace: 30 },
+      },
+      {
+        id: "cramp_push",
+        label: { en: "Push Through It", id: "Terobos Saja" },
+        description: {
+          en: "Keep running hard despite the pain, risking a performance drop.",
+          id: "Tetap berlari kencang mengabaikan rasa sakit, berisiko penurunan performa.",
+        },
+        behavior: "aggressive",
+        effects: { stamina: -15, hydration: -10, morale: -20, pace: 5 },
+      },
+    ],
+  },
+  runners_high: {
+    id: "runners_high",
+    category: "physical",
+    rarity: "rare",
+    title: {
+      en: "Runner's High",
+      id: "Runner's High",
+    },
+    description: {
+      en: "A rush of endorphins kicks in. You feel completely weightless and in control.",
+      id: "Pelepasan endorfin dimulai. Kamu merasa sangat ringan dan memegang kendali.",
+    },
+    choices: [
+      {
+        id: "high_coast",
+        label: { en: "Coast Comfortably", id: "Meluncur Nyaman" },
+        description: {
+          en: "Enjoy the effortless state to conserve energy and hydration.",
+          id: "Nikmati sensasi tanpa beban ini untuk menghemat energi dan hidrasi.",
+        },
+        behavior: "conservative",
+        effects: { stamina: 15, hydration: 5, morale: 20, pace: 0 },
+      },
+      {
+        id: "high_push",
+        label: { en: "Exploit the Flow", id: "Manfaatkan Aliran" },
+        description: {
+          en: "Increase your speed significantly while keeping stress low.",
+          id: "Tingkatkan kecepatan secara signifikan dengan tingkat stres yang rendah.",
+        },
+        behavior: "aggressive",
+        effects: { stamina: 0, hydration: -5, morale: 15, pace: -20 },
+      },
+    ],
+  },
+  steep_downhill: {
+    id: "steep_downhill",
+    category: "environment",
+    rarity: "common",
+    title: {
+      en: "Steep Downhill",
+      id: "Turunan Curam",
+    },
+    description: {
+      en: "A steep downhill section lies ahead. How do you handle it?",
+      id: "Bagian turunan curam ada di depan. Bagaimana kamu menghadapinya?",
+    },
+    choices: [
+      {
+        id: "downhill_attack",
+        label: { en: "Attack the Descent", id: "Serang Turunan" },
+        description: {
+          en: "Lean forward and sprint downhill. Fast but impacts your leg joints.",
+          id: "Condongkan badan dan berlari kencang. Cepat tetapi membebani sendi kaki.",
+        },
+        behavior: "aggressive",
+        effects: { stamina: -10, hydration: -5, morale: 15, pace: -25 },
+      },
+      {
+        id: "downhill_glide",
+        label: { en: "Glide Down", id: "Meluncur Santai" },
+        description: {
+          en: "Let gravity carry you. Good speed boost, conserves energy.",
+          id: "Biarkan gravitasi membawamu. Kecepatan bagus, menghemat energi.",
+        },
+        behavior: "balanced",
+        effects: { stamina: 15, hydration: 0, morale: 10, pace: -5 },
+      },
+      {
+        id: "downhill_save",
+        label: { en: "Protect Your Knees", id: "Lindungi Lutut" },
+        description: {
+          en: "Slow down and run carefully to prevent muscle soreness later.",
+          id: "Melambat dan berlari hati-hati untuk mencegah nyeri otot nantinya.",
+        },
+        behavior: "conservative",
+        effects: { stamina: 5, hydration: 0, morale: -5, pace: 15 },
+      },
+    ],
+  },
+  the_wall: {
+    id: "the_wall",
+    category: "physical",
+    rarity: "uncommon",
+    title: {
+      en: "Hitting The Wall",
+      id: "Menabrak Dinding",
+    },
+    description: {
+      en: "Your glycogen stores are empty. Your legs feel like lead.",
+      id: "Persediaan glikogenmu habis. Kakimu terasa seberat timbal.",
+    },
+    choices: [
+      {
+        id: "wall_gel",
+        label: { en: "Consume Energy Gel", id: "Konsumsi Gel Energi" },
+        description: {
+          en: "Consume a gel to refuel, restoring stamina but losing a bit of pace to digest.",
+          id: "Konsumsi gel untuk mengisi bahan bakar, memulihkan stamina tetapi agak melambat untuk mencerna.",
+        },
+        behavior: "balanced",
+        effects: { stamina: 25, hydration: 5, morale: 15, pace: 10 },
+      },
+      {
+        id: "wall_dig",
+        label: { en: "Dig Deep", id: "Gali Kekuatan Mental" },
+        description: {
+          en: "Push through using pure willpower, losing massive energy.",
+          id: "Terobos menggunakan kekuatan tekad murni, kehilangan energi secara masif.",
+        },
+        behavior: "aggressive",
+        effects: { stamina: -25, hydration: -15, morale: -10, pace: 0 },
+      },
+      {
+        id: "wall_crawl",
+        label: { en: "Conserve and Crawl", id: "Hemat & Merangkak" },
+        description: {
+          en: "Slow down significantly to prevent total collapse.",
+          id: "Melambat secara signifikan untuk mencegah kelelahan total.",
+        },
+        behavior: "conservative",
+        effects: { stamina: 5, hydration: -5, morale: -25, pace: 45 },
+      },
+    ],
+  },
+  crowd_cheer: {
+    id: "crowd_cheer",
+    category: "tactical",
+    rarity: "common",
+    title: {
+      en: "Cheering Crowd",
+      id: "Kerumunan Penonton",
+    },
+    description: {
+      en: "A massive, roaring crowd lines the street, shouting encouragement.",
+      id: "Kerumunan penonton yang bersorak memenuhi jalan, meneriakkan semangat.",
+    },
+    choices: [
+      {
+        id: "crowd_wave",
+        label: { en: "Wave and Smile", id: "Melambai & Tersenyum" },
+        description: {
+          en: "Acknowledge the crowd. Boosts morale but uses a tiny bit of focus.",
+          id: "Sapa penonton. Meningkatkan moral tetapi sedikit mengurangi fokus.",
+        },
+        behavior: "balanced",
+        effects: { stamina: -2, hydration: -2, morale: 25, pace: -5 },
+      },
+      {
+        id: "crowd_ignore",
+        label: { en: "Maintain Focus", id: "Pertahankan Fokus" },
+        description: {
+          en: "Keep your head down and stay relaxed, conserving physical energy.",
+          id: "Tetap menunduk dan rileks, menghemat energi fisik.",
+        },
+        behavior: "conservative",
+        effects: { stamina: 10, hydration: 0, morale: 5, pace: 5 },
+      },
+    ],
+  },
 };

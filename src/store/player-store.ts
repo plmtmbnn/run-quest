@@ -6,6 +6,8 @@ import type {
   StoredDaily,
   StoredPlayer,
 } from "@/storage/types";
+import { completeRace } from "@/runner/runner-engine";
+import { usePreparationStore } from "@/store/preparation-store";
 import type { SimulationResult } from "@/types/engine";
 import { generateRunnerName } from "@/utils/name-generator";
 
@@ -90,6 +92,32 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
 
     const lang = language === "id" ? "id" : "en";
     const headline = result.story.headline[lang] || result.story.headline.en;
+
+    // Calculate XP and Coins earned from race outcome
+    let xpGained = 35;
+    let coinsGained = 50;
+    if (result.outcome === "gold") {
+      xpGained = 100;
+      coinsGained = 150;
+    } else if (result.outcome === "silver") {
+      xpGained = 75;
+      coinsGained = 100;
+    } else if (result.outcome === "bronze") {
+      xpGained = 50;
+      coinsGained = 75;
+    } else if (result.outcome === "dnf" || result.outcome === "dns") {
+      xpGained = 10;
+      coinsGained = 20;
+    }
+
+    // Load active preparation pacing strategy to determine intensity
+    let intensity = 0.7; // default steady
+    const prep = usePreparationStore.getState().preparation;
+    if (prep.pacing === "aggressive") intensity = 1.0;
+    else if (prep.pacing === "conservative") intensity = 0.4;
+
+    // Record race and award XP/Coins to the runner profile
+    completeRace(distance, result.finishTime, intensity, xpGained, coinsGained);
 
     // 1. Create or load history
     const history = storageRepository.loadHistory() || {

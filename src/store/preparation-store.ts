@@ -17,6 +17,7 @@ export interface PreparationState {
   setWarmup: (warmup: Warmup) => void;
   setPacing: (pacing: PacingPlan) => void;
   setMindset: (mindset: Mindset) => void;
+  setWarmupBonus: (warmupBonus: "perfect" | "good" | "normal") => void;
   reset: () => void;
 }
 
@@ -76,6 +77,11 @@ export const usePreparationStore = create<PreparationState>((set) => ({
   setMindset: (mindset) =>
     set((state) => ({
       preparation: { ...state.preparation, mindset },
+    })),
+
+  setWarmupBonus: (warmupBonus) =>
+    set((state) => ({
+      preparation: { ...state.preparation, warmupBonus },
     })),
 
   reset: () =>
