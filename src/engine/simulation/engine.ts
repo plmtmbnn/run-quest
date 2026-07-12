@@ -152,22 +152,39 @@ export function advanceSimulation(
     const opponents: import("@/types/engine").OpponentState[] = [];
     const archetypes: ("frontrunner" | "splitter" | "steady")[] = ["frontrunner", "splitter", "steady"];
 
+    const hasNemesis = runnerProfile?.currentNemesis;
+
     for (let i = 0; i < opponentsCount; i++) {
-      const firstIdx = Math.floor(random.nextRange(0, FIRST_NAMES.length));
-      const lastIdx = Math.floor(random.nextRange(0, LAST_NAMES.length));
-      const name = `${FIRST_NAMES[firstIdx]} ${LAST_NAMES[lastIdx]}`;
-      const archetype = archetypes[Math.floor(random.nextRange(0, archetypes.length))];
-      opponents.push({
-        id: `opponent_${i}_${seed}`,
-        name,
-        archetype,
-        distanceCovered: 0,
-        accumulatedTime: 0,
-        energy: 100,
-        hydration: 100,
-        isDNF: false,
-        paceSeconds: 310,
-      });
+      if (i === 0 && hasNemesis && runnerProfile.currentNemesis) {
+        opponents.push({
+          id: `nemesis_${seed}`,
+          name: runnerProfile.currentNemesis.name,
+          archetype: runnerProfile.currentNemesis.archetype as any,
+          distanceCovered: 0,
+          accumulatedTime: 0,
+          energy: 100,
+          hydration: 100,
+          isDNF: false,
+          paceSeconds: 310,
+          isNemesis: true,
+        });
+      } else {
+        const firstIdx = Math.floor(random.nextRange(0, FIRST_NAMES.length));
+        const lastIdx = Math.floor(random.nextRange(0, LAST_NAMES.length));
+        const name = `${FIRST_NAMES[firstIdx]} ${LAST_NAMES[lastIdx]}`;
+        const archetype = archetypes[Math.floor(random.nextRange(0, archetypes.length))];
+        opponents.push({
+          id: `opponent_${i}_${seed}`,
+          name,
+          archetype,
+          distanceCovered: 0,
+          accumulatedTime: 0,
+          energy: 100,
+          hydration: 100,
+          isDNF: false,
+          paceSeconds: 310,
+        });
+      }
     }
 
     state = {
@@ -205,6 +222,11 @@ export function advanceSimulation(
       accumulatedStateLog: [],
       opponents,
       currentPacing: preparation.pacing,
+      runnersHighTicks: 0,
+      isRunnersHighActive: false,
+      runnersHighCooldown: 0,
+      hasTriggeredWall: false,
+      hasTriggeredCramp: false,
     };
 
     // DNS check (rare event roll on first step)
@@ -405,6 +427,53 @@ export function advanceSimulation(
   let currentStepState = state;
 
   for (let km = startKm; km <= maxKms; km++) {
+    // Weather shift logic mid-race (if distance >= 8, at half way point, 25% chance)
+    if (km === Math.floor(totalDistance / 2) && totalDistance >= 8 && random.nextRange(0, 100) < 25) {
+      const weathers: import("@/types/engine").Weather[] = ["rain", "storm", "hot", "cloudy"];
+      const newWeather = weathers[Math.floor(random.nextRange(0, weathers.length))];
+      challenge.environment.weather = newWeather;
+      currentStepState.eventsResolved.push({
+        km,
+        title: { en: "Weather Shift!", id: "Perubahan Cuaca!" },
+        description: {
+          en: `The weather suddenly shifted to ${newWeather}!`,
+          id: `Cuaca tiba-tiba berubah menjadi ${newWeather}!`,
+        },
+        effect: { stamina: 0, hydration: -5, morale: -10, pace: 5 },
+      });
+    }
+
+    // Check for dynamic cramp/wall triggers before the km starts
+    if (km >= 25 && currentStepState.energy < 30 && !currentStepState.hasTriggeredWall) {
+      currentStepState.pendingDecision = DECISION_DATABASE.the_wall;
+      currentStepState.hasTriggeredWall = true;
+      currentStepState.randomSeedState = random.seed;
+      return {
+        type: "decision",
+        state: currentStepState,
+        prompt: {
+          km,
+          decisionCard: DECISION_DATABASE.the_wall,
+          timeoutSeconds: 10,
+        },
+      };
+    }
+
+    if (currentStepState.hydration < 35 && !currentStepState.hasTriggeredCramp && random.nextRange(0, 100) < 30) {
+      currentStepState.pendingDecision = DECISION_DATABASE.cramp_warning;
+      currentStepState.hasTriggeredCramp = true;
+      currentStepState.randomSeedState = random.seed;
+      return {
+        type: "decision",
+        state: currentStepState,
+        prompt: {
+          km,
+          decisionCard: DECISION_DATABASE.cramp_warning,
+          timeoutSeconds: 10,
+        },
+      };
+    }
+
     // Check if decision timeline triggers at this kilometer before simulating
     if (currentStepState.decisionTimeline?.[km]) {
       const cardId = currentStepState.decisionTimeline[km];
@@ -433,7 +502,7 @@ export function advanceSimulation(
       const analysis = challenge.analysis;
       let activeSegment: import("@/types/engine").RaceSegment | null = null;
 
-      if (analysis && analysis.segments && analysis.segments.length > 0) {
+      if (analysis?.segments && analysis.segments.length > 0) {
         let accumulatedDistance = 0;
         for (const seg of analysis.segments) {
           accumulatedDistance += seg.distance;
@@ -464,6 +533,11 @@ export function advanceSimulation(
           }
         } else {
           oppPace += 3; // steady pacing
+        }
+
+        // Apply Nemesis performance boost
+        if (opp.isNemesis) {
+          oppPace -= 8; // Nemesis runs 8 seconds faster per km
         }
 
         // Apply dynamic segment modifiers
@@ -552,6 +626,92 @@ export function advanceSimulation(
           description: eventDef.description,
           effect: eventDef.effect,
         });
+      }
+    }
+
+    // 1. Runner's High Logic
+    if ((currentStepState.momentum ?? 50) > 80 && (currentStepState.focus ?? 100) > 80) {
+      currentStepState.runnersHighTicks = (currentStepState.runnersHighTicks ?? 0) + 1;
+    } else {
+      currentStepState.runnersHighTicks = 0;
+    }
+
+    if ((currentStepState.runnersHighCooldown ?? 0) > 0) {
+      currentStepState.runnersHighCooldown = currentStepState.runnersHighCooldown! - 1;
+    }
+
+    if (currentStepState.isRunnersHighActive) {
+      if ((currentStepState.runnersHighTicks ?? 0) >= 2) {
+        currentStepState.isRunnersHighActive = false;
+        currentStepState.runnersHighTicks = 0;
+        currentStepState.runnersHighCooldown = 5;
+        currentStepState.eventsResolved.push({
+          km,
+          title: { en: "Runner's High Fades", id: "Runner's High Meredup" },
+          description: {
+            en: "The endorphin rush fades. Back to normal pacing.",
+            id: "Efek endorfin meredup. Kembali ke ritme normal.",
+          },
+          effect: { stamina: 0, hydration: 0, morale: 0, pace: 0 },
+        });
+      }
+    } else if (
+      (currentStepState.runnersHighTicks ?? 0) >= 3 &&
+      !currentStepState.isRunnersHighActive &&
+      (currentStepState.runnersHighCooldown ?? 0) === 0
+    ) {
+      currentStepState.isRunnersHighActive = true;
+      currentStepState.runnersHighTicks = 0;
+      currentStepState.eventsResolved.push({
+        km,
+        title: { en: "Runner's High!", id: "Runner's High!" },
+        description: {
+          en: "You entered a flow state! Speed increased, energy drain reduced to zero.",
+          id: "Kamu memasuki flow state! Kecepatan meningkat, stamina habis berkurang menjadi nol.",
+        },
+        effect: { stamina: 10, hydration: 0, morale: 20, pace: -20 },
+      });
+    }
+
+    // 2. Overtake Commentary Log Logic
+    const prevLogState = currentStepState.accumulatedStateLog && currentStepState.accumulatedStateLog.length > 0
+      ? currentStepState.accumulatedStateLog[currentStepState.accumulatedStateLog.length - 1]
+      : null;
+
+    if (prevLogState && currentStepState.opponents) {
+      for (const opp of currentStepState.opponents) {
+        if (opp.isDNF) continue;
+        const prevOpp = prevLogState.opponents?.find((o) => o.id === opp.id);
+        if (prevOpp) {
+          const prevPlayerTime = prevLogState.accumulatedTime;
+          const prevOppTime = prevOpp.accumulatedTime;
+          const currentPlayerTime = currentStepState.accumulatedTime;
+          const currentOppTime = opp.accumulatedTime;
+
+          if (prevPlayerTime > prevOppTime && currentPlayerTime < currentOppTime) {
+            currentStepState.eventsResolved.push({
+              km,
+              title: { en: "Overtake!", id: "Menyalip!" },
+              description: {
+                en: `You just surged past ${opp.name}!`,
+                id: `Kamu baru saja menyalip ${opp.name}!`,
+              },
+              effect: { stamina: 0, hydration: 0, morale: 5, pace: 0 },
+            });
+            currentStepState.focus = Math.min(100, currentStepState.focus + 5);
+          } else if (prevPlayerTime < prevOppTime && currentPlayerTime > currentOppTime) {
+            currentStepState.eventsResolved.push({
+              km,
+              title: { en: "Overtaken!", id: "Disalip!" },
+              description: {
+                en: `${opp.name} just blew past you!`,
+                id: `${opp.name} baru saja menyalipmu!`,
+              },
+              effect: { stamina: 0, hydration: 0, morale: -5, pace: 0 },
+            });
+            currentStepState.focus = Math.max(0, currentStepState.focus - 5);
+          }
+        }
       }
     }
 

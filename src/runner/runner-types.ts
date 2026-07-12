@@ -35,6 +35,21 @@ export interface RunnerProfile {
   coins: number;
   inventory: Record<string, number>;
   questClaims?: Record<string, string>;
+  // Soul update extensions
+  currentNemesis?: {
+    name: string;
+    archetype: string;
+    wins: number;
+    losses: number;
+  } | null;
+  equippedShoes?: {
+    id: string;
+    name: string;
+    durability: number;
+    maxDurability: number;
+    paceBonus: number;
+  } | null;
+  activePerks?: string[];
 }
 
 /**
@@ -64,6 +79,9 @@ export const DEFAULT_RUNNER_PROFILE: RunnerProfile = {
   coins: 100,
   inventory: { energy_gel: 1, electrolytes: 1, caffeine_gum: 0 },
   questClaims: {},
+  currentNemesis: null,
+  equippedShoes: null,
+  activePerks: [],
 };
 
 /**

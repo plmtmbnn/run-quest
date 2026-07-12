@@ -31,15 +31,15 @@
   --color-surface: #ffffff;
   --color-border: #e5e7eb;
 
-  /* Primary — Blue */
-  --color-primary: #2563eb;
-  --color-primary-light: #dbeafe;
-  --color-primary-dark: #1d4ed8;
+  /* Primary — Orange */
+  --color-primary: #ff8200;
+  --color-primary-light: #fff4e6;
+  --color-primary-dark: #e06c00;
 
-  /* Accent — Orange */
-  --color-accent: #fb923c;
-  --color-accent-light: #ffedd5;
-  --color-accent-dark: #ea580c;
+  /* Accent — Blue */
+  --color-accent: #3b82f6;
+  --color-accent-light: #eff6ff;
+  --color-accent-dark: #1d4ed8;
 
   /* Success — Green */
   --color-success: #16a34a;

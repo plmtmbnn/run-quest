@@ -116,8 +116,26 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     if (prep.pacing === "aggressive") intensity = 1.0;
     else if (prep.pacing === "conservative") intensity = 0.4;
 
+    // Determine if the player beat the Nemesis in this race
+    let didBeatNemesis: boolean | undefined;
+    const finalState = result.stateLog && result.stateLog.length > 0
+      ? result.stateLog[result.stateLog.length - 1]
+      : null;
+    if (finalState && finalState.opponents) {
+      const nemesis = finalState.opponents.find((opp) => opp.isNemesis);
+      if (nemesis) {
+        if (result.outcome === "dnf" || result.outcome === "dns") {
+          didBeatNemesis = false;
+        } else if (nemesis.isDNF) {
+          didBeatNemesis = true;
+        } else {
+          didBeatNemesis = result.finishTime < nemesis.accumulatedTime;
+        }
+      }
+    }
+
     // Record race and award XP/Coins to the runner profile
-    completeRace(distance, result.finishTime, intensity, xpGained, coinsGained);
+    completeRace(distance, result.finishTime, intensity, xpGained, coinsGained, didBeatNemesis);
 
     // 1. Create or load history
     const history = storageRepository.loadHistory() || {

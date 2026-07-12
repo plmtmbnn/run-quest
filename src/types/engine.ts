@@ -228,6 +228,12 @@ export interface SimulationState {
   accumulatedStateLog?: Omit<SimulationState, "accumulatedStateLog">[]; // Complete history of state logs
   opponents?: OpponentState[];
   currentPacing?: PacingPlan;
+  // Soul update properties
+  runnersHighTicks?: number;
+  isRunnersHighActive?: boolean;
+  runnersHighCooldown?: number;
+  hasTriggeredWall?: boolean;
+  hasTriggeredCramp?: boolean;
 }
 
 export interface OpponentState {
@@ -240,6 +246,7 @@ export interface OpponentState {
   hydration: number;
   isDNF: boolean;
   paceSeconds: number;
+  isNemesis?: boolean;
 }
 
 export type DecisionCategory =

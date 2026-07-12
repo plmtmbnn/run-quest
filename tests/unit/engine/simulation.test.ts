@@ -88,7 +88,13 @@ describe("Simulation Engine", () => {
     expect(result).toHaveProperty("story");
 
     const standardEvents = result.events.filter(
-      (e) => e.title.en !== "Delayed Consequence",
+      (e) =>
+        e.title.en !== "Delayed Consequence" &&
+        e.title.en !== "Overtake!" &&
+        e.title.en !== "Overtaken!" &&
+        e.title.en !== "Runner's High!" &&
+        e.title.en !== "Runner's High Fades" &&
+        e.title.en !== "Weather Shift!",
     );
     expect(standardEvents.length).toBeLessThanOrEqual(6);
     expect(result.story.headline.en).toBeTruthy();

@@ -131,9 +131,81 @@ export const completeRace = (
   intensity: number,
   xpGained?: number,
   coinsGained?: number,
+  didBeatNemesis?: boolean,
 ): void => {
   const currentState = loadRunnerState();
   const profile = currentState.profile;
+
+  // 1. Durability decrement for equipped shoes
+  let equippedShoes = profile.equippedShoes;
+  if (equippedShoes) {
+    const nextDurability = equippedShoes.durability - 1;
+    if (nextDurability <= 0) {
+      equippedShoes = null; // Shoe broke!
+    } else {
+      equippedShoes = {
+        ...equippedShoes,
+        durability: nextDurability,
+      };
+    }
+  }
+
+  // 2. Nemesis win/loss update and auto-generation
+  let currentNemesis = profile.currentNemesis;
+  let bonusCoins = 0;
+  let bonusXp = 0;
+
+  if (currentNemesis) {
+    if (didBeatNemesis !== undefined) {
+      if (didBeatNemesis) {
+        currentNemesis = {
+          ...currentNemesis,
+          wins: (currentNemesis.wins || 0) + 1,
+        };
+        bonusCoins = 100;
+        bonusXp = 50;
+      } else {
+        currentNemesis = {
+          ...currentNemesis,
+          losses: (currentNemesis.losses || 0) + 1,
+        };
+      }
+    }
+  } else {
+    // Generate a new Nemesis for future races
+    const firstNames = [
+      "Racer",
+      "Runner",
+      "Sprint",
+      "Dash",
+      "Pace",
+      "Chaser",
+      "Fast",
+      "Swift",
+      "Bolt",
+      "Shadow",
+    ];
+    const lastNames = [
+      "Alpha",
+      "Beta",
+      "Gamma",
+      "Delta",
+      "Omega",
+      "One",
+      "Two",
+      "Three",
+      "Pro",
+      "Max",
+    ];
+    const first = firstNames[Math.floor(Math.random() * firstNames.length)];
+    const last = lastNames[Math.floor(Math.random() * lastNames.length)];
+    currentNemesis = {
+      name: `Nemesis ${first} ${last}`,
+      archetype: "steady",
+      wins: 0,
+      losses: 0,
+    };
+  }
 
   // Update total runs, distance, and race time.
   let updatedProfile: RunnerProfile = {
@@ -144,17 +216,21 @@ export const completeRace = (
     currentFitness: updateFitness(profile, distance, intensity),
     currentFatigue: updateFatigue(profile, distance, intensity),
     currentReadiness: 0, // Will be recalculated below.
+    equippedShoes,
+    currentNemesis,
   };
 
   // Recalculate Race Readiness.
   updatedProfile.currentReadiness = calculateRaceReadiness(updatedProfile);
 
-  if (xpGained) {
-    updatedProfile = awardXP(updatedProfile, xpGained);
+  let finalXpGained = (xpGained || 0) + bonusXp;
+  if (finalXpGained > 0) {
+    updatedProfile = awardXP(updatedProfile, finalXpGained);
   }
 
-  if (coinsGained) {
-    updatedProfile.coins = (updatedProfile.coins || 0) + coinsGained;
+  let finalCoinsGained = (coinsGained || 0) + bonusCoins;
+  if (finalCoinsGained > 0) {
+    updatedProfile.coins = (updatedProfile.coins || 0) + finalCoinsGained;
   }
 
   // Save the updated profile.

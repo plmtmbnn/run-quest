@@ -732,20 +732,20 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                   </div>
                 </div>
               </div>
-              <div className="border-t border-[#E5E7EB] dark:border-slate-800/40 pt-3 text-xs text-blue-650 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/30 rounded-2xl p-3 flex items-start gap-2">
-                <Sparkles className="h-4 w-4 text-blue-500 flex-shrink-0 mt-0.5" />
+              <div className="border-t border-[#E5E7EB] dark:border-slate-800/40 pt-3 text-xs text-orange-650 dark:text-orange-350 bg-orange-50 dark:bg-orange-950/20 rounded-[1.5rem] p-3 flex items-start gap-2">
+                <Sparkles className="h-4 w-4 text-orange-500 flex-shrink-0 mt-0.5" />
                 <p>{challenge.race.description[lang]}</p>
               </div>
             </div>
           </div>
 
           {/* Sticky ready CTA */}
-          <div className="rounded-3xl border-2 border-[#E5E7EB] dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-[0_8px_24px_rgba(0,0,0,0.05)] flex flex-col gap-3">
+          <div className="rounded-[2rem] border-2 border-[#E5E7EB] dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-[0_8px_24px_rgba(0,0,0,0.05)] flex flex-col gap-3">
             <button
               id="ready-race-cta"
               type="button"
               onClick={handleStartSimulation}
-              className="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold text-base py-4 rounded-full transition-all duration-200 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 flex items-center justify-center gap-2"
+              className="w-full bg-orange-500 hover:bg-orange-600 active:scale-[0.98] text-white font-black text-base py-4 rounded-[1.5rem] transition-all duration-200 shadow-md shadow-orange-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 flex items-center justify-center gap-2"
             >
               {t("preparation.ready" as TranslationKey)} →
             </button>
@@ -755,7 +755,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 playSound("click");
                 setIsShareOpen(true);
               }}
-              className="w-full border-2 border-blue-500 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 active:scale-[0.98] font-semibold text-sm py-3 rounded-full transition duration-200 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+              className="w-full border-2 border-orange-500 bg-orange-50 dark:bg-orange-950/20 text-orange-605 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/30 active:scale-[0.98] font-black text-sm py-3 rounded-[1.5rem] transition duration-200 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
             >
               <Share2 className="h-4.5 w-4.5" />
               <span>{t("share.loadout.button" as TranslationKey)}</span>
@@ -781,9 +781,9 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
 
       {showWarmupGame && (
         <div className="fixed inset-0 bg-slate-900/60 dark:bg-gray-950/90 backdrop-blur-md flex items-center justify-center p-6 z-50">
-          <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-3xl p-6 max-w-md w-full shadow-2xl flex flex-col gap-6 text-center">
+          <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[2rem] p-6 max-w-md w-full shadow-2xl flex flex-col gap-6 text-center">
             <div>
-              <span className="text-[10px] uppercase tracking-widest text-blue-500 dark:text-amber-400 font-extrabold">
+              <span className="text-[10px] uppercase tracking-widest text-orange-500 dark:text-orange-400 font-extrabold">
                 Warm-up Timing Challenge
               </span>
               <h3 className="font-heading text-lg font-black text-slate-800 dark:text-white mt-1">
@@ -804,7 +804,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
               </div>
 
               <div
-                className="absolute w-2 h-full bg-blue-500 dark:bg-amber-400 shadow-lg rounded-full transition-all duration-75"
+                className="absolute w-2.5 h-full bg-orange-500 dark:bg-orange-450 shadow-lg rounded-full transition-all duration-75"
                 style={{ left: `calc(${warmupProgress}% - 4px)` }}
               />
             </div>
@@ -826,7 +826,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 <button
                   type="button"
                   onClick={handleTapWarmup}
-                  className="w-full py-4 px-6 rounded-2xl text-xs font-black text-white bg-blue-600 hover:bg-blue-700 dark:bg-amber-500 dark:hover:bg-amber-600 shadow-lg active:scale-95 transition-all transform uppercase tracking-widest cursor-pointer"
+                  className="w-full py-4 px-6 rounded-[1.5rem] text-xs font-black text-white bg-orange-500 hover:bg-orange-600 shadow-lg shadow-orange-500/20 active:scale-95 transition-all transform uppercase tracking-widest cursor-pointer"
                 >
                   TAP WARM-UP!
                 </button>
@@ -868,14 +868,14 @@ function OptionCard({
       id={id}
       type="button"
       onClick={onClick}
-      className={`group relative flex w-full flex-col text-left bg-white dark:bg-slate-900 rounded-2xl border-2 p-5 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 active:scale-[0.99] ${
+      className={`group relative flex w-full flex-col text-left bg-white dark:bg-slate-900 rounded-[2rem] border-2 p-5 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 active:scale-[0.99] ${
         selected
-          ? "border-blue-500 shadow-md ring-1 ring-blue-500"
-          : "border-[#E5E7EB] hover:border-blue-300 hover:shadow-sm"
+          ? "border-orange-500 shadow-md ring-1 ring-orange-500"
+          : "border-[#E5E7EB] hover:border-orange-350 hover:shadow-sm"
       }`}
     >
       <div className="flex w-full items-start justify-between mb-2">
-        <h3 className="font-heading font-semibold text-gray-900 dark:text-white leading-snug group-hover:text-blue-600 transition-colors duration-150">
+        <h3 className="font-heading font-semibold text-gray-900 dark:text-white leading-snug group-hover:text-orange-600 transition-colors duration-150">
           {title}
         </h3>
         {/* Selection indicator */}
@@ -884,8 +884,8 @@ function OptionCard({
             isMultiSelect ? "rounded-md" : "rounded-full"
           } ${
             selected
-              ? "border-blue-500 bg-blue-500 text-white"
-              : "border-gray-300 bg-white dark:bg-slate-900 group-hover:border-blue-400"
+              ? "border-orange-500 bg-orange-500 text-white"
+              : "border-gray-300 bg-white dark:bg-slate-900 group-hover:border-orange-450"
           }`}
         >
           {selected && (

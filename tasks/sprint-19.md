@@ -64,9 +64,20 @@ Profile Page (Shop purchases & Attribute upgrades)
   3. *Daily Training* (Complete a daily workout session)
 - **Quest Claims:** Clicking claim awards **+50 RC & +50 XP** per quest, updating stats and check-in history.
 
+### 6. UI Redesign (EcoThrive Style Layouts)
+- **Theme Color Transformation (`src/app/globals.css`):** Migrated branding from primary blue to warm orange (`#F97316`).
+- **Dashboard & Quests Board (`src/features/home/home-screen.tsx`):** Styled into rounded-pill panels (`rounded-[2rem]`) with custom pastel action grids and gradient titles.
+- **Loadout Selection & Timing Modal (`src/features/preparation/preparation-screen.tsx`):** Swapped selection cards to orange active borders, pills layout, and redesigned timing slider overlays.
+- **Race Simulator HUD (`src/features/race/race-screen.tsx`):** Reformatted stats HUD, strategy options, and live track progress nodes using high-contrast orange tokens and custom dark/light border layouts.
+- **Result Details (`src/features/result/result-screen.tsx`):** Re-styled split tables, pace columns, and comments feed layouts to match the warm-toned aesthetic.
+- **Career RPG Upgrades & Nutrition Shop (`src/features/profile/profile-screen.tsx`):** Converted upgrade sliders and buy grids into individual pastel backgrounds (Speed: gold; Stamina: rose; Hydration: sky; Willpower: purple).
+
 ---
 
 ## Technical Files Modified
+
+### Core Styling & Theme
+- `src/app/globals.css` — Swapped global theme variables from blue to orange.
 
 ### Core State & Types
 - `src/runner/runner-types.ts` — Added `coins`, `inventory`, and `questClaims` tracking schemas to `RunnerProfile`.
@@ -77,9 +88,9 @@ Profile Page (Shop purchases & Attribute upgrades)
 - `src/training/training-engine.ts` — Wired workout rewards to allocate training coins.
 
 ### Features & Screen Panels
-- `src/features/preparation/preparation-screen.tsx` — Built timing minigame Modal and state hooks.
-- `src/features/race/race-screen.tsx` — Built Consumables Panel, boost state modifiers, event logs, and success sound hooks.
-- `src/features/profile/profile-screen.tsx` — Built header coins indicator and Buy card list with sound hooks.
+- `src/features/preparation/preparation-screen.tsx` — Built timing minigame Modal, dynamic cards, and state hooks.
+- `src/features/race/race-screen.tsx` — Built Consumables Panel, dynamic pacing buttons, boost state modifiers, event logs, and success sound hooks.
+- `src/features/profile/profile-screen.tsx` — Built header coins indicator, custom color attributes cards, and Buy card list with sound hooks.
 - `src/features/result/result-screen.tsx` — Built Splits table metrics and mock social comment loops.
 - `src/features/home/home-screen.tsx` — Built Daily Quest Board cards and claim rewards logic.
 

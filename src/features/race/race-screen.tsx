@@ -292,12 +292,14 @@ export function RaceScreen() {
     let effects = { stamina: 0, hydration: 0, morale: 0, pace: 0 };
     
     if (item === "energy_gel") {
+      const isIronStomach = runnerState.profile.activePerks?.includes("iron_stomach");
+      const energyBoost = isIronStomach ? 50 : 25;
       label = "Consumed Energy Gel";
-      desc = "Stamina boosted by +25%!";
-      effects.stamina = 25;
+      desc = `Stamina boosted by +${energyBoost}%!`;
+      effects.stamina = energyBoost;
       
       if (simStateRef.current) {
-        simStateRef.current.energy = Math.min(100, simStateRef.current.energy + 25);
+        simStateRef.current.energy = Math.min(100, simStateRef.current.energy + energyBoost);
       }
     } else if (item === "electrolytes") {
       label = "Consumed Electrolytes";
@@ -320,7 +322,10 @@ export function RaceScreen() {
     // 4. Update local screen stats directly
     setStats((prev) => {
       const next = { ...prev };
-      if (item === "energy_gel") next.energy = Math.min(100, prev.energy + 25);
+      if (item === "energy_gel") {
+        const isIronStomach = runnerState.profile.activePerks?.includes("iron_stomach");
+        next.energy = Math.min(100, prev.energy + (isIronStomach ? 50 : 25));
+      }
       if (item === "electrolytes") next.hydration = Math.min(100, prev.hydration + 20);
       if (item === "caffeine_gum") next.focus = Math.min(100, prev.focus + 20);
       return next;
@@ -431,7 +436,7 @@ export function RaceScreen() {
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-500 dark:text-blue-400 text-xs font-semibold">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-600 dark:text-orange-400 text-xs font-semibold">
             <Activity className="h-4.5 w-4.5 animate-pulse" />
             <span>{t("challenge.race.simulating" as TranslationKey)}</span>
           </div>
@@ -441,7 +446,7 @@ export function RaceScreen() {
       {/* Main content area */}
       <main className="flex-grow max-w-4xl w-full mx-auto px-6 py-8 flex flex-col justify-center gap-6 relative">
         {/* Distance Tracker & Visual Track Progress */}
-        <div className="flex flex-col gap-5 items-center justify-center bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-3xl p-6 shadow-sm">
+        <div className="flex flex-col gap-5 items-center justify-center bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[2rem] p-6 shadow-sm">
           {/* Distance Circular Tracker */}
           <div className="relative w-40 h-40 flex items-center justify-center">
             <svg
@@ -461,7 +466,7 @@ export function RaceScreen() {
                 cx="80"
                 cy="80"
                 r="72"
-                className="stroke-blue-500 fill-none"
+                className="stroke-orange-500 fill-none"
                 strokeWidth="6"
                 strokeDasharray="452"
                 initial={{ strokeDashoffset: 452 }}
@@ -491,7 +496,7 @@ export function RaceScreen() {
             <h4 className="text-[10px] uppercase font-extrabold tracking-wider text-slate-400 dark:text-gray-500">
               Track Progress
             </h4>
-            <div className="relative bg-slate-50 dark:bg-slate-950 h-10 rounded-2xl border border-slate-200 dark:border-slate-850 p-2 flex items-center overflow-hidden">
+            <div className="relative bg-slate-50 dark:bg-slate-950 h-10 rounded-[1.5rem] border border-slate-200 dark:border-slate-850 p-2 flex items-center overflow-hidden">
               {/* Kilometer markers */}
               <div className="absolute inset-0 flex justify-between px-4 pointer-events-none">
                 {Array.from({ length: Math.ceil(challenge.race.distance) + 1 }).map((_, i) => (
@@ -513,10 +518,10 @@ export function RaceScreen() {
                     transition={{ duration: 0.3 }}
                     className={`absolute h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-black text-white shadow-md border-2 transition-colors
                       ${r.isPlayer
-                        ? "bg-blue-600 border-white z-10 scale-110"
+                        ? "bg-orange-500 border-white z-10 scale-110 shadow-sm"
                         : r.isDNF
                           ? "bg-slate-400 border-slate-500 opacity-40"
-                          : "bg-indigo-900 border-indigo-700"
+                          : "bg-slate-700 border-slate-600"
                       }
                     `}
                     title={`${r.name} (${r.distance} km)`}
@@ -530,7 +535,7 @@ export function RaceScreen() {
         </div>
 
         {/* Live Simulation HUD Dashboard */}
-        <div className="flex flex-col gap-6 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-3xl p-6 shadow-sm">
+        <div className="flex flex-col gap-6 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[2rem] p-6 shadow-sm">
           {/* Strategy Tactics & Leaderboard Section */}
           <div className="grid md:grid-cols-2 gap-6 border-b border-slate-100 dark:border-gray-800 pb-6">
             {/* Left Column: Real-Time Tactics (Pacing Buttons) */}
@@ -554,9 +559,9 @@ export function RaceScreen() {
                         setSelectedPacing(mode);
                         playSound("click");
                       }}
-                      className={`py-2 px-3 rounded-2xl text-xs font-bold transition-all transform active:scale-95 flex flex-col items-start gap-0.5 border
+                      className={`py-2 px-3 rounded-[1.25rem] text-xs font-bold transition-all transform active:scale-95 flex flex-col items-start gap-0.5 border
                         ${isActive
-                          ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-500/20"
+                          ? "bg-orange-500 border-orange-500 text-white shadow-md shadow-orange-500/20"
                           : "bg-slate-50 hover:bg-slate-100 dark:bg-slate-950 dark:hover:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300"
                         }
                         ${isSprintLocked ? "opacity-40 cursor-not-allowed border-dashed" : ""}
@@ -591,7 +596,7 @@ export function RaceScreen() {
                         type="button"
                         disabled={!isAvailable || isFinished}
                         onClick={() => useConsumable(item as any)}
-                        className={`py-2 px-3 rounded-xl text-[11px] font-extrabold flex items-center gap-1.5 transition-all transform active:scale-95 border
+                        className={`py-2 px-3 rounded-[1.25rem] text-[11px] font-extrabold flex items-center gap-1.5 transition-all transform active:scale-95 border
                           ${isAvailable && !isFinished
                             ? "bg-slate-50 hover:bg-slate-100 dark:bg-slate-950 dark:hover:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 cursor-pointer shadow-sm"
                             : "bg-slate-100 dark:bg-slate-900 border-slate-150 dark:border-slate-850 text-slate-450 dark:text-slate-600 opacity-45 cursor-not-allowed"
@@ -608,11 +613,11 @@ export function RaceScreen() {
             </div>
 
             {/* Right Column: Live Leaderboard */}
-            <div className="flex flex-col gap-3">
+             <div className="flex flex-col gap-3">
               <h4 className="text-xs uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-550 flex items-center gap-1.5">
                 <span>🏆</span> Live Standings
               </h4>
-              <div className="bg-slate-50 dark:bg-slate-950/40 rounded-2xl border border-slate-150 dark:border-gray-800 overflow-hidden text-xs">
+              <div className="bg-slate-50 dark:bg-slate-950/40 rounded-[1.5rem] border border-slate-150 dark:border-gray-800 overflow-hidden text-xs">
                 <div className="grid grid-cols-12 gap-1 px-3 py-2 bg-slate-100 dark:bg-gray-800/40 border-b border-slate-200 dark:border-gray-800 font-extrabold text-[10px] text-slate-400 dark:text-gray-550 uppercase tracking-wider">
                   <span className="col-span-2 text-center">Pos</span>
                   <span className="col-span-6">Runner</span>
@@ -629,7 +634,7 @@ export function RaceScreen() {
                       <div
                         key={r.name}
                         className={`grid grid-cols-12 gap-1 px-3 py-2.5 items-center font-medium
-                          ${r.isPlayer ? "bg-blue-50/50 dark:bg-blue-950/20 text-blue-900 dark:text-blue-100 font-bold" : "text-slate-700 dark:text-gray-300"}
+                          ${r.isPlayer ? "bg-orange-50/50 dark:bg-orange-950/20 text-orange-900 dark:text-orange-100 font-bold" : "text-slate-700 dark:text-gray-300"}
                           ${r.isDNF ? "opacity-50" : ""}
                         `}
                       >
@@ -639,7 +644,7 @@ export function RaceScreen() {
                         <span className="col-span-6 truncate flex items-center gap-1.5">
                           <span>{r.name}</span>
                           {r.isPlayer && (
-                            <span className="text-[8px] bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-300 font-bold px-1.5 py-0.5 rounded uppercase">
+                            <span className="text-[8px] bg-orange-100 dark:bg-orange-900/60 text-orange-605 dark:text-orange-400 font-bold px-1.5 py-0.5 rounded uppercase">
                               You
                             </span>
                           )}
@@ -672,40 +677,40 @@ export function RaceScreen() {
               <span>📊</span> Live Runner Metrics
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="border border-slate-200 dark:border-gray-800 rounded-2xl p-4 flex flex-col items-center bg-slate-50/50 dark:bg-gray-950/20">
-                <span className="text-slate-400 dark:text-gray-500 text-[10px] uppercase font-bold mb-1">
+              <div className="border border-slate-200 dark:border-gray-800 rounded-[1.5rem] p-4 flex flex-col items-center bg-slate-50/50 dark:bg-gray-950/20">
+                <span className="text-slate-400 dark:text-gray-550 text-[10px] uppercase font-bold mb-1">
                   Pace
                 </span>
                 <div className="flex items-center gap-1 text-slate-800 dark:text-gray-200">
-                  <Gauge className="h-4.5 w-4.5 text-blue-500" />
+                  <Gauge className="h-4.5 w-4.5 text-orange-500" />
                   <span className="text-lg font-bold">
                     {formatPace(stats.pace)} /km
                   </span>
                 </div>
               </div>
-              <div className="border border-slate-200 dark:border-gray-800 rounded-2xl p-4 flex flex-col items-center bg-slate-50/50 dark:bg-gray-950/20">
-                <span className="text-slate-400 dark:text-gray-500 text-[10px] uppercase font-bold mb-1">
+              <div className="border border-slate-200 dark:border-gray-800 rounded-[1.5rem] p-4 flex flex-col items-center bg-slate-50/50 dark:bg-gray-950/20">
+                <span className="text-slate-400 dark:text-gray-550 text-[10px] uppercase font-bold mb-1">
                   Energy
                 </span>
-                <div className="flex items-center gap-1 text-amber-600 dark:text-amber-500">
+                <div className="flex items-center gap-1 text-amber-655 dark:text-amber-500">
                   <Flame className="h-4.5 w-4.5" />
                   <span className="text-lg font-bold">{stats.energy}%</span>
                 </div>
               </div>
-              <div className="border border-slate-200 dark:border-gray-800 rounded-2xl p-4 flex flex-col items-center bg-slate-50/50 dark:bg-gray-950/20">
-                <span className="text-slate-400 dark:text-gray-500 text-[10px] uppercase font-bold mb-1">
+              <div className="border border-slate-200 dark:border-gray-800 rounded-[1.5rem] p-4 flex flex-col items-center bg-slate-50/50 dark:bg-gray-950/20">
+                <span className="text-slate-400 dark:text-gray-550 text-[10px] uppercase font-bold mb-1">
                   Hydration
                 </span>
-                <div className="flex items-center gap-1 text-blue-600 dark:text-blue-500">
+                <div className="flex items-center gap-1 text-blue-650 dark:text-blue-500">
                   <Activity className="h-4.5 w-4.5" />
                   <span className="text-lg font-bold">{stats.hydration}%</span>
                 </div>
               </div>
-              <div className="border border-slate-200 dark:border-gray-800 rounded-2xl p-4 flex flex-col items-center bg-slate-50/50 dark:bg-gray-950/20">
-                <span className="text-slate-400 dark:text-gray-500 text-[10px] uppercase font-bold mb-1">
+              <div className="border border-slate-200 dark:border-gray-800 rounded-[1.5rem] p-4 flex flex-col items-center bg-slate-50/50 dark:bg-gray-950/20">
+                <span className="text-slate-400 dark:text-gray-550 text-[10px] uppercase font-bold mb-1">
                   Focus
                 </span>
-                <div className="flex items-center gap-1 text-purple-600 dark:text-purple-500">
+                <div className="flex items-center gap-1 text-purple-650 dark:text-purple-550">
                   <TrendingUp className="h-4.5 w-4.5" />
                   <span className="text-lg font-bold">{stats.focus}%</span>
                 </div>
@@ -802,13 +807,13 @@ export function RaceScreen() {
             {preparation.nutrition.map((item) => (
               <span
                 key={item}
-                className="text-[10px] font-bold px-2 py-0.5 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 rounded-md capitalize"
+                className="text-[10px] font-bold px-2.5 py-0.5 bg-orange-50 dark:bg-orange-950/20 text-orange-605 dark:text-orange-400 rounded-full capitalize"
               >
                 {t(`preparation.nutrition.${item}.name` as TranslationKey)}
               </span>
             ))}
             {preparation.nutrition.includes("caffeine") && currentKm < 6 && (
-              <span className="text-[10px] font-bold px-2 py-0.5 bg-purple-50 dark:bg-purple-950/30 text-purple-600 dark:text-purple-400 rounded-md animate-pulse">
+              <span className="text-[10px] font-bold px-2.5 py-0.5 bg-purple-55 dark:bg-purple-950/30 text-purple-650 dark:text-purple-400 rounded-full animate-pulse">
                 ⚡ Caffeine Surge
               </span>
             )}
@@ -836,7 +841,7 @@ export function RaceScreen() {
         </div>
 
         {/* Live Terminal Log Feed */}
-        <div className="flex-grow bg-slate-950 border border-slate-800 rounded-2xl p-5 font-mono text-xs overflow-y-auto max-h-[160px] text-slate-200 shadow-inner">
+        <div className="flex-grow bg-slate-950 border border-slate-800 rounded-[1.5rem] p-5 font-mono text-xs overflow-y-auto max-h-[160px] text-slate-200 shadow-inner">
           <div className="text-gray-500 mb-2">
             {t("challenge.race.feed" as TranslationKey)}
           </div>
@@ -888,11 +893,11 @@ export function RaceScreen() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-3xl p-6 max-w-lg w-full shadow-2xl flex flex-col gap-5 max-h-[90vh] overflow-y-auto"
+            className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[2rem] p-6 max-w-lg w-full shadow-2xl flex flex-col gap-5 max-h-[90vh] overflow-y-auto"
           >
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-gray-800 pb-3">
               <div>
-                <span className="text-[10px] uppercase tracking-widest text-blue-500 dark:text-amber-400 font-bold">
+                <span className="text-[10px] uppercase tracking-widest text-orange-500 dark:text-orange-400 font-bold">
                   {t(`challenge.race.decision_title` as TranslationKey)} •{" "}
                   {activeDecision.category}
                 </span>
@@ -901,11 +906,11 @@ export function RaceScreen() {
                 </h2>
               </div>
               <div className="flex flex-col items-end">
-                <span className="text-[10px] text-slate-400 dark:text-gray-500 uppercase tracking-wider">
+                <span className="text-[10px] text-slate-400 dark:text-gray-555 uppercase tracking-wider">
                   {t("challenge.race.remaining_seconds" as TranslationKey)}
                 </span>
                 <span
-                  className={`text-2xl font-black font-mono ${countdown <= 3 ? "text-red-500 animate-pulse" : "text-blue-500 dark:text-amber-400"}`}
+                  className={`text-2xl font-black font-mono ${countdown <= 3 ? "text-red-500 animate-pulse" : "text-orange-500 dark:text-orange-400"}`}
                 >
                   {countdown}s
                 </span>
@@ -917,7 +922,7 @@ export function RaceScreen() {
             </p>
 
             <div className="flex flex-col gap-2.5">
-              <span className="text-[10px] uppercase tracking-wider text-slate-450 dark:text-gray-500 font-bold">
+              <span className="text-[10px] uppercase tracking-wider text-slate-455 dark:text-gray-550 font-bold">
                 {t("challenge.race.strategic_choices" as TranslationKey)}
               </span>
               {activeDecision.choices.map((choice) => (
@@ -926,13 +931,13 @@ export function RaceScreen() {
                   type="button"
                   onClick={() => selectChoice(choice.id)}
                   disabled={timeoutAlert}
-                  className="flex flex-col text-left p-3.5 rounded-xl border border-slate-250 dark:border-gray-800 bg-slate-50/50 dark:bg-gray-950/40 hover:bg-blue-50/50 dark:hover:bg-blue-950/20 hover:border-blue-500/50 transition-all group duration-200 cursor-pointer"
+                  className="flex flex-col text-left p-3.5 rounded-[1.25rem] border border-slate-250 dark:border-gray-850 bg-slate-50/50 dark:bg-gray-950/40 hover:bg-orange-50/50 dark:hover:bg-orange-950/20 hover:border-orange-500/50 transition-all group duration-200 cursor-pointer"
                 >
                   <div className="flex items-center justify-between w-full">
-                    <span className="font-bold text-slate-700 dark:text-white text-xs group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    <span className="font-bold text-slate-700 dark:text-white text-xs group-hover:text-orange-505 dark:group-hover:text-orange-400 transition-colors">
                       {choice.label[lang]}
                     </span>
-                    <span className="text-[9px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-200 dark:bg-gray-800 text-slate-600 dark:text-gray-400">
+                    <span className="text-[9px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-250 dark:bg-gray-800 text-slate-600 dark:text-gray-400">
                       {choice.behavior}
                     </span>
                   </div>
@@ -989,7 +994,7 @@ export function RaceScreen() {
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-3xl p-8 shadow-2xl text-center flex flex-col items-center gap-4 max-w-sm w-full"
+            className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[2rem] p-8 shadow-2xl text-center flex flex-col items-center gap-4 max-w-sm w-full"
           >
             <div className="h-16 w-16 rounded-full bg-red-100 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 flex items-center justify-center text-red-500 text-3xl animate-bounce">
               ⚠️

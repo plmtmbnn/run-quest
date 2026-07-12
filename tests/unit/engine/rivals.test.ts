@@ -45,14 +45,26 @@ const baseInput: SimulationInput = {
 describe("AI Rivals & Active Pacing Simulation", () => {
   it("should generate 3 to 5 opponents at race start", () => {
     // Generate initial state at km 0
-    const startStep = advanceSimulation(baseInput, undefined, undefined, undefined, true);
+    const startStep = advanceSimulation(
+      baseInput,
+      undefined,
+      undefined,
+      undefined,
+      true,
+    );
     if (startStep.type === "finished") throw new Error("Expected step or decision");
     const state = startStep.state;
     // Clear decision timeline to prevent random event yields in tests
     state.decisionTimeline = {};
 
     // Simulate kilometer 1
-    const stepRes = advanceSimulation(baseInput, state, undefined, undefined, true);
+    const stepRes = advanceSimulation(
+      baseInput,
+      state,
+      undefined,
+      undefined,
+      true,
+    );
     expect(stepRes.type).toBe("step");
     if (stepRes.type === "step") {
       const opponents = stepRes.state.opponents;
@@ -72,13 +84,25 @@ describe("AI Rivals & Active Pacing Simulation", () => {
 
   it("should adjust player pace and fatigue when changing pacing strategy mid-race", () => {
     // Generate initial state at km 0 and clear decision timeline
-    const startStep = advanceSimulation(baseInput, undefined, undefined, undefined, true);
+    const startStep = advanceSimulation(
+      baseInput,
+      undefined,
+      undefined,
+      undefined,
+      true,
+    );
     if (startStep.type === "finished") throw new Error("Expected step or decision");
     const state = startStep.state;
     state.decisionTimeline = {};
 
     // Step 1: Simulate kilometer 1 with default pacing (steady)
-    const step1 = advanceSimulation(baseInput, state, undefined, undefined, true);
+    const step1 = advanceSimulation(
+      baseInput,
+      state,
+      undefined,
+      undefined,
+      true,
+    );
     expect(step1.type).toBe("step");
     if (step1.type !== "step") throw new Error("Expected step type");
 
@@ -86,7 +110,13 @@ describe("AI Rivals & Active Pacing Simulation", () => {
     const energyAtKm1 = step1.state.energy;
 
     // Step 2: Simulate kilometer 2 with "jog" (conserve) pacing
-    const step2 = advanceSimulation(baseInput, step1.state, undefined, "jog", true);
+    const step2 = advanceSimulation(
+      baseInput,
+      step1.state,
+      undefined,
+      "jog",
+      true,
+    );
     expect(step2.type).toBe("step");
     if (step2.type !== "step") throw new Error("Expected step type");
 
@@ -94,7 +124,13 @@ describe("AI Rivals & Active Pacing Simulation", () => {
     const energyLostAtKm2 = energyAtKm1 - step2.state.energy;
 
     // Step 3: Simulate kilometer 3 with "sprint" pacing
-    const step3 = advanceSimulation(baseInput, step2.state, undefined, "sprint", true);
+    const step3 = advanceSimulation(
+      baseInput,
+      step2.state,
+      undefined,
+      "sprint",
+      true,
+    );
     expect(step3.type).toBe("step");
     if (step3.type !== "step") throw new Error("Expected step type");
 
@@ -105,5 +141,67 @@ describe("AI Rivals & Active Pacing Simulation", () => {
     expect(paceAtKm3).toBeLessThan(paceAtKm2);
     // Sprinting should consume much more energy than jogging
     expect(energyLostAtKm3).toBeGreaterThan(energyLostAtKm2);
+  });
+
+  it("should generate a Nemesis opponent if currentNemesis exists in runnerProfile", () => {
+    const inputWithNemesis: SimulationInput = {
+      ...baseInput,
+      runnerProfile: {
+        id: "player_test",
+        displayName: "Test Runner",
+        createdAt: "",
+        totalRuns: 0,
+        totalDistance: 0,
+        totalRaceTime: 0,
+        totalTrainingDays: 0,
+        currentWeek: 1,
+        currentSeason: 1,
+        currentFitness: 50,
+        currentFatigue: 0,
+        currentReadiness: 100,
+        consistency: 0,
+        level: 1,
+        xp: 0,
+        skillPoints: 0,
+        speedAttr: 10,
+        staminaAttr: 10,
+        hydrationAttr: 10,
+        willpowerAttr: 10,
+        coins: 100,
+        inventory: {},
+        currentNemesis: {
+          name: "Nemesis John",
+          archetype: "steady",
+          wins: 0,
+          losses: 0,
+        },
+      },
+    };
+
+    const startStep = advanceSimulation(
+      inputWithNemesis,
+      undefined,
+      undefined,
+      undefined,
+      true,
+    );
+    if (startStep.type === "finished") throw new Error("Expected step or decision");
+    const state = startStep.state;
+    state.decisionTimeline = {};
+
+    const stepRes = advanceSimulation(
+      inputWithNemesis,
+      state,
+      undefined,
+      undefined,
+      true,
+    );
+    if (stepRes.type !== "step") throw new Error("Expected step type");
+
+    const opponents = stepRes.state.opponents;
+    expect(opponents).toBeDefined();
+    const nemesis = opponents!.find((o) => o.isNemesis);
+    expect(nemesis).toBeDefined();
+    expect(nemesis!.name).toBe("Nemesis John");
   });
 });

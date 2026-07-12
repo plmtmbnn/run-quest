@@ -85,8 +85,40 @@ export function ResultScreen() {
 
   const fastestSplit = splits.length > 0 ? Math.min(...splits.map((s) => s.time)) : 0;
 
+  const getLeaderboard = () => {
+    const finalState = lastResult.stateLog && lastResult.stateLog.length > 0
+      ? lastResult.stateLog[lastResult.stateLog.length - 1]
+      : null;
+    
+    if (!finalState || !finalState.opponents) return [];
+
+    const entries = [
+      {
+        name: t("challenge.result.you" as TranslationKey) || "You",
+        time: lastResult.finishTime,
+        isDNF: outcome === "dnf",
+        isPlayer: true,
+        isNemesis: false,
+      },
+      ...finalState.opponents.map((opp) => ({
+        name: opp.name,
+        time: opp.accumulatedTime,
+        isDNF: opp.isDNF,
+        isPlayer: false,
+        isNemesis: opp.isNemesis || false,
+      })),
+    ];
+
+    // Sort by DNF at the bottom, then by time ascending
+    return entries.sort((a, b) => {
+      if (a.isDNF && !b.isDNF) return 1;
+      if (!a.isDNF && b.isDNF) return -1;
+      return a.time - b.time;
+    });
+  };
+
   const getMockComments = () => {
-    const comments: { author: string; avatar: string; text: string; time: string }[] = [];
+    const comments: { id: string; author: string; avatar: string; text: string; time: string }[] = [];
     
     // Coach Sarah
     let sarahText = "Solid effort out there! Consistency is the foundation of improvement.";
@@ -97,7 +129,7 @@ export function ResultScreen() {
     } else if (outcome === "silver" || outcome === "bronze") {
       sarahText = "Excellent podium finish! You paced yourself well. A bit more speed attribute and you'll grab gold.";
     }
-    comments.push({ author: "Coach Sarah", avatar: "👩‍🏫", text: sarahText, time: "2m ago" });
+    comments.push({ id: "coach-sarah", author: "Coach Sarah", avatar: "👩🏫", text: sarahText, time: "2m ago" });
 
     // Rival Alex
     let alexText = "Nice run today! I'm keeping an eye on your splits.";
@@ -108,7 +140,7 @@ export function ResultScreen() {
     } else {
       alexText = "Good race! You had a solid cadence. I'm upgrading my speed stat to catch you next time.";
     }
-    comments.push({ author: "Alex (Rival)", avatar: "🏃‍♂️", text: alexText, time: "10m ago" });
+    comments.push({ id: "rival-alex", author: "Alex (Rival)", avatar: "🏃♂️", text: alexText, time: "10m ago" });
 
     // GritBot
     let botText = "beep boop... optimal efficiency detected. cadence stable.";
@@ -117,7 +149,7 @@ export function ResultScreen() {
     } else if (grade === "S" || grade === "A") {
       botText = "beep boop... precision execution! pace variance < 3%. grade validation optimal.";
     }
-    comments.push({ author: "GritBot", avatar: "🤖", text: botText, time: "1h ago" });
+    comments.push({ id: "gritbot", author: "GritBot", avatar: "🤖", text: botText, time: "1h ago" });
 
     return comments;
   };
@@ -172,7 +204,7 @@ export function ResultScreen() {
 
       <main className="mx-auto max-w-3xl px-6 py-8 flex flex-col gap-8">
         {/* Core Stats Overview */}
-        <div className="rounded-3xl border border-[#E5E7EB] bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col md:flex-row items-center gap-8 justify-around">
+        <div className="rounded-[2rem] border border-[#E5E7EB] bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col md:flex-row items-center gap-8 justify-around">
           {/* Medal / DNF Icon */}
           <div
             className={`flex flex-col items-center p-6 rounded-2xl border ${getOutcomeColor()}`}
@@ -247,8 +279,62 @@ export function ResultScreen() {
           </button>
         </div>
 
+        {/* Rival Leaderboard */}
+        {getLeaderboard().length > 0 && (
+          <section className="rounded-[2rem] border border-[#E5E7EB] bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-4">
+            <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-3">
+              <span className="text-lg">🏆</span>
+              <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
+                Rival Leaderboard
+              </h2>
+            </div>
+            <div className="flex flex-col gap-2">
+              {getLeaderboard().map((entry, idx) => {
+                const isWinner = idx === 0 && !entry.isDNF;
+                return (
+                  <div
+                    key={entry.name}
+                    className={`flex items-center justify-between p-3.5 rounded-2xl border transition-all duration-200 ${
+                      entry.isPlayer
+                        ? "bg-orange-500/10 border-orange-500/30 text-orange-950 dark:text-orange-350 font-semibold"
+                        : "bg-gray-55/40 dark:bg-slate-900/30 border-gray-100 dark:border-slate-800/40"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <span className="font-heading font-black text-sm text-gray-400 dark:text-gray-500 min-w-[20px]">
+                        #{idx + 1}
+                      </span>
+                      <span className="text-xs font-bold flex items-center gap-1.5">
+                        {entry.name}
+                        {entry.isNemesis && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-500 font-extrabold uppercase tracking-wide">
+                            Nemesis
+                          </span>
+                        )}
+                        {entry.isPlayer && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-500 font-extrabold uppercase tracking-wide">
+                            You
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 font-mono text-xs">
+                      {entry.isDNF ? (
+                        <span className="text-red-500 font-black">DNF</span>
+                      ) : (
+                        <span className="font-bold">{formatTime(entry.time)}</span>
+                      )}
+                      {isWinner && <span className="text-sm">👑</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
         {/* Narrative & Highlights Section */}
-        <section className="rounded-3xl border border-[#E5E7EB] bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-6">
+        <section className="rounded-[2rem] border border-[#E5E7EB] bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-6">
           <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-3">
             <Sparkles className="h-5 w-5 text-amber-550" />
             <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
@@ -299,7 +385,7 @@ export function ResultScreen() {
         </section>
 
         {/* Coaching Lessons learned */}
-        <section className="rounded-3xl border border-[#E5E7EB] bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-4">
+        <section className="rounded-[2rem] border border-[#E5E7EB] bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-4">
           <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-3">
             <BookOpen className="h-5 w-5 text-blue-500" />
             <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
@@ -331,9 +417,9 @@ export function ResultScreen() {
 
         {/* Interactive Splits Analysis */}
         {splits.length > 0 && (
-          <section className="rounded-3xl border border-[#E5E7EB] bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-4">
+          <section className="rounded-[2rem] border border-[#E5E7EB] bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-4">
             <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-3">
-              <Clock className="h-5 w-5 text-blue-500" />
+              <Clock className="h-5 w-5 text-orange-500" />
               <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
                 Interactive Splits Analysis
               </h2>
@@ -365,7 +451,7 @@ export function ResultScreen() {
                         <td className="px-4 py-3 w-1/3">
                           <div className="h-2 w-full bg-slate-100 dark:bg-gray-800 rounded-full overflow-hidden">
                             <div
-                              className={`h-full rounded-full transition-all duration-300 ${isFastest ? "bg-amber-400" : "bg-blue-500"}`}
+                              className={`h-full rounded-full transition-all duration-300 ${isFastest ? "bg-amber-400" : "bg-orange-500"}`}
                               style={{ width: `${Math.min(100, Math.max(10, (fastestSplit / s.time) * 100))}%` }}
                             />
                           </div>
@@ -380,7 +466,7 @@ export function ResultScreen() {
         )}
 
         {/* Strava-style Mock Comments Feed */}
-        <section className="rounded-3xl border border-[#E5E7EB] bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-4">
+        <section className="rounded-[2rem] border border-[#E5E7EB] bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-4">
           <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-3">
             <span className="text-lg">💬</span>
             <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
@@ -413,7 +499,7 @@ export function ResultScreen() {
           <button
             type="button"
             onClick={() => setIsReportShareOpen(true)}
-            className="flex-grow flex items-center justify-center gap-2 px-6 py-4 border-2 border-blue-500 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 active:scale-[0.98] rounded-full text-base font-semibold transition duration-200"
+            className="flex-grow flex items-center justify-center gap-2 px-6 py-4 border-2 border-orange-500 bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/30 active:scale-[0.98] rounded-[1.5rem] text-base font-semibold transition duration-200"
           >
             <Share2 className="h-5 w-5" />
             <span>{t("challenge.result.share" as TranslationKey)}</span>
@@ -422,7 +508,7 @@ export function ResultScreen() {
           <button
             type="button"
             onClick={handleBackHome}
-            className="flex-grow flex items-center justify-center gap-2 px-6 py-4 bg-blue-600 text-white hover:bg-blue-700 active:scale-[0.98] rounded-full text-base font-semibold shadow-sm transition duration-200"
+            className="flex-grow flex items-center justify-center gap-2 px-6 py-4 bg-orange-500 text-white hover:bg-orange-600 active:scale-[0.98] rounded-[1.5rem] text-base font-black shadow-md shadow-orange-500/20 transition duration-200"
           >
             <span>{t("challenge.result.back_home" as TranslationKey)}</span>
           </button>

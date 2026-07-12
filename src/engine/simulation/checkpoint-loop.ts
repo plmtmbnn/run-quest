@@ -147,6 +147,8 @@ export function simulateKmStep(
     staminaAttr: 10,
     hydrationAttr: 10,
     willpowerAttr: 10,
+    equippedShoes: null,
+    activePerks: [] as string[],
   };
 
   // Initialize new state variables safely (Sprint 13.1)
@@ -220,8 +222,9 @@ export function simulateKmStep(
   let segmentFatigueModifier = 0;
   if (activeSegment) {
     if (activeSegment.type === "climb") {
-      segmentPaceModifier += 20; // +20 seconds/km climbing penalty
-      segmentFatigueModifier += 1.5;
+      const isHillSpecialist = profile.activePerks?.includes("hill_specialist");
+      segmentPaceModifier += isHillSpecialist ? 0 : 20; // hill specialist ignores climb penalty
+      segmentFatigueModifier += isHillSpecialist ? 0 : 1.5;
     } else if (activeSegment.type === "descent") {
       segmentPaceModifier -= 15; // -15 seconds/km descending boost
       segmentFatigueModifier -= 0.5;
@@ -276,12 +279,12 @@ export function simulateKmStep(
   const baseFatigueKm = 2.0;
   const baseHydrationKm = 2.2;
 
-  // Determine active pacing strategy (supporting mid-race adjustments)
-  const activePacing = state.currentPacing || prep.pacing;
-  
-  let dynamicFatigueModifier = 0;
-  
-  if (activePacing === "jog" || activePacing === "conservative") {
+    // Determine active pacing strategy (supporting mid-race adjustments)
+    const activePacing = state.currentPacing || prep.pacing;
+
+    let dynamicFatigueModifier = 0;
+
+    if (activePacing === "jog" || activePacing === "conservative") {
     dynamicFatigueModifier = -2.5;
   } else if (activePacing === "push" || activePacing === "aggressive") {
     dynamicFatigueModifier = 3.5;
@@ -315,8 +318,10 @@ export function simulateKmStep(
   const netFatigueModifier = prepMods.fatigueModifier - initialFatigueOffset;
 
   // Apply Stamina and Hydration attributes to reduce consumption rates
-  const staminaReductionFactor = (100 - (profile.staminaAttr || 10) * 0.4) / 100;
-  const hydrationReductionFactor = (100 - (profile.hydrationAttr || 10) * 0.4) / 100;
+  const staminaReductionFactor =
+    (100 - (profile.staminaAttr || 10) * 0.4) / 100;
+  const hydrationReductionFactor =
+    (100 - (profile.hydrationAttr || 10) * 0.4) / 100;
 
   const calculatedFatigue = Math.max(
     0.5,
@@ -342,10 +347,10 @@ export function simulateKmStep(
 
   // Momentum improves energy efficiency (better momentum reduces fatigue rate)
   const momentumEfficiency = 1.0 - ((state.momentum ?? 50) - 50) * 0.003;
-  state.fatigue = Math.min(
-    100,
-    state.fatigue + calculatedFatigue * momentumEfficiency,
-  );
+  const finalFatigueDelta = state.isRunnersHighActive
+    ? 0
+    : calculatedFatigue * momentumEfficiency;
+  state.fatigue = Math.min(100, state.fatigue + finalFatigueDelta);
   state.energy = Math.max(0, 100 - state.fatigue);
   state.hydration = Math.max(0, state.hydration - calculatedHydration);
 
@@ -385,7 +390,10 @@ export function simulateKmStep(
   );
 
   let momentumDelta = (state.energy - 50) * 0.08;
-  if (prep.nutrition.includes("energy_gel")) momentumDelta += 0.8;
+  if (prep.nutrition.includes("energy_gel")) {
+    const isIronStomach = profile.activePerks?.includes("iron_stomach");
+    momentumDelta += isIronStomach ? 1.6 : 0.8;
+  }
   if (hasCaffeine && !isCaffeineCrash) momentumDelta += 1.5;
   if (isCaffeineCrash) momentumDelta -= 2.0;
 
@@ -426,6 +434,19 @@ export function simulateKmStep(
   // Apply runner profile speed and fitness modifiers
   paceSeconds += (50 - profile.currentFitness) * 0.4;
   paceSeconds -= (profile.speedAttr || 10) * 0.3;
+
+  // Apply equipped shoes pace bonus
+  if (
+    profile.equippedShoes &&
+    typeof profile.equippedShoes.paceBonus === "number"
+  ) {
+    paceSeconds -= profile.equippedShoes.paceBonus;
+  }
+
+  // Runner's High flow state speed boost
+  if (state.isRunnersHighActive) {
+    paceSeconds -= 20; // 20 seconds/km speed boost during runner's high
+  }
 
   // Calculate dynamic pacing speed adjustments
   let dynamicPaceModifier = 0;

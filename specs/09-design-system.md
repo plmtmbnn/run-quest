@@ -105,11 +105,11 @@ The product should still feel premium.
 
 ## Primary
 
-Blue
+Orange (EcoThrive Style)
 
 HEX
 
-#2563EB
+#F97316
 
 Usage
 
@@ -125,19 +125,19 @@ Focus states
 
 ## Accent
 
-Orange
+Blue (Secondary Highlight)
 
 HEX
 
-#FB923C
+#2563EB
 
 Usage
 
-Energy
+Secondary controls
 
-Important events
+Information widgets
 
-Race alerts
+Alerts
 
 Callouts
 

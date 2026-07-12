@@ -280,7 +280,7 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
       <main className="flex-1 px-6 py-4 flex flex-col gap-6">
         {/* Player Stats Panel */}
         {player && (
-          <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl p-6 text-white shadow-md flex items-center justify-between">
+          <div className="bg-gradient-to-br from-orange-500 to-amber-600 rounded-[2rem] p-6 text-white shadow-md flex items-center justify-between">
             <div className="flex flex-col gap-2">
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-1.5">
@@ -400,7 +400,7 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
 
         {/* Daily Quest Board */}
         {player && (
-          <div className="bg-white dark:bg-slate-900 border-2 border-[#E5E7EB] dark:border-slate-800 rounded-3xl p-6 shadow-sm flex flex-col gap-4">
+          <div className="bg-white dark:bg-slate-900 border-2 border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-6 shadow-sm flex flex-col gap-4">
             <div className="flex justify-between items-center mb-2 border-b border-[#E5E7EB] dark:border-slate-800 pb-2">
               <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
                 <span>📋</span> Daily Quest Board
@@ -415,33 +415,42 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
                   name: "Race Completion",
                   desc: "Complete today's Daily Race challenge.",
                   completed: boardStatus?.completedEntryId !== null,
-                  claimed: runnerState.profile.questClaims?.["daily_race"] === todayStr,
+                  claimed: runnerState.profile.questClaims?.daily_race === todayStr,
+                  bgClass: "bg-sky-50 dark:bg-sky-950/20 border-sky-100 dark:border-sky-900/30 text-sky-850 dark:text-sky-300",
+                  icon: "🏃‍♂️",
                 },
                 {
                   id: "daily_upgrade",
                   name: "Career Upgrade",
                   desc: "Spend career points to upgrade attributes.",
                   completed: (runnerState.profile.speedAttr + runnerState.profile.staminaAttr + runnerState.profile.hydrationAttr + runnerState.profile.willpowerAttr) > 40,
-                  claimed: runnerState.profile.questClaims?.["daily_upgrade"] === todayStr,
+                  claimed: runnerState.profile.questClaims?.daily_upgrade === todayStr,
+                  bgClass: "bg-amber-50 dark:bg-amber-950/20 border-amber-100 dark:border-amber-900/30 text-amber-850 dark:text-amber-300",
+                  icon: "⚡",
                 },
                 {
                   id: "daily_training",
                   name: "Daily Training",
                   desc: "Record today's training or recovery activity.",
                   completed: (trainingState.trainingHistory || []).some(day => day.date.startsWith(todayStr)),
-                  claimed: runnerState.profile.questClaims?.["daily_training"] === todayStr,
+                  claimed: runnerState.profile.questClaims?.daily_training === todayStr,
+                  bgClass: "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/30 text-emerald-850 dark:text-emerald-300",
+                  icon: "🔋",
                 },
               ].map((quest) => {
                 const canClaim = quest.completed && !quest.claimed;
                 return (
-                  <div key={quest.id} className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl">
-                    <div className="flex gap-2.5 items-start text-center sm:text-left w-full sm:w-auto">
-                      <div className="text-2xl flex-shrink-0 mt-0.5">
-                        {quest.claimed ? "✅" : quest.completed ? "🎁" : "⏳"}
+                  <div
+                    key={quest.id}
+                    className={`flex flex-col sm:flex-row items-center justify-between gap-3 p-4 border rounded-[2rem] shadow-sm transition-all ${quest.bgClass}`}
+                  >
+                    <div className="flex gap-3 items-start text-center sm:text-left w-full sm:w-auto">
+                      <div className="h-10 w-10 rounded-2xl bg-white/70 dark:bg-slate-900/60 flex items-center justify-center text-xl flex-shrink-0 shadow-sm">
+                        {quest.claimed ? "✅" : quest.icon}
                       </div>
                       <div>
-                        <h4 className="font-bold text-xs text-gray-900 dark:text-white">{quest.name}</h4>
-                        <p className="text-[10px] text-gray-450 dark:text-gray-500 mt-0.5">{quest.desc}</p>
+                        <h4 className="font-extrabold text-sm text-slate-800 dark:text-white leading-tight">{quest.name}</h4>
+                        <p className="text-[10px] opacity-80 mt-1 leading-normal">{quest.desc}</p>
                       </div>
                     </div>
 
@@ -449,12 +458,12 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
                       type="button"
                       disabled={!canClaim}
                       onClick={() => claimQuest(quest.id)}
-                      className={`py-2 px-4 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all transform active:scale-95 border w-full sm:w-auto
+                      className={`py-2.5 px-5 rounded-[1.5rem] text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all transform active:scale-95 border w-full sm:w-auto
                         ${quest.claimed
-                          ? "bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-850 text-slate-400 dark:text-slate-650 cursor-not-allowed"
+                          ? "bg-slate-200 dark:bg-slate-850 border-slate-250 dark:border-slate-800 text-slate-500 cursor-not-allowed"
                           : canClaim
-                            ? "bg-emerald-500 hover:bg-emerald-600 border-emerald-500 text-white cursor-pointer shadow-sm shadow-emerald-500/10"
-                            : "bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-gray-500 cursor-not-allowed opacity-50"
+                            ? "bg-orange-500 hover:bg-orange-600 border-orange-500 text-white cursor-pointer shadow-md shadow-orange-500/20"
+                            : "bg-white/40 dark:bg-slate-900/30 border-white/20 dark:border-slate-800/20 text-slate-400 cursor-not-allowed opacity-50"
                         }
                       `}
                     >
@@ -463,8 +472,8 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
                       ) : (
                         <>
                           <span>Claim</span>
-                          <span className="font-mono text-[10px] bg-black/10 px-1.5 py-0.5 rounded">
-                            +50 RC & +50 XP
+                          <span className="font-mono text-[9px] bg-black/10 px-1.5 py-0.5 rounded-full">
+                            +50 RC
                           </span>
                         </>
                       )}
@@ -477,11 +486,11 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
         )}
 
         {/* Daily Entry Tracker */}
-        <div className="flex items-center justify-between bg-white dark:bg-slate-900 border-2 border-[#E5E7EB] dark:border-slate-800 rounded-2xl px-6 py-4 shadow-sm">
+        <div className="flex items-center justify-between bg-white dark:bg-slate-900 border-2 border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] px-6 py-4 shadow-sm">
           <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
             {t("home.entry_tickets" as TranslationKey)}
           </span>
-          <span className="bg-indigo-50 border border-indigo-100 text-indigo-750 text-xs font-black px-3.5 py-1.5 rounded-full">
+          <span className="bg-orange-50 border border-orange-100 text-orange-700 text-xs font-black px-3.5 py-1.5 rounded-full">
             {boardStatus ? boardStatus.entriesRemaining : 1}{" "}
             {t("home.remaining" as TranslationKey)}
           </span>
@@ -506,26 +515,26 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
             const lang = language === "id" ? "id" : "en";
 
             let buttonText = t("home.choose_race" as TranslationKey);
-            let buttonStyle = "bg-blue-600 hover:bg-blue-700 text-white";
+            let buttonStyle = "bg-primary hover:bg-primary-dark text-white rounded-[1.5rem]";
 
             if (isCompleted) {
               buttonText = t("home.completed_badge" as TranslationKey);
               buttonStyle =
-                "bg-emerald-50 text-emerald-700 border-2 border-emerald-200 cursor-not-allowed";
+                "bg-emerald-50 text-emerald-700 border-2 border-emerald-200 rounded-[1.5rem] cursor-not-allowed";
             } else if (isSelected) {
               buttonText = t("home.resume_race" as TranslationKey);
               buttonStyle =
-                "bg-indigo-600 hover:bg-indigo-700 text-white animate-pulse";
+                "bg-orange-500 hover:bg-orange-600 text-white rounded-[1.5rem] animate-pulse shadow-md shadow-orange-500/20";
             } else if (isLocked) {
               buttonText = t("home.locked" as TranslationKey);
               buttonStyle =
-                "bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200";
+                "bg-slate-100 text-slate-400 rounded-[1.5rem] border border-slate-200 cursor-not-allowed";
             }
 
             return (
               <div
                 key={entry.id}
-                className={`bg-white dark:bg-slate-900 rounded-3xl border-2 shadow-sm p-6 flex flex-col gap-4 transition-all duration-200 ${
+                className={`bg-white dark:bg-slate-900 rounded-[2rem] border-2 shadow-sm p-6 flex flex-col gap-4 transition-all duration-200 ${
                   isLocked ? "opacity-60" : "hover:shadow-md"
                 } ${isRecommended ? "border-amber-300 dark:border-amber-500 ring-2 ring-amber-100 dark:ring-amber-900" : "border-[#E5E7EB] dark:border-slate-800"}`}
               >
@@ -569,7 +578,7 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
                 </div>
 
                 {/* Details grid */}
-                <div className="grid grid-cols-2 gap-2 bg-gray-50/50 dark:bg-slate-800/50 rounded-2xl p-3 text-center text-xs">
+                <div className="grid grid-cols-2 gap-2 bg-slate-50/50 dark:bg-slate-800/50 rounded-[1.5rem] p-3 text-center text-xs">
                   <div className="flex flex-col gap-0.5">
                     <span className="text-[9px] text-gray-400 uppercase tracking-widest font-semibold">
                       {t("history.distance" as TranslationKey)}
@@ -578,7 +587,7 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
                       {entry.distance} KM
                     </span>
                   </div>
-                  <div className="flex flex-col gap-0.5 border-l border-gray-200 dark:border-slate-700">
+                  <div className="flex flex-col gap-0.5 border-l border-slate-200 dark:border-slate-750">
                     <span className="text-[9px] text-gray-400 uppercase tracking-widest font-semibold">
                       {t("home.target_time" as TranslationKey)}
                     </span>
@@ -593,7 +602,7 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
                   type="button"
                   disabled={isCompleted || isLocked}
                   onClick={() => handleSelectRace(entry)}
-                  className={`w-full font-bold text-sm py-3.5 rounded-full transition-all duration-200 ${buttonStyle}`}
+                  className={`w-full font-bold text-sm py-3.5 rounded-[1.5rem] transition-all duration-200 ${buttonStyle}`}
                 >
                   {buttonText}
                 </button>
