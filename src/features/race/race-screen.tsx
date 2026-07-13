@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { analyzeRace } from "@/coach/coach-analysis";
 import { BreakingPointOverlay } from "@/components/race/breaking-point";
+import { DesperationOverlay } from "@/components/race/desperation-mode";
 import { advanceSimulation } from "@/engine/simulation/engine";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
@@ -19,6 +20,7 @@ import type {
   ActiveBreakingPoint,
   DecisionCard,
   DecisionPrompt,
+  DesperationMode,
   RaceEvent,
   SimulationResult,
   SimulationState,
@@ -76,6 +78,8 @@ export function RaceScreen() {
   );
   const [activeBreakingPoint, setActiveBreakingPoint] =
     useState<ActiveBreakingPoint | null>(null);
+  const [activeDesperation, setActiveDesperation] =
+    useState<DesperationMode | null>(null);
 
   const simStateRef = useRef<SimulationState | null>(null);
   const fullStateLogRef = useRef<
@@ -121,6 +125,12 @@ export function RaceScreen() {
         fullStateLogRef.current = nextStep.state.accumulatedStateLog || [];
         setTargetKm(nextStep.state.distanceCovered);
         setPendingPrompt(null);
+      } else if (nextStep.type === "desperation") {
+        simStateRef.current = nextStep.state;
+        setSimState(nextStep.state);
+        fullStateLogRef.current = nextStep.state.accumulatedStateLog || [];
+        setTargetKm(nextStep.state.distanceCovered);
+        setPendingPrompt(null);
       } else if (nextStep.type === "step") {
         simStateRef.current = nextStep.state;
         setSimState(nextStep.state);
@@ -159,6 +169,11 @@ export function RaceScreen() {
         !simState.activeBreakingPoint.resolved
       ) {
         setActiveBreakingPoint(simState.activeBreakingPoint);
+      } else if (
+        simState?.desperationMode &&
+        !simState.hasTriggeredDesperation
+      ) {
+        setActiveDesperation(simState.desperationMode);
       } else if (pendingPrompt) {
         setActiveDecision(pendingPrompt.decisionCard);
         setCountdown(30);
@@ -282,6 +297,12 @@ export function RaceScreen() {
     playSound("click");
     setActiveBreakingPoint(null);
     handleAdvance(optionId);
+  };
+
+  const handleDesperationChoice = (choiceId: string) => {
+    playSound("click");
+    setActiveDesperation(null);
+    handleAdvance(choiceId);
   };
 
   // Play alert sound when decision is active
@@ -1082,6 +1103,14 @@ export function RaceScreen() {
         <BreakingPointOverlay
           breakingPoint={activeBreakingPoint}
           onRecovery={handleBreakingPointRecovery}
+        />
+      )}
+
+      {/* Desperation Mode Overlay */}
+      {activeDesperation && (
+        <DesperationOverlay
+          desperation={activeDesperation}
+          onChoose={handleDesperationChoice}
         />
       )}
 

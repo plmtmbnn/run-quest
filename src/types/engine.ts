@@ -1,7 +1,8 @@
 import type { ActiveBreakingPoint } from "@/engine/breaking-points/breaking-types";
+import type { DesperationMode } from "@/engine/desperation/desperation-types";
 import type { RunnerProfile } from "@/runner/runner-types";
 
-export type { ActiveBreakingPoint };
+export type { ActiveBreakingPoint, DesperationMode };
 
 export type Shoe = "daily_trainer" | "carbon_racer" | "lightweight" | "trail";
 
@@ -240,6 +241,8 @@ export interface SimulationState {
   hasTriggeredCramp?: boolean;
   activeBreakingPoint?: ActiveBreakingPoint | null;
   shownBreakingPoints?: string[];
+  hasTriggeredDesperation?: boolean;
+  desperationMode?: DesperationMode | null;
 }
 
 export interface OpponentState {
@@ -293,6 +296,11 @@ export type SimulationStepResult =
       type: "breaking_point";
       state: SimulationState;
       breakingPoint: ActiveBreakingPoint;
+    }
+  | {
+      type: "desperation";
+      state: SimulationState;
+      desperationMode: DesperationMode;
     }
   | { type: "step"; state: SimulationState }
   | { type: "finished"; result: SimulationResult };

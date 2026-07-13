@@ -1,6 +1,12 @@
 import { DECISION_DATABASE } from "@/content/events/decision-database";
 import { EVENT_DATABASE } from "@/content/events/event-database";
+import { AtmosphereEngine } from "@/engine/atmosphere/atmosphere-engine";
+import { CrowdEngine } from "@/engine/atmosphere/crowd-engine";
 import { BreakingPointEngine } from "@/engine/breaking-points/breaking-engine";
+import {
+  DESERATION_OPTIONS,
+  DesperationEngine,
+} from "@/engine/desperation/desperation-engine";
 import { calculateEnvironmentModifiers } from "@/engine/environment/environment-modifier";
 import { calculatePerformance } from "@/engine/performance/calculator";
 import { calculatePreparationScore } from "@/engine/scoring/preparation-score";
@@ -269,6 +275,8 @@ export function advanceSimulation(
       hasTriggeredCramp: false,
       activeBreakingPoint: null,
       shownBreakingPoints: [],
+      hasTriggeredDesperation: false,
+      desperationMode: null,
     };
 
     // DNS check (rare event roll on first step)
@@ -358,9 +366,94 @@ export function advanceSimulation(
       shownBreakingPoints: currentState.shownBreakingPoints
         ? [...currentState.shownBreakingPoints]
         : [],
+      hasTriggeredDesperation: currentState.hasTriggeredDesperation || false,
+      desperationMode: currentState.desperationMode || null,
     };
 
-    if (state.activeBreakingPoint && !state.activeBreakingPoint.resolved) {
+    if (state.desperationMode && !state.hasTriggeredDesperation) {
+      const choiceId = lastChoiceId;
+      if (choiceId) {
+        const despEngine = new DesperationEngine();
+        const willpower = runnerProfile?.willpowerAttr ?? 10;
+        const resolveRandom = new SeededRandom(state.randomSeedState ?? seed);
+        const result = despEngine.resolveChoice(
+          choiceId,
+          willpower,
+          resolveRandom,
+        );
+        state.randomSeedState = resolveRandom.seed;
+
+        if (result) {
+          const { recovered, effects } = result;
+
+          if (effects.energy !== undefined) {
+            state.energy = Math.max(
+              0,
+              Math.min(100, state.energy + effects.energy),
+            );
+          }
+          if (effects.pace !== undefined) {
+            state.accumulatedTime = Math.max(
+              0,
+              state.accumulatedTime + effects.pace,
+            );
+          }
+          if (effects.muscleFatigue !== undefined) {
+            state.muscleFatigue = Math.max(
+              0,
+              Math.min(100, state.muscleFatigue + effects.muscleFatigue),
+            );
+          }
+          if (effects.mentalFatigue !== undefined) {
+            state.mentalFatigue = Math.max(
+              0,
+              Math.min(100, state.mentalFatigue + effects.mentalFatigue),
+            );
+          }
+          if (effects.confidence !== undefined) {
+            state.confidence = Math.max(
+              0,
+              Math.min(100, state.confidence + effects.confidence),
+            );
+          }
+
+          const option = DESERATION_OPTIONS.find(
+            (
+              o: import("@/engine/desperation/desperation-types").DesperationOption,
+            ) => o.id === choiceId,
+          );
+          state.eventsResolved.push({
+            km: state.distanceCovered,
+            title: {
+              en: "Desperation PUSH!",
+              id: "Dorongan Putus Asa!",
+            },
+            description: {
+              en: `${option?.action.en} -> ${recovered ? "The surge succeeded!" : "Your body collapsed!"}`,
+              id: `${option?.action.id} -> ${recovered ? "Akselerasi berhasil!" : "Tubuh Anda kolaps!"}`,
+            },
+            effect: {
+              stamina: effects.energy || 0,
+              hydration: 0,
+              morale: effects.confidence || 0,
+              pace: effects.pace || 0,
+            },
+          });
+        }
+
+        state.hasTriggeredDesperation = true;
+        state.desperationMode = null;
+
+        if (state.accumulatedStateLog && state.accumulatedStateLog.length > 0) {
+          const lastIdx = state.accumulatedStateLog.length - 1;
+          const { accumulatedStateLog: _, ...updatedState } = state;
+          state.accumulatedStateLog[lastIdx] = updatedState;
+        }
+      }
+    } else if (
+      state.activeBreakingPoint &&
+      !state.activeBreakingPoint.resolved
+    ) {
       const choiceId = lastChoiceId;
       if (choiceId) {
         const bpEngine = new BreakingPointEngine();
@@ -697,6 +790,28 @@ export function advanceSimulation(
       }
     }
 
+    if (
+      km === maxKms &&
+      !currentStepState.hasTriggeredDesperation &&
+      !currentStepState.desperationMode
+    ) {
+      const despEngine = new DesperationEngine();
+      const willpower = runnerProfile?.willpowerAttr ?? 10;
+      const desperation = despEngine.checkDesperationTrigger(
+        currentStepState,
+        willpower,
+      );
+      if (desperation) {
+        currentStepState.desperationMode = desperation;
+        currentStepState.randomSeedState = random.seed;
+        return {
+          type: "desperation",
+          state: currentStepState,
+          desperationMode: desperation,
+        };
+      }
+    }
+
     const checkpoint = challenge.race.checkpoints.find((cp) => cp.km === km);
 
     // Simulate AI Opponents first
@@ -939,6 +1054,64 @@ export function advanceSimulation(
       }
     }
 
+    const crowdEngine = new CrowdEngine();
+    const atmosphereEngine = new AtmosphereEngine();
+
+    let hasRivalClose = false;
+    if (currentStepState.opponents) {
+      for (const opp of currentStepState.opponents) {
+        if (opp.isDNF) continue;
+        const timeDiff = Math.abs(
+          currentStepState.accumulatedTime - opp.accumulatedTime,
+        );
+        if (timeDiff <= 5) {
+          hasRivalClose = true;
+          break;
+        }
+      }
+    }
+
+    const crowdReaction = crowdEngine.generateReaction(
+      currentStepState,
+      hasRivalClose,
+    );
+    if (crowdReaction) {
+      currentStepState.eventsResolved.push({
+        km,
+        title: { en: "Crowd Reaction", id: "Reaksi Penonton" },
+        description: crowdReaction.commentary,
+        effect: {
+          stamina: 0,
+          hydration: 0,
+          morale:
+            crowdReaction.intensity === "high" ||
+            crowdReaction.intensity === "intense"
+              ? 2
+              : 0,
+          pace: 0,
+        },
+      });
+      if (
+        crowdReaction.intensity === "high" ||
+        crowdReaction.intensity === "intense"
+      ) {
+        currentStepState.focus = Math.min(100, currentStepState.focus + 2);
+      }
+    }
+
+    const atmosphere = atmosphereEngine.generateAtmosphere(
+      currentStepState,
+      challenge,
+    );
+    if (atmosphere) {
+      currentStepState.eventsResolved.push({
+        km,
+        title: { en: "Atmosphere", id: "Atmosfer" },
+        description: atmosphere,
+        effect: { stamina: 0, hydration: 0, morale: 0, pace: 0 },
+      });
+    }
+
     currentStepState.distanceCovered = km;
     currentStepState.randomSeedState = random.seed;
 
@@ -994,6 +1167,7 @@ export function simulateRace(input: SimulationInput): SimulationResult {
   while (
     stepRes.type === "decision" ||
     stepRes.type === "breaking_point" ||
+    stepRes.type === "desperation" ||
     stepRes.type === "step"
   ) {
     if (stepRes.type === "decision") {
@@ -1013,6 +1187,8 @@ export function simulateRace(input: SimulationInput): SimulationResult {
       );
       const choiceId = bp.recoveryOptions[randomOptionIndex].id;
       stepRes = advanceSimulation(input, stepRes.state, choiceId);
+    } else if (stepRes.type === "desperation") {
+      stepRes = advanceSimulation(input, stepRes.state, "desperation_sprint");
     } else {
       stepRes = advanceSimulation(input, stepRes.state);
     }
