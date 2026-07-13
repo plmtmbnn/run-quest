@@ -1,0 +1,142 @@
+{
+  "drill_sergeant": {
+    "name": "Drill Sergeant",
+    "pre_run": [
+      "Listen up! Today’s run is not optional. Move it!",
+      "You’re soft. Let’s fix that. Start running!",
+      "No excuses. Get out there and give me 100%!"
+    ],
+    "mid_run_good": [
+      "Finally! You’re not completely useless!",
+      "Keep it up! Maybe you’ll amount to something!",
+      "Not bad. For a beginner."
+    ],
+    "mid_run_bad": [
+      "Pathetic! Pick up the pace!",
+      "You call that running? I’ve seen turtles move faster!",
+      "Are you even trying?!"
+    ],
+    "post_run_win": [
+      "Not bad. For a civilian.",
+      "You survived. Barely.",
+      "I’ve seen worse. Don’t let it happen again."
+    ],
+    "post_run_lose": [
+      "Disgraceful. Do better next time.",
+      "I expected more. Clearly, I was wrong.",
+      "You’re lucky I don’t bench you permanently."
+    ]
+  },
+  "cheerleader": {
+    "name": "Cheerleader",
+    "pre_run": [
+      "You’re amazing! Let’s crush this run!",
+      "Get ready to feel the burn! You’ve got this!",
+      "Today’s the day! Let’s make it epic!"
+    ],
+    "mid_run_good": [
+      "Wow! You’re on fire!",
+      "Keep going! You’re unstoppable!",
+      "You’re killing it! So proud of you!"
+    ],
+    "mid_run_bad": [
+      "Don’t give up! You’re stronger than this!",
+      "Almost there! Push through!",
+      "You can do it! Just a little further!"
+    ],
+    "post_run_win": [
+      "You did it! I knew you could!",
+      "That was incredible! You’re a rockstar!",
+      "I’m so proud of you! Keep it up!"
+    ],
+    "post_run_lose": [
+      "You gave it your all! That’s what matters!",
+      "Don’t worry! You’ll get ‘em next time!",
+      "You’re improving every day! Keep going!"
+    ]
+  },
+  "zen_master": {
+    "name": "Zen Master",
+    "pre_run": [
+      "Breathe in. Breathe out. Begin when you’re ready.",
+      "The path is yours. Walk it with intention.",
+      "Feel the earth beneath your feet. Let’s begin."
+    ],
+    "mid_run_good": [
+      "Your rhythm is in harmony with the world.",
+      "You move with grace. Keep flowing.",
+      "The journey is the reward. Enjoy it."
+    ],
+    "mid_run_bad": [
+      "Struggle is part of the path. Embrace it.",
+      "Slow down. Find your center.",
+      "The mind wanders. Bring it back to the breath."
+    ],
+    "post_run_win": [
+      "You have walked the path with mindfulness.",
+      "The journey was long, but you remained present.",
+      "Well done. The path is always there for you."
+    ],
+    "post_run_lose": [
+      "The path is not about speed. It’s about presence.",
+      "You did not fail. You learned.",
+      "Every step is a lesson. Reflect and return."
+    ]
+  },
+  "scientist": {
+    "name": "Scientist",
+    "pre_run": [
+      "Analyzing your last run. Recommendations: optimize cadence.",
+      "Your VO2 max is suboptimal. Let’s improve it.",
+      "Today’s objective: increase lactate threshold."
+    ],
+    "mid_run_good": [
+      "Your cadence is optimal. Maintain this rhythm.",
+      "Heart rate stable. Efficiency: 87%.",
+      "Data suggests you’re on track for a personal best."
+    ],
+    "mid_run_bad": [
+      "Warning: cadence dropping. Adjust immediately.",
+      "Heart rate elevated. Reduce pace by 10%.",
+      "Efficiency below 60%. This is unsustainable."
+    ],
+    "post_run_win": [
+      "Analysis complete. Performance: optimal.",
+      "Your metrics improved by 12%. Excellent.",
+      "Data confirms: you are improving."
+    ],
+    "post_run_lose": [
+      "Analysis complete. Performance: suboptimal.",
+      "Your metrics declined by 8%. Adjust training.",
+      "Data suggests overtraining. Rest recommended."
+    ]
+  },
+  "comedian": {
+    "name": "Comedian",
+    "pre_run": [
+      "Ready to run? Or should I call a cab?",
+      "Let’s go! I promise not to laugh at your form.",
+      "Today’s goal: run faster than a snail on vacation."
+    ],
+    "mid_run_good": [
+      "Wow! You’re faster than my grandma on Black Friday!",
+      "Keep it up! You’re almost lapping yourself!",
+      "I’d say you’re on fire, but you’re not actually on fire. Good."
+    ],
+    "mid_run_bad": [
+      "You’re slower than a sloth in molasses.",
+      "I’ve seen glaciers move faster.",
+      "Are you running or napping? I can’t tell."
+    ],
+    "post_run_win": [
+      "You won! I’d say ‘good job,’ but I’m contractually obligated to roast you.",
+      "Victory! Now go hydrate. You smell.",
+      "You did it! I’d clap, but I’m too busy laughing at your form."
+    ],
+    "post_run_lose": [
+      "You lost! But hey, at least you tried. Or did you?",
+      "Better luck next time! Or not. I’m not a fortune teller.",
+      "You came in second! Out of two. Still counts, right?"
+    ]
+  }
+}

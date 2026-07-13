@@ -6,15 +6,17 @@ import { Activity, Flame, Gauge, TrendingUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { analyzeRace } from "@/coach/coach-analysis";
+import { BreakingPointOverlay } from "@/components/race/breaking-point";
 import { advanceSimulation } from "@/engine/simulation/engine";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+import { useRunnerStore } from "@/runner/runner-store";
 import { generateDailyChallenge } from "@/services/challenge/generator";
 import { useGameStore } from "@/store/game-store";
 import { usePlayerStore } from "@/store/player-store";
 import { usePreparationStore } from "@/store/preparation-store";
-import { useRunnerStore } from "@/runner/runner-store";
 import type {
+  ActiveBreakingPoint,
   DecisionCard,
   DecisionPrompt,
   RaceEvent,
@@ -33,9 +35,9 @@ export function RaceScreen() {
   const { preparation } = usePreparationStore();
   const { runnerState, setRunnerState } = useRunnerStore();
   const { playSound } = useSound();
-  const [selectedPacing, setSelectedPacing] = useState<import("@/types/engine").PacingPlan>(
-    preparation.pacing
-  );
+  const [selectedPacing, setSelectedPacing] = useState<
+    import("@/types/engine").PacingPlan
+  >(preparation.pacing);
 
   // Load/Generate today's challenge once on mount
   const [challenge] = useState(() => {
@@ -72,6 +74,8 @@ export function RaceScreen() {
   const [pendingPrompt, setPendingPrompt] = useState<DecisionPrompt | null>(
     null,
   );
+  const [activeBreakingPoint, setActiveBreakingPoint] =
+    useState<ActiveBreakingPoint | null>(null);
 
   const simStateRef = useRef<SimulationState | null>(null);
   const fullStateLogRef = useRef<
@@ -111,6 +115,12 @@ export function RaceScreen() {
         fullStateLogRef.current = nextStep.state.accumulatedStateLog || [];
         setTargetKm(nextStep.state.distanceCovered);
         setPendingPrompt(nextStep.prompt);
+      } else if (nextStep.type === "breaking_point") {
+        simStateRef.current = nextStep.state;
+        setSimState(nextStep.state);
+        fullStateLogRef.current = nextStep.state.accumulatedStateLog || [];
+        setTargetKm(nextStep.state.distanceCovered);
+        setPendingPrompt(null);
       } else if (nextStep.type === "step") {
         simStateRef.current = nextStep.state;
         setSimState(nextStep.state);
@@ -144,10 +154,18 @@ export function RaceScreen() {
 
     if (currentKm >= targetKm) {
       // Ticker has caught up to the simulated chunk
-      if (pendingPrompt) {
+      if (
+        simState?.activeBreakingPoint &&
+        !simState.activeBreakingPoint.resolved
+      ) {
+        setActiveBreakingPoint(simState.activeBreakingPoint);
+      } else if (pendingPrompt) {
         setActiveDecision(pendingPrompt.decisionCard);
         setCountdown(30);
-      } else if (simState && simState.distanceCovered < challenge.race.distance) {
+      } else if (
+        simState &&
+        simState.distanceCovered < challenge.race.distance
+      ) {
         // Ticker caught up, but simulation yielded at a step. Proactively advance for the next km!
         handleAdvance();
       } else if (simResult) {
@@ -226,6 +244,7 @@ export function RaceScreen() {
     language,
     router,
     preparation,
+    handleAdvance,
   ]);
 
   // Countdown timer decrement
@@ -259,6 +278,12 @@ export function RaceScreen() {
     handleAdvance(choiceId);
   };
 
+  const handleBreakingPointRecovery = (optionId: string) => {
+    playSound("click");
+    setActiveBreakingPoint(null);
+    handleAdvance(optionId);
+  };
+
   // Play alert sound when decision is active
   useEffect(() => {
     if (activeDecision) {
@@ -266,56 +291,72 @@ export function RaceScreen() {
     }
   }, [activeDecision, playSound]);
 
-  const useConsumable = (item: "energy_gel" | "electrolytes" | "caffeine_gum") => {
-    if (!runnerState.profile.inventory || (runnerState.profile.inventory[item] || 0) <= 0) return;
-    
+  const consumeItem = (
+    item: "energy_gel" | "electrolytes" | "caffeine_gum",
+  ) => {
+    if (
+      !runnerState.profile.inventory ||
+      (runnerState.profile.inventory[item] || 0) <= 0
+    )
+      return;
+
     // 1. Deduct from inventory
     const updatedInventory = {
       ...runnerState.profile.inventory,
-      [item]: runnerState.profile.inventory[item] - 1
+      [item]: runnerState.profile.inventory[item] - 1,
     };
     const updatedState = {
       ...runnerState,
       profile: {
         ...runnerState.profile,
-        inventory: updatedInventory
-      }
+        inventory: updatedInventory,
+      },
     };
     setRunnerState(updatedState);
-    
+
     // 2. Play sound
     playSound("success");
-    
+
     // 3. Apply modifier to active simulation state
     let label = "";
     let desc = "";
-    let effects = { stamina: 0, hydration: 0, morale: 0, pace: 0 };
-    
+    const effects = { stamina: 0, hydration: 0, morale: 0, pace: 0 };
+
     if (item === "energy_gel") {
-      const isIronStomach = runnerState.profile.activePerks?.includes("iron_stomach");
+      const isIronStomach =
+        runnerState.profile.activePerks?.includes("iron_stomach");
       const energyBoost = isIronStomach ? 50 : 25;
       label = "Consumed Energy Gel";
       desc = `Stamina boosted by +${energyBoost}%!`;
       effects.stamina = energyBoost;
-      
+
       if (simStateRef.current) {
-        simStateRef.current.energy = Math.min(100, simStateRef.current.energy + energyBoost);
+        simStateRef.current.energy = Math.min(
+          100,
+          simStateRef.current.energy + energyBoost,
+        );
       }
     } else if (item === "electrolytes") {
       label = "Consumed Electrolytes";
       desc = "Hydration boosted by +20%!";
       effects.hydration = 20;
-      
+
       if (simStateRef.current) {
-        simStateRef.current.hydration = Math.min(100, simStateRef.current.hydration + 20);
+        simStateRef.current.hydration = Math.min(
+          100,
+          simStateRef.current.hydration + 20,
+        );
       }
     } else if (item === "caffeine_gum") {
       label = "Consumed Caffeine Gum";
       desc = "Focus / Morale boosted by +20%!";
       effects.morale = 20;
-      
+
       if (simStateRef.current) {
-        simStateRef.current.focus = Math.min(100, simStateRef.current.focus + 20);
+        simStateRef.current.focus = Math.min(
+          100,
+          simStateRef.current.focus + 20,
+        );
       }
     }
 
@@ -323,10 +364,12 @@ export function RaceScreen() {
     setStats((prev) => {
       const next = { ...prev };
       if (item === "energy_gel") {
-        const isIronStomach = runnerState.profile.activePerks?.includes("iron_stomach");
+        const isIronStomach =
+          runnerState.profile.activePerks?.includes("iron_stomach");
         next.energy = Math.min(100, prev.energy + (isIronStomach ? 50 : 25));
       }
-      if (item === "electrolytes") next.hydration = Math.min(100, prev.hydration + 20);
+      if (item === "electrolytes")
+        next.hydration = Math.min(100, prev.hydration + 20);
       if (item === "caffeine_gum") next.focus = Math.min(100, prev.focus + 20);
       return next;
     });
@@ -336,10 +379,18 @@ export function RaceScreen() {
       ...prev,
       {
         km: currentKm,
-        title: { en: label, id: label === "Consumed Energy Gel" ? "Mengonsumsi Gel Energi" : label === "Consumed Electrolytes" ? "Mengonsumsi Elektrolit" : "Mengonsumsi Permen Kafein" },
+        title: {
+          en: label,
+          id:
+            label === "Consumed Energy Gel"
+              ? "Mengonsumsi Gel Energi"
+              : label === "Consumed Electrolytes"
+                ? "Mengonsumsi Elektrolit"
+                : "Mengonsumsi Permen Kafein",
+        },
         description: { en: desc, id: desc },
-        effect: effects
-      }
+        effect: effects,
+      },
     ]);
   };
 
@@ -499,10 +550,18 @@ export function RaceScreen() {
             <div className="relative bg-slate-50 dark:bg-slate-950 h-10 rounded-[1.5rem] border border-slate-200 dark:border-slate-850 p-2 flex items-center overflow-hidden">
               {/* Kilometer markers */}
               <div className="absolute inset-0 flex justify-between px-4 pointer-events-none">
-                {Array.from({ length: Math.ceil(challenge.race.distance) + 1 }).map((_, i) => (
-                  <div key={i} className="flex flex-col items-center justify-center h-full">
+                {Array.from({
+                  length: Math.ceil(challenge.race.distance) + 1,
+                }).map((_, i) => (
+                  <div
+                    // biome-ignore lint/suspicious/noArrayIndexKey: Static array mapping that does not change order
+                    key={i}
+                    className="flex flex-col items-center justify-center h-full"
+                  >
                     <div className="h-2.5 w-0.5 bg-slate-200 dark:bg-slate-800 mb-0.5" />
-                    <span className="text-[8px] font-bold text-slate-400 dark:text-slate-500 font-mono">{i}k</span>
+                    <span className="text-[8px] font-bold text-slate-400 dark:text-slate-500 font-mono">
+                      {i}k
+                    </span>
                   </div>
                 ))}
               </div>
@@ -517,11 +576,12 @@ export function RaceScreen() {
                     animate={{ left: `${Math.min(94, Math.max(2, pct))}%` }}
                     transition={{ duration: 0.3 }}
                     className={`absolute h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-black text-white shadow-md border-2 transition-colors
-                      ${r.isPlayer
-                        ? "bg-orange-500 border-white z-10 scale-110 shadow-sm"
-                        : r.isDNF
-                          ? "bg-slate-400 border-slate-500 opacity-40"
-                          : "bg-slate-700 border-slate-600"
+                      ${
+                        r.isPlayer
+                          ? "bg-orange-500 border-white z-10 scale-110 shadow-sm"
+                          : r.isDNF
+                            ? "bg-slate-400 border-slate-500 opacity-40"
+                            : "bg-slate-700 border-slate-600"
                       }
                     `}
                     title={`${r.name} (${r.distance} km)`}
@@ -544,12 +604,15 @@ export function RaceScreen() {
                 <span>⚡</span> Real-Time Tactics
               </h4>
               <p className="text-[10.5px] text-slate-450 dark:text-gray-400 leading-relaxed mb-1">
-                Select your pacing strategy. Changes apply to the next kilometer simulated. Sprints are locked until the final 2km.
+                Select your pacing strategy. Changes apply to the next kilometer
+                simulated. Sprints are locked until the final 2km.
               </p>
               <div className="grid grid-cols-2 gap-2.5">
                 {(["jog", "cruise", "push", "sprint"] as const).map((mode) => {
                   const isActive = selectedPacing === mode;
-                  const isSprintLocked = mode === "sprint" && currentKm < challenge.race.distance - 2;
+                  const isSprintLocked =
+                    mode === "sprint" &&
+                    currentKm < challenge.race.distance - 2;
                   return (
                     <button
                       key={mode}
@@ -560,19 +623,25 @@ export function RaceScreen() {
                         playSound("click");
                       }}
                       className={`py-2 px-3 rounded-[1.25rem] text-xs font-bold transition-all transform active:scale-95 flex flex-col items-start gap-0.5 border
-                        ${isActive
-                          ? "bg-orange-500 border-orange-500 text-white shadow-md shadow-orange-500/20"
-                          : "bg-slate-50 hover:bg-slate-100 dark:bg-slate-950 dark:hover:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300"
+                        ${
+                          isActive
+                            ? "bg-orange-500 border-orange-500 text-white shadow-md shadow-orange-500/20"
+                            : "bg-slate-50 hover:bg-slate-100 dark:bg-slate-950 dark:hover:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300"
                         }
                         ${isSprintLocked ? "opacity-40 cursor-not-allowed border-dashed" : ""}
                       `}
                     >
-                      <span className="capitalize text-sm font-extrabold">{mode}</span>
+                      <span className="capitalize text-sm font-extrabold">
+                        {mode}
+                      </span>
                       <span className="text-[9px] font-semibold opacity-75">
                         {mode === "jog" && "Conserve fatigue"}
                         {mode === "cruise" && "Steady pace"}
                         {mode === "push" && "Attack segments"}
-                        {mode === "sprint" && (isSprintLocked ? "Locked until 2km" : "Max speed kick!")}
+                        {mode === "sprint" &&
+                          (isSprintLocked
+                            ? "Locked until 2km"
+                            : "Max speed kick!")}
                       </span>
                     </button>
                   );
@@ -585,35 +654,57 @@ export function RaceScreen() {
                   <span>🥤</span> Active Consumables
                 </h4>
                 <div className="flex flex-wrap gap-2 mt-1">
-                  {Object.entries(runnerState.profile.inventory || {}).map(([item, qty]) => {
-                    const label = item === "energy_gel" ? "Energy Gel" : item === "electrolytes" ? "Electrolytes" : "Caffeine Gum";
-                    const icon = item === "energy_gel" ? "🔋" : item === "electrolytes" ? "💧" : "🧠";
-                    const isAvailable = qty > 0;
-                    
-                    return (
-                      <button
-                        key={item}
-                        type="button"
-                        disabled={!isAvailable || isFinished}
-                        onClick={() => useConsumable(item as any)}
-                        className={`py-2 px-3 rounded-[1.25rem] text-[11px] font-extrabold flex items-center gap-1.5 transition-all transform active:scale-95 border
-                          ${isAvailable && !isFinished
-                            ? "bg-slate-50 hover:bg-slate-100 dark:bg-slate-950 dark:hover:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 cursor-pointer shadow-sm"
-                            : "bg-slate-100 dark:bg-slate-900 border-slate-150 dark:border-slate-850 text-slate-450 dark:text-slate-600 opacity-45 cursor-not-allowed"
+                  {Object.entries(runnerState.profile.inventory || {}).map(
+                    ([item, qty]) => {
+                      const label =
+                        item === "energy_gel"
+                          ? "Energy Gel"
+                          : item === "electrolytes"
+                            ? "Electrolytes"
+                            : "Caffeine Gum";
+                      const icon =
+                        item === "energy_gel"
+                          ? "🔋"
+                          : item === "electrolytes"
+                            ? "💧"
+                            : "🧠";
+                      const isAvailable = qty > 0;
+
+                      return (
+                        <button
+                          key={item}
+                          type="button"
+                          disabled={!isAvailable || isFinished}
+                          onClick={() =>
+                            consumeItem(
+                              item as
+                                | "energy_gel"
+                                | "electrolytes"
+                                | "caffeine_gum",
+                            )
+                          }
+                          className={`py-2 px-3 rounded-[1.25rem] text-[11px] font-extrabold flex items-center gap-1.5 transition-all transform active:scale-95 border
+                          ${
+                            isAvailable && !isFinished
+                              ? "bg-slate-50 hover:bg-slate-100 dark:bg-slate-950 dark:hover:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 cursor-pointer shadow-sm"
+                              : "bg-slate-100 dark:bg-slate-900 border-slate-150 dark:border-slate-850 text-slate-450 dark:text-slate-600 opacity-45 cursor-not-allowed"
                           }
                         `}
-                      >
-                        <span>{icon}</span>
-                        <span>{label} ({qty})</span>
-                      </button>
-                    );
-                  })}
+                        >
+                          <span>{icon}</span>
+                          <span>
+                            {label} ({qty})
+                          </span>
+                        </button>
+                      );
+                    },
+                  )}
                 </div>
               </div>
             </div>
 
             {/* Right Column: Live Leaderboard */}
-             <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3">
               <h4 className="text-xs uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-550 flex items-center gap-1.5">
                 <span>🏆</span> Live Standings
               </h4>
@@ -655,13 +746,11 @@ export function RaceScreen() {
                           )}
                         </span>
                         <span className="col-span-4 text-right font-mono text-[11px] font-bold text-slate-500 dark:text-gray-400">
-                          {r.isDNF ? (
-                            "Exhausted"
-                          ) : isLeader ? (
-                            formatPace(r.accumulatedTime)
-                          ) : (
-                            `+${gap.toFixed(1)}s`
-                          )}
+                          {r.isDNF
+                            ? "Exhausted"
+                            : isLeader
+                              ? formatPace(r.accumulatedTime)
+                              : `+${gap.toFixed(1)}s`}
                         </span>
                       </div>
                     );
@@ -986,6 +1075,14 @@ export function RaceScreen() {
             </div>
           </motion.div>
         </div>
+      )}
+
+      {/* Breaking Point Overlay */}
+      {activeBreakingPoint && (
+        <BreakingPointOverlay
+          breakingPoint={activeBreakingPoint}
+          onRecovery={handleBreakingPointRecovery}
+        />
       )}
 
       {/* Timeout Overlay Alert */}

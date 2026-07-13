@@ -279,12 +279,12 @@ export function simulateKmStep(
   const baseFatigueKm = 2.0;
   const baseHydrationKm = 2.2;
 
-    // Determine active pacing strategy (supporting mid-race adjustments)
-    const activePacing = state.currentPacing || prep.pacing;
+  // Determine active pacing strategy (supporting mid-race adjustments)
+  const activePacing = state.currentPacing || prep.pacing;
 
-    let dynamicFatigueModifier = 0;
+  let dynamicFatigueModifier = 0;
 
-    if (activePacing === "jog" || activePacing === "conservative") {
+  if (activePacing === "jog" || activePacing === "conservative") {
     dynamicFatigueModifier = -2.5;
   } else if (activePacing === "push" || activePacing === "aggressive") {
     dynamicFatigueModifier = 3.5;

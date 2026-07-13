@@ -1,7 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowLeft, Award, Brain, Droplets, Flame, Plus, Zap } from "lucide-react";
+import {
+  ArrowLeft,
+  Award,
+  Brain,
+  Droplets,
+  Flame,
+  Plus,
+  Zap,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
@@ -34,7 +42,9 @@ function AttributeUpgradeCard({
   bgClass,
 }: AttributeUpgradeCardProps) {
   return (
-    <div className={`border-2 rounded-[2rem] p-5 shadow-sm flex flex-col justify-between gap-4 ${bgClass}`}>
+    <div
+      className={`border-2 rounded-[2rem] p-5 shadow-sm flex flex-col justify-between gap-4 ${bgClass}`}
+    >
       <div className="flex justify-between items-start">
         <div className="flex gap-2.5 items-start">
           <div className="p-2.5 bg-white/75 dark:bg-slate-900/60 rounded-2xl flex-shrink-0 shadow-sm">
@@ -50,8 +60,12 @@ function AttributeUpgradeCard({
           </div>
         </div>
         <div className="flex flex-col items-end">
-          <span className="text-[10px] opacity-60 uppercase tracking-wider font-semibold">Value</span>
-          <span className="text-lg font-black font-mono mt-0.5">{value} / 100</span>
+          <span className="text-[10px] opacity-60 uppercase tracking-wider font-semibold">
+            Value
+          </span>
+          <span className="text-lg font-black font-mono mt-0.5">
+            {value} / 100
+          </span>
         </div>
       </div>
 
@@ -89,7 +103,9 @@ export function ProfileScreen() {
   const { t } = useTranslation();
   const { playSound } = useSound();
 
-  const handleUpgradeAttribute = (attr: "speedAttr" | "staminaAttr" | "hydrationAttr" | "willpowerAttr") => {
+  const handleUpgradeAttribute = (
+    attr: "speedAttr" | "staminaAttr" | "hydrationAttr" | "willpowerAttr",
+  ) => {
     if ((profile.skillPoints || 0) <= 0) return;
 
     const updatedProfile = {
@@ -107,13 +123,20 @@ export function ProfileScreen() {
     playSound("success");
   };
 
-  const handleBuyConsumable = (item: "energy_gel" | "electrolytes" | "caffeine_gum", cost: number) => {
+  const handleBuyConsumable = (
+    item: "energy_gel" | "electrolytes" | "caffeine_gum",
+    cost: number,
+  ) => {
     if ((profile.coins || 0) < cost) return;
 
-    const currentInventory = profile.inventory || { energy_gel: 0, electrolytes: 0, caffeine_gum: 0 };
+    const currentInventory = profile.inventory || {
+      energy_gel: 0,
+      electrolytes: 0,
+      caffeine_gum: 0,
+    };
     const updatedInventory = {
       ...currentInventory,
-      [item]: (currentInventory[item] || 0) + 1
+      [item]: (currentInventory[item] || 0) + 1,
     };
 
     const updatedProfile = {
@@ -131,7 +154,13 @@ export function ProfileScreen() {
     playSound("success");
   };
 
-  const handleBuyShoes = (shoeId: "carbon_racer" | "lightweight", name: string, cost: number, paceBonus: number, maxDurability: number) => {
+  const handleBuyShoes = (
+    shoeId: "carbon_racer" | "lightweight",
+    name: string,
+    cost: number,
+    paceBonus: number,
+    maxDurability: number,
+  ) => {
     if ((profile.coins || 0) < cost) return;
 
     const updatedProfile = {
@@ -176,7 +205,7 @@ export function ProfileScreen() {
   };
 
   const xpNeeded = (profile.level || 1) * 100;
-  const xpPercent = Math.min(100, (((profile.xp || 0) / xpNeeded) * 100));
+  const xpPercent = Math.min(100, ((profile.xp || 0) / xpNeeded) * 100);
 
   return (
     <motion.div
@@ -221,7 +250,9 @@ export function ProfileScreen() {
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <Award className="h-6 w-6 text-yellow-400" />
-              <span className="font-heading font-black text-xl">Level {profile.level || 1} Runner</span>
+              <span className="font-heading font-black text-xl">
+                Level {profile.level || 1} Runner
+              </span>
             </div>
             <span className="text-xs bg-white/10 px-3 py-1 rounded-full border border-white/10 font-mono">
               {profile.xp || 0} / {xpNeeded} XP
@@ -235,7 +266,8 @@ export function ProfileScreen() {
           </div>
           {(profile.skillPoints || 0) > 0 && (
             <div className="text-xs font-semibold text-yellow-300 animate-pulse mt-1">
-              ⚡ You have {profile.skillPoints} Skill Points available to spend below!
+              ⚡ You have {profile.skillPoints} Skill Points available to spend
+              below!
             </div>
           )}
         </div>
@@ -260,7 +292,10 @@ export function ProfileScreen() {
               desc="Lowers base race pace directly. Run faster over all segments."
               icon={<Zap className="h-5 w-5 text-yellow-500" />}
               onUpgrade={() => handleUpgradeAttribute("speedAttr")}
-              canUpgrade={(profile.skillPoints || 0) > 0 && (profile.speedAttr || 10) < 100}
+              canUpgrade={
+                (profile.skillPoints || 0) > 0 &&
+                (profile.speedAttr || 10) < 100
+              }
               bgClass="bg-amber-50 dark:bg-amber-950/20 border-amber-100 dark:border-amber-900/30 text-amber-900 dark:text-amber-300"
             />
             <AttributeUpgradeCard
@@ -269,7 +304,10 @@ export function ProfileScreen() {
               desc="Reduces physical fatigue build-up rate during checkpoints."
               icon={<Flame className="h-5 w-5 text-red-500" />}
               onUpgrade={() => handleUpgradeAttribute("staminaAttr")}
-              canUpgrade={(profile.skillPoints || 0) > 0 && (profile.staminaAttr || 10) < 100}
+              canUpgrade={
+                (profile.skillPoints || 0) > 0 &&
+                (profile.staminaAttr || 10) < 100
+              }
               bgClass="bg-rose-50 dark:bg-rose-950/20 border-rose-100 dark:border-rose-900/30 text-rose-900 dark:text-rose-300"
             />
             <AttributeUpgradeCard
@@ -278,7 +316,10 @@ export function ProfileScreen() {
               desc="Reduces fluid depletion rate per kilometer."
               icon={<Droplets className="h-5 w-5 text-blue-500" />}
               onUpgrade={() => handleUpgradeAttribute("hydrationAttr")}
-              canUpgrade={(profile.skillPoints || 0) > 0 && (profile.hydrationAttr || 10) < 100}
+              canUpgrade={
+                (profile.skillPoints || 0) > 0 &&
+                (profile.hydrationAttr || 10) < 100
+              }
               bgClass="bg-sky-50 dark:bg-sky-950/20 border-sky-100 dark:border-sky-900/30 text-sky-900 dark:text-sky-300"
             />
             <AttributeUpgradeCard
@@ -287,7 +328,10 @@ export function ProfileScreen() {
               desc="Mitigates penalties for exhaustion, dehydration, and fatigue."
               icon={<Brain className="h-5 w-5 text-purple-500" />}
               onUpgrade={() => handleUpgradeAttribute("willpowerAttr")}
-              canUpgrade={(profile.skillPoints || 0) > 0 && (profile.willpowerAttr || 10) < 100}
+              canUpgrade={
+                (profile.skillPoints || 0) > 0 &&
+                (profile.willpowerAttr || 10) < 100
+              }
               bgClass="bg-purple-50 dark:bg-purple-950/20 border-purple-100 dark:border-purple-900/30 text-purple-900 dark:text-purple-300"
             />
           </div>
@@ -299,7 +343,9 @@ export function ProfileScreen() {
             <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
               <span>✨</span> Runner Perks
             </h2>
-            <span className="text-xs text-gray-400 font-medium">Spend Skill Points to unlock passive buffs</span>
+            <span className="text-xs text-gray-400 font-medium">
+              Spend Skill Points to unlock passive buffs
+            </span>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -309,28 +355,37 @@ export function ProfileScreen() {
                 name: "Hill Specialist",
                 desc: "Completely ignores climbing pace and fatigue penalties during hilly race segments.",
                 icon: "⛰️",
-                bgClass: "bg-emerald-55/40 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/30 text-emerald-900 dark:text-emerald-300",
+                bgClass:
+                  "bg-emerald-55/40 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/30 text-emerald-900 dark:text-emerald-300",
               },
               {
                 id: "iron_stomach",
                 name: "Iron Stomach",
                 desc: "Stamina Gels used mid-race restore +50% energy instead of +25%.",
                 icon: "🍳",
-                bgClass: "bg-amber-55/40 dark:bg-amber-950/20 border-amber-100 dark:border-amber-900/30 text-amber-900 dark:text-amber-300",
+                bgClass:
+                  "bg-amber-55/40 dark:bg-amber-950/20 border-amber-100 dark:border-amber-900/30 text-amber-900 dark:text-amber-300",
               },
             ].map((perk) => {
               const activePerks = profile.activePerks || [];
               const isUnlocked = activePerks.includes(perk.id);
               const canUnlock = (profile.skillPoints || 0) >= 1 && !isUnlocked;
               return (
-                <div key={perk.id} className={`border-2 rounded-[2rem] p-5 shadow-sm flex flex-col justify-between gap-4 ${perk.bgClass}`}>
+                <div
+                  key={perk.id}
+                  className={`border-2 rounded-[2rem] p-5 shadow-sm flex flex-col justify-between gap-4 ${perk.bgClass}`}
+                >
                   <div className="flex gap-2.5 items-start">
                     <div className="h-10 w-10 bg-white/70 dark:bg-slate-900/60 rounded-2xl flex items-center justify-center text-xl flex-shrink-0">
                       {perk.icon}
                     </div>
                     <div>
-                      <h3 className="font-heading font-extrabold text-sm leading-tight">{perk.name}</h3>
-                      <p className="text-[10px] opacity-80 leading-normal mt-1">{perk.desc}</p>
+                      <h3 className="font-heading font-extrabold text-sm leading-tight">
+                        {perk.name}
+                      </h3>
+                      <p className="text-[10px] opacity-80 leading-normal mt-1">
+                        {perk.desc}
+                      </p>
                     </div>
                   </div>
                   <button
@@ -359,7 +414,9 @@ export function ProfileScreen() {
             <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
               <span>🛒</span> Gear & Nutrition Shop
             </h2>
-            <span className="text-xs text-gray-400 font-medium">Equip consumables to use mid-race</span>
+            <span className="text-xs text-gray-400 font-medium">
+              Equip consumables to use mid-race
+            </span>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-3">
@@ -370,7 +427,8 @@ export function ProfileScreen() {
                 icon: "🔋",
                 desc: "Restores +25% Stamina / Energy mid-race.",
                 cost: 30,
-                bgClass: "bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 rounded-[1.5rem]",
+                bgClass:
+                  "bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 rounded-[1.5rem]",
               },
               {
                 id: "electrolytes" as const,
@@ -378,7 +436,8 @@ export function ProfileScreen() {
                 icon: "💧",
                 desc: "Restores +20% Hydration mid-race.",
                 cost: 25,
-                bgClass: "bg-sky-50 dark:bg-sky-950/20 border border-sky-200 dark:border-sky-900/30 rounded-[1.5rem]",
+                bgClass:
+                  "bg-sky-50 dark:bg-sky-950/20 border border-sky-200 dark:border-sky-900/30 rounded-[1.5rem]",
               },
               {
                 id: "caffeine_gum" as const,
@@ -386,17 +445,25 @@ export function ProfileScreen() {
                 icon: "🧠",
                 desc: "Restores +20% Focus / Willpower mid-race.",
                 cost: 40,
-                bgClass: "bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-900/30 rounded-[1.5rem]",
+                bgClass:
+                  "bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-900/30 rounded-[1.5rem]",
               },
             ].map((item) => {
-              const qty = (profile.inventory?.[item.id] || 0);
+              const qty = profile.inventory?.[item.id] || 0;
               const canAfford = (profile.coins || 0) >= item.cost;
               return (
-                <div key={item.id} className={`p-4 flex flex-col justify-between gap-3 text-center sm:text-left ${item.bgClass}`}>
+                <div
+                  key={item.id}
+                  className={`p-4 flex flex-col justify-between gap-3 text-center sm:text-left ${item.bgClass}`}
+                >
                   <div className="flex flex-col gap-1.5">
-                    <span className="text-3xl text-center sm:text-left">{item.icon}</span>
+                    <span className="text-3xl text-center sm:text-left">
+                      {item.icon}
+                    </span>
                     <div className="flex justify-between items-baseline w-full gap-1">
-                      <h3 className="font-bold text-xs text-gray-850 dark:text-white truncate">{item.name}</h3>
+                      <h3 className="font-bold text-xs text-gray-850 dark:text-white truncate">
+                        {item.name}
+                      </h3>
                       <span className="text-[10px] bg-white/70 dark:bg-gray-800 px-1.5 py-0.5 rounded font-mono font-bold text-slate-650 dark:text-gray-400 flex-shrink-0">
                         Qty: {qty}
                       </span>
@@ -410,9 +477,10 @@ export function ProfileScreen() {
                     disabled={!canAfford}
                     onClick={() => handleBuyConsumable(item.id, item.cost)}
                     className={`py-2 px-3 w-full rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all transform active:scale-95 border
-                      ${canAfford
-                        ? "bg-orange-500 hover:bg-orange-600 border-orange-500 text-white cursor-pointer shadow-md shadow-orange-500/20"
-                        : "bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-850 text-slate-400 dark:text-slate-650 cursor-not-allowed opacity-45"
+                      ${
+                        canAfford
+                          ? "bg-orange-500 hover:bg-orange-600 border-orange-500 text-white cursor-pointer shadow-md shadow-orange-500/20"
+                          : "bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-850 text-slate-400 dark:text-slate-650 cursor-not-allowed opacity-45"
                       }
                     `}
                   >
@@ -431,7 +499,9 @@ export function ProfileScreen() {
             <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
               <span>👟</span> Super Shoe Shop
             </h2>
-            <span className="text-xs text-gray-400 font-medium">Equip shoes to gain pace bonuses</span>
+            <span className="text-xs text-gray-400 font-medium">
+              Equip shoes to gain pace bonuses
+            </span>
           </div>
 
           {/* Currently Equipped Shoes Card */}
@@ -440,7 +510,9 @@ export function ProfileScreen() {
               <span className="text-3xl">👟</span>
               <div>
                 <h3 className="font-black text-sm text-slate-800 dark:text-white">
-                  {profile.equippedShoes ? profile.equippedShoes.name : "Standard Running Shoes"}
+                  {profile.equippedShoes
+                    ? profile.equippedShoes.name
+                    : "Standard Running Shoes"}
                 </h3>
                 <p className="text-[10px] text-gray-500 dark:text-gray-400">
                   {profile.equippedShoes
@@ -451,9 +523,12 @@ export function ProfileScreen() {
             </div>
             {profile.equippedShoes && (
               <div className="flex flex-col items-end">
-                <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">Durability</span>
+                <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">
+                  Durability
+                </span>
                 <span className="text-xs font-mono font-bold text-slate-800 dark:text-white mt-1">
-                  {profile.equippedShoes.durability} / {profile.equippedShoes.maxDurability} races
+                  {profile.equippedShoes.durability} /{" "}
+                  {profile.equippedShoes.maxDurability} races
                 </span>
               </div>
             )}
@@ -468,7 +543,8 @@ export function ProfileScreen() {
                 maxDurability: 5,
                 cost: 100,
                 desc: "High durability. Gives a moderate pace boost of -6s/km.",
-                bgClass: "bg-sky-50 dark:bg-sky-950/20 border border-sky-200 dark:border-sky-900/30 rounded-[1.5rem]",
+                bgClass:
+                  "bg-sky-50 dark:bg-sky-950/20 border border-sky-200 dark:border-sky-900/30 rounded-[1.5rem]",
               },
               {
                 id: "carbon_racer" as const,
@@ -477,14 +553,20 @@ export function ProfileScreen() {
                 maxDurability: 3,
                 cost: 250,
                 desc: "Low durability. Gives a massive pace boost of -15s/km.",
-                bgClass: "bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 rounded-[1.5rem]",
+                bgClass:
+                  "bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 rounded-[1.5rem]",
               },
             ].map((shoe) => {
               const canAfford = (profile.coins || 0) >= shoe.cost;
               return (
-                <div key={shoe.id} className={`p-4 flex flex-col justify-between gap-3 text-center sm:text-left ${shoe.bgClass}`}>
+                <div
+                  key={shoe.id}
+                  className={`p-4 flex flex-col justify-between gap-3 text-center sm:text-left ${shoe.bgClass}`}
+                >
                   <div className="flex flex-col gap-1">
-                    <h3 className="font-bold text-xs text-gray-850 dark:text-white">{shoe.name}</h3>
+                    <h3 className="font-bold text-xs text-gray-850 dark:text-white">
+                      {shoe.name}
+                    </h3>
                     <p className="text-[10px] text-gray-500 dark:text-gray-450 leading-snug">
                       {shoe.desc}
                     </p>
@@ -496,11 +578,20 @@ export function ProfileScreen() {
                   <button
                     type="button"
                     disabled={!canAfford}
-                    onClick={() => handleBuyShoes(shoe.id, shoe.name, shoe.cost, shoe.paceBonus, shoe.maxDurability)}
+                    onClick={() =>
+                      handleBuyShoes(
+                        shoe.id,
+                        shoe.name,
+                        shoe.cost,
+                        shoe.paceBonus,
+                        shoe.maxDurability,
+                      )
+                    }
                     className={`py-2 px-3 w-full rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all transform active:scale-95 border
-                      ${canAfford
-                        ? "bg-orange-500 hover:bg-orange-600 border-orange-500 text-white cursor-pointer shadow-md shadow-orange-500/20"
-                        : "bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-850 text-slate-400 dark:text-slate-650 cursor-not-allowed opacity-45"
+                      ${
+                        canAfford
+                          ? "bg-orange-500 hover:bg-orange-600 border-orange-500 text-white cursor-pointer shadow-md shadow-orange-500/20"
+                          : "bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-850 text-slate-400 dark:text-slate-650 cursor-not-allowed opacity-45"
                       }
                     `}
                   >
@@ -517,8 +608,12 @@ export function ProfileScreen() {
         <div className="bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-[#E5E7EB] dark:border-slate-800 p-6 shadow-sm flex flex-col gap-6">
           {/* Runner Name */}
           <div>
-            <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">Runner Name</h2>
-            <p className="text-lg font-bold text-gray-800 dark:text-gray-150">{profile.displayName}</p>
+            <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">
+              Runner Name
+            </h2>
+            <p className="text-lg font-bold text-gray-800 dark:text-gray-150">
+              {profile.displayName}
+            </p>
           </div>
 
           <hr className="border-gray-100 dark:border-slate-800" />
@@ -537,7 +632,9 @@ export function ProfileScreen() {
               <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">
                 Total Runs
               </h2>
-              <p className="text-lg font-bold text-gray-855 dark:text-white">{profile.totalRuns}</p>
+              <p className="text-lg font-bold text-gray-855 dark:text-white">
+                {profile.totalRuns}
+              </p>
             </div>
           </div>
 
@@ -550,8 +647,12 @@ export function ProfileScreen() {
                 Current Fitness
               </h2>
               <p className="text-gray-700 dark:text-gray-200">
-                <span className="font-extrabold text-gray-850 dark:text-white">{profile.currentFitness}</span>{" "}
-                <span className="text-xs text-gray-400 uppercase">({getFitnessLevel(profile)})</span>
+                <span className="font-extrabold text-gray-850 dark:text-white">
+                  {profile.currentFitness}
+                </span>{" "}
+                <span className="text-xs text-gray-400 uppercase">
+                  ({getFitnessLevel(profile)})
+                </span>
               </p>
             </div>
             <div>
@@ -559,8 +660,12 @@ export function ProfileScreen() {
                 Current Fatigue
               </h2>
               <p className="text-gray-700 dark:text-gray-200">
-                <span className="font-extrabold text-gray-850 dark:text-white">{profile.currentFatigue}</span>{" "}
-                <span className="text-xs text-gray-400 uppercase">({getFatigueLevel(profile)})</span>
+                <span className="font-extrabold text-gray-850 dark:text-white">
+                  {profile.currentFatigue}
+                </span>{" "}
+                <span className="text-xs text-gray-400 uppercase">
+                  ({getFatigueLevel(profile)})
+                </span>
               </p>
             </div>
           </div>
@@ -573,8 +678,12 @@ export function ProfileScreen() {
                 Today's Race Readiness
               </h2>
               <p className="text-gray-700 dark:text-gray-200">
-                <span className="font-extrabold text-gray-850 dark:text-white">{profile.currentReadiness}</span>{" "}
-                <span className="text-xs text-gray-400 uppercase">({getReadinessLevel(profile)})</span>
+                <span className="font-extrabold text-gray-850 dark:text-white">
+                  {profile.currentReadiness}
+                </span>{" "}
+                <span className="text-xs text-gray-400 uppercase">
+                  ({getReadinessLevel(profile)})
+                </span>
               </p>
             </div>
             <div>

@@ -1,0 +1,142 @@
+{
+  "underdog": {
+    "name": "The Underdog",
+    "pre_race": [
+      "I’ll do my best! Let’s have a good race!",
+      "I’m not the fastest, but I’ll try!",
+      "I’ve been training hard. Let’s see how it goes!"
+    ],
+    "mid_race_good": [
+      "I’m catching up! Just wait!",
+      "You’re fast, but I’m not giving up!",
+      "Almost there! Don’t slow down!"
+    ],
+    "mid_race_bad": [
+      "I’m falling behind... but I’ll keep trying!",
+      "This is tougher than I thought...",
+      "I’ll get you next time!"
+    ],
+    "post_race_win": [
+      "I did it! Thanks for the race!",
+      "I can’t believe I won! You’re amazing!",
+      "That was close! Let’s race again soon!"
+    ],
+    "post_race_lose": [
+      "You’re too fast! I’ll train harder!",
+      "Good race! I’ll catch up next time!",
+      "I’ll get you next time! Keep running!"
+    ]
+  },
+  "show_off": {
+    "name": "The Show-Off",
+    "pre_race": [
+      "You’re already dead. Just don’t realize it yet.",
+      "I hope you’re ready to lose. Again.",
+      "This’ll be over before you know it."
+    ],
+    "mid_race_good": [
+      "Told you I’d win. Still going?",
+      "You’re putting up a fight. For now.",
+      "Enjoy the view from second place!"
+    ],
+    "mid_race_bad": [
+      "You got lucky. Don’t get used to it.",
+      "I’m just warming up. You’re already done.",
+      "This isn’t over. Not by a long shot."
+    ],
+    "post_race_win": [
+      "Another win for me. Better luck next time!",
+      "You’re improving. But not enough.",
+      "I’d say 'good race,' but we both know it wasn’t."
+    ],
+    "post_race_lose": [
+      "You cheated. There’s no way you beat me.",
+      "This isn’t over. I’ll crush you next time.",
+      "I must be sick. That’s the only explanation."
+    ]
+  },
+  "strategist": {
+    "name": "The Strategist",
+    "pre_race": [
+      "Your pace is unsustainable. I’ll pass you soon.",
+      "I’ve analyzed your runs. You’re predictable.",
+      "Let’s see if you can keep up with my strategy."
+    ],
+    "mid_race_good": [
+      "Your form is breaking down. I’ll take the lead now.",
+      "You’re tiring. I can see it.",
+      "This is where I pull ahead. Watch closely."
+    ],
+    "mid_race_bad": [
+      "You’re running smart. But I’m smarter.",
+      "I’ll let you think you’re winning. For now.",
+      "Your strategy is flawed. I’ll exploit it soon."
+    ],
+    "post_race_win": [
+      "A calculated victory. Well played.",
+      "Your strategy was good. But mine was better.",
+      "I knew I’d win. The data didn’t lie."
+    ],
+    "post_race_lose": [
+      "You ran smarter than I expected. Well done.",
+      "I underestimated you. It won’t happen again.",
+      "Your strategy was flawless. I’ll adapt next time."
+    ]
+  },
+  "bully": {
+    "name": "The Bully",
+    "pre_race": [
+      "You’re weak. I’ll crush you.",
+      "This’ll be a walk in the park. For me.",
+      "Prepare to be humiliated."
+    ],
+    "mid_race_good": [
+      "Pathetic. You call this a race?",
+      "I’m toying with you. Enjoy it while it lasts.",
+      "You’re embarrassing yourself. Quit now."
+    ],
+    "mid_race_bad": [
+      "You’re even worse than I thought.",
+      "I’m bored. Can we speed this up?",
+      "This is painful to watch. For me."
+    ],
+    "post_race_win": [
+      "As expected. You never had a chance.",
+      "I’d say 'better luck next time,' but we both know that’s a lie.",
+      "You’re a joke. Stick to walking."
+    ],
+    "post_race_lose": [
+      "You got lucky. It won’t happen again.",
+      "I let you win. You’re welcome.",
+      "This changes nothing. You’re still weak."
+    ]
+  },
+  "mentor": {
+    "name": "The Mentor",
+    "pre_race": [
+      "You’ve improved so much. Let’s see how far you’ve come.",
+      "Remember: it’s not about winning. It’s about growth.",
+      "I believe in you. Show me what you’ve got."
+    ],
+    "mid_race_good": [
+      "You’re running with confidence. Keep it up!",
+      "Your form is excellent. I’m proud of you.",
+      "You’re pushing yourself. That’s how you grow."
+    ],
+    "mid_race_bad": [
+      "Don’t worry about the pace. Focus on your breath.",
+      "You’re struggling, but that’s okay. Learn from it.",
+      "Slow down if you need to. The race isn’t going anywhere."
+    ],
+    "post_race_win": [
+      "You’ve grown so much. I’m proud of you.",
+      "That was a great race. Keep it up!",
+      "You’re becoming the runner I always knew you could be."
+    ],
+    "post_race_lose": [
+      "You gave it your all. That’s what matters.",
+      "Every race is a lesson. Learn and grow.",
+      "Don’t be discouraged. You’re improving every day."
+    ]
+  }
+}

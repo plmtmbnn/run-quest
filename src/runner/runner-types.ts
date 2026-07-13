@@ -50,6 +50,20 @@ export interface RunnerProfile {
     paceBonus: number;
   } | null;
   activePerks?: string[];
+  // Rival relationships tracking (Sprint 20)
+  rivalRelationships?: Record<
+    string,
+    {
+      wins: number;
+      losses: number;
+      lastEncounter: string | null;
+      relationshipLevel: number;
+      totalEncounters: number;
+      closestMargin: number;
+      biggestWin: number;
+      biggestLoss: number;
+    }
+  >;
 }
 
 /**

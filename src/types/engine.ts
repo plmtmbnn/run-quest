@@ -1,4 +1,7 @@
+import type { ActiveBreakingPoint } from "@/engine/breaking-points/breaking-types";
 import type { RunnerProfile } from "@/runner/runner-types";
+
+export type { ActiveBreakingPoint };
 
 export type Shoe = "daily_trainer" | "carbon_racer" | "lightweight" | "trail";
 
@@ -198,6 +201,7 @@ export interface SimulationResult {
 
 export interface SimulationState {
   distanceCovered: number;
+  totalDistance: number; // Total race distance in km (Sprint 20)
   energy: number; // 0 to 100
   hydration: number; // 0 to 100
   focus: number; // 0 to 100
@@ -234,6 +238,8 @@ export interface SimulationState {
   runnersHighCooldown?: number;
   hasTriggeredWall?: boolean;
   hasTriggeredCramp?: boolean;
+  activeBreakingPoint?: ActiveBreakingPoint | null;
+  shownBreakingPoints?: string[];
 }
 
 export interface OpponentState {
@@ -283,6 +289,11 @@ export interface DecisionPrompt {
 
 export type SimulationStepResult =
   | { type: "decision"; state: SimulationState; prompt: DecisionPrompt }
+  | {
+      type: "breaking_point";
+      state: SimulationState;
+      breakingPoint: ActiveBreakingPoint;
+    }
   | { type: "step"; state: SimulationState }
   | { type: "finished"; result: SimulationResult };
 

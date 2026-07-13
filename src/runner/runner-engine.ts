@@ -223,12 +223,12 @@ export const completeRace = (
   // Recalculate Race Readiness.
   updatedProfile.currentReadiness = calculateRaceReadiness(updatedProfile);
 
-  let finalXpGained = (xpGained || 0) + bonusXp;
+  const finalXpGained = (xpGained || 0) + bonusXp;
   if (finalXpGained > 0) {
     updatedProfile = awardXP(updatedProfile, finalXpGained);
   }
 
-  let finalCoinsGained = (coinsGained || 0) + bonusCoins;
+  const finalCoinsGained = (coinsGained || 0) + bonusCoins;
   if (finalCoinsGained > 0) {
     updatedProfile.coins = (updatedProfile.coins || 0) + finalCoinsGained;
   }

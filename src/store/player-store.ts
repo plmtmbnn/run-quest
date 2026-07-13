@@ -1,12 +1,12 @@
 import { v4 as uuidv4 } from "uuid";
 import { create } from "zustand";
+import { completeRace } from "@/runner/runner-engine";
 import { storageRepository } from "@/storage/storage-repository";
 import type {
   PlayerStatistics,
   StoredDaily,
   StoredPlayer,
 } from "@/storage/types";
-import { completeRace } from "@/runner/runner-engine";
 import { usePreparationStore } from "@/store/preparation-store";
 import type { SimulationResult } from "@/types/engine";
 import { generateRunnerName } from "@/utils/name-generator";
@@ -118,9 +118,10 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
 
     // Determine if the player beat the Nemesis in this race
     let didBeatNemesis: boolean | undefined;
-    const finalState = result.stateLog && result.stateLog.length > 0
-      ? result.stateLog[result.stateLog.length - 1]
-      : null;
+    const finalState =
+      result.stateLog && result.stateLog.length > 0
+        ? result.stateLog[result.stateLog.length - 1]
+        : null;
     if (finalState && finalState.opponents) {
       const nemesis = finalState.opponents.find((opp) => opp.isNemesis);
       if (nemesis) {
@@ -135,7 +136,14 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     }
 
     // Record race and award XP/Coins to the runner profile
-    completeRace(distance, result.finishTime, intensity, xpGained, coinsGained, didBeatNemesis);
+    completeRace(
+      distance,
+      result.finishTime,
+      intensity,
+      xpGained,
+      coinsGained,
+      didBeatNemesis,
+    );
 
     // 1. Create or load history
     const history = storageRepository.loadHistory() || {

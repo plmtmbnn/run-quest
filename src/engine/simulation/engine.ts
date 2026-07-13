@@ -1,5 +1,6 @@
 import { DECISION_DATABASE } from "@/content/events/decision-database";
 import { EVENT_DATABASE } from "@/content/events/event-database";
+import { BreakingPointEngine } from "@/engine/breaking-points/breaking-engine";
 import { calculateEnvironmentModifiers } from "@/engine/environment/environment-modifier";
 import { calculatePerformance } from "@/engine/performance/calculator";
 import { calculatePreparationScore } from "@/engine/scoring/preparation-score";
@@ -94,8 +95,30 @@ export function getFallbackChoice(
  * Incremental, step-by-step runner for simulation.
  * Simulates up to the next decision or finish.
  */
-const FIRST_NAMES = ["Racer", "Runner", "Sprint", "Dash", "Pace", "Chaser", "Fast", "Swift", "Bolt", "Shadow"];
-const LAST_NAMES = ["Alpha", "Beta", "Gamma", "Delta", "Omega", "One", "Two", "Three", "Pro", "Max"];
+const FIRST_NAMES = [
+  "Racer",
+  "Runner",
+  "Sprint",
+  "Dash",
+  "Pace",
+  "Chaser",
+  "Fast",
+  "Swift",
+  "Bolt",
+  "Shadow",
+];
+const LAST_NAMES = [
+  "Alpha",
+  "Beta",
+  "Gamma",
+  "Delta",
+  "Omega",
+  "One",
+  "Two",
+  "Three",
+  "Pro",
+  "Max",
+];
 
 export function advanceSimulation(
   input: SimulationInput,
@@ -128,29 +151,44 @@ export function advanceSimulation(
 
     const initialEnergy = Math.max(
       0,
-      Math.min(115, 100 + prepMods.initialEnergyOffset + fatigueOffset + warmupBonusOffset),
+      Math.min(
+        115,
+        100 + prepMods.initialEnergyOffset + fatigueOffset + warmupBonusOffset,
+      ),
     );
 
     // Adjust starting confidence based on readiness
-    const readinessConfidenceMod = runnerProfile ? (runnerProfile.currentReadiness - 100) * 0.2 : 0;
+    const readinessConfidenceMod = runnerProfile
+      ? (runnerProfile.currentReadiness - 100) * 0.2
+      : 0;
     const initialConfidence = Math.max(
       0,
       Math.min(
         105,
-        100 + prepMods.confidenceModifier + envMods.confidenceModifier + readinessConfidenceMod,
+        100 +
+          prepMods.confidenceModifier +
+          envMods.confidenceModifier +
+          readinessConfidenceMod,
       ),
     );
 
     // Adjust starting focus based on readiness
     const startingFocus = runnerProfile
-      ? Math.max(20, Math.min(100, 100 + (runnerProfile.currentReadiness - 100) * 0.4))
+      ? Math.max(
+          20,
+          Math.min(100, 100 + (runnerProfile.currentReadiness - 100) * 0.4),
+        )
       : 100;
 
     // Generate 3-5 AI Opponents deterministically from the seed
     const random = new SeededRandom(seed);
     const opponentsCount = Math.floor(random.nextRange(3, 6)); // 3 to 5 opponents
     const opponents: import("@/types/engine").OpponentState[] = [];
-    const archetypes: ("frontrunner" | "splitter" | "steady")[] = ["frontrunner", "splitter", "steady"];
+    const archetypes: ("frontrunner" | "splitter" | "steady")[] = [
+      "frontrunner",
+      "splitter",
+      "steady",
+    ];
 
     const hasNemesis = runnerProfile?.currentNemesis;
 
@@ -172,7 +210,8 @@ export function advanceSimulation(
         const firstIdx = Math.floor(random.nextRange(0, FIRST_NAMES.length));
         const lastIdx = Math.floor(random.nextRange(0, LAST_NAMES.length));
         const name = `${FIRST_NAMES[firstIdx]} ${LAST_NAMES[lastIdx]}`;
-        const archetype = archetypes[Math.floor(random.nextRange(0, archetypes.length))];
+        const archetype =
+          archetypes[Math.floor(random.nextRange(0, archetypes.length))];
         opponents.push({
           id: `opponent_${i}_${seed}`,
           name,
@@ -189,6 +228,7 @@ export function advanceSimulation(
 
     state = {
       distanceCovered: 0,
+      totalDistance: input.challenge.race.distance,
       energy: initialEnergy,
       hydration: 100,
       focus: startingFocus,
@@ -227,6 +267,8 @@ export function advanceSimulation(
       runnersHighCooldown: 0,
       hasTriggeredWall: false,
       hasTriggeredCramp: false,
+      activeBreakingPoint: null,
+      shownBreakingPoints: [],
     };
 
     // DNS check (rare event roll on first step)
@@ -310,10 +352,113 @@ export function advanceSimulation(
       opponents: currentState.opponents
         ? currentState.opponents.map((o) => ({ ...o }))
         : [],
-      currentPacing: nextPacing || currentState.currentPacing || preparation.pacing,
+      currentPacing:
+        nextPacing || currentState.currentPacing || preparation.pacing,
+      activeBreakingPoint: currentState.activeBreakingPoint || null,
+      shownBreakingPoints: currentState.shownBreakingPoints
+        ? [...currentState.shownBreakingPoints]
+        : [],
     };
 
-    if (state.pendingDecision) {
+    if (state.activeBreakingPoint && !state.activeBreakingPoint.resolved) {
+      const choiceId = lastChoiceId;
+      if (choiceId) {
+        const bpEngine = new BreakingPointEngine();
+        bpEngine.setActiveBreakingPoint(state.activeBreakingPoint);
+        if (state.shownBreakingPoints) {
+          state.shownBreakingPoints.forEach((id) => {
+            bpEngine.getShownBreakingPoints().add(id);
+          });
+        }
+
+        const resolveRandom = new SeededRandom(state.randomSeedState ?? seed);
+        const recoveryResult = bpEngine.attemptRecovery(
+          choiceId,
+          state,
+          resolveRandom,
+        );
+        state.randomSeedState = resolveRandom.seed;
+
+        if (recoveryResult) {
+          const { recovered, effects } = recoveryResult;
+
+          if (effects.energy !== undefined) {
+            state.energy = Math.max(
+              0,
+              Math.min(100, state.energy + effects.energy),
+            );
+          }
+          if (effects.hydration !== undefined) {
+            state.hydration = Math.max(
+              0,
+              Math.min(100, state.hydration + effects.hydration),
+            );
+          }
+          if (effects.pace !== undefined) {
+            state.accumulatedTime = Math.max(
+              0,
+              state.accumulatedTime + effects.pace,
+            );
+          }
+          if (effects.muscleFatigue !== undefined) {
+            state.muscleFatigue = Math.max(
+              0,
+              Math.min(100, state.muscleFatigue + effects.muscleFatigue),
+            );
+          }
+          if (effects.mentalFatigue !== undefined) {
+            state.mentalFatigue = Math.max(
+              0,
+              Math.min(100, state.mentalFatigue + effects.mentalFatigue),
+            );
+          }
+          if (effects.confidence !== undefined) {
+            state.confidence = Math.max(
+              0,
+              Math.min(100, state.confidence + effects.confidence),
+            );
+          }
+          if (effects.momentum !== undefined) {
+            state.momentum = Math.max(
+              0,
+              Math.min(100, state.momentum + effects.momentum),
+            );
+          }
+
+          const bp = state.activeBreakingPoint.breakingPoint;
+          const option = bp.recoveryOptions.find(
+            (
+              o: import("@/engine/breaking-points/breaking-types").RecoveryOption,
+            ) => o.id === choiceId,
+          );
+          state.eventsResolved.push({
+            km: state.distanceCovered,
+            title: bp.onsetMessage,
+            description: {
+              en: `${option?.action.en} -> ${recovered ? "Successfully recovered!" : "Recovery failed!"}`,
+              id: `${option?.action.id} -> ${recovered ? "Berhasil pulih!" : "Pemulihan gagal!"}`,
+            },
+            effect: {
+              stamina: effects.energy || 0,
+              hydration: 0,
+              morale: effects.confidence || 0,
+              pace: effects.pace || 0,
+            },
+          });
+        }
+
+        state.activeBreakingPoint = bpEngine.getActiveBreakingPoint();
+        state.shownBreakingPoints = Array.from(
+          bpEngine.getShownBreakingPoints(),
+        );
+
+        if (state.accumulatedStateLog && state.accumulatedStateLog.length > 0) {
+          const lastIdx = state.accumulatedStateLog.length - 1;
+          const { accumulatedStateLog: _, ...updatedState } = state;
+          state.accumulatedStateLog[lastIdx] = updatedState;
+        }
+      }
+    } else if (state.pendingDecision) {
       // Resolve the decision using chosen or timeout behavior
       const choiceId =
         lastChoiceId ??
@@ -424,13 +569,23 @@ export function advanceSimulation(
 
   const startKm = state.distanceCovered + 1;
   const maxKms = Math.ceil(totalDistance);
-  let currentStepState = state;
+  const currentStepState = state;
 
   for (let km = startKm; km <= maxKms; km++) {
     // Weather shift logic mid-race (if distance >= 8, at half way point, 25% chance)
-    if (km === Math.floor(totalDistance / 2) && totalDistance >= 8 && random.nextRange(0, 100) < 25) {
-      const weathers: import("@/types/engine").Weather[] = ["rain", "storm", "hot", "cloudy"];
-      const newWeather = weathers[Math.floor(random.nextRange(0, weathers.length))];
+    if (
+      km === Math.floor(totalDistance / 2) &&
+      totalDistance >= 8 &&
+      random.nextRange(0, 100) < 25
+    ) {
+      const weathers: import("@/types/engine").Weather[] = [
+        "rain",
+        "storm",
+        "hot",
+        "cloudy",
+      ];
+      const newWeather =
+        weathers[Math.floor(random.nextRange(0, weathers.length))];
       challenge.environment.weather = newWeather;
       currentStepState.eventsResolved.push({
         km,
@@ -443,34 +598,82 @@ export function advanceSimulation(
       });
     }
 
-    // Check for dynamic cramp/wall triggers before the km starts
-    if (km >= 25 && currentStepState.energy < 30 && !currentStepState.hasTriggeredWall) {
-      currentStepState.pendingDecision = DECISION_DATABASE.the_wall;
-      currentStepState.hasTriggeredWall = true;
-      currentStepState.randomSeedState = random.seed;
-      return {
-        type: "decision",
-        state: currentStepState,
-        prompt: {
-          km,
-          decisionCard: DECISION_DATABASE.the_wall,
-          timeoutSeconds: 10,
-        },
-      };
+    // Check for breaking point triggers before the km starts
+    const bpEngine = new BreakingPointEngine();
+    if (currentStepState.shownBreakingPoints) {
+      currentStepState.shownBreakingPoints.forEach((id) => {
+        bpEngine.getShownBreakingPoints().add(id);
+      });
+    }
+    if (currentStepState.activeBreakingPoint) {
+      bpEngine.setActiveBreakingPoint(currentStepState.activeBreakingPoint);
     }
 
-    if (currentStepState.hydration < 35 && !currentStepState.hasTriggeredCramp && random.nextRange(0, 100) < 30) {
-      currentStepState.pendingDecision = DECISION_DATABASE.cramp_warning;
-      currentStepState.hasTriggeredCramp = true;
+    const activeBp = bpEngine.checkForBreakingPoint(currentStepState);
+    if (activeBp && !activeBp.resolved) {
+      currentStepState.activeBreakingPoint = activeBp;
+      currentStepState.shownBreakingPoints = Array.from(
+        bpEngine.getShownBreakingPoints(),
+      );
+
+      // Apply base onset effects immediately
+      const bp = activeBp.breakingPoint;
+      if (bp.effects) {
+        if (bp.effects.energy !== undefined) {
+          currentStepState.energy = Math.max(
+            0,
+            Math.min(100, currentStepState.energy + bp.effects.energy),
+          );
+        }
+        if (bp.effects.hydration !== undefined) {
+          currentStepState.hydration = Math.max(
+            0,
+            Math.min(100, currentStepState.hydration + bp.effects.hydration),
+          );
+        }
+        if (bp.effects.pace !== undefined) {
+          currentStepState.accumulatedTime = Math.max(
+            0,
+            currentStepState.accumulatedTime + bp.effects.pace,
+          );
+        }
+        if (bp.effects.muscleFatigue !== undefined) {
+          currentStepState.muscleFatigue = Math.max(
+            0,
+            Math.min(
+              100,
+              currentStepState.muscleFatigue + bp.effects.muscleFatigue,
+            ),
+          );
+        }
+        if (bp.effects.mentalFatigue !== undefined) {
+          currentStepState.mentalFatigue = Math.max(
+            0,
+            Math.min(
+              100,
+              currentStepState.mentalFatigue + bp.effects.mentalFatigue,
+            ),
+          );
+        }
+        if (bp.effects.confidence !== undefined) {
+          currentStepState.confidence = Math.max(
+            0,
+            Math.min(100, currentStepState.confidence + bp.effects.confidence),
+          );
+        }
+        if (bp.effects.momentum !== undefined) {
+          currentStepState.momentum = Math.max(
+            0,
+            Math.min(100, currentStepState.momentum + bp.effects.momentum),
+          );
+        }
+      }
+
       currentStepState.randomSeedState = random.seed;
       return {
-        type: "decision",
+        type: "breaking_point",
         state: currentStepState,
-        prompt: {
-          km,
-          decisionCard: DECISION_DATABASE.cramp_warning,
-          timeoutSeconds: 10,
-        },
+        breakingPoint: activeBp,
       };
     }
 
@@ -592,7 +795,10 @@ export function advanceSimulation(
     );
 
     // Apply special rare event if scheduled for this kilometer
-    if (km === currentStepState.specialEventKm && currentStepState.specialEventId) {
+    if (
+      km === currentStepState.specialEventKm &&
+      currentStepState.specialEventId
+    ) {
       const eventDef = EVENT_DATABASE[currentStepState.specialEventId];
       if (eventDef) {
         currentStepState.energy = Math.max(
@@ -609,7 +815,10 @@ export function advanceSimulation(
         );
         currentStepState.confidence = Math.max(
           0,
-          Math.min(100, currentStepState.confidence + eventDef.effect.morale * 0.5),
+          Math.min(
+            100,
+            currentStepState.confidence + eventDef.effect.morale * 0.5,
+          ),
         );
         currentStepState.accumulatedTime = Math.max(
           0,
@@ -630,14 +839,19 @@ export function advanceSimulation(
     }
 
     // 1. Runner's High Logic
-    if ((currentStepState.momentum ?? 50) > 80 && (currentStepState.focus ?? 100) > 80) {
-      currentStepState.runnersHighTicks = (currentStepState.runnersHighTicks ?? 0) + 1;
+    if (
+      (currentStepState.momentum ?? 50) > 80 &&
+      (currentStepState.focus ?? 100) > 80
+    ) {
+      currentStepState.runnersHighTicks =
+        (currentStepState.runnersHighTicks ?? 0) + 1;
     } else {
       currentStepState.runnersHighTicks = 0;
     }
 
     if ((currentStepState.runnersHighCooldown ?? 0) > 0) {
-      currentStepState.runnersHighCooldown = currentStepState.runnersHighCooldown! - 1;
+      currentStepState.runnersHighCooldown =
+        currentStepState.runnersHighCooldown! - 1;
     }
 
     if (currentStepState.isRunnersHighActive) {
@@ -674,9 +888,13 @@ export function advanceSimulation(
     }
 
     // 2. Overtake Commentary Log Logic
-    const prevLogState = currentStepState.accumulatedStateLog && currentStepState.accumulatedStateLog.length > 0
-      ? currentStepState.accumulatedStateLog[currentStepState.accumulatedStateLog.length - 1]
-      : null;
+    const prevLogState =
+      currentStepState.accumulatedStateLog &&
+      currentStepState.accumulatedStateLog.length > 0
+        ? currentStepState.accumulatedStateLog[
+            currentStepState.accumulatedStateLog.length - 1
+          ]
+        : null;
 
     if (prevLogState && currentStepState.opponents) {
       for (const opp of currentStepState.opponents) {
@@ -688,7 +906,10 @@ export function advanceSimulation(
           const currentPlayerTime = currentStepState.accumulatedTime;
           const currentOppTime = opp.accumulatedTime;
 
-          if (prevPlayerTime > prevOppTime && currentPlayerTime < currentOppTime) {
+          if (
+            prevPlayerTime > prevOppTime &&
+            currentPlayerTime < currentOppTime
+          ) {
             currentStepState.eventsResolved.push({
               km,
               title: { en: "Overtake!", id: "Menyalip!" },
@@ -699,7 +920,10 @@ export function advanceSimulation(
               effect: { stamina: 0, hydration: 0, morale: 5, pace: 0 },
             });
             currentStepState.focus = Math.min(100, currentStepState.focus + 5);
-          } else if (prevPlayerTime < prevOppTime && currentPlayerTime > currentOppTime) {
+          } else if (
+            prevPlayerTime < prevOppTime &&
+            currentPlayerTime > currentOppTime
+          ) {
             currentStepState.eventsResolved.push({
               km,
               title: { en: "Overtaken!", id: "Disalip!" },
@@ -722,7 +946,8 @@ export function advanceSimulation(
     currentStepState.accumulatedStateLog?.push(logState);
 
     // Check if we should yield kilometer by kilometer (for live active pacing controls)
-    const isPlayerDNF = currentStepState.energy <= 0 || currentStepState.hydration <= 0;
+    const isPlayerDNF =
+      currentStepState.energy <= 0 || currentStepState.hydration <= 0;
     if (stepByStep && km < maxKms && !isPlayerDNF) {
       return {
         type: "step",
@@ -766,13 +991,27 @@ export function advanceSimulation(
 
 export function simulateRace(input: SimulationInput): SimulationResult {
   let stepRes = advanceSimulation(input);
-  while (stepRes.type === "decision" || stepRes.type === "step") {
+  while (
+    stepRes.type === "decision" ||
+    stepRes.type === "breaking_point" ||
+    stepRes.type === "step"
+  ) {
     if (stepRes.type === "decision") {
       const choiceId = getFallbackChoice(
         stepRes.prompt.decisionCard,
         stepRes.state.decisionHistory || [],
         stepRes.state.randomSeedState ?? input.seed,
       );
+      stepRes = advanceSimulation(input, stepRes.state, choiceId);
+    } else if (stepRes.type === "breaking_point") {
+      const bp = stepRes.breakingPoint.breakingPoint;
+      const random = new SeededRandom(
+        stepRes.state.randomSeedState ?? input.seed,
+      );
+      const randomOptionIndex = Math.floor(
+        random.nextRange(0, bp.recoveryOptions.length),
+      );
+      const choiceId = bp.recoveryOptions[randomOptionIndex].id;
       stepRes = advanceSimulation(input, stepRes.state, choiceId);
     } else {
       stepRes = advanceSimulation(input, stepRes.state);

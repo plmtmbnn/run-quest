@@ -150,6 +150,10 @@ export interface CoachInsight {
    * Insights with the same priority are sorted by category.
    */
   priority: number;
+  /**
+   * Coach personality type to use for this insight.
+   */
+  coachType?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -179,6 +183,10 @@ export interface PostRaceFeedback {
   secondary: CoachFeedbackMessage[];
   /** Optional training recommendation for tomorrow. */
   recommendation?: CoachFeedbackMessage;
+  /**
+   * Coach personality type used for this feedback.
+   */
+  coachType?: string;
 }
 
 /**
@@ -192,6 +200,10 @@ export interface PostTrainingFeedback {
   secondary: CoachFeedbackMessage[];
   /** Optional training recommendation for tomorrow. */
   recommendation?: CoachFeedbackMessage;
+  /**
+   * Coach personality type used for this feedback.
+   */
+  coachType?: string;
 }
 
 // ---------------------------------------------------------------------------

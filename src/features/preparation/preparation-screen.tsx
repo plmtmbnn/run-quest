@@ -85,12 +85,14 @@ export function PreparationScreen() {
   const [showWarmupGame, setShowWarmupGame] = useState(false);
   const [warmupProgress, setWarmupProgress] = useState(0);
   const [direction, setDirection] = useState(1);
-  const [gameResult, setGameResult] = useState<"perfect" | "good" | "normal" | null>(null);
+  const [gameResult, setGameResult] = useState<
+    "perfect" | "good" | "normal" | null
+  >(null);
   const [isStopped, setIsStopped] = useState(false);
 
   useEffect(() => {
     if (!showWarmupGame || isStopped) return;
-    
+
     const interval = setInterval(() => {
       setWarmupProgress((prev) => {
         let next = prev + direction * 5;
@@ -111,7 +113,7 @@ export function PreparationScreen() {
   const handleTapWarmup = () => {
     if (isStopped) return;
     setIsStopped(true);
-    
+
     let outcome: "perfect" | "good" | "normal" = "normal";
     if (warmupProgress >= 45 && warmupProgress <= 55) {
       outcome = "perfect";
@@ -157,7 +159,6 @@ export function PreparationScreen() {
 🎒 Gear: ${preparation.gear.length > 0 ? preparation.gear.map((g) => t(`preparation.gear.${g}.name` as TranslationKey)).join(", ") : "None"}
 
 ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
-
 
   return (
     <motion.div
@@ -790,13 +791,14 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 Prime Your Muscle Memory!
               </h3>
               <p className="text-xs text-slate-500 dark:text-gray-400 mt-2">
-                Tap when the slider is exactly in the center green zone to boost your starting stamina!
+                Tap when the slider is exactly in the center green zone to boost
+                your starting stamina!
               </p>
             </div>
 
             <div className="relative w-full h-8 bg-slate-100 dark:bg-gray-950 rounded-full border border-slate-200 dark:border-gray-800 overflow-hidden flex items-center">
               <div className="absolute left-[30%] right-[30%] h-full bg-yellow-400/20 dark:bg-yellow-400/10 border-l border-r border-yellow-400/30" />
-              
+
               <div className="absolute left-[45%] right-[45%] h-full bg-emerald-500/30 dark:bg-emerald-500/20 border-l border-r border-emerald-500/50 flex items-center justify-center">
                 <span className="text-[8px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest pointer-events-none">
                   Target
@@ -818,7 +820,8 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                     ${gameResult === "normal" ? "bg-slate-100 text-slate-800 dark:bg-gray-800 dark:text-gray-405 border border-slate-300/30" : ""}
                   `}
                 >
-                  {gameResult === "perfect" && "⭐ PERFECT WARM-UP (+15% Stamina) ⭐"}
+                  {gameResult === "perfect" &&
+                    "⭐ PERFECT WARM-UP (+15% Stamina) ⭐"}
                   {gameResult === "good" && "👍 GOOD WARM-UP (+5% Stamina)"}
                   {gameResult === "normal" && "Ready! (Normal Starting Stats)"}
                 </div>

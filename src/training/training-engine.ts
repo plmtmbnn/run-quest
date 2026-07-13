@@ -3,8 +3,8 @@
 
 import { analyzeTraining } from "@/coach/coach-analysis";
 import type { TrainingTelemetry } from "@/coach/coach-types";
-import { loadRunnerState, saveRunnerState } from "@/runner/runner-persistence";
 import { awardXP } from "@/runner/runner-engine";
+import { loadRunnerState, saveRunnerState } from "@/runner/runner-persistence";
 import { queueAdaptation } from "./adaptation-engine";
 import {
   ACTIVITY_EFFECTS,

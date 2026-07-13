@@ -5,17 +5,23 @@ const mockStorage: Record<string, string> = {};
 global.window = {} as any;
 global.localStorage = {
   getItem: (key: string) => mockStorage[key] || null,
-  setItem: (key: string, value: string) => { mockStorage[key] = value; },
-  removeItem: (key: string) => { delete mockStorage[key]; },
-  clear: () => { for (const key in mockStorage) delete mockStorage[key]; },
+  setItem: (key: string, value: string) => {
+    mockStorage[key] = value;
+  },
+  removeItem: (key: string) => {
+    delete mockStorage[key];
+  },
+  clear: () => {
+    for (const key in mockStorage) delete mockStorage[key];
+  },
   length: 0,
   key: (index: number) => "",
 };
 
+import { advanceSimulation } from "@/engine/simulation/engine";
 import { completeRace, updateTrainingDay } from "@/runner/runner-engine";
 import { loadRunnerState, saveRunnerState } from "@/runner/runner-persistence";
 import { DEFAULT_RUNNER_STATE } from "@/runner/runner-types";
-import { advanceSimulation } from "@/engine/simulation/engine";
 import type { DailyChallenge, SimulationInput } from "@/types/engine";
 
 const mockChallenge: DailyChallenge = {
@@ -100,7 +106,13 @@ describe("RPG Economy & Warm-up Minigames", () => {
         warmupBonus: "normal" as const,
       },
     };
-    const stepNormal = advanceSimulation(normalInput, undefined, undefined, undefined, true);
+    const stepNormal = advanceSimulation(
+      normalInput,
+      undefined,
+      undefined,
+      undefined,
+      true,
+    );
     if (stepNormal.type === "finished") throw new Error("Expected step");
 
     // Test perfect warmup (+15 energy offset)
@@ -111,7 +123,13 @@ describe("RPG Economy & Warm-up Minigames", () => {
         warmupBonus: "perfect" as const,
       },
     };
-    const stepPerfect = advanceSimulation(perfectInput, undefined, undefined, undefined, true);
+    const stepPerfect = advanceSimulation(
+      perfectInput,
+      undefined,
+      undefined,
+      undefined,
+      true,
+    );
     if (stepPerfect.type === "finished") throw new Error("Expected step");
 
     // Perfect warmup starting energy should be higher than normal warmup starting energy

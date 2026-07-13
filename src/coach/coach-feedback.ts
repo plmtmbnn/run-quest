@@ -5,6 +5,8 @@
 // All strings live here; the engine layer never touches display text.
 // Future: replace resolveMessage() with an LLM call without touching any other file.
 
+// Import dynamic coach personalities
+import coachesData from "../../data/coaches.json";
 import type {
   CoachFeedbackMessage,
   CoachInsight,
@@ -13,6 +15,33 @@ import type {
   RaceTelemetry,
   TrainingTelemetry,
 } from "./coach-types";
+
+// ---------------------------------------------------------------------------
+// Helper Functions
+// ---------------------------------------------------------------------------
+
+/**
+ * Selects a random dialogue from the coach's personality for the given key.
+ * Falls back to the default template if no personality-specific dialogue is found.
+ */
+function getCoachDialogue(
+  coachType: string,
+  key: string,
+  params: Record<string, string | number>,
+): string {
+  const coach = coachesData[coachType as keyof typeof coachesData];
+  const dialogues = coach[key as keyof typeof coach] as string[] | undefined;
+
+  if (dialogues && dialogues.length > 0) {
+    const randomIndex = Math.floor(Math.random() * dialogues.length);
+    return interpolate(dialogues[randomIndex], params);
+  }
+
+  // Fallback to default template
+  const template =
+    MESSAGE_TEMPLATES[key] ?? "An observation was recorded for this session.";
+  return interpolate(template, params);
+}
 
 // ---------------------------------------------------------------------------
 // Message templates
@@ -112,11 +141,15 @@ function interpolate(
  * Resolves a CoachInsight into a display-ready CoachFeedbackMessage.
  * Falls back to a safe generic message if the template key is not found.
  */
-export function resolveInsight(insight: CoachInsight): CoachFeedbackMessage {
-  const template =
-    MESSAGE_TEMPLATES[insight.messageKey] ??
-    "An observation was recorded for this session.";
-  const message = interpolate(template, insight.params);
+export function resolveInsight(
+  insight: CoachInsight,
+  coachType: string = "drill_sergeant", // Default to drill_sergeant
+): CoachFeedbackMessage {
+  const message = getCoachDialogue(
+    coachType,
+    insight.messageKey,
+    insight.params,
+  );
 
   return {
     id: insight.id,
@@ -140,6 +173,7 @@ export function resolveInsight(insight: CoachInsight): CoachFeedbackMessage {
 export function assemblePostRaceFeedback(
   insights: CoachInsight[],
   _telemetry: RaceTelemetry,
+  coachType: string = "drill_sergeant", // Default to drill_sergeant
 ): PostRaceFeedback {
   // Separate recovery recommendation from observational insights
   const recommendInsight = insights.find((i) => i.id === "recommend_recovery");
@@ -157,13 +191,15 @@ export function assemblePostRaceFeedback(
     priority: 0,
   };
 
-  const primary = resolveInsight(primaryInsight ?? fallbackPrimary);
-  const secondary = rest.slice(0, 3).map(resolveInsight);
+  const primary = resolveInsight(primaryInsight ?? fallbackPrimary, coachType);
+  const secondary = rest
+    .slice(0, 3)
+    .map((insight) => resolveInsight(insight, coachType));
   const recommendation = recommendInsight
-    ? resolveInsight(recommendInsight)
+    ? resolveInsight(recommendInsight, coachType)
     : undefined;
 
-  return { type: "race", primary, secondary, recommendation };
+  return { type: "race", primary, secondary, recommendation, coachType };
 }
 
 // ---------------------------------------------------------------------------
@@ -176,6 +212,7 @@ export function assemblePostRaceFeedback(
 export function assemblePostTrainingFeedback(
   insights: CoachInsight[],
   _telemetry: TrainingTelemetry,
+  coachType: string = "drill_sergeant", // Default to drill_sergeant
 ): PostTrainingFeedback {
   const [primaryInsight, ...rest] = insights;
 
@@ -188,10 +225,12 @@ export function assemblePostTrainingFeedback(
     priority: 0,
   };
 
-  const primary = resolveInsight(primaryInsight ?? fallbackPrimary);
-  const secondary = rest.slice(0, 2).map(resolveInsight);
+  const primary = resolveInsight(primaryInsight ?? fallbackPrimary, coachType);
+  const secondary = rest
+    .slice(0, 2)
+    .map((insight) => resolveInsight(insight, coachType));
 
-  return { type: "training", primary, secondary };
+  return { type: "training", primary, secondary, coachType };
 }
 
 // ---------------------------------------------------------------------------

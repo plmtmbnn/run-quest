@@ -52,7 +52,8 @@ describe("AI Rivals & Active Pacing Simulation", () => {
       undefined,
       true,
     );
-    if (startStep.type === "finished") throw new Error("Expected step or decision");
+    if (startStep.type === "finished")
+      throw new Error("Expected step or decision");
     const state = startStep.state;
     // Clear decision timeline to prevent random event yields in tests
     state.decisionTimeline = {};
@@ -91,7 +92,8 @@ describe("AI Rivals & Active Pacing Simulation", () => {
       undefined,
       true,
     );
-    if (startStep.type === "finished") throw new Error("Expected step or decision");
+    if (startStep.type === "finished")
+      throw new Error("Expected step or decision");
     const state = startStep.state;
     state.decisionTimeline = {};
 
@@ -185,7 +187,8 @@ describe("AI Rivals & Active Pacing Simulation", () => {
       undefined,
       true,
     );
-    if (startStep.type === "finished") throw new Error("Expected step or decision");
+    if (startStep.type === "finished")
+      throw new Error("Expected step or decision");
     const state = startStep.state;
     state.decisionTimeline = {};
 

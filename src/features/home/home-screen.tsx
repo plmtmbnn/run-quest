@@ -9,15 +9,15 @@ import { DailyStatsCard } from "@/components/share/daily-stats-card";
 import { ShareModal } from "@/components/share/share-modal";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+import { useRunnerStore } from "@/runner/runner-store";
 import { generateDailyRaceBoard } from "@/services/challenge/generator";
 import { storageRepository } from "@/storage/storage-repository";
 import type { StoredDailyBoard } from "@/storage/types";
 import { useGameStore } from "@/store/game-store";
 import { usePlayerStore } from "@/store/player-store";
 import { useSettingsStore } from "@/store/settings-store";
-import type { RaceEntry } from "@/types/engine";
-import { useRunnerStore } from "@/runner/runner-store";
 import { useTrainingStore } from "@/training/training-store";
+import type { RaceEntry } from "@/types/engine";
 
 export function HomeScreen() {
   const router = useRouter();
@@ -37,7 +37,7 @@ export function HomeScreen() {
 
     const coinsGained = 50;
     const xpGained = 50;
-    
+
     let xp = (profile.xp || 0) + xpGained;
     let level = profile.level || 1;
     let skillPoints = profile.skillPoints || 0;
@@ -57,14 +57,14 @@ export function HomeScreen() {
       skillPoints,
       questClaims: {
         ...claims,
-        [questId]: todayStr
-      }
+        [questId]: todayStr,
+      },
     };
 
     setRunnerState({
       ...runnerState,
       profile: updatedProfile,
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
     });
 
     playSound("success");
@@ -405,7 +405,9 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
               <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
                 <span>📋</span> Daily Quest Board
               </h2>
-              <span className="text-xs text-gray-400 font-medium">Claim rewards for completing daily runs</span>
+              <span className="text-xs text-gray-400 font-medium">
+                Claim rewards for completing daily runs
+              </span>
             </div>
 
             <div className="flex flex-col gap-3">
@@ -415,26 +417,40 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
                   name: "Race Completion",
                   desc: "Complete today's Daily Race challenge.",
                   completed: boardStatus?.completedEntryId !== null,
-                  claimed: runnerState.profile.questClaims?.daily_race === todayStr,
-                  bgClass: "bg-sky-50 dark:bg-sky-950/20 border-sky-100 dark:border-sky-900/30 text-sky-850 dark:text-sky-300",
+                  claimed:
+                    runnerState.profile.questClaims?.daily_race === todayStr,
+                  bgClass:
+                    "bg-sky-50 dark:bg-sky-950/20 border-sky-100 dark:border-sky-900/30 text-sky-850 dark:text-sky-300",
                   icon: "🏃‍♂️",
                 },
                 {
                   id: "daily_upgrade",
                   name: "Career Upgrade",
                   desc: "Spend career points to upgrade attributes.",
-                  completed: (runnerState.profile.speedAttr + runnerState.profile.staminaAttr + runnerState.profile.hydrationAttr + runnerState.profile.willpowerAttr) > 40,
-                  claimed: runnerState.profile.questClaims?.daily_upgrade === todayStr,
-                  bgClass: "bg-amber-50 dark:bg-amber-950/20 border-amber-100 dark:border-amber-900/30 text-amber-850 dark:text-amber-300",
+                  completed:
+                    runnerState.profile.speedAttr +
+                      runnerState.profile.staminaAttr +
+                      runnerState.profile.hydrationAttr +
+                      runnerState.profile.willpowerAttr >
+                    40,
+                  claimed:
+                    runnerState.profile.questClaims?.daily_upgrade === todayStr,
+                  bgClass:
+                    "bg-amber-50 dark:bg-amber-950/20 border-amber-100 dark:border-amber-900/30 text-amber-850 dark:text-amber-300",
                   icon: "⚡",
                 },
                 {
                   id: "daily_training",
                   name: "Daily Training",
                   desc: "Record today's training or recovery activity.",
-                  completed: (trainingState.trainingHistory || []).some(day => day.date.startsWith(todayStr)),
-                  claimed: runnerState.profile.questClaims?.daily_training === todayStr,
-                  bgClass: "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/30 text-emerald-850 dark:text-emerald-300",
+                  completed: (trainingState.trainingHistory || []).some((day) =>
+                    day.date.startsWith(todayStr),
+                  ),
+                  claimed:
+                    runnerState.profile.questClaims?.daily_training ===
+                    todayStr,
+                  bgClass:
+                    "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/30 text-emerald-850 dark:text-emerald-300",
                   icon: "🔋",
                 },
               ].map((quest) => {
@@ -449,8 +465,12 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
                         {quest.claimed ? "✅" : quest.icon}
                       </div>
                       <div>
-                        <h4 className="font-extrabold text-sm text-slate-800 dark:text-white leading-tight">{quest.name}</h4>
-                        <p className="text-[10px] opacity-80 mt-1 leading-normal">{quest.desc}</p>
+                        <h4 className="font-extrabold text-sm text-slate-800 dark:text-white leading-tight">
+                          {quest.name}
+                        </h4>
+                        <p className="text-[10px] opacity-80 mt-1 leading-normal">
+                          {quest.desc}
+                        </p>
                       </div>
                     </div>
 
@@ -459,11 +479,12 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
                       disabled={!canClaim}
                       onClick={() => claimQuest(quest.id)}
                       className={`py-2.5 px-5 rounded-[1.5rem] text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all transform active:scale-95 border w-full sm:w-auto
-                        ${quest.claimed
-                          ? "bg-slate-200 dark:bg-slate-850 border-slate-250 dark:border-slate-800 text-slate-500 cursor-not-allowed"
-                          : canClaim
-                            ? "bg-orange-500 hover:bg-orange-600 border-orange-500 text-white cursor-pointer shadow-md shadow-orange-500/20"
-                            : "bg-white/40 dark:bg-slate-900/30 border-white/20 dark:border-slate-800/20 text-slate-400 cursor-not-allowed opacity-50"
+                        ${
+                          quest.claimed
+                            ? "bg-slate-200 dark:bg-slate-850 border-slate-250 dark:border-slate-800 text-slate-500 cursor-not-allowed"
+                            : canClaim
+                              ? "bg-orange-500 hover:bg-orange-600 border-orange-500 text-white cursor-pointer shadow-md shadow-orange-500/20"
+                              : "bg-white/40 dark:bg-slate-900/30 border-white/20 dark:border-slate-800/20 text-slate-400 cursor-not-allowed opacity-50"
                         }
                       `}
                     >
@@ -515,7 +536,8 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
             const lang = language === "id" ? "id" : "en";
 
             let buttonText = t("home.choose_race" as TranslationKey);
-            let buttonStyle = "bg-primary hover:bg-primary-dark text-white rounded-[1.5rem]";
+            let buttonStyle =
+              "bg-primary hover:bg-primary-dark text-white rounded-[1.5rem]";
 
             if (isCompleted) {
               buttonText = t("home.completed_badge" as TranslationKey);
