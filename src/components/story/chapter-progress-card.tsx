@@ -88,7 +88,7 @@ export function ChapterProgressCard({
         </p>
       )}
 
-      {/* Progress bar (if current chapter) */}
+        {/* Progress bar (if current chapter) */}
       {isCurrent && (
         <div className="mb-3">
           <div className="flex justify-between text-xs mb-1">
@@ -101,7 +101,7 @@ export function ChapterProgressCard({
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${progressPercent}%` }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
+              transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
               className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
             />
           </div>
