@@ -1,15 +1,20 @@
-import type { DailyChallenge, Race, Environment, Checkpoint } from "@/types/engine";
+import type { Race, Environment, Checkpoint, Scenario } from "@/types/engine";
 import type { ChampionshipRace } from "./story-types";
 import { SeededRandom } from "@/utils/random/seeded-random";
 
 /**
- * Generate a championship race challenge from story chapter data
+ * Generate a championship race scenario from story chapter data
  */
 export function generateChampionshipChallenge(
   championship: ChampionshipRace,
   seed?: string,
-): DailyChallenge {
-  const rng = new SeededRandom(seed || championship.id);
+): Scenario {
+  // Convert string seed to number using hash
+  const seedNumber = seed
+    ? seed.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
+    : championship.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  
+  const rng = new SeededRandom(seedNumber);
 
   // Determine race difficulty parameters
   const difficultySettings = {
@@ -38,14 +43,15 @@ export function generateChampionshipChallenge(
     temperature: rng.nextRange(15, 28),
     humidity: rng.nextRange(40, 70),
     wind: {
-      direction: rng.choice(["north", "south", "east", "west"] as const),
+      direction: rng.pick(["north", "south", "east", "west"] as const),
       speed: rng.nextRange(5, 15),
     },
     timeOfDay: determineTimeOfDay(championship.location),
   };
 
-  return {
+  const scenario: Scenario = {
     id: championship.id,
+    date: new Date().toISOString(),
     race,
     environment,
     objective: {
@@ -64,6 +70,8 @@ export function generateChampionshipChallenge(
       requiredToComplete: championship.requiredToComplete,
     },
   };
+
+  return scenario;
 }
 
 /**
@@ -115,7 +123,7 @@ function determineWeather(
     extreme: ["rain", "hot", "cold", "storm", "fog"] as const,
   };
 
-  return rng.choice(weatherOptions[difficulty]);
+  return rng.pick(weatherOptions[difficulty]);
 }
 
 /**
@@ -157,21 +165,21 @@ function generateCheckpoints(distance: number): Checkpoint[] {
 }
 
 /**
- * Check if a race is a championship race
+ * Check if a scenario is a championship race
  */
-export function isChampionshipRace(challenge: DailyChallenge): boolean {
-  return (challenge as any).isChampionship === true;
+export function isChampionshipRace(scenario: Scenario): boolean {
+  return (scenario as any).isChampionship === true;
 }
 
 /**
- * Get championship data from a challenge
+ * Get championship data from a scenario
  */
-export function getChampionshipData(challenge: DailyChallenge): {
+export function getChampionshipData(scenario: Scenario): {
   location: string;
   stakes: { en: string; id: string };
   rivalLineup: string[];
   difficulty: "easy" | "medium" | "hard" | "extreme";
   requiredToComplete: boolean;
 } | null {
-  return (challenge as any).championshipData || null;
+  return (scenario as any).championshipData || null;
 }

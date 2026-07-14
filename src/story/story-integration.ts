@@ -93,7 +93,10 @@ export function handleRaceComplete(
     }
   }
 
-  return { updatedProgress, events };
+  return { updatedProgress, events: events as Array<{
+    type: "chapter_complete" | "story_beat" | "championship_won" | "championship_lost";
+    data: any;
+  }> };
 }
 
 /**
