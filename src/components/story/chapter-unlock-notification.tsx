@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Sparkles, ChevronRight } from "lucide-react";
-import { useLanguage } from "@/hooks/use-language";
+import { useTranslation } from "@/i18n/use-translation";
 import type { StoryChapter } from "@/story/story-types";
 
 interface ChapterUnlockNotificationProps {
@@ -17,7 +17,7 @@ export function ChapterUnlockNotification({
   chapter,
   onContinue,
 }: ChapterUnlockNotificationProps) {
-  const { lang } = useLanguage();
+  const { language: lang } = useTranslation();
 
   return (
     <motion.div

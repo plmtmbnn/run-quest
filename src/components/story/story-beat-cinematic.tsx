@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
-import { useLanguage } from "@/hooks/use-language";
+import { useTranslation } from "@/i18n/use-translation";
 import type { StoryBeat } from "@/story/story-types";
 
 interface StoryBeatCinematicProps {
@@ -19,7 +19,7 @@ export function StoryBeatCinematic({
   onComplete,
   onSkip,
 }: StoryBeatCinematicProps) {
-  const { lang } = useLanguage();
+  const { language: lang } = useTranslation();
 
   const getToneStyles = () => {
     switch (storyBeat.emotionalTone) {

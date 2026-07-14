@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Trophy, Target, Award } from "lucide-react";
-import { useLanguage } from "@/hooks/use-language";
+import { useTranslation } from "@/i18n/use-translation";
 import type { ChampionshipRace } from "@/story/story-types";
 
 interface ChampionshipUnlockNotificationProps {
@@ -19,7 +19,7 @@ export function ChampionshipUnlockNotification({
   onAccept,
   onDismiss,
 }: ChampionshipUnlockNotificationProps) {
-  const { lang } = useLanguage();
+  const { language: lang } = useTranslation();
 
   const getDifficultyColor = () => {
     switch (championship.difficulty) {

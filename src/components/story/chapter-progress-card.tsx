@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Lock, CheckCircle, Circle } from "lucide-react";
-import { useLanguage } from "@/hooks/use-language";
+import { useTranslation } from "@/i18n/use-translation";
 import type { StoryChapter } from "@/story/story-types";
 import type { StoryProgress } from "@/story/story-types";
 
@@ -28,7 +28,7 @@ export function ChapterProgressCard({
   progressPercent,
   onClick,
 }: ChapterProgressCardProps) {
-  const { lang } = useLanguage();
+  const { language: lang } = useTranslation();
 
   const getStatusIcon = () => {
     if (isCompleted) {
