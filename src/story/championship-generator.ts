@@ -1,6 +1,20 @@
-import type { Race, Environment, Checkpoint, Scenario } from "@/types/engine";
+import type { Race, Environment, Checkpoint, Scenario, StorySeed, Objective } from "@/types/engine";
 import type { ChampionshipRace } from "./story-types";
 import { SeededRandom } from "@/utils/random/seeded-random";
+
+/**
+ * Extended scenario type for championship races
+ */
+export interface ChampionshipScenario extends Scenario {
+  isChampionship: true;
+  championshipData: {
+    location: string;
+    stakes: { en: string; id: string };
+    rivalLineup: string[];
+    difficulty: "easy" | "medium" | "hard" | "extreme";
+    requiredToComplete: boolean;
+  };
+}
 
 /**
  * Generate a championship race scenario from story chapter data
@@ -8,7 +22,7 @@ import { SeededRandom } from "@/utils/random/seeded-random";
 export function generateChampionshipChallenge(
   championship: ChampionshipRace,
   seed?: string,
-): Scenario {
+): ChampionshipScenario {
   // Convert string seed to number using hash
   const seedNumber = seed
     ? seed.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
@@ -49,7 +63,7 @@ export function generateChampionshipChallenge(
     timeOfDay: determineTimeOfDay(championship.location),
   };
 
-  const scenario: Scenario = {
+  const scenario: ChampionshipScenario = {
     id: championship.id,
     date: new Date().toISOString(),
     race,
@@ -167,8 +181,8 @@ function generateCheckpoints(distance: number): Checkpoint[] {
 /**
  * Check if a scenario is a championship race
  */
-export function isChampionshipRace(scenario: Scenario): boolean {
-  return (scenario as any).isChampionship === true;
+export function isChampionshipRace(scenario: Scenario): scenario is ChampionshipScenario {
+  return (scenario as ChampionshipScenario).isChampionship === true;
 }
 
 /**
@@ -181,5 +195,8 @@ export function getChampionshipData(scenario: Scenario): {
   difficulty: "easy" | "medium" | "hard" | "extreme";
   requiredToComplete: boolean;
 } | null {
-  return (scenario as any).championshipData || null;
+  if (isChampionshipRace(scenario)) {
+    return scenario.championshipData;
+  }
+  return null;
 }
