@@ -27,6 +27,7 @@ export function handleRaceComplete(
     position?: number;
     grade?: string;
   },
+  currentDayIndex: number,
 ): {
   updatedProgress: StoryProgress;
   events: Array<{
@@ -51,7 +52,7 @@ export function handleRaceComplete(
       attempts:
         (storyProgress.championshipAttempts[options.championshipRaceId] || 0) +
         1,
-      completedAt: new Date().toISOString(),
+      completedAt: currentDayIndex,
       grade: options.grade,
     };
 
@@ -72,6 +73,7 @@ export function handleRaceComplete(
         updatedProgress = completeChapter(
           updatedProgress,
           storyProgress.currentChapter,
+          currentDayIndex,
         );
         events.push({
           type: "chapter_complete",

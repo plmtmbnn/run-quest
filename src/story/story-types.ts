@@ -130,8 +130,8 @@ export interface StoryProgress {
   viewedStoryBeats: string[]; // IDs of seen story beats
   championshipAttempts: Record<string, number>; // race ID -> attempt count
   championshipResults: Record<string, ChampionshipResult>;
-  chapterStartedAt: Record<number, string>; // chapter -> ISO timestamp
-  chapterCompletedAt: Record<number, string>; // chapter -> ISO timestamp
+  chapterStartedAt: Record<number, number>; // chapter -> dayIndex
+  chapterCompletedAt: Record<number, number>; // chapter -> dayIndex
   totalStoryRaces: number;
   storyMilestones: string[]; // Special story achievement IDs
 }
@@ -145,7 +145,7 @@ export interface ChampionshipResult {
   finishTime: number; // in seconds
   position: number; // 1-based
   attempts: number;
-  completedAt: string; // ISO timestamp
+  completedAt: number; // dayIndex
   grade?: string; // e.g., "S", "A", "B"
 }
 
@@ -170,7 +170,7 @@ export const DEFAULT_STORY_PROGRESS: StoryProgress = {
   viewedStoryBeats: [],
   championshipAttempts: {},
   championshipResults: {},
-  chapterStartedAt: { 1: new Date().toISOString() },
+  chapterStartedAt: { 1: 0 },
   chapterCompletedAt: {},
   totalStoryRaces: 0,
   storyMilestones: [],
@@ -183,5 +183,5 @@ export interface StoryEvent {
   type: "story_beat" | "chapter_unlock" | "championship_available";
   storyBeat?: StoryBeat;
   chapter?: StoryChapter;
-  timestamp: string;
+  timestamp: number; // dayIndex
 }

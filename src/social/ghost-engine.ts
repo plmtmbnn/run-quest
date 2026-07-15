@@ -3,7 +3,7 @@ export interface GhostRun {
   runnerName: string;
   finishTime: number;
   splits: number[]; // Index is km - 1
-  recordedAt: string; // ISO timestamp
+  recordedAt: string | number; // ISO timestamp or in-game dayIndex
 }
 
 const GHOST_STORAGE_KEY_PREFIX = "runquest.ghost.";
@@ -47,6 +47,7 @@ export function saveGhostRun(
   runnerName: string,
   finishTime: number,
   splits: number[],
+  inGameDayIndex?: number,
 ): void {
   try {
     if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
@@ -55,7 +56,10 @@ export function saveGhostRun(
         runnerName,
         finishTime,
         splits,
-        recordedAt: new Date().toISOString(),
+        recordedAt:
+          inGameDayIndex !== undefined
+            ? inGameDayIndex
+            : new Date().toISOString(),
       };
       localStorage.setItem(
         `${GHOST_STORAGE_KEY_PREFIX}${challengeId}`,

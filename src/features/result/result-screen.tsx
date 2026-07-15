@@ -26,6 +26,7 @@ import {
 } from "@/social/ranking-engine";
 import { useSocialStore } from "@/social/social-store";
 import { useGameStore } from "@/store/game-store";
+import { useTimelineStore } from "@/store/timeline-store";
 import { usePreparationStore } from "@/store/preparation-store";
 import type { RaceEvent } from "@/types/engine";
 
@@ -186,12 +187,15 @@ export function ResultScreen() {
           return s.accumulatedTime - prev.accumulatedTime;
         });
 
+      const dayIndex = useTimelineStore.getState().gameState?.dayIndex;
+
       if (isNewPersonalBest(challenge.id, lastResult.finishTime)) {
         saveGhostRun(
           challenge.id,
           profile.displayName,
           lastResult.finishTime,
           splits,
+          dayIndex,
         );
       }
 
@@ -201,6 +205,7 @@ export function ResultScreen() {
         .simulateCompetitionDay(
           challenge.race.distance,
           profile.rankPoints || 0,
+          dayIndex,
         );
     }
 

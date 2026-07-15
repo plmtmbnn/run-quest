@@ -30,7 +30,7 @@ export interface ActivityEffect {
  * Represents the training history for a single day.
  */
 export interface TrainingDay {
-  date: string; // ISO 8601 date
+  date: number; // dayIndex
   activity: DailyActivity;
   effect: ActivityEffect;
   adaptationApplied: boolean; // Whether delayed adaptation has been applied
@@ -55,10 +55,10 @@ export interface TrainingState {
   trainingHistory: TrainingDay[];
   weeklyBalance: WeeklyTrainingBalance;
   adaptationQueue: Array<{
-    date: string; // ISO 8601 date
+    date: number; // dayIndex
     fitnessGain: number;
   }>;
-  lastUpdated: string; // ISO 8601 timestamp
+  lastUpdated: number; // dayIndex
 }
 
 /**
@@ -75,7 +75,7 @@ export const DEFAULT_TRAINING_STATE: TrainingState = {
     restDays: 0,
   },
   adaptationQueue: [],
-  lastUpdated: new Date().toISOString(),
+  lastUpdated: 0,
 };
 
 /**

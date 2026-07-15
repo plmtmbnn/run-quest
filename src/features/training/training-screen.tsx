@@ -12,6 +12,7 @@ import {
 } from "@/training/training-engine";
 import { useTrainingStore } from "@/training/training-store";
 import type { DailyActivity } from "@/training/training-types";
+import { useTimelineStore } from "@/store/timeline-store";
 
 /**
  * Daily Training screen.
@@ -22,15 +23,16 @@ export function TrainingScreen() {
   const { t } = useTranslation();
   const { trainingState } = useTrainingStore();
   const { runnerState } = useRunnerStore();
+  const dayIndex = useTimelineStore((s) => s.gameState?.dayIndex ?? 0);
   const [selectedActivity, setSelectedActivity] =
     useState<DailyActivity | null>(null);
-  const [coachRecommendation] = useState(generateCoachRecommendation());
+  const coachRecommendation = generateCoachRecommendation(dayIndex);
 
   // Process any pending adaptations when the screen loads.
-  processAdaptationQueue();
+  processAdaptationQueue(dayIndex);
 
   // Get the current week's training history.
-  const currentWeekTraining = getCurrentWeekTrainingHistory();
+  const currentWeekTraining = getCurrentWeekTrainingHistory(dayIndex);
 
   // Handle activity selection.
   const handleSelectActivity = (activity: DailyActivity) => {
@@ -41,7 +43,7 @@ export function TrainingScreen() {
   const handleRecordActivity = () => {
     if (!selectedActivity) return;
 
-    recordTrainingActivity(selectedActivity);
+    recordTrainingActivity(selectedActivity, dayIndex);
     router.push("/profile"); // Redirect to the Runner Profile after recording.
   };
 

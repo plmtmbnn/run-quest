@@ -58,7 +58,7 @@ export function getScheduledStoryEvents(
     const storyEvent: StoryEvent = {
       type: "story_beat",
       storyBeat: beat,
-      timestamp: new Date(0).toISOString(),
+      timestamp: eventDay,
     };
 
     events.push({
@@ -80,7 +80,7 @@ export function getScheduledStoryEvents(
     const storyEvent: StoryEvent = {
       type: "championship_available",
       chapter,
-      timestamp: new Date(0).toISOString(),
+      timestamp: championshipDay,
     };
 
     events.push({

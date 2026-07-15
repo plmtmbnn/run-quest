@@ -17,7 +17,7 @@ export interface SocialStateData {
   clubMembers: { name: string; contributionKm: number; level: number }[];
   rivalActivities: RivalActivity[];
   rivalAIData: RivalAIData[];
-  lastSimulationDate: string | null;
+  lastSimulationDate: number | null;
 }
 
 export const CLUBS: Club[] = [

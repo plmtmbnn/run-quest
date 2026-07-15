@@ -26,8 +26,11 @@ import type {
  * Records today's training activity and updates the runner's state.
  * @param activity The daily activity performed.
  */
-export const recordTrainingActivity = (activity: DailyActivity): void => {
-  const today = new Date().toISOString().split("T")[0];
+export const recordTrainingActivity = (
+  activity: DailyActivity,
+  currentDayIndex: number,
+): void => {
+  const today = currentDayIndex;
   const trainingState = loadTrainingState();
   const runnerState = loadRunnerState();
 
@@ -52,13 +55,13 @@ export const recordTrainingActivity = (activity: DailyActivity): void => {
       currentFatigue: Math.min(100, Math.max(0, updatedFatigue)),
       currentReadiness: Math.min(100, Math.max(0, updatedReadiness)),
     },
-    lastUpdated: new Date().toISOString(),
+    lastUpdated: new Date().toISOString(), // This is just save metadata, keeping it
   };
   saveRunnerState(updatedRunnerState);
 
   // Queue delayed adaptation if applicable.
   if (effect.adaptationDays && effect.fitness > 0) {
-    queueAdaptation(effect.fitness, effect.adaptationDays);
+    queueAdaptation(effect.fitness, effect.adaptationDays, currentDayIndex);
   }
 
   // Create a new training day entry.
@@ -85,7 +88,7 @@ export const recordTrainingActivity = (activity: DailyActivity): void => {
     ...trainingState,
     trainingHistory: updatedTrainingHistory,
     weeklyBalance: updatedWeeklyBalance,
-    lastUpdated: new Date().toISOString(),
+    lastUpdated: currentDayIndex,
   };
   saveTrainingState(updatedTrainingState);
 
@@ -93,23 +96,21 @@ export const recordTrainingActivity = (activity: DailyActivity): void => {
   let consecutiveHardDays = 0;
   if (isHardActivity(activity)) {
     consecutiveHardDays = 1;
-    const checkDate = new Date();
-    checkDate.setDate(checkDate.getDate() - 1);
-    while (true) {
-      const checkDateStr = checkDate.toISOString().split("T")[0];
+    let checkDay = currentDayIndex - 1;
+    while (checkDay >= 0) {
       const prevDay = updatedTrainingHistory.find(
-        (day) => day.date === checkDateStr,
+        (day) => day.date === checkDay,
       );
       if (prevDay && isHardActivity(prevDay.activity)) {
         consecutiveHardDays++;
-        checkDate.setDate(checkDate.getDate() - 1);
+        checkDay--;
       } else {
         break;
       }
     }
   }
 
-  const tomorrowDay = (new Date().getDay() + 1) % 7;
+  const tomorrowDay = (currentDayIndex + 1) % 7;
   const isPreRaceDay = tomorrowDay === 0 || tomorrowDay === 6;
 
   const telemetry: TrainingTelemetry = {
@@ -159,7 +160,7 @@ export const updateWeeklyBalance = (
 /**
  * Resets the weekly training balance at the start of a new week.
  */
-export const resetWeeklyBalance = (): void => {
+export const resetWeeklyBalance = (currentDayIndex: number): void => {
   const trainingState = loadTrainingState();
   const updatedTrainingState: TrainingState = {
     ...trainingState,
@@ -171,7 +172,7 @@ export const resetWeeklyBalance = (): void => {
       longRuns: 0,
       restDays: 0,
     },
-    lastUpdated: new Date().toISOString(),
+    lastUpdated: currentDayIndex,
   };
   saveTrainingState(updatedTrainingState);
 };
@@ -180,15 +181,15 @@ export const resetWeeklyBalance = (): void => {
  * Gets the training history for the current week.
  * @returns The training history for the current week.
  */
-export const getCurrentWeekTrainingHistory = (): TrainingDay[] => {
+export const getCurrentWeekTrainingHistory = (
+  currentDayIndex: number,
+): TrainingDay[] => {
   const trainingState = loadTrainingState();
-  const today = new Date();
-  const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() - today.getDay()); // Sunday
+  const currentWeek = Math.floor(currentDayIndex / 7);
 
   return trainingState.trainingHistory.filter((day) => {
-    const dayDate = new Date(day.date);
-    return dayDate >= startOfWeek;
+    const dayWeek = Math.floor(day.date / 7);
+    return dayWeek === currentWeek;
   });
 };
 
@@ -196,10 +197,12 @@ export const getCurrentWeekTrainingHistory = (): TrainingDay[] => {
  * Gets today's training activity (if any).
  * @returns Today's training activity or null if none.
  */
-export const getTodaysActivity = (): TrainingDay | null => {
+export const getTodaysActivity = (
+  currentDayIndex: number,
+): TrainingDay | null => {
   const trainingState = loadTrainingState();
-  const today = new Date().toISOString().split("T")[0];
   return (
-    trainingState.trainingHistory.find((day) => day.date === today) || null
+    trainingState.trainingHistory.find((day) => day.date === currentDayIndex) ||
+    null
   );
 };

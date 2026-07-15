@@ -152,7 +152,7 @@ export const useSocialStore = create<SocialStoreState>((set, get) => ({
     }
 
     // 4. Rival AI Progression — use the rival engine
-    const daySeed = inGameDayIndex !== undefined ? inGameDayIndex : Date.now();
+    const daySeed = inGameDayIndex !== undefined ? inGameDayIndex : 0;
     const { updatedRivals, activities } = simulateRivalsDay(
       state.rivalAIData,
       playerProfile,
@@ -161,15 +161,12 @@ export const useSocialStore = create<SocialStoreState>((set, get) => ({
 
     // Convert rival training results to RivalActivity entries for the feed
     const newActivities: RivalActivity[] = activities.map((act) => {
-      const activityId =
-        inGameDayIndex !== undefined
-          ? `act_day_${inGameDayIndex}_${act.rivalId}`
-          : `act_${Date.now()}_${Math.random()}`;
+      const activityId = `act_day_${daySeed}_${act.rivalId}`;
       return {
         id: activityId,
         rivalId: act.rivalId,
         rivalName: act.rivalName,
-        timestamp: inGameDayIndex !== undefined ? "Today" : "Just now",
+        timestamp: "Today",
         action: act.result.description,
         attributeImproved: act.result.attributeImproved,
       };
@@ -189,12 +186,6 @@ export const useSocialStore = create<SocialStoreState>((set, get) => ({
             return { ...a, timestamp: `${diff} days ago` };
           }
         }
-        // Fallback for real-time
-        if (a.timestamp === "Just now" || a.timestamp === "Today")
-          return { ...a, timestamp: "2h ago" };
-        if (a.timestamp === "2h ago") return { ...a, timestamp: "5h ago" };
-        if (a.timestamp === "5h ago") return { ...a, timestamp: "12h ago" };
-        if (a.timestamp === "12h ago") return { ...a, timestamp: "1d ago" };
         return a;
       }),
     ].slice(0, 10);
@@ -208,7 +199,7 @@ export const useSocialStore = create<SocialStoreState>((set, get) => ({
       clubMembers: updatedMembers,
       rivalActivities: updatedActivities,
       rivalAIData: updatedRivals,
-      lastSimulationDate: new Date().toISOString(),
+      lastSimulationDate: inGameDayIndex !== undefined ? inGameDayIndex : null,
     };
 
     const { isLoaded, ...toPersist } = updated;

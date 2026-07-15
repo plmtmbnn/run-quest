@@ -19,7 +19,7 @@ export interface RivalAIData {
   trainingFocus: "speed" | "stamina" | "willpower" | "balanced";
   recentRpChanges: number[]; // Last 5 RP changes (positive = gained, negative = lost)
   totalTrainingCycles: number;
-  lastActivityDate: string | null; // ISO date
+  lastActivityDate: number | null; // in-game dayIndex
 }
 
 export interface RivalTrainingResult {
@@ -394,7 +394,7 @@ export function simulateRivalsDay(
         recentRpChanges: recent,
         totalTrainingCycles:
           rival.totalTrainingCycles + (result.rpChange > 0 ? 1 : 0),
-        lastActivityDate: new Date().toISOString(),
+        lastActivityDate: Math.floor(daySeed),
       };
     }
 

@@ -9,7 +9,7 @@ export const ChampionshipResultSchema = z.object({
   finishTime: z.number(),
   position: z.number(),
   attempts: z.number(),
-  completedAt: z.string(),
+  completedAt: z.number(),
   grade: z.string().optional(),
 });
 
@@ -24,8 +24,8 @@ export const StoredStoryProgressSchema = z.object({
   viewedStoryBeats: z.array(z.string()),
   championshipAttempts: z.record(z.string(), z.number()),
   championshipResults: z.record(z.string(), ChampionshipResultSchema),
-  chapterStartedAt: z.record(z.string(), z.string()),
-  chapterCompletedAt: z.record(z.string(), z.string()),
+  chapterStartedAt: z.record(z.string(), z.number()),
+  chapterCompletedAt: z.record(z.string(), z.number()),
   totalStoryRaces: z.number(),
   storyMilestones: z.array(z.string()),
 });

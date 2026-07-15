@@ -75,7 +75,7 @@ export function generateChampionshipChallenge(
 
   const scenario: ChampionshipScenario = {
     id: championship.id,
-    date: new Date().toISOString(),
+    date: String(seedNumber),
     race,
     environment,
     objective: {

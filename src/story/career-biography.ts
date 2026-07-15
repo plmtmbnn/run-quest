@@ -11,7 +11,7 @@ export interface CareerMilestone {
   chapterNumber: number;
   title: { en: string; id: string };
   description: { en: string; id: string };
-  achievedAt: string;
+  achievedAt: number;
   icon: string;
 }
 
@@ -89,7 +89,7 @@ function generateMilestones(storyProgress: StoryProgress): CareerMilestone[] {
         en: `Won the ${chapter.finalRace.title.en}`,
         id: `Memenangkan ${chapter.finalRace.title.id}`,
       },
-      achievedAt: completedAt || new Date().toISOString(),
+      achievedAt: completedAt || 0,
       icon: chapter.icon || "🏆",
     });
 
@@ -106,15 +106,14 @@ function generateMilestones(storyProgress: StoryProgress): CareerMilestone[] {
           en: `Won ${chapter.finalRace.title.en} on first attempt`,
           id: `Memenangkan ${chapter.finalRace.title.id} pada percobaan pertama`,
         },
-        achievedAt: completedAt || new Date().toISOString(),
+        achievedAt: completedAt || 0,
         icon: "⭐",
       });
     }
   }
 
   return milestones.sort(
-    (a, b) =>
-      new Date(a.achievedAt).getTime() - new Date(b.achievedAt).getTime(),
+    (a, b) => a.achievedAt - b.achievedAt,
   );
 }
 

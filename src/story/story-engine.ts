@@ -150,9 +150,10 @@ export function recordChampionshipResult(
 export function completeChapter(
   storyProgress: StoryProgress,
   chapterNumber: number,
+  currentDayIndex: number,
 ): StoryProgress {
   const nextChapter = chapterNumber + 1;
-  const now = new Date().toISOString();
+  const now = currentDayIndex;
 
   return {
     ...storyProgress,
@@ -244,6 +245,7 @@ export function isChampionshipAvailable(
 export function getPendingStoryEvents(
   profile: RunnerProfile,
   storyProgress: StoryProgress,
+  currentDayIndex: number,
 ): StoryEvent[] {
   const events: StoryEvent[] = [];
 
@@ -256,7 +258,7 @@ export function getPendingStoryEvents(
       events.push({
         type: "chapter_unlock",
         chapter,
-        timestamp: new Date().toISOString(),
+        timestamp: currentDayIndex,
       });
     }
   }
@@ -267,7 +269,7 @@ export function getPendingStoryEvents(
     events.push({
       type: "story_beat",
       storyBeat: activeChapter.nextStoryBeat,
-      timestamp: new Date().toISOString(),
+      timestamp: currentDayIndex,
     });
   }
 
@@ -281,7 +283,7 @@ export function getPendingStoryEvents(
       events.push({
         type: "championship_available",
         chapter,
-        timestamp: new Date().toISOString(),
+        timestamp: currentDayIndex,
       });
     }
   }

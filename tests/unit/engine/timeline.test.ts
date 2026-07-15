@@ -227,7 +227,7 @@ describe("storyEventsToCalendarEvents", () => {
     const fake: StoryEvent = {
       type: "chapter_unlock",
       chapter: { number: 2 } as unknown as StoryEvent["chapter"],
-      timestamp: "",
+      timestamp: 0,
     };
     const mapped = storyEventsToCalendarEvents([fake], () => 99);
     expect(mapped[0].type).toBe("story");

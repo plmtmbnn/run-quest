@@ -7,10 +7,10 @@ import { loadTrainingState, saveTrainingState } from "./training-store";
 /**
  * Processes the adaptation queue and applies delayed fitness gains.
  */
-export const processAdaptationQueue = (): void => {
+export const processAdaptationQueue = (currentDayIndex: number): void => {
   const trainingState = loadTrainingState();
   const runnerState = loadRunnerState();
-  const today = new Date().toISOString().split("T")[0];
+  const today = currentDayIndex;
 
   // Filter adaptations that are ready to be applied.
   const adaptationsToApply = trainingState.adaptationQueue.filter(
@@ -34,7 +34,7 @@ export const processAdaptationQueue = (): void => {
       ...runnerState.profile,
       currentFitness: Math.min(100, Math.max(0, updatedFitness)),
     },
-    lastUpdated: new Date().toISOString(),
+    lastUpdated: new Date().toISOString(), // Keeping save metadata
   };
   saveRunnerState(updatedRunnerState);
 
@@ -46,7 +46,7 @@ export const processAdaptationQueue = (): void => {
   const updatedTrainingState = {
     ...trainingState,
     adaptationQueue: updatedAdaptationQueue,
-    lastUpdated: new Date().toISOString(),
+    lastUpdated: currentDayIndex,
   };
   saveTrainingState(updatedTrainingState);
 };
@@ -59,15 +59,15 @@ export const processAdaptationQueue = (): void => {
 export const queueAdaptation = (
   fitnessGain: number,
   adaptationDays: number,
+  currentDayIndex: number,
 ): void => {
   const trainingState = loadTrainingState();
-  const adaptationDate = new Date();
-  adaptationDate.setDate(adaptationDate.getDate() + adaptationDays);
+  const adaptationDate = currentDayIndex + adaptationDays;
 
   const updatedAdaptationQueue = [
     ...trainingState.adaptationQueue,
     {
-      date: adaptationDate.toISOString().split("T")[0],
+      date: adaptationDate,
       fitnessGain,
     },
   ];
@@ -75,7 +75,7 @@ export const queueAdaptation = (
   const updatedTrainingState = {
     ...trainingState,
     adaptationQueue: updatedAdaptationQueue,
-    lastUpdated: new Date().toISOString(),
+    lastUpdated: currentDayIndex,
   };
   saveTrainingState(updatedTrainingState);
 };
@@ -84,9 +84,9 @@ export const queueAdaptation = (
  * Checks if the adaptation queue has pending adaptations.
  * @returns True if there are pending adaptations.
  */
-export const hasPendingAdaptations = (): boolean => {
+export const hasPendingAdaptations = (currentDayIndex: number): boolean => {
   const trainingState = loadTrainingState();
-  const today = new Date().toISOString().split("T")[0];
+  const today = currentDayIndex;
   return trainingState.adaptationQueue.some(
     (adaptation) => adaptation.date <= today,
   );

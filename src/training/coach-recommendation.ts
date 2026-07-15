@@ -10,18 +10,18 @@ import type { CoachRecommendation, DailyActivity } from "./training-types";
  * Generates a coach recommendation for today's activity.
  * @returns The coach recommendation.
  */
-export const generateCoachRecommendation = (): CoachRecommendation => {
+export const generateCoachRecommendation = (
+  currentDayIndex: number,
+): CoachRecommendation => {
   const runnerState = loadRunnerState();
   const trainingState = loadTrainingState();
   const { currentFatigue, currentReadiness } = runnerState.profile;
   const { trainingHistory } = trainingState;
 
   // Get yesterday's activity (if any).
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayStr = yesterday.toISOString().split("T")[0];
+  const yesterdayIndex = currentDayIndex - 1;
   const yesterdayActivity = trainingHistory.find(
-    (day) => day.date === yesterdayStr,
+    (day) => day.date === yesterdayIndex,
   )?.activity;
 
   // Determine the recommendation based on current state.

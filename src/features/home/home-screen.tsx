@@ -19,6 +19,7 @@ import { usePlayerStore } from "@/store/player-store";
 import { useSettingsStore } from "@/store/settings-store";
 import { useTrainingStore } from "@/training/training-store";
 import type { RaceEntry } from "@/types/engine";
+import { useTimelineStore } from "@/store/timeline-store";
 
 export function HomeScreen() {
   const router = useRouter();
@@ -30,6 +31,7 @@ export function HomeScreen() {
   const { playSound } = useSound();
   const { runnerState, setRunnerState } = useRunnerStore();
   const { trainingState } = useTrainingStore();
+  const dayIndex = useTimelineStore((state) => state.gameState?.dayIndex ?? 0);
   const recentRivalActivities = useSocialStore(
     (s) =>
       s.rivalActivities.filter(
@@ -465,8 +467,8 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
                   id: "daily_training",
                   name: "Daily Training",
                   desc: "Record today's training or recovery activity.",
-                  completed: (trainingState.trainingHistory || []).some((day) =>
-                    day.date.startsWith(todayStr),
+                  completed: (trainingState.trainingHistory || []).some(
+                    (day) => day.date === dayIndex,
                   ),
                   claimed:
                     runnerState.profile.questClaims?.daily_training ===
