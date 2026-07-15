@@ -10,8 +10,8 @@ import { EventHighlightCard } from "@/components/share/event-highlight-card";
 import { RaceReportCard } from "@/components/share/race-report-card";
 import { ShareModal } from "@/components/share/share-modal";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
-import { useRunnerStore } from "@/runner/runner-store";
 import { saveRunToHistory } from "@/runner/run-history";
+import { useRunnerStore } from "@/runner/runner-store";
 import type { RunRecord } from "@/runner/runner-types";
 import { generateDailyChallenge } from "@/services/challenge/generator";
 import {
@@ -132,7 +132,8 @@ export function ResultScreen() {
           };
 
           const playerBeatRival =
-            outcome !== "dnf" && outcome !== "dns" &&
+            outcome !== "dnf" &&
+            outcome !== "dns" &&
             (opp.isDNF || lastResult.finishTime < opp.accumulatedTime);
 
           const margin = opp.isDNF
@@ -146,7 +147,8 @@ export function ResultScreen() {
               wins: existing.wins + (playerBeatRival ? 1 : 0),
               losses: existing.losses + (playerBeatRival ? 0 : 1),
               lastEncounter: new Date().toISOString(),
-              relationshipLevel: existing.relationshipLevel + (playerBeatRival ? 5 : -5),
+              relationshipLevel:
+                existing.relationshipLevel + (playerBeatRival ? 5 : -5),
               totalEncounters: existing.totalEncounters + 1,
               closestMargin: Math.min(existing.closestMargin, margin),
               biggestWin: playerBeatRival
@@ -194,10 +196,12 @@ export function ResultScreen() {
       }
 
       // Add distance to club contribution if joined, and simulate competition day
-      useSocialStore.getState().simulateCompetitionDay(
-        challenge.race.distance,
-        profile.rankPoints || 0,
-      );
+      useSocialStore
+        .getState()
+        .simulateCompetitionDay(
+          challenge.race.distance,
+          profile.rankPoints || 0,
+        );
     }
 
     // Update profile

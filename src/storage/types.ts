@@ -4,6 +4,7 @@ import type {
   RaceHistoryEntrySchema,
   StoredDailyBoardSchema,
   StoredDailySchema,
+  StoredGameStateSchema,
   StoredHistorySchema,
   StoredPlayerSchema,
   StoredSettingsSchema,
@@ -14,6 +15,7 @@ export type StoredSettings = z.infer<typeof StoredSettingsSchema>;
 export type StoredDaily = z.infer<typeof StoredDailySchema>;
 export type StoredDailyBoard = z.infer<typeof StoredDailyBoardSchema>;
 export type StoredHistory = z.infer<typeof StoredHistorySchema>;
+export type StoredGameState = z.infer<typeof StoredGameStateSchema>;
 export type PlayerStatistics = z.infer<typeof PlayerStatisticsSchema>;
 export type RaceHistoryEntry = z.infer<typeof RaceHistoryEntrySchema>;
 
@@ -27,4 +29,5 @@ export type StorageKey =
   | "runquest.history"
   | "runquest.daily"
   | "runquest.board"
-  | "runquest.cache";
+  | "runquest.cache"
+  | "runquest.timeline";

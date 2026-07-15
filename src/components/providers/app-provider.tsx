@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { usePlayerStore } from "@/store/player-store";
 import { useSettingsStore } from "@/store/settings-store";
+import { useTimelineStore } from "@/store/timeline-store";
 
 interface AppProviderProps {
   children: React.ReactNode;
@@ -23,6 +24,7 @@ export function AppProvider({ children }: AppProviderProps) {
   useEffect(() => {
     initializeSettings();
     initializePlayer();
+    useTimelineStore.getState().initialize();
   }, [initializeSettings, initializePlayer]);
 
   useEffect(() => {

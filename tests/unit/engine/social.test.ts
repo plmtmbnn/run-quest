@@ -1,4 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  getAverageFinishTime,
+  getLatestRun,
+  getPersonalBestTime,
+  getPreviousRun,
+  getTimeDeltaVsLastRun,
+  getTrend,
+  getWinStreak,
+  saveRunToHistory,
+} from "@/runner/run-history";
+import type { RunnerProfile, RunRecord } from "@/runner/runner-types";
 import { isNewPersonalBest } from "@/social/ghost-engine";
 import {
   applyRpChangeWithProtection,
@@ -8,21 +19,10 @@ import {
 import {
   createRivalAIData,
   getAdaptiveDifficultyMultiplier,
-  simulateRivalTraining,
-  simulateRivalsDay,
   type RivalAIData,
+  simulateRivalsDay,
+  simulateRivalTraining,
 } from "@/social/rival-engine";
-import {
-  getTrend,
-  getTimeDeltaVsLastRun,
-  getPersonalBestTime,
-  getWinStreak,
-  getAverageFinishTime,
-  saveRunToHistory,
-  getLatestRun,
-  getPreviousRun,
-} from "@/runner/run-history";
-import type { RunnerProfile, RunRecord } from "@/runner/runner-types";
 
 // ─── Shared fixtures ─────────────────────────────────────────────────────────
 
@@ -276,7 +276,7 @@ describe("Run History Engine", () => {
   });
 
   it("should trim to MAX_RUN_HISTORY entries", () => {
-    let profile: RunnerProfile = { ...MOCK_PROFILE, runHistory: [] };
+    const profile: RunnerProfile = { ...MOCK_PROFILE, runHistory: [] };
     let p: RunnerProfile = { ...MOCK_PROFILE, runHistory: [] };
     for (let i = 0; i < 30; i++) {
       p = saveRunToHistory(p, {

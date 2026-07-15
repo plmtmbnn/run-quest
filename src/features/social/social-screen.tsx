@@ -6,14 +6,14 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
-import { useRunnerStore } from "@/runner/runner-store";
 import {
-  getTrend,
-  getTimeDeltaVsLastRun,
-  getPersonalBestTime,
-  getWinStreak,
   getAverageFinishTime,
+  getPersonalBestTime,
+  getTimeDeltaVsLastRun,
+  getTrend,
+  getWinStreak,
 } from "@/runner/run-history";
+import { useRunnerStore } from "@/runner/runner-store";
 import { getTierAndDivision } from "@/social/ranking-engine";
 import type { Competitor } from "@/social/ranking-types";
 import { CLUBS } from "@/social/social-persistence";
@@ -600,7 +600,8 @@ export function SocialScreen() {
                     Performance Trend
                   </h4>
                   <p className="text-[10px] text-gray-500 mt-0.5">
-                    Based on your last {Math.min(5, (profile.runHistory || []).length)} runs
+                    Based on your last{" "}
+                    {Math.min(5, (profile.runHistory || []).length)} runs
                   </p>
                 </div>
               </div>
@@ -757,20 +758,23 @@ export function SocialScreen() {
                     totalRaces > 0
                       ? Math.round((relationship.wins / totalRaces) * 100)
                       : null;
-                  const isWinning = totalRaces > 0 && relationship.wins > relationship.losses;
-                  const isEven = totalRaces > 0 && relationship.wins === relationship.losses;
+                  const isWinning =
+                    totalRaces > 0 && relationship.wins > relationship.losses;
+                  const isEven =
+                    totalRaces > 0 && relationship.wins === relationship.losses;
 
                   return (
                     <div
                       key={rival.id}
                       className={`bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border text-xs
-                        ${isWinning
-                          ? "border-emerald-200 dark:border-emerald-900/40"
-                          : isEven
-                            ? "border-amber-200 dark:border-amber-900/30"
-                            : totalRaces > 0
-                              ? "border-rose-200 dark:border-rose-900/30"
-                              : "border-slate-100 dark:border-slate-850"
+                        ${
+                          isWinning
+                            ? "border-emerald-200 dark:border-emerald-900/40"
+                            : isEven
+                              ? "border-amber-200 dark:border-amber-900/30"
+                              : totalRaces > 0
+                                ? "border-rose-200 dark:border-rose-900/30"
+                                : "border-slate-100 dark:border-slate-850"
                         }
                       `}
                     >
@@ -782,15 +786,22 @@ export function SocialScreen() {
                               {rival.name}
                             </h5>
                             {totalRaces > 0 ? (
-                              <span className={`text-[9px] font-bold ${
-                                isWinning
-                                  ? "text-emerald-600 dark:text-emerald-400"
+                              <span
+                                className={`text-[9px] font-bold ${
+                                  isWinning
+                                    ? "text-emerald-600 dark:text-emerald-400"
+                                    : isEven
+                                      ? "text-amber-600 dark:text-amber-400"
+                                      : "text-rose-600 dark:text-rose-400"
+                                }`}
+                              >
+                                {isWinning
+                                  ? "⬆ Leading"
                                   : isEven
-                                    ? "text-amber-600 dark:text-amber-400"
-                                    : "text-rose-600 dark:text-rose-400"
-                              }`}>
-                                {isWinning ? "⬆ Leading" : isEven ? "⬌ Tied" : "⬇ Trailing"}
-                                {" · "}{winRate}% WR
+                                    ? "⬌ Tied"
+                                    : "⬇ Trailing"}
+                                {" · "}
+                                {winRate}% WR
                               </span>
                             ) : (
                               <span className="text-[9px] font-bold text-slate-400">
@@ -805,7 +816,8 @@ export function SocialScreen() {
                           </span>
                           {relationship.closestMargin < Infinity && (
                             <div className="text-[8px] text-slate-400 font-mono mt-0.5">
-                              Best margin: {Math.floor(relationship.closestMargin / 60)}m{" "}
+                              Best margin:{" "}
+                              {Math.floor(relationship.closestMargin / 60)}m{" "}
                               {Math.floor(relationship.closestMargin % 60)}s
                             </div>
                           )}

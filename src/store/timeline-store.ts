@@ -1,0 +1,181 @@
+/**
+ * Timeline Zustand store (Sprint 23-B).
+ *
+ * Bridges the pure time engine with the React UI. Loads/saves via
+ * storageRepository so the engine stays pure.
+ */
+
+import { create } from "zustand";
+import type { ActionId, CalendarEvent, GameState } from "@/engine/timeline";
+import {
+  applyAction,
+  createInitialState,
+  type FastForwardMode,
+  fastForward,
+  getAction,
+  getScheduledStoryEvents,
+  isDead,
+} from "@/engine/timeline";
+import { useSocialStore } from "@/social/social-store";
+import { storageRepository } from "@/storage/storage-repository";
+import type { StoredGameState } from "@/storage/types";
+import { useStoryStore } from "@/story/story-store";
+
+interface TimelineState {
+  gameState: GameState | null;
+  pendingEvents: CalendarEvent[];
+  loaded: boolean;
+
+  initialize(): void;
+  doAction(actionId: ActionId): void;
+  ff(mode: FastForwardMode): void;
+  acknowledgeEvent(eventId: string): void;
+  setRoutine(routine: GameState["routine"]): void;
+  newLife(): void;
+  isAlive(): boolean;
+}
+
+function toStored(state: GameState): StoredGameState {
+  return {
+    version: 1,
+    dayIndex: state.dayIndex,
+    startAge: state.startAge,
+    lifespan: state.lifespan,
+    seed: state.seed,
+    energy: state.energy,
+    energyMax: state.energyMax,
+    resources: state.resources,
+    stats: state.stats,
+    skills: state.skills,
+    relationships: state.relationships,
+    routine: state.routine,
+    flags: state.flags,
+  };
+}
+
+export const useTimelineStore = create<TimelineState>((set, get) => ({
+  gameState: null,
+  pendingEvents: [],
+  loaded: false,
+
+  initialize() {
+    const stored = storageRepository.loadGameState();
+    let state = stored as GameState;
+    if (!state) {
+      state = createInitialState(Date.now());
+    }
+    // Ensure the current chapter's start day is initialized in flags
+    const storyProgress = useStoryStore.getState().storyProgress;
+    const currentChapterNum = storyProgress.currentChapter;
+    const startDayKey = `chapter_${currentChapterNum}_start_day`;
+    if (state.flags[startDayKey] === undefined) {
+      state = {
+        ...state,
+        flags: {
+          ...state.flags,
+          [startDayKey]: state.dayIndex,
+        },
+      };
+    }
+    set({ gameState: state, loaded: true });
+    storageRepository.saveGameState(state);
+  },
+
+  doAction(actionId: ActionId) {
+    const { gameState } = get();
+    if (!gameState) return;
+    const action = getAction(actionId);
+    const next = applyAction(gameState, action);
+
+    // If day(s) advanced, simulate competition/social days!
+    const daysAdvanced = next.dayIndex - gameState.dayIndex;
+    if (daysAdvanced > 0) {
+      const socialStore = useSocialStore.getState();
+      const playerKm =
+        actionId === "compete" ? 10 : actionId === "train" ? 5 : 0;
+      for (let d = gameState.dayIndex; d < next.dayIndex; d++) {
+        socialStore.simulateCompetitionDay(playerKm, undefined, d);
+      }
+      socialStore.ageActivities(next.dayIndex);
+    }
+
+    set({ gameState: next });
+    storageRepository.saveGameState(next);
+  },
+
+  ff(mode: FastForwardMode) {
+    const { gameState } = get();
+    if (!gameState) return;
+
+    const storyProgress = useStoryStore.getState().storyProgress;
+    const currentChapterNum = storyProgress.currentChapter;
+    const startDayKey = `chapter_${currentChapterNum}_start_day`;
+
+    let stateWithFlags = gameState;
+    if (gameState.flags[startDayKey] === undefined) {
+      stateWithFlags = {
+        ...gameState,
+        flags: {
+          ...gameState.flags,
+          [startDayKey]: gameState.dayIndex,
+        },
+      };
+    }
+
+    const eventsForDay = (d: number) => {
+      const allEvents = getScheduledStoryEvents(stateWithFlags, storyProgress);
+      return allEvents.filter((e) => e.dayIndex === d);
+    };
+
+    const { state, events } = fastForward(stateWithFlags, mode, eventsForDay);
+
+    // If day(s) advanced, simulate competition/social days!
+    const daysAdvanced = state.dayIndex - stateWithFlags.dayIndex;
+    if (daysAdvanced > 0) {
+      const socialStore = useSocialStore.getState();
+      for (let d = stateWithFlags.dayIndex; d < state.dayIndex; d++) {
+        const dow = d % 7;
+        const slot = stateWithFlags.routine[dow] || "rest";
+        const playerKm = slot === "compete" ? 10 : slot === "train" ? 5 : 0;
+        socialStore.simulateCompetitionDay(playerKm, undefined, d);
+      }
+      socialStore.ageActivities(state.dayIndex);
+    }
+
+    set({ gameState: state, pendingEvents: events });
+    storageRepository.saveGameState(state);
+  },
+
+  acknowledgeEvent(eventId: string) {
+    const { pendingEvents } = get();
+    set({ pendingEvents: pendingEvents.filter((e) => e.id !== eventId) });
+  },
+
+  setRoutine(routine: GameState["routine"]) {
+    const { gameState } = get();
+    if (!gameState) return;
+    const updated = { ...gameState, routine };
+    set({ gameState: updated });
+    storageRepository.saveGameState(updated);
+  },
+
+  newLife() {
+    const fresh = createInitialState(Date.now());
+
+    // Reset other stores
+    useSocialStore.getState().resetSocial();
+    useStoryStore.getState().resetStoryProgress();
+
+    // Ensure first chapter start day is recorded on fresh state
+    fresh.flags["chapter_1_start_day"] = 0;
+
+    set({ gameState: fresh, pendingEvents: [], loaded: true });
+    storageRepository.saveGameState(fresh);
+  },
+
+  isAlive() {
+    const { gameState } = get();
+    if (!gameState) return false;
+    return !isDead(gameState);
+  },
+}));

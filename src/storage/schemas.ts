@@ -94,3 +94,38 @@ export const StoredDailyBoardSchema = z.object({
   selectedEntryId: z.string().nullable(),
   completedEntryId: z.string().nullable(),
 });
+
+/**
+ * Schema for the Time & Calendar Engine game state (Sprint 23-B).
+ * Mirrors `GameState` from @/engine/timeline; derived date fields are excluded.
+ */
+const ActionIdSchema = z.enum([
+  "work",
+  "study",
+  "train",
+  "social",
+  "compete",
+  "rest",
+  "travel",
+]);
+
+export const StoredGameStateSchema = z.object({
+  version: z.number(),
+  dayIndex: z.number(),
+  startAge: z.number(),
+  lifespan: z.number(),
+  seed: z.number(),
+  energy: z.number(),
+  energyMax: z.number(),
+  resources: z.object({ money: z.number() }),
+  stats: z.object({
+    health: z.number(),
+    strength: z.number(),
+    intellect: z.number(),
+    charisma: z.number(),
+  }),
+  skills: z.record(z.string(), z.number()),
+  relationships: z.record(z.string(), z.number()),
+  routine: z.array(ActionIdSchema),
+  flags: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])),
+});

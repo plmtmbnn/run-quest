@@ -52,7 +52,11 @@ const DEFAULT_CONFIG: RivalProgressionConfig = {
 
 const ARCHETYPE_TRAINING_BIAS: Record<
   string,
-  { focus: string; distanceRange: [number, number]; intensityRange: [number, number] }
+  {
+    focus: string;
+    distanceRange: [number, number];
+    intensityRange: [number, number];
+  }
 > = {
   frontrunner: {
     focus: "speed",
@@ -151,7 +155,8 @@ export function simulateRivalTraining(
   }
 
   // Determine training parameters based on archetype
-  const bias = ARCHETYPE_TRAINING_BIAS[rival.archetype] || ARCHETYPE_TRAINING_BIAS.steady;
+  const bias =
+    ARCHETYPE_TRAINING_BIAS[rival.archetype] || ARCHETYPE_TRAINING_BIAS.steady;
   const distance =
     bias.distanceRange[0] +
     rand() * (bias.distanceRange[1] - bias.distanceRange[0]);
@@ -210,10 +215,7 @@ function generateTrainingDescription(
   focus: string,
   _intensity: number,
 ): { en: string; id: string } {
-  const templates: Record<
-    string,
-    Array<{ en: string; id: string }>
-  > = {
+  const templates: Record<string, Array<{ en: string; id: string }>> = {
     speed: [
       {
         en: `${name} sprinted intervals at the track, pushing their Speed to new limits.`,
@@ -282,7 +284,10 @@ export function createRivalAIData(
   baseRp: number,
   archetype: "frontrunner" | "splitter" | "steady",
 ): RivalAIData {
-  const trainingFocusMap: Record<string, "speed" | "stamina" | "willpower" | "balanced"> = {
+  const trainingFocusMap: Record<
+    string,
+    "speed" | "stamina" | "willpower" | "balanced"
+  > = {
     frontrunner: "speed",
     splitter: "balanced",
     steady: "stamina",
@@ -306,12 +311,37 @@ export function createRivalAIData(
  */
 export function getDefaultRivals(): RivalAIData[] {
   return [
-    createRivalAIData("marcus_rivera", "Marcus 'The Machine' Rivera", 1350, "frontrunner"),
-    createRivalAIData("ellie_park", "Ellie 'Lightning' Park", 890, "frontrunner"),
-    createRivalAIData("kenji_nakamura", "Kenji 'Silent Storm' Nakamura", 1100, "splitter"),
+    createRivalAIData(
+      "marcus_rivera",
+      "Marcus 'The Machine' Rivera",
+      1350,
+      "frontrunner",
+    ),
+    createRivalAIData(
+      "ellie_park",
+      "Ellie 'Lightning' Park",
+      890,
+      "frontrunner",
+    ),
+    createRivalAIData(
+      "kenji_nakamura",
+      "Kenji 'Silent Storm' Nakamura",
+      1100,
+      "splitter",
+    ),
     createRivalAIData("sarah_chen", "Sarah 'Ironheart' Chen", 1450, "steady"),
-    createRivalAIData("alex_santos", "Alex 'The Natural' Santos", 980, "splitter"),
-    createRivalAIData("maria_gonzalez", "Maria 'Momentum' Gonzalez", 1200, "steady"),
+    createRivalAIData(
+      "alex_santos",
+      "Alex 'The Natural' Santos",
+      980,
+      "splitter",
+    ),
+    createRivalAIData(
+      "maria_gonzalez",
+      "Maria 'Momentum' Gonzalez",
+      1200,
+      "steady",
+    ),
   ];
 }
 
@@ -338,7 +368,11 @@ export function simulateRivalsDay(
   }> = [];
 
   const updatedRivals = rivals.map((rival, index) => {
-    const result = simulateRivalTraining(rival, playerProfile, daySeed + index * 7);
+    const result = simulateRivalTraining(
+      rival,
+      playerProfile,
+      daySeed + index * 7,
+    );
 
     if (result) {
       const newRp = Math.max(0, rival.currentRp + result.rpChange);
@@ -358,7 +392,8 @@ export function simulateRivalsDay(
         ...rival,
         currentRp: newRp,
         recentRpChanges: recent,
-        totalTrainingCycles: rival.totalTrainingCycles + (result.rpChange > 0 ? 1 : 0),
+        totalTrainingCycles:
+          rival.totalTrainingCycles + (result.rpChange > 0 ? 1 : 0),
         lastActivityDate: new Date().toISOString(),
       };
     }

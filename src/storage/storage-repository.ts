@@ -1,7 +1,9 @@
 import type { ZodType } from "zod/v4";
+import type { GameState } from "@/engine/timeline";
 import {
   StoredDailyBoardSchema,
   StoredDailySchema,
+  StoredGameStateSchema,
   StoredHistorySchema,
   StoredPlayerSchema,
   StoredSettingsSchema,
@@ -11,10 +13,13 @@ import type {
   StorageKey,
   StoredDaily,
   StoredDailyBoard,
+  StoredGameState,
   StoredHistory,
   StoredPlayer,
   StoredSettings,
 } from "./types";
+
+const TIMELINE_VERSION = 1;
 
 /**
  * Parse JSON from localStorage and validate with a Zod schema.
@@ -105,6 +110,19 @@ export const storageRepository = {
 
   saveHistory(history: StoredHistory): void {
     save("runquest.history", history);
+  },
+
+  // ── Time & Calendar Engine (Sprint 23-B) ─────────────────────
+
+  loadGameState(): StoredGameState | null {
+    return loadAndValidate("runquest.timeline", StoredGameStateSchema);
+  },
+
+  saveGameState(state: GameState): void {
+    save("runquest.timeline", {
+      version: TIMELINE_VERSION,
+      ...state,
+    } as StoredGameState);
   },
 
   // ── Utilities ─────────────────────────────────────────────

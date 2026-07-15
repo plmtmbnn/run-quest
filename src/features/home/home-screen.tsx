@@ -11,13 +11,13 @@ import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { useRunnerStore } from "@/runner/runner-store";
 import { generateDailyRaceBoard } from "@/services/challenge/generator";
+import { useSocialStore } from "@/social/social-store";
 import { storageRepository } from "@/storage/storage-repository";
 import type { StoredDailyBoard } from "@/storage/types";
 import { useGameStore } from "@/store/game-store";
 import { usePlayerStore } from "@/store/player-store";
 import { useSettingsStore } from "@/store/settings-store";
 import { useTrainingStore } from "@/training/training-store";
-import { useSocialStore } from "@/social/social-store";
 import type { RaceEntry } from "@/types/engine";
 
 export function HomeScreen() {
@@ -31,9 +31,10 @@ export function HomeScreen() {
   const { runnerState, setRunnerState } = useRunnerStore();
   const { trainingState } = useTrainingStore();
   const recentRivalActivities = useSocialStore(
-    (s) => s.rivalActivities.filter((a) =>
-      a.timestamp === "Just now" || a.timestamp === "2h ago"
-    ).length,
+    (s) =>
+      s.rivalActivities.filter(
+        (a) => a.timestamp === "Just now" || a.timestamp === "2h ago",
+      ).length,
   );
 
   const claimQuest = (questId: string) => {

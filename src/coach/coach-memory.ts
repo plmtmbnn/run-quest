@@ -25,6 +25,9 @@ const COACH_MEMORY_KEY = "coachMemory";
  * Returns the default state if not found or corrupted.
  */
 export const loadCoachMemory = (): CoachMemoryState => {
+  if (typeof window === "undefined" || typeof localStorage === "undefined") {
+    return structuredClone(DEFAULT_COACH_MEMORY);
+  }
   try {
     const stored = localStorage.getItem(COACH_MEMORY_KEY);
     if (stored) {
@@ -40,6 +43,9 @@ export const loadCoachMemory = (): CoachMemoryState => {
  * Saves the coach memory to local storage.
  */
 export const saveCoachMemory = (state: CoachMemoryState): void => {
+  if (typeof window === "undefined" || typeof localStorage === "undefined") {
+    return;
+  }
   try {
     localStorage.setItem(COACH_MEMORY_KEY, JSON.stringify(state));
   } catch (error) {

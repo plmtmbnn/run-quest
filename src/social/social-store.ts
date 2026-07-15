@@ -1,14 +1,18 @@
 import { create } from "zustand";
 import { getTierAndDivision } from "./ranking-engine";
 import type { Competitor, RivalActivity } from "./ranking-types";
-import { simulateRivalsDay, type RivalAIData } from "./rival-engine";
+import {
+  getDefaultRivals,
+  type RivalAIData,
+  simulateRivalsDay,
+} from "./rival-engine";
 import {
   loadSocialState,
   type SocialStateData,
   saveSocialState,
   seedClubMembers,
-  seedRegionalCompetitors,
   seedGlobalCompetitors,
+  seedRegionalCompetitors,
   seedRivalActivities,
 } from "./social-persistence";
 
@@ -17,9 +21,14 @@ interface SocialStoreState extends SocialStateData {
 
   setRegion: (region: string) => void;
   joinClub: (clubId: string) => void;
-  simulateCompetitionDay: (playerKm: number, playerRp?: number) => void;
+  simulateCompetitionDay: (
+    playerKm: number,
+    playerRp?: number,
+    inGameDayIndex?: number,
+  ) => void;
   loadFromStorage: () => void;
   resetSocial: () => void;
+  ageActivities: (currentDayIndex: number) => void;
 }
 
 export const useSocialStore = create<SocialStoreState>((set, get) => ({
@@ -54,7 +63,11 @@ export const useSocialStore = create<SocialStoreState>((set, get) => ({
     saveSocialState(toPersist);
   },
 
-  simulateCompetitionDay: (playerKm: number, playerRp?: number) => {
+  simulateCompetitionDay: (
+    playerKm: number,
+    playerRp?: number,
+    inGameDayIndex?: number,
+  ) => {
     const state = get();
     if (!state.region) return;
 
@@ -103,11 +116,25 @@ export const useSocialStore = create<SocialStoreState>((set, get) => ({
     let weeklyProgressKm = state.weeklyProgressKm;
     let updatedMembers = state.clubMembers;
 
+    if (
+      inGameDayIndex !== undefined &&
+      inGameDayIndex > 0 &&
+      inGameDayIndex % 7 === 0
+    ) {
+      // Weekly Reset
+      weeklyContributedKm = 0;
+      weeklyProgressKm = 77;
+      updatedMembers = state.clubMembers.map((member) => ({
+        ...member,
+        contributionKm: 0,
+      }));
+    }
+
     if (state.clubId) {
       weeklyContributedKm = Number((weeklyContributedKm + playerKm).toFixed(2));
 
       // Update other members contributions (add 2 to 6 km each)
-      updatedMembers = state.clubMembers.map((member) => {
+      updatedMembers = updatedMembers.map((member) => {
         const added = Number((2 + Math.random() * 4).toFixed(1));
         return {
           ...member,
@@ -125,7 +152,7 @@ export const useSocialStore = create<SocialStoreState>((set, get) => ({
     }
 
     // 4. Rival AI Progression — use the rival engine
-    const daySeed = Date.now();
+    const daySeed = inGameDayIndex !== undefined ? inGameDayIndex : Date.now();
     const { updatedRivals, activities } = simulateRivalsDay(
       state.rivalAIData,
       playerProfile,
@@ -133,20 +160,38 @@ export const useSocialStore = create<SocialStoreState>((set, get) => ({
     );
 
     // Convert rival training results to RivalActivity entries for the feed
-    const newActivities: RivalActivity[] = activities.map((act) => ({
-      id: `act_${Date.now()}_${Math.random()}`,
-      rivalId: act.rivalId,
-      rivalName: act.rivalName,
-      timestamp: "Just now",
-      action: act.result.description,
-      attributeImproved: act.result.attributeImproved,
-    }));
+    const newActivities: RivalActivity[] = activities.map((act) => {
+      const activityId =
+        inGameDayIndex !== undefined
+          ? `act_day_${inGameDayIndex}_${act.rivalId}`
+          : `act_${Date.now()}_${Math.random()}`;
+      return {
+        id: activityId,
+        rivalId: act.rivalId,
+        rivalName: act.rivalName,
+        timestamp: inGameDayIndex !== undefined ? "Today" : "Just now",
+        action: act.result.description,
+        attributeImproved: act.result.attributeImproved,
+      };
+    });
 
     // Age existing timestamps and prepend new activities, limit to 10
     const updatedActivities = [
       ...newActivities,
       ...state.rivalActivities.map((a) => {
-        if (a.timestamp === "Just now") return { ...a, timestamp: "2h ago" };
+        if (inGameDayIndex !== undefined && a.id.startsWith("act_day_")) {
+          const parts = a.id.split("_");
+          const actDay = parseInt(parts[2], 10);
+          if (!isNaN(actDay)) {
+            const diff = inGameDayIndex - actDay;
+            if (diff === 0) return { ...a, timestamp: "Today" };
+            if (diff === 1) return { ...a, timestamp: "1 day ago" };
+            return { ...a, timestamp: `${diff} days ago` };
+          }
+        }
+        // Fallback for real-time
+        if (a.timestamp === "Just now" || a.timestamp === "Today")
+          return { ...a, timestamp: "2h ago" };
         if (a.timestamp === "2h ago") return { ...a, timestamp: "5h ago" };
         if (a.timestamp === "5h ago") return { ...a, timestamp: "12h ago" };
         if (a.timestamp === "12h ago") return { ...a, timestamp: "1d ago" };
@@ -186,10 +231,53 @@ export const useSocialStore = create<SocialStoreState>((set, get) => ({
       weeklyContributedKm: 0,
       clubMembers: seedClubMembers(),
       rivalActivities: seedRivalActivities(),
-      rivalAIData: [] as RivalAIData[],
+      rivalAIData: getDefaultRivals(),
       lastSimulationDate: null,
     };
     set({ ...defaults, isLoaded: true });
     saveSocialState(defaults);
+  },
+
+  ageActivities: (currentDayIndex: number) => {
+    const state = get();
+    let weeklyContributedKm = state.weeklyContributedKm;
+    let weeklyProgressKm = state.weeklyProgressKm;
+    let clubMembers = state.clubMembers;
+
+    if (currentDayIndex > 0 && currentDayIndex % 7 === 0) {
+      // Weekly Reset at calendar week rollover
+      weeklyContributedKm = 0;
+      weeklyProgressKm = 77;
+      clubMembers = state.clubMembers.map((member) => ({
+        ...member,
+        contributionKm: 0,
+      }));
+    }
+
+    const updatedActivities = state.rivalActivities.map((a) => {
+      if (a.id.startsWith("act_day_")) {
+        const parts = a.id.split("_");
+        const actDay = parseInt(parts[2], 10);
+        if (!isNaN(actDay)) {
+          const diff = currentDayIndex - actDay;
+          if (diff === 0) return { ...a, timestamp: "Today" };
+          if (diff === 1) return { ...a, timestamp: "1 day ago" };
+          return { ...a, timestamp: `${diff} days ago` };
+        }
+      }
+      return a;
+    });
+
+    const updated = {
+      ...state,
+      weeklyContributedKm,
+      weeklyProgressKm,
+      clubMembers,
+      rivalActivities: updatedActivities,
+    };
+
+    set(updated as any);
+    const { isLoaded, ...toPersist } = updated;
+    saveSocialState(toPersist);
   },
 }));

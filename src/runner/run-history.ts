@@ -60,9 +60,7 @@ export function getPreviousRun(profile: RunnerProfile): RunRecord | null {
  * Calculates the time delta (in seconds) between the latest two runs.
  * Positive = slower, Negative = faster, null = insufficient data.
  */
-export function getTimeDeltaVsLastRun(
-  profile: RunnerProfile,
-): number | null {
+export function getTimeDeltaVsLastRun(profile: RunnerProfile): number | null {
   const latest = getLatestRun(profile);
   const previous = getPreviousRun(profile);
   if (!latest || !previous) return null;

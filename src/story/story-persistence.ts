@@ -13,6 +13,9 @@ const STORY_VERSION = 1;
  * Load story progress from localStorage
  */
 export function loadStoryProgress(): StoryProgress | null {
+  if (typeof window === "undefined" || typeof localStorage === "undefined") {
+    return null;
+  }
   try {
     const raw = localStorage.getItem(STORY_STORAGE_KEY);
     if (!raw) return null;
@@ -41,6 +44,9 @@ export function loadStoryProgress(): StoryProgress | null {
  * Save story progress to localStorage
  */
 export function saveStoryProgress(progress: StoryProgress): void {
+  if (typeof window === "undefined" || typeof localStorage === "undefined") {
+    return;
+  }
   try {
     const stored = {
       version: STORY_VERSION,
@@ -68,6 +74,9 @@ export function loadOrInitializeStoryProgress(): StoryProgress {
  * Clear story progress
  */
 export function clearStoryProgress(): void {
+  if (typeof window === "undefined" || typeof localStorage === "undefined") {
+    return;
+  }
   try {
     localStorage.removeItem(STORY_STORAGE_KEY);
   } catch (error) {

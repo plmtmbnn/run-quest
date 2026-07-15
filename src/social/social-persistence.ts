@@ -1,4 +1,3 @@
-import { getDefaultRivals, type RivalAIData } from "./rival-engine";
 import { getTierAndDivision } from "./ranking-engine";
 import type {
   Club,
@@ -6,6 +5,7 @@ import type {
   Competitor,
   RivalActivity,
 } from "./ranking-types";
+import { getDefaultRivals, type RivalAIData } from "./rival-engine";
 
 export interface SocialStateData {
   region: string | null;
