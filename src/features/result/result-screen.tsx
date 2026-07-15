@@ -1,6 +1,5 @@
 "use client";
 
-import dayjs from "dayjs";
 import { motion } from "framer-motion";
 import { Award, BookOpen, Clock, Home, Share2, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -54,8 +53,9 @@ export function ResultScreen() {
   const [activeEventHighlight, setActiveEventHighlight] =
     useState<RaceEvent | null>(null);
 
+  const dayIndex = useTimelineStore((state) => state.gameState?.dayIndex ?? 0);
   const challenge =
-    currentChallenge || generateDailyChallenge(dayjs().format("YYYY-MM-DD"));
+    currentChallenge || generateDailyChallenge(dayIndex.toString());
 
   useEffect(() => {
     if (!lastResult || hasProcessed) return;

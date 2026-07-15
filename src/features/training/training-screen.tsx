@@ -24,6 +24,7 @@ export function TrainingScreen() {
   const { trainingState } = useTrainingStore();
   const { runnerState } = useRunnerStore();
   const dayIndex = useTimelineStore((s) => s.gameState?.dayIndex ?? 0);
+  const energy = useTimelineStore((s) => s.gameState?.energy ?? 0);
   const [selectedActivity, setSelectedActivity] =
     useState<DailyActivity | null>(null);
   const coachRecommendation = generateCoachRecommendation(dayIndex);
@@ -42,6 +43,9 @@ export function TrainingScreen() {
   // Handle recording the activity.
   const handleRecordActivity = () => {
     if (!selectedActivity) return;
+
+    // Deduct EP via train action in timeline
+    useTimelineStore.getState().doAction("train");
 
     recordTrainingActivity(selectedActivity, dayIndex);
     router.push("/profile"); // Redirect to the Runner Profile after recording.
@@ -204,9 +208,7 @@ export function TrainingScreen() {
                   key={day.date}
                   className="flex justify-between p-2 bg-gray-50 rounded-lg"
                 >
-                  <span className="text-gray-600">
-                    {new Date(day.date).toLocaleDateString()}
-                  </span>
+                  <span className="text-gray-600">Day {day.date}</span>
                   <span className="font-semibold">{day.activity}</span>
                 </li>
               ))}
@@ -217,18 +219,27 @@ export function TrainingScreen() {
         </div>
 
         {/* Record Activity Button */}
-        <button
-          type="button"
-          onClick={handleRecordActivity}
-          disabled={!selectedActivity}
-          className={`w-full py-3 rounded-lg font-semibold transition-all ${
-            selectedActivity
-              ? "bg-blue-600 hover:bg-blue-700 text-white"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
-        >
-          Record Activity
-        </button>
+        {(() => {
+          const hasEnoughEnergy = energy >= 30;
+          const canRecord = selectedActivity && hasEnoughEnergy;
+          const buttonText = !hasEnoughEnergy
+            ? "Need 30 EP to Train"
+            : "Record Activity";
+          return (
+            <button
+              type="button"
+              onClick={handleRecordActivity}
+              disabled={!canRecord}
+              className={`w-full py-3 rounded-lg font-semibold transition-all ${
+                canRecord
+                  ? "bg-blue-600 hover:bg-blue-700 text-white"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+            >
+              {buttonText}
+            </button>
+          );
+        })()}
       </div>
     </div>
   );

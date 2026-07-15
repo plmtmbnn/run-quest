@@ -1,8 +1,8 @@
 "use client";
 
-import dayjs from "dayjs";
 import { motion } from "framer-motion";
 import { Settings, Share2, Sparkles } from "lucide-react";
+import { GameClock } from "@/components/ui/game-clock";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DailyStatsCard } from "@/components/share/daily-stats-card";
@@ -92,11 +92,10 @@ export function HomeScreen() {
 
 ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
 
-  const todayStr = dayjs().format("YYYY-MM-DD");
+  const todayStr = dayIndex.toString();
   const board = generateDailyRaceBoard(todayStr);
 
   const [boardStatus, setBoardStatus] = useState<StoredDailyBoard | null>(null);
-  const [secondsLeft, setSecondsLeft] = useState(0);
 
   useEffect(() => {
     let status = storageRepository.loadDailyBoard();
@@ -113,35 +112,13 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
     setBoardStatus(status);
   }, [todayStr]);
 
-  // Countdown timer logic
-  useEffect(() => {
-    const getSecondsUntilMidnight = () => {
-      const now = new Date();
-      const midnight = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate() + 1,
-        0,
-        0,
-        0,
-      );
-      return Math.max(
-        0,
-        Math.floor((midnight.getTime() - now.getTime()) / 1000),
-      );
-    };
-
-    setSecondsLeft(getSecondsUntilMidnight());
-
-    const timer = setInterval(() => {
-      setSecondsLeft(getSecondsUntilMidnight());
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
   const handleSelectRace = (entry: RaceEntry) => {
     if (!boardStatus) return;
+
+    // Deduct EP and apply compete action to timeline if not already selected
+    if (boardStatus.selectedEntryId !== entry.scenario.id) {
+      useTimelineStore.getState().doAction("compete");
+    }
 
     // Save active choice to storage
     const updatedStatus: StoredDailyBoard = {
@@ -165,13 +142,6 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
       return `${hrs}h ${mins}m`;
     }
     return `${mins}m`;
-  };
-
-  const formatCountdown = (secs: number) => {
-    const h = Math.floor(secs / 3600);
-    const m = Math.floor((secs % 3600) / 60);
-    const s = secs % 60;
-    return `${h.toString().padStart(2, "0")}h ${m.toString().padStart(2, "0")}m ${s.toString().padStart(2, "0")}s`;
   };
 
   const renderStars = (difficulty: number) => {
@@ -287,6 +257,8 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
 
       {/* Main Container */}
       <main className="flex-1 px-6 py-4 flex flex-col gap-6">
+        <GameClock />
+
         {/* Player Stats Panel */}
         {player && (
           <div className="bg-gradient-to-br from-orange-500 to-amber-600 rounded-[2rem] p-6 text-white shadow-md flex items-center justify-between">
@@ -390,17 +362,15 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
           </div>
         )}
 
-        {/* Countdown Timer for Daily Reset */}
+        {/* Board Completed Rest Banner */}
         {isBoardCompleted && (
-          <div className="bg-white dark:bg-slate-900 border-2 border-amber-300 dark:border-amber-600 rounded-3xl p-6 shadow-sm flex flex-col items-center gap-3 text-center border-dashed">
-            <span className="text-xs uppercase font-extrabold tracking-widest text-amber-700 bg-amber-50 px-3.5 py-1 rounded-full animate-pulse">
-              {t("home.next_race_in" as TranslationKey)}
+          <div className="bg-white dark:bg-slate-900 border-2 border-dashed border-amber-300 dark:border-amber-600 rounded-3xl p-6 shadow-sm flex flex-col items-center gap-3 text-center">
+            <span className="text-xs uppercase font-extrabold tracking-widest text-amber-700 dark:text-amber-450 bg-amber-50 dark:bg-amber-900/20 px-3.5 py-1 rounded-full">
+              Day's Races Completed! 🏁
             </span>
-            <span className="text-3xl font-black font-heading text-slate-850 dark:text-slate-100 tracking-tight">
-              {formatCountdown(secondsLeft)}
-            </span>
-            <p className="text-xs text-gray-500 max-w-xs leading-relaxed">
-              {t("home.countdown_desc" as TranslationKey)}
+            <p className="text-xs text-gray-500 dark:text-gray-400 max-w-xs leading-relaxed">
+              You have completed today's race. Click "Rest" in the calendar HUD
+              above to advance to the next day and unlock new race challenges!
             </p>
           </div>
         )}
@@ -563,6 +533,10 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
             let buttonStyle =
               "bg-primary hover:bg-primary-dark text-white rounded-[1.5rem]";
 
+            const timelineState = useTimelineStore.getState().gameState;
+            const energyValue = timelineState?.energy ?? 0;
+            const hasEnoughEnergy = energyValue >= 25;
+
             if (isCompleted) {
               buttonText = t("home.completed_badge" as TranslationKey);
               buttonStyle =
@@ -573,6 +547,10 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
                 "bg-orange-500 hover:bg-orange-600 text-white rounded-[1.5rem] animate-pulse shadow-md shadow-orange-500/20";
             } else if (isLocked) {
               buttonText = t("home.locked" as TranslationKey);
+              buttonStyle =
+                "bg-slate-100 text-slate-400 rounded-[1.5rem] border border-slate-200 cursor-not-allowed";
+            } else if (!hasEnoughEnergy) {
+              buttonText = "Need 25 EP to Compete";
               buttonStyle =
                 "bg-slate-100 text-slate-400 rounded-[1.5rem] border border-slate-200 cursor-not-allowed";
             }
@@ -646,7 +624,9 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
                 {/* CTA Button */}
                 <button
                   type="button"
-                  disabled={isCompleted || isLocked}
+                  disabled={
+                    isCompleted || isLocked || (!isSelected && !hasEnoughEnergy)
+                  }
                   onClick={() => handleSelectRace(entry)}
                   className={`w-full font-bold text-sm py-3.5 rounded-[1.5rem] transition-all duration-200 ${buttonStyle}`}
                 >

@@ -11,6 +11,7 @@ import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { storageRepository } from "@/storage/storage-repository";
 import type { RaceHistoryEntry } from "@/storage/types";
 import { usePlayerStore } from "@/store/player-store";
+import { useTimelineStore } from "@/store/timeline-store";
 
 export function HistoryScreen() {
   const router = useRouter();
@@ -18,6 +19,7 @@ export function HistoryScreen() {
   const [entries, setEntries] = useState<RaceHistoryEntry[]>([]);
   const player = usePlayerStore((state) => state.player);
   const [isShareOpen, setIsShareOpen] = useState(false);
+  const dayIndex = useTimelineStore((state) => state.gameState?.dayIndex ?? 0);
 
   const shareTitle = t("share.stats.title" as TranslationKey);
   const shareText = `📊 RunQuest — ${t("share.stats.title" as TranslationKey)}:
@@ -214,7 +216,7 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
           <DailyStatsCard
             player={player}
             lang={language as "en" | "id"}
-            date={dayjs().format("YYYY-MM-DD")}
+            date={`Day ${dayIndex}`}
           />
         </ShareModal>
       )}

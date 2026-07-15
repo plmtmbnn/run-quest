@@ -1,6 +1,5 @@
 "use client";
 
-import dayjs from "dayjs";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -23,15 +22,17 @@ import { generateDailyChallenge } from "@/services/challenge/generator";
 import { storageRepository } from "@/storage/storage-repository";
 import { useGameStore } from "@/store/game-store";
 import { usePreparationStore } from "@/store/preparation-store";
+import { useTimelineStore } from "@/store/timeline-store";
 
 export function PreparationScreen() {
   const router = useRouter();
   const { t, language } = useTranslation();
   const lang = (language === "id" ? "id" : "en") as "en" | "id";
   const { currentChallenge } = useGameStore();
+  const dayIndex = useTimelineStore((state) => state.gameState?.dayIndex ?? 0);
 
   const challenge =
-    currentChallenge || generateDailyChallenge(dayjs().format("YYYY-MM-DD"));
+    currentChallenge || generateDailyChallenge(dayIndex.toString());
 
   useEffect(() => {
     const daily = storageRepository.loadDaily();

@@ -1,6 +1,5 @@
 "use client";
 
-import dayjs from "dayjs";
 import { AnimatePresence, motion } from "framer-motion";
 import { Activity, Flame, Gauge, TrendingUp } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -16,6 +15,7 @@ import { generateDailyChallenge } from "@/services/challenge/generator";
 import { useGameStore } from "@/store/game-store";
 import { usePlayerStore } from "@/store/player-store";
 import { usePreparationStore } from "@/store/preparation-store";
+import { useTimelineStore } from "@/store/timeline-store";
 import type {
   ActiveBreakingPoint,
   DecisionCard,
@@ -43,9 +43,8 @@ export function RaceScreen() {
 
   // Load/Generate today's challenge once on mount
   const [challenge] = useState(() => {
-    return (
-      currentChallenge || generateDailyChallenge(dayjs().format("YYYY-MM-DD"))
-    );
+    const dayIndex = useTimelineStore.getState().gameState?.dayIndex ?? 0;
+    return currentChallenge || generateDailyChallenge(dayIndex.toString());
   });
 
   const [currentKm, setCurrentKm] = useState(0);

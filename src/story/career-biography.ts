@@ -112,9 +112,7 @@ function generateMilestones(storyProgress: StoryProgress): CareerMilestone[] {
     }
   }
 
-  return milestones.sort(
-    (a, b) => a.achievedAt - b.achievedAt,
-  );
+  return milestones.sort((a, b) => a.achievedAt - b.achievedAt);
 }
 
 /**

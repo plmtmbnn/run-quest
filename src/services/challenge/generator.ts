@@ -333,9 +333,15 @@ function generateScenarioForEntry(
   };
 }
 
-export function generateDailyRaceBoard(dateStr: string): DailyRaceBoard {
+export function generateDailyRaceBoard(
+  dateSeed: string | number,
+): DailyRaceBoard {
+  const dateStr = dateSeed.toString();
   const cleanDate = dateStr.replace(/-/g, "");
-  const baseSeed = Number.parseInt(cleanDate, 10) || 12345;
+  const baseSeed =
+    typeof dateSeed === "number"
+      ? dateSeed
+      : Number.parseInt(cleanDate, 10) || 12345;
   const boardRandom = new SeededRandom(baseSeed);
 
   // Pick Daily Theme based on board seed

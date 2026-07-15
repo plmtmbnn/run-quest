@@ -89,7 +89,7 @@ export const StoredHistorySchema = z.object({
  */
 export const StoredDailyBoardSchema = z.object({
   version: z.number(),
-  boardId: z.string(),
+  boardId: z.union([z.string(), z.number()]),
   entriesRemaining: z.number(),
   selectedEntryId: z.string().nullable(),
   completedEntryId: z.string().nullable(),

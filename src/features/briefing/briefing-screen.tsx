@@ -1,6 +1,5 @@
 "use client";
 
-import dayjs from "dayjs";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -17,6 +16,7 @@ import { RaceChoiceCard } from "@/components/share/race-choice-card";
 import { ShareModal } from "@/components/share/share-modal";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+import { useTimelineStore } from "@/store/timeline-store";
 import { generateDailyChallenge } from "@/services/challenge/generator";
 import { type GhostRun, loadGhostRun } from "@/social/ghost-engine";
 import { storageRepository } from "@/storage/storage-repository";
@@ -29,6 +29,7 @@ export function BriefingScreen() {
 
   const { currentChallenge, setActiveGhost } = useGameStore();
   const { playSound } = useSound();
+  const dayIndex = useTimelineStore((state) => state.gameState?.dayIndex ?? 0);
 
   const formatTargetTime = (seconds: number) => {
     const hrs = Math.floor(seconds / 3600);
@@ -40,7 +41,7 @@ export function BriefingScreen() {
   };
 
   const challenge =
-    currentChallenge || generateDailyChallenge(dayjs().format("YYYY-MM-DD"));
+    currentChallenge || generateDailyChallenge(dayIndex.toString());
 
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [ghost, setGhost] = useState<GhostRun | null>(null);
@@ -211,8 +212,8 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
                   </h3>
                   <p className="text-[10px] text-indigo-500 dark:text-indigo-400 mt-0.5">
                     Your personal best: {Math.floor(ghost.finishTime / 60)}m{" "}
-                    {Math.floor(ghost.finishTime % 60)}s (
-                    {dayjs(ghost.recordedAt).format("MMM DD, YYYY")})
+                    {Math.floor(ghost.finishTime % 60)}s (Recorded on Day{" "}
+                    {ghost.recordedAt})
                   </p>
                 </div>
               </div>
