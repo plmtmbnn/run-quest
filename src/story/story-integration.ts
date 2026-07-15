@@ -95,7 +95,11 @@ export function handleRaceComplete(
   }
 
   // Check for pending story events
-  const pendingEvents = getPendingStoryEvents(profile, updatedProgress);
+  const pendingEvents = getPendingStoryEvents(
+    profile,
+    updatedProgress,
+    currentDayIndex,
+  );
   for (const event of pendingEvents) {
     if (event.type === "story_beat") {
       events.push({
