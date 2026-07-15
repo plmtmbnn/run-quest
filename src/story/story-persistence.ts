@@ -1,6 +1,6 @@
-import type { StoryProgress } from "./story-types";
-import { StoredStoryProgressSchema } from "./story-schema";
 import { initializeStoryProgress } from "./story-engine";
+import { StoredStoryProgressSchema } from "./story-schema";
+import type { StoryProgress } from "./story-types";
 
 const STORY_STORAGE_KEY = "runquest.story";
 const STORY_VERSION = 1;
@@ -21,7 +21,10 @@ export function loadStoryProgress(): StoryProgress | null {
     const result = StoredStoryProgressSchema.safeParse(parsed);
 
     if (!result.success) {
-      console.warn("[Story] Failed to validate stored story progress", result.error);
+      console.warn(
+        "[Story] Failed to validate stored story progress",
+        result.error,
+      );
       return null;
     }
 

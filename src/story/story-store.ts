@@ -1,6 +1,9 @@
 import { create } from "zustand";
+import {
+  loadOrInitializeStoryProgress,
+  saveStoryProgress,
+} from "./story-persistence";
 import type { StoryProgress } from "./story-types";
-import { loadOrInitializeStoryProgress, saveStoryProgress } from "./story-persistence";
 
 /**
  * Story state management with Zustand
@@ -8,10 +11,12 @@ import { loadOrInitializeStoryProgress, saveStoryProgress } from "./story-persis
 interface StoryState {
   storyProgress: StoryProgress;
   isLoaded: boolean;
-  
+
   // Actions
   setStoryProgress: (progress: StoryProgress) => void;
-  updateStoryProgress: (updater: (prev: StoryProgress) => StoryProgress) => void;
+  updateStoryProgress: (
+    updater: (prev: StoryProgress) => StoryProgress,
+  ) => void;
   resetStoryProgress: () => void;
   loadFromStorage: () => void;
 }

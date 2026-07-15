@@ -1,6 +1,6 @@
 import type { RunnerProfile } from "@/runner/runner-types";
-import type { StoryProgress, ChapterUnlock } from "./story-types";
 import { getChapterByNumber } from "./chapter-database";
+import type { ChapterUnlock, StoryProgress } from "./story-types";
 
 /**
  * Story Unlocks System - Manages feature and content unlocks from story progression
@@ -155,9 +155,7 @@ export function applyUnlocksToProfile(
 /**
  * Get all locked content that player can see but not access
  */
-export function getLockedContent(
-  storyProgress: StoryProgress,
-): Array<{
+export function getLockedContent(storyProgress: StoryProgress): Array<{
   type: "rival" | "training" | "gear" | "location" | "feature" | "story";
   id: string;
   name: { en: string; id: string };

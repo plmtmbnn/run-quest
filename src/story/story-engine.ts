@@ -1,4 +1,9 @@
 import type { RunnerProfile } from "@/runner/runner-types";
+import {
+  getChapterByNumber,
+  isChapterUnlocked,
+  STORY_CHAPTERS,
+} from "./chapter-database";
 import type {
   ActiveChapterState,
   ChampionshipResult,
@@ -7,7 +12,6 @@ import type {
   StoryEvent,
   StoryProgress,
 } from "./story-types";
-import { getChapterByNumber, isChapterUnlocked, STORY_CHAPTERS } from "./chapter-database";
 
 /**
  * Story Engine - Manages story progression and chapter unlocks
@@ -172,7 +176,9 @@ export function completeChapter(
 /**
  * Increment story race count
  */
-export function incrementStoryRaces(storyProgress: StoryProgress): StoryProgress {
+export function incrementStoryRaces(
+  storyProgress: StoryProgress,
+): StoryProgress {
   return {
     ...storyProgress,
     totalStoryRaces: storyProgress.totalStoryRaces + 1,
@@ -226,10 +232,7 @@ export function isChampionshipAvailable(
   }
 
   // Check progress requirement (80% of estimated races)
-  const activeChapter = getActiveChapter(
-    {} as RunnerProfile,
-    storyProgress,
-  );
+  const activeChapter = getActiveChapter({} as RunnerProfile, storyProgress);
   if (!activeChapter) return false;
 
   return activeChapter.championshipUnlocked;

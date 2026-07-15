@@ -41,14 +41,20 @@ export function StoryBeatCinematic({
       return {
         initial: { opacity: 0, scale: 1.2, filter: "blur(10px)" },
         animate: { opacity: 1, scale: 1, filter: "blur(0px)" },
-        transition: { duration: 1.5, ease: [0.25, 0.46, 0.45, 0.94] } as Transition,
+        transition: {
+          duration: 1.5,
+          ease: [0.25, 0.46, 0.45, 0.94],
+        } as Transition,
       };
     }
 
     return {
       initial: { opacity: 0, y: 20 },
       animate: { opacity: 1, y: 0 },
-      transition: { duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] } as Transition,
+      transition: {
+        duration: 0.8,
+        ease: [0.25, 0.46, 0.45, 0.94],
+      } as Transition,
     };
   };
 
@@ -101,11 +107,15 @@ export function StoryBeatCinematic({
         {/* Content */}
         <motion.div
           {...getTextAnimation()}
-          transition={{ delay: 0.3, duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] } as Transition}
+          transition={
+            {
+              delay: 0.3,
+              duration: 0.8,
+              ease: [0.25, 0.46, 0.45, 0.94],
+            } as Transition
+          }
           className={`text-lg leading-relaxed text-center ${
-            storyBeat.cinematicType === "flashback"
-              ? "italic opacity-80"
-              : ""
+            storyBeat.cinematicType === "flashback" ? "italic opacity-80" : ""
           }`}
         >
           <p className="whitespace-pre-line">{storyBeat.content[lang]}</p>
@@ -116,7 +126,13 @@ export function StoryBeatCinematic({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1, duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] } as Transition}
+            transition={
+              {
+                delay: 1,
+                duration: 0.8,
+                ease: [0.25, 0.46, 0.45, 0.94],
+              } as Transition
+            }
             className="mt-6 p-4 bg-white/5 rounded-lg border border-white/10"
           >
             <p className="text-sm italic opacity-70">
@@ -131,7 +147,13 @@ export function StoryBeatCinematic({
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] } as Transition}
+              transition={
+                {
+                  delay: 0.6,
+                  duration: 0.5,
+                  ease: [0.25, 0.46, 0.45, 0.94],
+                } as Transition
+              }
               className="mt-6 flex justify-center gap-2"
             >
               {storyBeat.characterAppearances.map((character) => (
@@ -149,7 +171,13 @@ export function StoryBeatCinematic({
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.5, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] } as Transition}
+          transition={
+            {
+              delay: 1.5,
+              duration: 0.5,
+              ease: [0.25, 0.46, 0.45, 0.94],
+            } as Transition
+          }
           className="mt-8 text-center"
         >
           <button
@@ -166,7 +194,13 @@ export function StoryBeatCinematic({
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 2, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] } as Transition}
+            transition={
+              {
+                delay: 2,
+                duration: 0.5,
+                ease: [0.25, 0.46, 0.45, 0.94],
+              } as Transition
+            }
             className="mt-4 text-center text-xs opacity-50"
           >
             {lang === "en"

@@ -1,14 +1,13 @@
 import type { RunnerProfile } from "@/runner/runner-types";
-import type { StoryProgress } from "./story-types";
+import { getChapterByNumber } from "./chapter-database";
 import {
+  completeChapter,
   getActiveChapter,
+  getPendingStoryEvents,
   incrementStoryRaces,
   recordChampionshipResult,
-  completeChapter,
-  getPendingStoryEvents,
 } from "./story-engine";
-import { getChapterByNumber } from "./chapter-database";
-import type { ChampionshipResult } from "./story-types";
+import type { ChampionshipResult, StoryProgress } from "./story-types";
 
 /**
  * Story integration hooks for race system
@@ -31,7 +30,11 @@ export function handleRaceComplete(
 ): {
   updatedProgress: StoryProgress;
   events: Array<{
-    type: "chapter_complete" | "story_beat" | "championship_won" | "championship_lost";
+    type:
+      | "chapter_complete"
+      | "story_beat"
+      | "championship_won"
+      | "championship_lost";
     data: any;
   }>;
 } {
@@ -46,7 +49,8 @@ export function handleRaceComplete(
       finishTime: options.finishTime ?? 0,
       position: options.position ?? 1,
       attempts:
-        (storyProgress.championshipAttempts[options.championshipRaceId] || 0) + 1,
+        (storyProgress.championshipAttempts[options.championshipRaceId] || 0) +
+        1,
       completedAt: new Date().toISOString(),
       grade: options.grade,
     };
@@ -61,14 +65,20 @@ export function handleRaceComplete(
 
       // Check if this completes the current chapter
       const currentChapter = getChapterByNumber(storyProgress.currentChapter);
-      if (currentChapter && currentChapter.finalRace.id === options.championshipRaceId) {
+      if (
+        currentChapter &&
+        currentChapter.finalRace.id === options.championshipRaceId
+      ) {
         updatedProgress = completeChapter(
           updatedProgress,
           storyProgress.currentChapter,
         );
         events.push({
           type: "chapter_complete",
-          data: { chapterNumber: storyProgress.currentChapter, rewards: currentChapter.rewards },
+          data: {
+            chapterNumber: storyProgress.currentChapter,
+            rewards: currentChapter.rewards,
+          },
         });
       }
     } else {
@@ -93,10 +103,17 @@ export function handleRaceComplete(
     }
   }
 
-  return { updatedProgress, events: events as Array<{
-    type: "chapter_complete" | "story_beat" | "championship_won" | "championship_lost";
-    data: any;
-  }> };
+  return {
+    updatedProgress,
+    events: events as Array<{
+      type:
+        | "chapter_complete"
+        | "story_beat"
+        | "championship_won"
+        | "championship_lost";
+      data: any;
+    }>,
+  };
 }
 
 /**
@@ -141,9 +158,7 @@ export function canAccessRace(
 /**
  * Get recommended races for current story chapter
  */
-export function getRecommendedRacesForChapter(
-  storyProgress: StoryProgress,
-): {
+export function getRecommendedRacesForChapter(storyProgress: StoryProgress): {
   distance: number;
   surface: "road" | "track" | "trail";
   difficulty: "easy" | "medium" | "hard";
@@ -165,7 +180,11 @@ export function getRecommendedRacesForChapter(
   if (chapter.number === 2) {
     recommendations.push(
       { distance: 10, surface: "road" as const, difficulty: "medium" as const },
-      { distance: 10, surface: "track" as const, difficulty: "medium" as const },
+      {
+        distance: 10,
+        surface: "track" as const,
+        difficulty: "medium" as const,
+      },
     );
   }
 
@@ -174,7 +193,11 @@ export function getRecommendedRacesForChapter(
     recommendations.push(
       { distance: 10, surface: "road" as const, difficulty: "hard" as const },
       { distance: 15, surface: "road" as const, difficulty: "medium" as const },
-      { distance: 21.1, surface: "road" as const, difficulty: "medium" as const },
+      {
+        distance: 21.1,
+        surface: "road" as const,
+        difficulty: "medium" as const,
+      },
     );
   }
 
@@ -183,15 +206,27 @@ export function getRecommendedRacesForChapter(
     recommendations.push(
       { distance: 21.1, surface: "road" as const, difficulty: "hard" as const },
       { distance: 30, surface: "road" as const, difficulty: "medium" as const },
-      { distance: 42.195, surface: "road" as const, difficulty: "medium" as const },
+      {
+        distance: 42.195,
+        surface: "road" as const,
+        difficulty: "medium" as const,
+      },
     );
   }
 
   // Chapter 5: Elite level
   if (chapter.number === 5) {
     recommendations.push(
-      { distance: 42.195, surface: "road" as const, difficulty: "hard" as const },
-      { distance: 42.195, surface: "track" as const, difficulty: "hard" as const },
+      {
+        distance: 42.195,
+        surface: "road" as const,
+        difficulty: "hard" as const,
+      },
+      {
+        distance: 42.195,
+        surface: "track" as const,
+        difficulty: "hard" as const,
+      },
     );
   }
 

@@ -17,6 +17,7 @@ import { useGameStore } from "@/store/game-store";
 import { usePlayerStore } from "@/store/player-store";
 import { useSettingsStore } from "@/store/settings-store";
 import { useTrainingStore } from "@/training/training-store";
+import { useSocialStore } from "@/social/social-store";
 import type { RaceEntry } from "@/types/engine";
 
 export function HomeScreen() {
@@ -29,6 +30,11 @@ export function HomeScreen() {
   const { playSound } = useSound();
   const { runnerState, setRunnerState } = useRunnerStore();
   const { trainingState } = useTrainingStore();
+  const recentRivalActivities = useSocialStore(
+    (s) => s.rivalActivities.filter((a) =>
+      a.timestamp === "Just now" || a.timestamp === "2h ago"
+    ).length,
+  );
 
   const claimQuest = (questId: string) => {
     const profile = runnerState.profile;
@@ -304,7 +310,7 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
                     `Runner #${player.id.slice(0, 5).toUpperCase()}`}
                 </span>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
                   onClick={() => {
@@ -324,6 +330,21 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
                   className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-bold tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-1 rounded-full transition-all border border-white/10"
                 >
                   {t("home.runner_profile" as TranslationKey)} →
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playSound("click");
+                    router.push("/social");
+                  }}
+                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-bold tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-1 rounded-full transition-all border border-white/10 relative"
+                >
+                  Social Hub →
+                  {recentRivalActivities > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 h-4 min-w-[16px] px-1 bg-rose-500 text-white text-[8px] font-black rounded-full flex items-center justify-center shadow-md shadow-rose-500/30 animate-pulse">
+                      {recentRivalActivities}
+                    </span>
+                  )}
                 </button>
                 <button
                   type="button"

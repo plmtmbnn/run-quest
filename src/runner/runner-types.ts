@@ -2,6 +2,26 @@
 // TypeScript types for the Runner Profile and related entities.
 
 /**
+ * A single run record stored in the profile history.
+ */
+export interface RunRecord {
+  /** Challenge/race ID */
+  challengeId: string;
+  /** ISO date when the run occurred */
+  date: string;
+  /** Race distance in km */
+  distance: number;
+  /** Finish time in seconds */
+  finishTime: number;
+  /** Letter grade */
+  grade: "S" | "A" | "B" | "C" | "D" | "F";
+  /** Numeric score (0-1000) */
+  score: number;
+  /** Outcome category */
+  outcome: "gold" | "silver" | "bronze" | "finish" | "dnf" | "dns";
+}
+
+/**
  * Represents the persistent Runner Profile.
  * This profile survives browser refreshes and future application updates.
  */
@@ -64,6 +84,15 @@ export interface RunnerProfile {
       biggestLoss: number;
     }
   >;
+  // Ranking & Club fields
+  rankPoints?: number;
+  rankTier?: string;
+  rankDivision?: number | null;
+  rankRegion?: string;
+  clubId?: string | null;
+  clubContribution?: number;
+  // Run history for trend analysis
+  runHistory?: RunRecord[];
 }
 
 /**
@@ -96,6 +125,12 @@ export const DEFAULT_RUNNER_PROFILE: RunnerProfile = {
   currentNemesis: null,
   equippedShoes: null,
   activePerks: [],
+  rankPoints: 0,
+  rankTier: "Bronze",
+  rankDivision: 5,
+  rankRegion: "Global",
+  clubId: null,
+  clubContribution: 0,
 };
 
 /**

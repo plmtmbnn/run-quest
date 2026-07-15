@@ -4,13 +4,27 @@ import dayjs from "dayjs";
 import { motion } from "framer-motion";
 import { Award, BookOpen, Clock, Home, Share2, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CoachQuoteCard } from "@/components/share/coach-quote-card";
 import { EventHighlightCard } from "@/components/share/event-highlight-card";
 import { RaceReportCard } from "@/components/share/race-report-card";
 import { ShareModal } from "@/components/share/share-modal";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+import { useRunnerStore } from "@/runner/runner-store";
+import { saveRunToHistory } from "@/runner/run-history";
+import type { RunRecord } from "@/runner/runner-types";
 import { generateDailyChallenge } from "@/services/challenge/generator";
+import {
+  isNewPersonalBest,
+  loadGhostRun,
+  saveGhostRun,
+} from "@/social/ghost-engine";
+import {
+  applyRpChangeWithProtection,
+  calculateRankPointsChange,
+  getTierAndDivision,
+} from "@/social/ranking-engine";
+import { useSocialStore } from "@/social/social-store";
 import { useGameStore } from "@/store/game-store";
 import { usePreparationStore } from "@/store/preparation-store";
 import type { RaceEvent } from "@/types/engine";
@@ -22,12 +36,211 @@ export function ResultScreen() {
 
   const { lastResult, currentChallenge, clearState } = useGameStore();
   const { reset } = usePreparationStore();
+  const { runnerState, setRunnerState } = useRunnerStore();
+
+  // Ranking States
+  const [hasProcessed, setHasProcessed] = useState(false);
+  const [rpGained, setRpGained] = useState(0);
+  const [rpBreakdown, setRpBreakdown] = useState<
+    { reason: string; change: number }[]
+  >([]);
+  const [newRp, setNewRp] = useState(0);
+  const [rankedUp, setRankedUp] = useState(false);
 
   // Share States
   const [isReportShareOpen, setIsReportShareOpen] = useState(false);
   const [activeCoachQuote, setActiveCoachQuote] = useState<string | null>(null);
   const [activeEventHighlight, setActiveEventHighlight] =
     useState<RaceEvent | null>(null);
+
+  const challenge =
+    currentChallenge || generateDailyChallenge(dayjs().format("YYYY-MM-DD"));
+
+  useEffect(() => {
+    if (!lastResult || hasProcessed) return;
+    setHasProcessed(true);
+
+    const profile = runnerState.profile;
+    const initialRp = profile.rankPoints || 0;
+    const outcome = lastResult.outcome;
+    const isPerfect = lastResult.grade === "S";
+
+    // Check if player beat active nemesis / rivals in the race
+    let didBeatNemesis = false;
+    const finalState = lastResult.stateLog?.[lastResult.stateLog.length - 1];
+    if (finalState && finalState.opponents) {
+      const nemesis = finalState.opponents.find((opp) => opp.isNemesis);
+      if (nemesis) {
+        if (outcome !== "dnf" && outcome !== "dns") {
+          if (
+            nemesis.isDNF ||
+            lastResult.finishTime < nemesis.accumulatedTime
+          ) {
+            didBeatNemesis = true;
+          }
+        }
+      }
+    }
+
+    // Check if they beat their PB Ghost
+    const currentGhost = loadGhostRun(challenge.id);
+    const didBeatGhost =
+      currentGhost && outcome !== "dnf" && outcome !== "dns"
+        ? lastResult.finishTime < currentGhost.finishTime
+        : false;
+
+    // Check if they ran under target time
+    const underTargetTime =
+      outcome !== "dnf" && outcome !== "dns"
+        ? lastResult.finishTime < challenge.objective.targetTime
+        : false;
+
+    // Identify which known rivals were in this race
+    const KNOWN_RIVAL_NAMES = [
+      "Marcus 'The Machine' Rivera",
+      "Ellie 'Lightning' Park",
+      "Kenji 'Silent Storm' Nakamura",
+      "Sarah 'Ironheart' Chen",
+      "Alex 'The Natural' Santos",
+      "Maria 'Momentum' Gonzalez",
+    ];
+    const KNOWN_RIVAL_IDS: Record<string, string> = {
+      "Marcus 'The Machine' Rivera": "marcus_rivera",
+      "Ellie 'Lightning' Park": "ellie_park",
+      "Kenji 'Silent Storm' Nakamura": "kenji_nakamura",
+      "Sarah 'Ironheart' Chen": "sarah_chen",
+      "Alex 'The Natural' Santos": "alex_santos",
+      "Maria 'Momentum' Gonzalez": "maria_gonzalez",
+    };
+
+    let rivalRelationships = { ...(profile.rivalRelationships || {}) };
+    if (finalState && finalState.opponents) {
+      for (const opp of finalState.opponents) {
+        const rivalId = KNOWN_RIVAL_NAMES.includes(opp.name)
+          ? KNOWN_RIVAL_IDS[opp.name]
+          : null;
+        if (rivalId) {
+          const existing = rivalRelationships[rivalId] || {
+            wins: 0,
+            losses: 0,
+            lastEncounter: null,
+            relationshipLevel: 0,
+            totalEncounters: 0,
+            closestMargin: Infinity,
+            biggestWin: 0,
+            biggestLoss: 0,
+          };
+
+          const playerBeatRival =
+            outcome !== "dnf" && outcome !== "dns" &&
+            (opp.isDNF || lastResult.finishTime < opp.accumulatedTime);
+
+          const margin = opp.isDNF
+            ? Infinity
+            : Math.abs(lastResult.finishTime - opp.accumulatedTime);
+
+          rivalRelationships = {
+            ...rivalRelationships,
+            [rivalId]: {
+              ...existing,
+              wins: existing.wins + (playerBeatRival ? 1 : 0),
+              losses: existing.losses + (playerBeatRival ? 0 : 1),
+              lastEncounter: new Date().toISOString(),
+              relationshipLevel: existing.relationshipLevel + (playerBeatRival ? 5 : -5),
+              totalEncounters: existing.totalEncounters + 1,
+              closestMargin: Math.min(existing.closestMargin, margin),
+              biggestWin: playerBeatRival
+                ? Math.max(existing.biggestWin, margin)
+                : existing.biggestWin,
+              biggestLoss: playerBeatRival
+                ? existing.biggestLoss
+                : Math.max(existing.biggestLoss, margin),
+            },
+          };
+        }
+      }
+    }
+
+    // Calculate RP change
+    const { rpChange, breakdown } = calculateRankPointsChange(
+      outcome,
+      isPerfect,
+      didBeatNemesis,
+      didBeatGhost,
+      underTargetTime,
+    );
+
+    const nextRp = applyRpChangeWithProtection(initialRp, rpChange);
+    setNewRp(nextRp);
+    setRpGained(rpChange);
+    setRpBreakdown(breakdown);
+
+    // Save personal best ghost if applicable
+    if (outcome !== "dnf" && outcome !== "dns") {
+      const splits = (lastResult.stateLog || [])
+        .filter((s) => s.distanceCovered > 0)
+        .map((s, index, arr) => {
+          const prev = index === 0 ? lastResult.stateLog[0] : arr[index - 1];
+          return s.accumulatedTime - prev.accumulatedTime;
+        });
+
+      if (isNewPersonalBest(challenge.id, lastResult.finishTime)) {
+        saveGhostRun(
+          challenge.id,
+          profile.displayName,
+          lastResult.finishTime,
+          splits,
+        );
+      }
+
+      // Add distance to club contribution if joined, and simulate competition day
+      useSocialStore.getState().simulateCompetitionDay(
+        challenge.race.distance,
+        profile.rankPoints || 0,
+      );
+    }
+
+    // Update profile
+    const { tier: oldTier } = getTierAndDivision(initialRp);
+    const { tier: newTier, division: newDiv } = getTierAndDivision(nextRp);
+
+    if (newTier !== oldTier) {
+      setRankedUp(true);
+    }
+
+    // Save run to history
+    const runRecord: RunRecord = {
+      challengeId: challenge.id,
+      date: new Date().toISOString(),
+      distance: challenge.race.distance,
+      finishTime: lastResult.finishTime,
+      grade: lastResult.grade,
+      score: lastResult.score,
+      outcome: lastResult.outcome,
+    };
+    const profileWithHistory = saveRunToHistory(profile, runRecord);
+
+    const updatedProfile = {
+      ...profileWithHistory,
+      rankPoints: nextRp,
+      rankTier: newTier,
+      rankDivision: newDiv,
+      rivalRelationships,
+      clubContribution: profile.clubId
+        ? Number(
+            ((profile.clubContribution || 0) + challenge.race.distance).toFixed(
+              2,
+            ),
+          )
+        : profile.clubContribution,
+    };
+
+    setRunnerState({
+      ...runnerState,
+      profile: updatedProfile,
+      lastUpdated: new Date().toISOString(),
+    });
+  }, [lastResult, hasProcessed, runnerState, challenge, setRunnerState]);
 
   // Safely fallback if result is missing (navigated directly)
   if (!lastResult) {
@@ -50,8 +263,6 @@ export function ResultScreen() {
     );
   }
 
-  const challenge =
-    currentChallenge || generateDailyChallenge(dayjs().format("YYYY-MM-DD"));
   const { finishTime, score, grade, outcome, story } = lastResult;
 
   const formatTime = (secs: number) => {
@@ -283,6 +494,73 @@ export function ResultScreen() {
             </div>
           </div>
         </div>
+
+        {/* RP & Ranking Progression Card */}
+        {rpGained !== 0 && (
+          <div className="rounded-[2rem] border-2 border-indigo-100 dark:border-indigo-900/30 bg-indigo-50/20 dark:bg-indigo-950/10 p-6 shadow-sm flex flex-col gap-4">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">🏆</span>
+                <div>
+                  <h3 className="font-heading font-black text-sm text-indigo-955 dark:text-indigo-200">
+                    Rank Points Progress
+                  </h3>
+                  <p className="text-[10px] text-gray-500">
+                    Your progression in the competitive league
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <span
+                  className={`text-lg font-black font-heading ${rpGained > 0 ? "text-emerald-600" : "text-rose-600"}`}
+                >
+                  {rpGained > 0 ? `+${rpGained}` : rpGained} RP
+                </span>
+              </div>
+            </div>
+
+            {/* Rank Tier Display */}
+            <div className="flex items-center gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-indigo-50 dark:border-indigo-950/40">
+              <div className="h-12 w-12 rounded-full bg-indigo-100 dark:bg-indigo-950 flex items-center justify-center text-xl font-bold text-indigo-600 dark:text-indigo-400 shadow-inner">
+                {getTierAndDivision(newRp).tier[0]}
+              </div>
+              <div className="flex-grow">
+                <h4 className="font-bold text-sm text-slate-800 dark:text-white leading-tight">
+                  {getTierAndDivision(newRp).tier}{" "}
+                  {getTierAndDivision(newRp).division &&
+                    `Division ${getTierAndDivision(newRp).division}`}
+                </h4>
+                <p className="text-[10px] text-gray-400 mt-1">
+                  {newRp} Total RP
+                </p>
+              </div>
+              {rankedUp && (
+                <span className="text-[9px] bg-emerald-100 text-emerald-800 font-extrabold uppercase px-2.5 py-1 rounded-full animate-bounce">
+                  Rank Up! 🎉
+                </span>
+              )}
+            </div>
+
+            {/* RP Breakdown */}
+            <div className="flex flex-col gap-1.5 text-xs text-slate-650 dark:text-slate-350">
+              <span className="text-[10px] uppercase font-bold text-gray-405 tracking-wider">
+                Breakdown
+              </span>
+              {rpBreakdown.map((item, idx) => (
+                <div key={idx} className="flex justify-between font-mono">
+                  <span>{item.reason}</span>
+                  <span
+                    className={
+                      item.change > 0 ? "text-emerald-500" : "text-rose-500"
+                    }
+                  >
+                    {item.change > 0 ? `+${item.change}` : item.change} RP
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Visual Share Card Preview */}
         <div className="flex flex-col gap-3">

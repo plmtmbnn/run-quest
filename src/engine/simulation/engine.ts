@@ -232,6 +232,21 @@ export function advanceSimulation(
       }
     }
 
+    if (input.ghostRun) {
+      opponents.push({
+        id: "ghost_runner",
+        name: `${input.ghostRun.runnerName} (Ghost)`,
+        archetype: "steady",
+        distanceCovered: 0,
+        accumulatedTime: 0,
+        energy: 100,
+        hydration: 100,
+        isDNF: false,
+        paceSeconds: Math.round(input.ghostRun.splits[0] || 310),
+        isGhost: true,
+      });
+    }
+
     state = {
       distanceCovered: 0,
       totalDistance: input.challenge.race.distance,
@@ -833,6 +848,19 @@ export function advanceSimulation(
 
       for (const opp of currentStepState.opponents) {
         if (opp.isDNF) continue;
+
+        if (opp.id === "ghost_runner" || opp.isGhost) {
+          const splits = input.ghostRun?.splits || [];
+          const splitTime =
+            splits[km - 1] ||
+            challenge.objective.targetTime / challenge.race.distance;
+          opp.paceSeconds = Math.round(splitTime);
+          opp.accumulatedTime += opp.paceSeconds;
+          opp.distanceCovered = km;
+          opp.energy = 100;
+          opp.hydration = 100;
+          continue;
+        }
 
         let oppPace = challenge.objective.targetTime / challenge.race.distance;
 

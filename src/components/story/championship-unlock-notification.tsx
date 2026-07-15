@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, type Transition } from "framer-motion";
-import { Trophy, Target, Award } from "lucide-react";
+import { Award, Target, Trophy } from "lucide-react";
 import { useTranslation } from "@/i18n/use-translation";
 import type { ChampionshipRace } from "@/story/story-types";
 
@@ -69,18 +69,20 @@ export function ChampionshipUnlockNotification({
         >
           <div className="relative">
             <Trophy className="w-20 h-20 text-yellow-400" />
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.5, 1, 0.5],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: [0.4, 0, 0.2, 1],
-          } as Transition}
-          className="absolute inset-0 bg-yellow-400/30 rounded-full blur-xl"
-        />
+            <motion.div
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.5, 1, 0.5],
+              }}
+              transition={
+                {
+                  duration: 2,
+                  repeat: Number.POSITIVE_INFINITY,
+                  ease: [0.4, 0, 0.2, 1],
+                } as Transition
+              }
+              className="absolute inset-0 bg-yellow-400/30 rounded-full blur-xl"
+            />
           </div>
         </motion.div>
 
@@ -88,7 +90,9 @@ export function ChampionshipUnlockNotification({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] } as Transition}
+          transition={
+            { delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] } as Transition
+          }
           className="text-center"
         >
           <h2 className="text-3xl font-bold mb-2 text-yellow-400">
@@ -105,19 +109,23 @@ export function ChampionshipUnlockNotification({
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, ease: [0.25, 0.46, 0.45, 0.94] } as Transition}
+          transition={
+            { delay: 0.5, ease: [0.25, 0.46, 0.45, 0.94] } as Transition
+          }
           className="bg-black/30 rounded-xl p-6 mb-6"
         >
-          <h3 className="text-2xl font-bold mb-2">{championship.title[lang]}</h3>
-          <p className="text-sm opacity-70 mb-4">{championship.description[lang]}</p>
+          <h3 className="text-2xl font-bold mb-2">
+            {championship.title[lang]}
+          </h3>
+          <p className="text-sm opacity-70 mb-4">
+            {championship.description[lang]}
+          </p>
 
           {/* Race details grid */}
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="flex items-center gap-2">
               <Target className="w-4 h-4 opacity-60" />
-              <span className="text-sm">
-                {championship.distance} km
-              </span>
+              <span className="text-sm">{championship.distance} km</span>
             </div>
             <div className="flex items-center gap-2">
               <Award className={`w-4 h-4 ${getDifficultyColor()}`} />
@@ -167,7 +175,9 @@ export function ChampionshipUnlockNotification({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7, ease: [0.25, 0.46, 0.45, 0.94] } as Transition}
+          transition={
+            { delay: 0.7, ease: [0.25, 0.46, 0.45, 0.94] } as Transition
+          }
           className="flex gap-4"
         >
           <button
@@ -188,12 +198,14 @@ export function ChampionshipUnlockNotification({
 
         {/* Required to complete notice */}
         {championship.requiredToComplete && (
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, ease: [0.25, 0.46, 0.45, 0.94] } as Transition}
-          className="mt-4 text-center text-xs opacity-60"
-        >
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={
+              { delay: 1, ease: [0.25, 0.46, 0.45, 0.94] } as Transition
+            }
+            className="mt-4 text-center text-xs opacity-60"
+          >
             {lang === "en"
               ? "⚠️ You must win this race to continue the story"
               : "⚠️ Kamu harus memenangkan lomba ini untuk melanjutkan cerita"}

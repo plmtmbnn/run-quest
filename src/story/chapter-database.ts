@@ -547,7 +547,9 @@ export const STORY_CHAPTERS: StoryChapter[] = [
 /**
  * Get chapter by number
  */
-export function getChapterByNumber(chapterNumber: number): StoryChapter | undefined {
+export function getChapterByNumber(
+  chapterNumber: number,
+): StoryChapter | undefined {
   return STORY_CHAPTERS.find((ch) => ch.number === chapterNumber);
 }
 

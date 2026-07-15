@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, type Transition } from "framer-motion";
-import { Sparkles, ChevronRight } from "lucide-react";
+import { ChevronRight, Sparkles } from "lucide-react";
 import { useTranslation } from "@/i18n/use-translation";
 import type { StoryChapter } from "@/story/story-types";
 
@@ -39,11 +39,13 @@ export function ChapterUnlockNotification({
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.6, 0.3],
           }}
-          transition={{
-            duration: 3,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: [0.4, 0, 0.2, 1],
-          } as Transition}
+          transition={
+            {
+              duration: 3,
+              repeat: Number.POSITIVE_INFINITY,
+              ease: [0.4, 0, 0.2, 1],
+            } as Transition
+          }
           className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-blue-400/20 rounded-2xl blur-xl"
         />
 
@@ -51,7 +53,12 @@ export function ChapterUnlockNotification({
         <motion.div
           initial={{ scale: 0, rotate: -180 }}
           animate={{ scale: 1, rotate: 0 }}
-          transition={{ delay: 0.2, type: "spring", stiffness: 150, damping: 10 }}
+          transition={{
+            delay: 0.2,
+            type: "spring",
+            stiffness: 150,
+            damping: 10,
+          }}
           className="relative flex justify-center mb-6"
         >
           <div className="text-7xl">{chapter.icon}</div>
@@ -59,11 +66,13 @@ export function ChapterUnlockNotification({
             animate={{
               rotate: 360,
             }}
-            transition={{
-              duration: 10,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "linear",
-            } as Transition}
+            transition={
+              {
+                duration: 10,
+                repeat: Number.POSITIVE_INFINITY,
+                ease: "linear",
+              } as Transition
+            }
             className="absolute -top-4 -right-4"
           >
             <Sparkles className="w-8 h-8 text-yellow-400" />
@@ -72,11 +81,13 @@ export function ChapterUnlockNotification({
             animate={{
               rotate: -360,
             }}
-            transition={{
-              duration: 8,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "linear",
-            } as Transition}
+            transition={
+              {
+                duration: 8,
+                repeat: Number.POSITIVE_INFINITY,
+                ease: "linear",
+              } as Transition
+            }
             className="absolute -bottom-4 -left-4"
           >
             <Sparkles className="w-6 h-6 text-blue-400" />
@@ -87,11 +98,18 @@ export function ChapterUnlockNotification({
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          transition={{ delay: 0.3, type: "spring", damping: 10, stiffness: 100 }}
+          transition={{
+            delay: 0.3,
+            type: "spring",
+            damping: 10,
+            stiffness: 100,
+          }}
           className="flex justify-center mb-4"
         >
           <div className="px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full font-bold">
-            {lang === "en" ? `Chapter ${chapter.number}` : `Bab ${chapter.number}`}
+            {lang === "en"
+              ? `Chapter ${chapter.number}`
+              : `Bab ${chapter.number}`}
           </div>
         </motion.div>
 
@@ -99,7 +117,9 @@ export function ChapterUnlockNotification({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, ease: [0.25, 0.46, 0.45, 0.94] } as Transition}
+          transition={
+            { delay: 0.4, ease: [0.25, 0.46, 0.45, 0.94] } as Transition
+          }
           className="text-center mb-6"
         >
           <h2 className="text-4xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
@@ -111,7 +131,9 @@ export function ChapterUnlockNotification({
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.6, ease: [0.25, 0.46, 0.45, 0.94] } as Transition}
+          transition={
+            { delay: 0.6, ease: [0.25, 0.46, 0.45, 0.94] } as Transition
+          }
           className="bg-black/40 rounded-xl p-6 mb-6 backdrop-blur-sm"
         >
           <h3 className="text-3xl font-bold mb-2 text-center">
@@ -131,11 +153,15 @@ export function ChapterUnlockNotification({
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, ease: [0.25, 0.46, 0.45, 0.94] } as Transition}
+            transition={
+              { delay: 0.8, ease: [0.25, 0.46, 0.45, 0.94] } as Transition
+            }
             className="mb-6"
           >
             <p className="text-xs opacity-60 text-center mb-3">
-              {lang === "en" ? "Complete this chapter to unlock:" : "Selesaikan bab ini untuk membuka:"}
+              {lang === "en"
+                ? "Complete this chapter to unlock:"
+                : "Selesaikan bab ini untuk membuka:"}
             </p>
             <div className="flex flex-wrap gap-2 justify-center">
               {chapter.rewards.unlocks.slice(0, 3).map((unlock) => (
@@ -161,7 +187,9 @@ export function ChapterUnlockNotification({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1, ease: [0.25, 0.46, 0.45, 0.94] } as Transition}
+          transition={
+            { delay: 1, ease: [0.25, 0.46, 0.45, 0.94] } as Transition
+          }
           className="flex justify-center"
         >
           <button
@@ -178,7 +206,9 @@ export function ChapterUnlockNotification({
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.2, ease: [0.25, 0.46, 0.45, 0.94] } as Transition}
+          transition={
+            { delay: 1.2, ease: [0.25, 0.46, 0.45, 0.94] } as Transition
+          }
           className="mt-6 text-center text-xs opacity-50"
         >
           {lang === "en"

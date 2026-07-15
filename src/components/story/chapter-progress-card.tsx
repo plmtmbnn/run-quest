@@ -1,10 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Lock, CheckCircle, Circle } from "lucide-react";
+import { CheckCircle, Circle, Lock } from "lucide-react";
 import { useTranslation } from "@/i18n/use-translation";
-import type { StoryChapter } from "@/story/story-types";
-import type { StoryProgress } from "@/story/story-types";
+import type { StoryChapter, StoryProgress } from "@/story/story-types";
 
 interface ChapterProgressCardProps {
   chapter: StoryChapter;
@@ -88,14 +87,16 @@ export function ChapterProgressCard({
         </p>
       )}
 
-        {/* Progress bar (if current chapter) */}
+      {/* Progress bar (if current chapter) */}
       {isCurrent && (
         <div className="mb-3">
           <div className="flex justify-between text-xs mb-1">
             <span className="opacity-70">
               {lang === "en" ? "Progress" : "Progres"}
             </span>
-            <span className="font-semibold">{Math.round(progressPercent)}%</span>
+            <span className="font-semibold">
+              {Math.round(progressPercent)}%
+            </span>
           </div>
           <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
             <motion.div
@@ -115,7 +116,9 @@ export function ChapterProgressCard({
             {lang === "en" ? "Requires:" : "Membutuhkan:"}
           </p>
           <p className="text-xs font-semibold mt-1">
-            {lang === "en" ? `Level ${chapter.unlockRequirements.minLevel}` : `Level ${chapter.unlockRequirements.minLevel}`}
+            {lang === "en"
+              ? `Level ${chapter.unlockRequirements.minLevel}`
+              : `Level ${chapter.unlockRequirements.minLevel}`}
           </p>
           {chapter.unlockRequirements.previousChapterComplete && (
             <p className="text-xs mt-1">
@@ -168,11 +171,18 @@ export function ChapterOverview({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {chapters.map((chapter) => {
-        const isUnlocked = storyProgress.unlockedChapters.includes(chapter.number);
+        const isUnlocked = storyProgress.unlockedChapters.includes(
+          chapter.number,
+        );
         const isCurrent = storyProgress.currentChapter === chapter.number;
-        const isCompleted = storyProgress.completedChapters.includes(chapter.number);
+        const isCompleted = storyProgress.completedChapters.includes(
+          chapter.number,
+        );
         const progressPercent = isCurrent
-          ? Math.min(100, (storyProgress.totalStoryRaces / chapter.estimatedRaces) * 100)
+          ? Math.min(
+              100,
+              (storyProgress.totalStoryRaces / chapter.estimatedRaces) * 100,
+            )
           : 0;
 
         return (

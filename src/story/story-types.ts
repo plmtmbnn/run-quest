@@ -1,5 +1,5 @@
-import type { LocalizedText } from "@/types/engine";
 import type { RunnerProfile } from "@/runner/runner-types";
+import type { LocalizedText } from "@/types/engine";
 
 /**
  * Story chapter themes define the narrative arc

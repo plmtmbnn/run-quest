@@ -32,7 +32,7 @@ export function RaceScreen() {
   const { t, language } = useTranslation();
   const lang = (language === "id" ? "id" : "en") as "en" | "id";
 
-  const { currentChallenge, setResult } = useGameStore();
+  const { currentChallenge, setResult, activeGhost } = useGameStore();
   const completeChallenge = usePlayerStore((state) => state.completeChallenge);
   const { preparation } = usePreparationStore();
   const { runnerState, setRunnerState } = useRunnerStore();
@@ -96,6 +96,7 @@ export function RaceScreen() {
         preparation,
         seed,
         runnerProfile: runnerState.profile,
+        ghostRun: activeGhost,
       };
 
       let nextStep: SimulationStepResult;
@@ -435,6 +436,7 @@ export function RaceScreen() {
     distance: number;
     accumulatedTime: number;
     isDNF: boolean;
+    isGhost?: boolean;
   }[] = [];
 
   if (currentSnapshot) {
@@ -444,6 +446,7 @@ export function RaceScreen() {
       distance: currentSnapshot.distanceCovered,
       accumulatedTime: currentSnapshot.accumulatedTime,
       isDNF: stats.energy <= 0 || stats.hydration <= 0,
+      isGhost: false,
     });
 
     if (currentSnapshot.opponents) {
@@ -454,6 +457,7 @@ export function RaceScreen() {
           distance: opp.distanceCovered,
           accumulatedTime: opp.accumulatedTime,
           isDNF: opp.isDNF,
+          isGhost: opp.id === "ghost_runner" || opp.isGhost,
         });
       }
     }
@@ -600,14 +604,16 @@ export function RaceScreen() {
                       ${
                         r.isPlayer
                           ? "bg-orange-500 border-white z-10 scale-110 shadow-sm"
-                          : r.isDNF
-                            ? "bg-slate-400 border-slate-500 opacity-40"
-                            : "bg-slate-700 border-slate-600"
+                          : r.isGhost
+                            ? "bg-indigo-500 border-indigo-200 z-10 text-[9px]"
+                            : r.isDNF
+                              ? "bg-slate-400 border-slate-500 opacity-40"
+                              : "bg-slate-700 border-slate-600"
                       }
                     `}
                     title={`${r.name} (${r.distance} km)`}
                   >
-                    {r.isPlayer ? "You" : r.name[0]}
+                    {r.isPlayer ? "You" : r.isGhost ? "👻" : r.name[0]}
                   </motion.div>
                 );
               })}
@@ -746,18 +752,27 @@ export function RaceScreen() {
                       <div
                         key={r.name}
                         className={`grid grid-cols-12 gap-1 px-3 py-2.5 items-center font-medium
-                          ${r.isPlayer ? "bg-orange-50/50 dark:bg-orange-950/20 text-orange-900 dark:text-orange-100 font-bold" : "text-slate-700 dark:text-gray-300"}
+                          ${r.isPlayer ? "bg-orange-50/50 dark:bg-orange-950/20 text-orange-900 dark:text-orange-100 font-bold" : r.isGhost ? "bg-indigo-50/50 dark:bg-indigo-950/20 text-indigo-900 dark:text-indigo-100 font-semibold" : "text-slate-700 dark:text-gray-300"}
                           ${r.isDNF ? "opacity-50" : ""}
                         `}
                       >
                         <span className="col-span-2 text-center text-sm">
-                          {idx < 3 && !r.isDNF ? medals[idx] : `${idx + 1}`}
+                          {idx < 3 && !r.isDNF
+                            ? r.isGhost
+                              ? "👻"
+                              : medals[idx]
+                            : `${idx + 1}`}
                         </span>
                         <span className="col-span-6 truncate flex items-center gap-1.5">
                           <span>{r.name}</span>
                           {r.isPlayer && (
                             <span className="text-[8px] bg-orange-100 dark:bg-orange-900/60 text-orange-605 dark:text-orange-400 font-bold px-1.5 py-0.5 rounded uppercase">
                               You
+                            </span>
+                          )}
+                          {r.isGhost && (
+                            <span className="text-[8px] bg-indigo-100 dark:bg-indigo-900/60 text-indigo-650 dark:text-indigo-400 font-bold px-1.5 py-0.5 rounded uppercase">
+                              Ghost
                             </span>
                           )}
                           {r.isDNF && (

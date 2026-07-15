@@ -163,6 +163,7 @@ export interface SimulationInput {
   preparation: Preparation;
   seed: number;
   runnerProfile?: RunnerProfile;
+  ghostRun?: { runnerName: string; splits: number[] } | null;
 }
 
 export interface Effect {
@@ -256,6 +257,7 @@ export interface OpponentState {
   isDNF: boolean;
   paceSeconds: number;
   isNemesis?: boolean;
+  isGhost?: boolean;
 }
 
 export type DecisionCategory =

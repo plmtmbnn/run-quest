@@ -1,6 +1,6 @@
 import type { RunnerProfile } from "@/runner/runner-types";
-import type { StoryProgress, ChampionshipResult } from "./story-types";
 import { getChapterByNumber } from "./chapter-database";
+import type { ChampionshipResult, StoryProgress } from "./story-types";
 
 /**
  * Career Biography - Tracks runner's story and achievements
@@ -32,7 +32,10 @@ export interface CareerBiography {
   currentTitle: { en: string; id: string } | null;
   collectedTitles: Array<{ en: string; id: string }>;
   careerHighlights: string[]; // Story beat IDs of memorable moments
-  rivalHistory: Record<string, { encounters: number; wins: number; losses: number }>;
+  rivalHistory: Record<
+    string,
+    { encounters: number; wins: number; losses: number }
+  >;
   legacyRating: number; // 0-100 based on achievements
 }
 

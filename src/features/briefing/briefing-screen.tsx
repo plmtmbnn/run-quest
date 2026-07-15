@@ -18,6 +18,7 @@ import { ShareModal } from "@/components/share/share-modal";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { generateDailyChallenge } from "@/services/challenge/generator";
+import { type GhostRun, loadGhostRun } from "@/social/ghost-engine";
 import { storageRepository } from "@/storage/storage-repository";
 import { useGameStore } from "@/store/game-store";
 
@@ -26,7 +27,7 @@ export function BriefingScreen() {
   const { t, language } = useTranslation();
   const lang = (language === "id" ? "id" : "en") as "en" | "id";
 
-  const { currentChallenge } = useGameStore();
+  const { currentChallenge, setActiveGhost } = useGameStore();
   const { playSound } = useSound();
 
   const formatTargetTime = (seconds: number) => {
@@ -42,6 +43,13 @@ export function BriefingScreen() {
     currentChallenge || generateDailyChallenge(dayjs().format("YYYY-MM-DD"));
 
   const [isShareOpen, setIsShareOpen] = useState(false);
+  const [ghost, setGhost] = useState<GhostRun | null>(null);
+  const [enableGhost, setEnableGhost] = useState(false);
+
+  useEffect(() => {
+    const loadedGhost = loadGhostRun(challenge.id);
+    setGhost(loadedGhost);
+  }, [challenge.id]);
 
   const shareTitle = t("share.race_choice.title" as TranslationKey);
   const shareText = `🏃 RunQuest — ${t("share.race_choice.title" as TranslationKey)}
@@ -193,6 +201,38 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
             </div>
           </div>
 
+          {ghost && (
+            <div className="bg-indigo-50/50 dark:bg-indigo-950/20 border-2 border-indigo-200 dark:border-indigo-900/30 rounded-[2rem] p-5 mb-6 flex items-center justify-between shadow-sm">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">👻</span>
+                <div>
+                  <h3 className="font-extrabold text-sm text-indigo-950 dark:text-indigo-200 leading-tight">
+                    Race against PB Ghost
+                  </h3>
+                  <p className="text-[10px] text-indigo-500 dark:text-indigo-400 mt-0.5">
+                    Your personal best: {Math.floor(ghost.finishTime / 60)}m{" "}
+                    {Math.floor(ghost.finishTime % 60)}s (
+                    {dayjs(ghost.recordedAt).format("MMM DD, YYYY")})
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  playSound("click");
+                  setEnableGhost(!enableGhost);
+                }}
+                className={`px-4 py-2 rounded-2xl text-xs font-black uppercase transition-all ${
+                  enableGhost
+                    ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/20 border-indigo-550 border"
+                    : "bg-white dark:bg-slate-900 border border-gray-250 dark:border-slate-800 text-gray-500 dark:text-gray-400 hover:bg-gray-50"
+                }`}
+              >
+                {enableGhost ? "ENABLED" : "ENABLE"}
+              </button>
+            </div>
+          )}
+
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               type="button"
@@ -209,6 +249,14 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
               type="button"
               onClick={() => {
                 playSound("click");
+                if (enableGhost && ghost) {
+                  setActiveGhost({
+                    runnerName: ghost.runnerName,
+                    splits: ghost.splits,
+                  });
+                } else {
+                  setActiveGhost(null);
+                }
                 router.push("/preparation");
               }}
               className="flex-grow bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold text-base py-4 rounded-full transition-all duration-200 shadow-sm flex items-center justify-center gap-1.5"

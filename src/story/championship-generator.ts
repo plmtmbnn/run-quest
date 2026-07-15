@@ -1,6 +1,13 @@
-import type { Race, Environment, Checkpoint, Scenario, StorySeed, Objective } from "@/types/engine";
-import type { ChampionshipRace } from "./story-types";
+import type {
+  Checkpoint,
+  Environment,
+  Objective,
+  Race,
+  Scenario,
+  StorySeed,
+} from "@/types/engine";
 import { SeededRandom } from "@/utils/random/seeded-random";
+import type { ChampionshipRace } from "./story-types";
 
 /**
  * Extended scenario type for championship races
@@ -26,8 +33,10 @@ export function generateChampionshipChallenge(
   // Convert string seed to number using hash
   const seedNumber = seed
     ? seed.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
-    : championship.id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  
+    : championship.id
+        .split("")
+        .reduce((acc, char) => acc + char.charCodeAt(0), 0);
+
   const rng = new SeededRandom(seedNumber);
 
   // Determine race difficulty parameters
@@ -39,7 +48,8 @@ export function generateChampionshipChallenge(
   };
 
   const settings = difficultySettings[championship.difficulty];
-  const targetTime = championship.distance * 1000 * (settings.targetPace / 1000);
+  const targetTime =
+    championship.distance * 1000 * (settings.targetPace / 1000);
 
   // Create race object
   const race: Race = {
@@ -181,7 +191,9 @@ function generateCheckpoints(distance: number): Checkpoint[] {
 /**
  * Check if a scenario is a championship race
  */
-export function isChampionshipRace(scenario: Scenario): scenario is ChampionshipScenario {
+export function isChampionshipRace(
+  scenario: Scenario,
+): scenario is ChampionshipScenario {
   return (scenario as ChampionshipScenario).isChampionship === true;
 }
 

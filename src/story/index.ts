@@ -1,114 +1,106 @@
 /**
  * Story System - Sprint 22 Implementation
- * 
+ *
  * A comprehensive 5-chapter career story mode for RunQuest
  */
 
-// Core Types
+// Career Biography
 export type {
-  StoryChapter,
-  StoryBeat,
-  StoryProgress,
-  ChapterRequirements,
-  ChampionshipRace,
-  ChapterRewards,
-  ChapterUnlock,
-  ActiveChapterState,
-  StoryEvent,
-  ChampionshipResult,
-  ChapterTheme,
-  StoryBeatTrigger,
-  CinematicType,
-} from "./story-types";
-
-// Chapter Database
+  CareerBiography,
+  CareerMilestone,
+  CareerStatistics,
+} from "./career-biography";
 export {
-  STORY_CHAPTERS,
-  getChapterByNumber,
-  getChapterById,
-  getUnlockedChapters,
-  isChapterUnlocked,
-} from "./chapter-database";
-
-// Story Engine
-export {
-  initializeStoryProgress,
-  getActiveChapter,
-  markStoryBeatViewed,
-  recordChampionshipAttempt,
-  recordChampionshipResult,
-  completeChapter,
-  incrementStoryRaces,
-  isChapterComplete,
-  getAvailableChapters,
-  isChampionshipAvailable,
-  getPendingStoryEvents,
-  getChapterCompletionPercent,
-  getTotalStoryCompletion,
-  addStoryMilestone,
-  hasWonChampionship,
-  getChampionshipAttempts,
-} from "./story-engine";
-
-// State Management
-export {
-  useStoryStore,
-  selectStoryProgress,
-  selectCurrentChapter,
-  selectCompletedChapters,
-  selectTotalStoryRaces,
-  selectIsLoaded,
-} from "./story-store";
-
-// Persistence
-export {
-  loadStoryProgress,
-  saveStoryProgress,
-  loadOrInitializeStoryProgress,
-  clearStoryProgress,
-} from "./story-persistence";
-
+  generateCareerBiography,
+  getAchievementBadges,
+  getCareerSummary,
+} from "./career-biography";
 // Championship Generator
 export {
   generateChampionshipChallenge,
-  isChampionshipRace,
   getChampionshipData,
+  isChampionshipRace,
 } from "./championship-generator";
-
+// Chapter Database
+export {
+  getChapterById,
+  getChapterByNumber,
+  getUnlockedChapters,
+  isChapterUnlocked,
+  STORY_CHAPTERS,
+} from "./chapter-database";
+// Story Engine
+export {
+  addStoryMilestone,
+  completeChapter,
+  getActiveChapter,
+  getAvailableChapters,
+  getChampionshipAttempts,
+  getChapterCompletionPercent,
+  getPendingStoryEvents,
+  getTotalStoryCompletion,
+  hasWonChampionship,
+  incrementStoryRaces,
+  initializeStoryProgress,
+  isChampionshipAvailable,
+  isChapterComplete,
+  markStoryBeatViewed,
+  recordChampionshipAttempt,
+  recordChampionshipResult,
+} from "./story-engine";
 // Story Integration
 export {
-  handleRaceComplete,
   canAccessRace,
   getRecommendedRacesForChapter,
   getStoryRewardMultiplier,
+  handleRaceComplete,
 } from "./story-integration";
-
-// Career Biography
-export type {
-  CareerMilestone,
-  CareerStatistics,
-  CareerBiography,
-} from "./career-biography";
-
+// Persistence
 export {
-  generateCareerBiography,
-  getCareerSummary,
-  getAchievementBadges,
-} from "./career-biography";
+  clearStoryProgress,
+  loadOrInitializeStoryProgress,
+  loadStoryProgress,
+  saveStoryProgress,
+} from "./story-persistence";
+// State Management
+export {
+  selectCompletedChapters,
+  selectCurrentChapter,
+  selectIsLoaded,
+  selectStoryProgress,
+  selectTotalStoryRaces,
+  useStoryStore,
+} from "./story-store";
+// Core Types
+export type {
+  ActiveChapterState,
+  ChampionshipRace,
+  ChampionshipResult,
+  ChapterRequirements,
+  ChapterRewards,
+  ChapterTheme,
+  ChapterUnlock,
+  CinematicType,
+  StoryBeat,
+  StoryBeatTrigger,
+  StoryChapter,
+  StoryEvent,
+  StoryProgress,
+} from "./story-types";
 
 // Story Unlocks
 export type { UnlockState } from "./story-unlocks";
 
 export {
-  getUnlockedFeatures,
-  isFeatureUnlocked,
-  isRivalUnlocked,
   getAvailableRivals,
-  getUnlockRequirements,
-  getNewUnlocksFromChapter,
   getLockedContent,
-  getUnlockPreviewText,
-  isTrainingUnlocked,
-  isGearUnlocked,
+  getNewUnlocksFromChapter,
+  getUnlockedFeatures,
   getUnlockNotification,
+  getUnlockPreviewText,
+  getUnlockRequirements,
+  isFeatureUnlocked,
+  isGearUnlocked,
+  isRivalUnlocked,
+  isTrainingUnlocked,
 } from "./story-unlocks";
