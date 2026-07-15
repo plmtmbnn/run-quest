@@ -28,7 +28,7 @@ export function initializeStoryProgress(): StoryProgress {
     viewedStoryBeats: [],
     championshipAttempts: {},
     championshipResults: {},
-    chapterStartedAt: { 1: new Date().toISOString() },
+    chapterStartedAt: { 1: 0 },
     chapterCompletedAt: {},
     totalStoryRaces: 0,
     storyMilestones: [],
