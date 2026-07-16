@@ -128,4 +128,7 @@ export const StoredGameStateSchema = z.object({
   relationships: z.record(z.string(), z.number()),
   routine: z.array(ActionIdSchema),
   flags: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])),
+  economy: z.any(),
+  sponsorship: z.any(),
+  scheduling: z.any(),
 });

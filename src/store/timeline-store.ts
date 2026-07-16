@@ -20,6 +20,9 @@ import { useSocialStore } from "@/social/social-store";
 import { storageRepository } from "@/storage/storage-repository";
 import type { StoredGameState } from "@/storage/types";
 import { useStoryStore } from "@/story/story-store";
+import { DEFAULT_ECONOMY_STATE } from "@/economy/economy-types";
+import { DEFAULT_SPONSORSHIP_STATE } from "@/economy/sponsorship-types";
+import { DEFAULT_SCHEDULING_STATE } from "@/scheduling/race-calendar-types";
 
 interface TimelineState {
   gameState: GameState | null;
@@ -31,6 +34,7 @@ interface TimelineState {
   ff(mode: FastForwardMode): void;
   acknowledgeEvent(eventId: string): void;
   setRoutine(routine: GameState["routine"]): void;
+  setGameState(updater: GameState | ((prev: GameState) => GameState)): void;
   newLife(): void;
   isAlive(): boolean;
 }
@@ -50,7 +54,10 @@ function toStored(state: GameState): StoredGameState {
     relationships: state.relationships,
     routine: state.routine,
     flags: state.flags,
-  };
+    economy: state.economy,
+    sponsorship: state.sponsorship,
+    scheduling: state.scheduling,
+  } as unknown as StoredGameState;
 }
 
 export const useTimelineStore = create<TimelineState>((set, get) => ({
@@ -60,9 +67,17 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
 
   initialize() {
     const stored = storageRepository.loadGameState();
-    let state = stored as GameState;
+    let state = stored as unknown as GameState;
     if (!state) {
       state = createInitialState(Date.now());
+    } else {
+      // Merge defaults for new Sprint 26 fields in case loading an older save
+      state = {
+        ...state,
+        economy: state.economy || DEFAULT_ECONOMY_STATE,
+        sponsorship: state.sponsorship || DEFAULT_SPONSORSHIP_STATE,
+        scheduling: state.scheduling || DEFAULT_SCHEDULING_STATE,
+      };
     }
     // Ensure the current chapter's start day is initialized in flags
     const storyProgress = useStoryStore.getState().storyProgress;
@@ -177,5 +192,13 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     const { gameState } = get();
     if (!gameState) return false;
     return !isDead(gameState);
+  },
+
+  setGameState(updater: GameState | ((prev: GameState) => GameState)) {
+    const { gameState } = get();
+    if (!gameState) return;
+    const next = typeof updater === "function" ? updater(gameState) : updater;
+    set({ gameState: next });
+    storageRepository.saveGameState(next);
   },
 }));

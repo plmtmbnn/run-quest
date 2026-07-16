@@ -1,3 +1,4 @@
+import type { GameState } from "@/engine/timeline/time-types";
 import type { RunnerProfile } from "@/runner/runner-types";
 import { getChapterByNumber } from "./chapter-database";
 import {
@@ -19,6 +20,7 @@ import type { ChampionshipResult, StoryProgress } from "./story-types";
 export function handleRaceComplete(
   profile: RunnerProfile,
   storyProgress: StoryProgress,
+  gameState: GameState, // Updated to accept full GameState
   options: {
     isChampionship?: boolean;
     championshipRaceId?: string;
@@ -27,7 +29,6 @@ export function handleRaceComplete(
     position?: number;
     grade?: string;
   },
-  currentDayIndex: number,
 ): {
   updatedProgress: StoryProgress;
   events: Array<{
@@ -52,7 +53,7 @@ export function handleRaceComplete(
       attempts:
         (storyProgress.championshipAttempts[options.championshipRaceId] || 0) +
         1,
-      completedAt: currentDayIndex,
+      completedAt: gameState.dayIndex, // Use gameState.dayIndex
       grade: options.grade,
     };
 
@@ -73,7 +74,7 @@ export function handleRaceComplete(
         updatedProgress = completeChapter(
           updatedProgress,
           storyProgress.currentChapter,
-          currentDayIndex,
+          gameState.dayIndex, // Use gameState.dayIndex
         );
         events.push({
           type: "chapter_complete",
@@ -98,7 +99,7 @@ export function handleRaceComplete(
   const pendingEvents = getPendingStoryEvents(
     profile,
     updatedProgress,
-    currentDayIndex,
+    gameState.dayIndex, // Use gameState.dayIndex
   );
   for (const event of pendingEvents) {
     if (event.type === "story_beat") {

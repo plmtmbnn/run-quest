@@ -35,6 +35,9 @@ import {
   storyEventsToCalendarEvents,
 } from "@/engine/timeline";
 import type { StoryEvent } from "@/story";
+import { DEFAULT_ECONOMY_STATE } from "@/economy/economy-types";
+import { DEFAULT_SPONSORSHIP_STATE } from "@/economy/sponsorship-types";
+import { DEFAULT_SCHEDULING_STATE } from "@/scheduling/race-calendar-types";
 
 function makeState(overrides: Partial<GameState> = {}): GameState {
   return {
@@ -50,6 +53,9 @@ function makeState(overrides: Partial<GameState> = {}): GameState {
     relationships: {},
     routine: ["work", "work", "work", "work", "work", "train", "social"],
     flags: {},
+    economy: DEFAULT_ECONOMY_STATE,
+    sponsorship: DEFAULT_SPONSORSHIP_STATE,
+    scheduling: DEFAULT_SCHEDULING_STATE,
     ...overrides,
   };
 }

@@ -6,6 +6,11 @@
  * when an action is committed; it never moves on the real clock.
  */
 
+// Import default states for new modules
+import { EconomyState, DEFAULT_ECONOMY_STATE } from "../../economy/economy-types";
+import { SponsorshipState, DEFAULT_SPONSORSHIP_STATE } from "../../economy/sponsorship-types";
+import { SchedulingState, DEFAULT_SCHEDULING_STATE } from "../../scheduling/race-calendar-types";
+
 // ── Calendar constants (flat 4-week months) ────────────────────────────────
 export const DAYS_PER_WEEK = 7;
 export const WEEKS_PER_MONTH = 4;
@@ -109,7 +114,40 @@ export interface GameState {
   relationships: Record<string, number>;
   routine: Routine;
   flags: GameFlags;
+  // NEW SPRINT 26 PROPERTIES
+  economy: EconomyState;
+  sponsorship: SponsorshipState;
+  scheduling: SchedulingState;
 }
+
+/**
+ * The default initial game state.
+ */
+export const DEFAULT_GAME_STATE: GameState = {
+  dayIndex: 0,
+  startAge: MIN_START_AGE,
+  lifespan: Math.floor(MIN_LIFESPAN + Math.random() * (MAX_LIFESPAN - MIN_LIFESPAN + 1)),
+  seed: Math.floor(Math.random() * 100000), // Random seed
+  energy: ENERGY_MAX,
+  energyMax: ENERGY_MAX,
+  resources: { money: DEFAULT_ECONOMY_STATE.currentBalance }, // Use default from economy
+  stats: {
+    health: 80,
+    strength: 50,
+    intellect: 30,
+    charisma: 40,
+  },
+  skills: {
+    running: 10, // Base skill level
+  },
+  relationships: {},
+  routine: ["rest", "rest", "rest", "rest", "rest", "rest", "rest"], // Default to rest
+  flags: {},
+  // NEW SPRINT 26 INITIALIZATIONS
+  economy: DEFAULT_ECONOMY_STATE,
+  sponsorship: DEFAULT_SPONSORSHIP_STATE,
+  scheduling: DEFAULT_SCHEDULING_STATE,
+};
 
 /** Derived calendar position for a given state. */
 export interface DateInfo {

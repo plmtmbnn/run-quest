@@ -15,6 +15,9 @@ import {
   MIN_LIFESPAN,
   MIN_START_AGE,
 } from "./time-types";
+import { DEFAULT_ECONOMY_STATE } from "../../economy/economy-types";
+import { DEFAULT_SPONSORSHIP_STATE } from "../../economy/sponsorship-types";
+import { DEFAULT_SCHEDULING_STATE } from "../../scheduling/race-calendar-types";
 
 /** Derive the calendar position from the global day index. */
 export function deriveDate(state: GameState): DateInfo {
@@ -65,5 +68,8 @@ export function createInitialState(seed: number): GameState {
     relationships: {},
     routine: ["work", "work", "work", "work", "work", "train", "social"],
     flags: {},
+    economy: DEFAULT_ECONOMY_STATE,
+    sponsorship: DEFAULT_SPONSORSHIP_STATE,
+    scheduling: DEFAULT_SCHEDULING_STATE,
   };
 }

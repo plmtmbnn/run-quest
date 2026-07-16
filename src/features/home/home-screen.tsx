@@ -10,28 +10,55 @@ import { ShareModal } from "@/components/share/share-modal";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { useRunnerStore } from "@/runner/runner-store";
-import { generateDailyRaceBoard } from "@/services/challenge/generator";
 import { useSocialStore } from "@/social/social-store";
 import { storageRepository } from "@/storage/storage-repository";
-import type { StoredDailyBoard } from "@/storage/types";
+import type { StoredDailyBoard } from "@/storage/types"; // Still needed for now, but will be phased out
 import { useGameStore } from "@/store/game-store";
 import { usePlayerStore } from "@/store/player-store";
 import { useSettingsStore } from "@/store/settings-store";
 import { useTrainingStore } from "@/training/training-store";
-import type { RaceEntry } from "@/types/engine";
 import { useTimelineStore } from "@/store/timeline-store";
+
+// New Sprint 26 Imports
+import { RaceCalendar } from "@/components/scheduling/race-calendar";
+import { RaceEntryModal } from "@/components/scheduling/race-entry-modal";
+import { getTodaysRaces, getUpcomingRaces, completeRace, registerForRace } from "@/scheduling/race-calendar-engine";
+import { validateRaceEntry, processRaceEntry } from "@/economy/race-entry-engine";
+import type { RaceOccurrence } from "@/scheduling/race-calendar-types";
+import type { EntryValidation } from "@/economy/race-entry-engine";
+import { earnAchievementBonus, earnRacePrize, earnChampionshipBonus } from "@/economy/earning-engine";
+import { getScheduleById } from "@/scheduling/race-calendar-engine";
+import { isChampionship } from "@/scheduling/race-schedule-database";
+import type { DailyChallenge } from "@/types/engine";
 
 export function HomeScreen() {
   const router = useRouter();
   const { t, language } = useTranslation();
   const lang = (language === "id" ? "id" : "en") as "en" | "id";
+
   const player = usePlayerStore((state) => state.player);
   const { setChallenge } = useGameStore();
   const { settings } = useSettingsStore();
   const { playSound } = useSound();
   const { runnerState, setRunnerState } = useRunnerStore();
   const { trainingState } = useTrainingStore();
-  const dayIndex = useTimelineStore((state) => state.gameState?.dayIndex ?? 0);
+
+  // Access game state from timeline store (Sprint 23)
+  const { gameState, setGameState, doAction } = useTimelineStore((state) => ({
+    gameState: state.gameState,
+    setGameState: state.setGameState,
+    doAction: state.doAction,
+  }));
+
+  // Derived values from gameState
+  const currentDayIndex = gameState?.dayIndex ?? 0;
+  const currentBalance = gameState?.economy.currentBalance ?? 0;
+
+  // New state for Race Calendar and Entry Modal
+  const [selectedRaceOccurrence, setSelectedRaceOccurrence] = useState<RaceOccurrence | null>(null);
+  const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
+  const [entryValidation, setEntryValidation] = useState<EntryValidation | null>(null);
+
   const recentRivalActivities = useSocialStore(
     (s) =>
       s.rivalActivities.filter(
@@ -39,12 +66,13 @@ export function HomeScreen() {
       ).length,
   );
 
+  // Quest claiming (updated to remove coins and only affect XP)
   const claimQuest = (questId: string) => {
+    if (!runnerState || !gameState) return;
     const profile = runnerState.profile;
     const claims = profile.questClaims || {};
-    if (claims[questId] === todayStr) return;
+    if (claims[questId] === currentDayIndex.toString()) return; // Use dayIndex for daily quests
 
-    const coinsGained = 50;
     const xpGained = 50;
 
     let xp = (profile.xp || 0) + xpGained;
@@ -60,13 +88,12 @@ export function HomeScreen() {
 
     const updatedProfile = {
       ...profile,
-      coins: (profile.coins || 0) + coinsGained,
       xp,
       level,
       skillPoints,
       questClaims: {
         ...claims,
-        [questId]: todayStr,
+        [questId]: currentDayIndex.toString(),
       },
     };
 
@@ -76,34 +103,30 @@ export function HomeScreen() {
       lastUpdated: new Date().toISOString(),
     });
 
+    // Money is now handled by economy engine
+    // If quests should give money, call earnAchievementBonus here.
+    // Example: earnAchievementBonus(gameState.economy, gameState, `Quest: ${questId}`);
+
     playSound("success");
   };
 
   const [isShareOpen, setIsShareOpen] = useState(false);
 
   const shareTitle = t("share.stats.title" as TranslationKey);
-  const shareText = `📊 RunQuest — ${t("share.stats.title" as TranslationKey)}:
-🏃 Runner #${player?.id.slice(0, 8).toUpperCase()}
+  const shareText = `📊 RunQuest — ${t("share.stats.title" as TranslationKey)}:\n🏃 Runner #${player?.id.slice(0, 8).toUpperCase()}\n\n🔥 Streak: ${player?.statistics.currentStreak} Days\n⚡ Total Runs: ${player?.statistics.totalRuns}\n📏 Total Distance: ${player?.statistics.totalDistance} km\n⭐ Perfect Runs: ${player?.statistics.perfectRuns || 0}\n\n${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
 
-🔥 Streak: ${player?.statistics.currentStreak} Days
-⚡ Total Runs: ${player?.statistics.totalRuns}
-📏 Total Distance: ${player?.statistics.totalDistance} km
-⭐ Perfect Runs: ${player?.statistics.perfectRuns || 0}
-
-${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
-
-  const todayStr = dayIndex.toString();
-  const board = generateDailyRaceBoard(todayStr);
-
+  // Daily race board status is now more for internal tracking and will be phased out
+  const todayStr = currentDayIndex.toString();
   const [boardStatus, setBoardStatus] = useState<StoredDailyBoard | null>(null);
 
   useEffect(() => {
+    // This old board status is still here for compatibility but its logic will be superseded by schedulingState
     let status = storageRepository.loadDailyBoard();
     if (!status || status.boardId !== todayStr) {
       status = {
         version: 1,
         boardId: todayStr,
-        entriesRemaining: 1,
+        entriesRemaining: 0, // No longer directly used for race availability
         selectedEntryId: null,
         completedEntryId: null,
       };
@@ -112,110 +135,92 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
     setBoardStatus(status);
   }, [todayStr]);
 
-  const handleSelectRace = (entry: RaceEntry) => {
-    if (!boardStatus) return;
+  // New: Get races from scheduling engine
+  const todaysRaces = gameState ? getTodaysRaces(gameState.scheduling, gameState, currentDayIndex) : [];
+  const upcomingRaces = gameState ? getUpcomingRaces(gameState.scheduling, currentDayIndex) : [];
 
-    // Deduct EP and apply compete action to timeline if not already selected
-    if (boardStatus.selectedEntryId !== entry.scenario.id) {
-      useTimelineStore.getState().doAction("compete");
-    }
-
-    // Save active choice to storage
-    const updatedStatus: StoredDailyBoard = {
-      ...boardStatus,
-      entriesRemaining: 0,
-      selectedEntryId: entry.scenario.id,
-    };
-    storageRepository.saveDailyBoard(updatedStatus);
-    setBoardStatus(updatedStatus);
-
-    playSound("click");
-    // Load active challenge to Zustand and navigate to briefing
-    setChallenge(entry.scenario);
-    router.push("/briefing");
+  // Handle race selection from calendar
+  const handleRaceSelect = (race: RaceOccurrence) => {
+    if (!gameState) return;
+    const validation = validateRaceEntry(gameState.economy, gameState, race.tier, race.prerequisites);
+    setEntryValidation(validation);
+    setSelectedRaceOccurrence(race);
+    setIsEntryModalOpen(true);
   };
 
-  const formatTargetTime = (seconds: number) => {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    if (hrs > 0) {
-      return `${hrs}h ${mins}m`;
+  // Handle confirmation from RaceEntryModal
+  const handleConfirmRaceEntry = () => {
+    if (!gameState || !selectedRaceOccurrence || !entryValidation?.canEnter) return;
+
+    const { economy: updatedEconomy, gameState: newGameStateFromProcess, success } = processRaceEntry(
+      gameState.economy,
+      gameState,
+      selectedRaceOccurrence.tier,
+      selectedRaceOccurrence.name,
+      selectedRaceOccurrence.prerequisites
+    );
+
+    if (success) {
+      // Update global game state with new economy and energy
+      setGameState({ ...newGameStateFromProcess, economy: updatedEconomy });
+
+      // Register for the race in scheduling state
+      const updatedScheduling = registerForRace(newGameStateFromProcess.scheduling, selectedRaceOccurrence.scheduleId, currentDayIndex);
+      setGameState(prev => ({ ...prev!, scheduling: updatedScheduling }));
+
+      // This doAction("compete") now only deducts energy, money is handled by processRaceEntry
+      // It's still here if there are other side effects for 'compete' action in timeline.ts
+      doAction("compete"); 
+
+      // Set challenge for briefing screen - need to adapt RaceOccurrence to DailyChallenge
+      // We'll create a DailyChallenge (Scenario) object from RaceOccurrence details.
+      const raceSchedule = getScheduleById(selectedRaceOccurrence.scheduleId); // Get full schedule details
+
+      const scenarioForBriefing: DailyChallenge = {
+        id: selectedRaceOccurrence.raceId,
+        date: new Date().toISOString(), // Use current date for now
+        environment: { 
+          weather: "sunny", // Placeholder, could derive from location/schedule
+          temperature: 20,
+          humidity: 50,
+          wind: { direction: "north", speed: 10 },
+          timeOfDay: "morning",
+        },
+        race: { 
+          title: { en: selectedRaceOccurrence.name, id: selectedRaceOccurrence.name },
+          description: { en: selectedRaceOccurrence.description, id: selectedRaceOccurrence.description },
+          distance: 5, // Placeholder - needs actual distance from raceId
+          surface: "road", // Placeholder - needs actual surface from raceId
+          elevation: "flat", // Placeholder
+          checkpoints: [],
+        },
+        objective: { targetTime: 1800 }, // Placeholder for targetTime
+        storySeed: { mood: "competitive" }, // Placeholder
+        
+        // New Sprint 26 properties from RaceOccurrence
+        tier: selectedRaceOccurrence.tier,
+        entryFee: selectedRaceOccurrence.entryFee,
+        scheduleId: selectedRaceOccurrence.scheduleId,
+        // isChampionship derived from schedule tier
+        isChampionship: isChampionship(raceSchedule!), // Use helper to determine championship status
+        totalEntrants: selectedRaceOccurrence.entrants, 
+        prerequisites: selectedRaceOccurrence.prerequisites,
+      };
+
+      setChallenge(scenarioForBriefing);
+      router.push("/briefing");
+    } else {
+      console.error("Race entry failed despite validation indicating success.");
+      // Potentially show an in-game error message to the player
     }
-    return `${mins}m`;
+    setIsEntryModalOpen(false);
+    setSelectedRaceOccurrence(null);
   };
 
-  const renderStars = (difficulty: number) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <span
-          key={i}
-          className={
-            i <= difficulty ? "text-amber-500 font-bold" : "text-gray-200"
-          }
-        >
-          ★
-        </span>,
-      );
-    }
-    return <div className="flex gap-0.5 text-xs">{stars}</div>;
+  const handleCancelRaceEntry = () => {
+    setIsEntryModalOpen(false);
+    setSelectedRaceOccurrence(null);
   };
-
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case "road":
-        return "bg-blue-50 text-blue-600 border-blue-100";
-      case "trail":
-        return "bg-emerald-50 text-emerald-600 border-emerald-100";
-      case "track":
-        return "bg-amber-50 text-amber-600 border-amber-100";
-      default:
-        return "bg-purple-50 text-purple-600 border-purple-100";
-    }
-  };
-
-  const getPreferenceScore = (entry: RaceEntry) => {
-    let score = 0;
-    const { preferredSurface, preferredDistance } = settings.preferences;
-
-    if (preferredSurface !== "any" && entry.surface === preferredSurface) {
-      score += 1;
-    }
-
-    if (preferredDistance !== "any") {
-      const d = entry.distance;
-      const cat = d <= 5 ? "short" : d <= 12 ? "medium" : "long";
-      if (cat === preferredDistance) {
-        score += 1;
-      }
-    }
-
-    return score;
-  };
-
-  const hasActivePreferences =
-    settings.preferences.preferredSurface !== "any" ||
-    settings.preferences.preferredDistance !== "any";
-
-  // Sort board entries (Completed first, then Active/Selected, then by Preference Score)
-  const sortedEntries = [...board.entries].sort((a, b) => {
-    const isCompletedA = boardStatus?.completedEntryId === a.scenario.id;
-    const isCompletedB = boardStatus?.completedEntryId === b.scenario.id;
-    if (isCompletedA && !isCompletedB) return -1;
-    if (!isCompletedA && isCompletedB) return 1;
-
-    const isSelectedA = boardStatus?.selectedEntryId === a.scenario.id;
-    const isSelectedB = boardStatus?.selectedEntryId === b.scenario.id;
-    if (isSelectedA && !isSelectedB) return -1;
-    if (!isSelectedA && isSelectedB) return 1;
-
-    const scoreA = getPreferenceScore(a);
-    const scoreB = getPreferenceScore(b);
-    return scoreB - scoreA;
-  });
-
-  const maxScore = Math.max(...sortedEntries.map(getPreferenceScore));
-  const isBoardCompleted = boardStatus?.completedEntryId !== null;
 
   return (
     <motion.div
@@ -232,14 +237,10 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
             RunQuest
           </p>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white font-heading">
-            {isBoardCompleted
-              ? t("home.completed" as TranslationKey)
-              : t("home.title" as TranslationKey)}
+            {t("home.title" as TranslationKey)}
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            {isBoardCompleted
-              ? t("home.completed_subtitle" as TranslationKey)
-              : t("home.subtitle" as TranslationKey)}
+            {t("home.subtitle" as TranslationKey)}
           </p>
         </div>
         <button
@@ -259,8 +260,8 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
       <main className="flex-1 px-6 py-4 flex flex-col gap-6">
         <GameClock />
 
-        {/* Player Stats Panel */}
-        {player && (
+        {/* Player Stats Panel (Updated to show Money) */}
+        {player && gameState && (
           <div className="bg-gradient-to-br from-orange-500 to-amber-600 rounded-[2rem] p-6 text-white shadow-md flex items-center justify-between">
             <div className="flex flex-col gap-2">
               <div className="flex flex-col gap-1">
@@ -336,10 +337,10 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
             <div className="flex gap-6">
               <div className="flex flex-col items-center">
                 <span className="text-xs text-blue-200 uppercase font-medium">
-                  {t("home.stats.streak" as TranslationKey)}
+                  {t("home.stats.money" as TranslationKey)}
                 </span>
                 <span className="text-xl font-bold flex items-center gap-1 mt-0.5">
-                  🔥 {player.statistics.currentStreak}
+                  💰 {currentBalance}
                 </span>
               </div>
               <div className="flex flex-col items-center">
@@ -362,280 +363,25 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
           </div>
         )}
 
-        {/* Board Completed Rest Banner */}
-        {isBoardCompleted && (
-          <div className="bg-white dark:bg-slate-900 border-2 border-dashed border-amber-300 dark:border-amber-600 rounded-3xl p-6 shadow-sm flex flex-col items-center gap-3 text-center">
-            <span className="text-xs uppercase font-extrabold tracking-widest text-amber-700 dark:text-amber-450 bg-amber-50 dark:bg-amber-900/20 px-3.5 py-1 rounded-full">
-              Day's Races Completed! 🏁
-            </span>
-            <p className="text-xs text-gray-500 dark:text-gray-400 max-w-xs leading-relaxed">
-              You have completed today's race. Click "Rest" in the calendar HUD
-              above to advance to the next day and unlock new race challenges!
-            </p>
-          </div>
+        {/* Race Calendar */}
+        {gameState && (
+          <RaceCalendar
+            todayRaces={todaysRaces}
+            upcomingRaces={upcomingRaces}
+            onRaceClick={handleRaceSelect}
+          />
         )}
 
-        {/* Daily Theme Banner */}
-        {board.theme && (
-          <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 dark:from-amber-950/20 dark:to-orange-950/20 border-2 border-amber-500/20 dark:border-amber-500/10 rounded-3xl p-5 flex flex-col gap-1.5 shadow-sm">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] uppercase font-extrabold tracking-widest text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/50 px-2.5 py-0.5 rounded-full">
-                {lang === "id" ? "TEMA HARI INI" : "TODAY'S THEME"}
-              </span>
-              <h2 className="font-heading text-sm font-bold text-gray-850 dark:text-gray-200">
-                {board.theme.name[lang]}
-              </h2>
-            </div>
-            <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-              {board.theme.description[lang]}
-            </p>
-          </div>
+        {/* Race Entry Modal */}
+        {isEntryModalOpen && selectedRaceOccurrence && entryValidation && (
+          <RaceEntryModal
+            race={selectedRaceOccurrence}
+            validation={entryValidation}
+            currentBalance={currentBalance}
+            onConfirm={handleConfirmRaceEntry}
+            onCancel={handleCancelRaceEntry}
+          />
         )}
-
-        {/* Daily Quest Board */}
-        {player && (
-          <div className="bg-white dark:bg-slate-900 border-2 border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-6 shadow-sm flex flex-col gap-4">
-            <div className="flex justify-between items-center mb-2 border-b border-[#E5E7EB] dark:border-slate-800 pb-2">
-              <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
-                <span>📋</span> Daily Quest Board
-              </h2>
-              <span className="text-xs text-gray-400 font-medium">
-                Claim rewards for completing daily runs
-              </span>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              {[
-                {
-                  id: "daily_race",
-                  name: "Race Completion",
-                  desc: "Complete today's Daily Race challenge.",
-                  completed: boardStatus?.completedEntryId !== null,
-                  claimed:
-                    runnerState.profile.questClaims?.daily_race === todayStr,
-                  bgClass:
-                    "bg-sky-50 dark:bg-sky-950/20 border-sky-100 dark:border-sky-900/30 text-sky-850 dark:text-sky-300",
-                  icon: "🏃‍♂️",
-                },
-                {
-                  id: "daily_upgrade",
-                  name: "Career Upgrade",
-                  desc: "Spend career points to upgrade attributes.",
-                  completed:
-                    runnerState.profile.speedAttr +
-                      runnerState.profile.staminaAttr +
-                      runnerState.profile.hydrationAttr +
-                      runnerState.profile.willpowerAttr >
-                    40,
-                  claimed:
-                    runnerState.profile.questClaims?.daily_upgrade === todayStr,
-                  bgClass:
-                    "bg-amber-50 dark:bg-amber-950/20 border-amber-100 dark:border-amber-900/30 text-amber-850 dark:text-amber-300",
-                  icon: "⚡",
-                },
-                {
-                  id: "daily_training",
-                  name: "Daily Training",
-                  desc: "Record today's training or recovery activity.",
-                  completed: (trainingState.trainingHistory || []).some(
-                    (day) => day.date === dayIndex,
-                  ),
-                  claimed:
-                    runnerState.profile.questClaims?.daily_training ===
-                    todayStr,
-                  bgClass:
-                    "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/30 text-emerald-850 dark:text-emerald-300",
-                  icon: "🔋",
-                },
-              ].map((quest) => {
-                const canClaim = quest.completed && !quest.claimed;
-                return (
-                  <div
-                    key={quest.id}
-                    className={`flex flex-col sm:flex-row items-center justify-between gap-3 p-4 border rounded-[2rem] shadow-sm transition-all ${quest.bgClass}`}
-                  >
-                    <div className="flex gap-3 items-start text-center sm:text-left w-full sm:w-auto">
-                      <div className="h-10 w-10 rounded-2xl bg-white/70 dark:bg-slate-900/60 flex items-center justify-center text-xl flex-shrink-0 shadow-sm">
-                        {quest.claimed ? "✅" : quest.icon}
-                      </div>
-                      <div>
-                        <h4 className="font-extrabold text-sm text-slate-800 dark:text-white leading-tight">
-                          {quest.name}
-                        </h4>
-                        <p className="text-[10px] opacity-80 mt-1 leading-normal">
-                          {quest.desc}
-                        </p>
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      disabled={!canClaim}
-                      onClick={() => claimQuest(quest.id)}
-                      className={`py-2.5 px-5 rounded-[1.5rem] text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all transform active:scale-95 border w-full sm:w-auto
-                        ${
-                          quest.claimed
-                            ? "bg-slate-200 dark:bg-slate-850 border-slate-250 dark:border-slate-800 text-slate-500 cursor-not-allowed"
-                            : canClaim
-                              ? "bg-orange-500 hover:bg-orange-600 border-orange-500 text-white cursor-pointer shadow-md shadow-orange-500/20"
-                              : "bg-white/40 dark:bg-slate-900/30 border-white/20 dark:border-slate-800/20 text-slate-400 cursor-not-allowed opacity-50"
-                        }
-                      `}
-                    >
-                      {quest.claimed ? (
-                        "Claimed"
-                      ) : (
-                        <>
-                          <span>Claim</span>
-                          <span className="font-mono text-[9px] bg-black/10 px-1.5 py-0.5 rounded-full">
-                            +50 RC
-                          </span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Daily Entry Tracker */}
-        <div className="flex items-center justify-between bg-white dark:bg-slate-900 border-2 border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] px-6 py-4 shadow-sm">
-          <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
-            {t("home.entry_tickets" as TranslationKey)}
-          </span>
-          <span className="bg-orange-50 border border-orange-100 text-orange-700 text-xs font-black px-3.5 py-1.5 rounded-full">
-            {boardStatus ? boardStatus.entriesRemaining : 1}{" "}
-            {t("home.remaining" as TranslationKey)}
-          </span>
-        </div>
-
-        {/* Race Entries List */}
-        <div className="flex flex-col gap-4">
-          {sortedEntries.map((entry) => {
-            const isCompleted =
-              boardStatus?.completedEntryId === entry.scenario.id;
-            const isSelected =
-              boardStatus?.selectedEntryId === entry.scenario.id;
-            const isLocked =
-              !isCompleted &&
-              !isSelected &&
-              boardStatus?.entriesRemaining === 0;
-
-            const score = getPreferenceScore(entry);
-            const isRecommended =
-              hasActivePreferences && maxScore > 0 && score === maxScore;
-
-            const lang = language === "id" ? "id" : "en";
-
-            let buttonText = t("home.choose_race" as TranslationKey);
-            let buttonStyle =
-              "bg-primary hover:bg-primary-dark text-white rounded-[1.5rem]";
-
-            const timelineState = useTimelineStore.getState().gameState;
-            const energyValue = timelineState?.energy ?? 0;
-            const hasEnoughEnergy = energyValue >= 25;
-
-            if (isCompleted) {
-              buttonText = t("home.completed_badge" as TranslationKey);
-              buttonStyle =
-                "bg-emerald-50 text-emerald-700 border-2 border-emerald-200 rounded-[1.5rem] cursor-not-allowed";
-            } else if (isSelected) {
-              buttonText = t("home.resume_race" as TranslationKey);
-              buttonStyle =
-                "bg-orange-500 hover:bg-orange-600 text-white rounded-[1.5rem] animate-pulse shadow-md shadow-orange-500/20";
-            } else if (isLocked) {
-              buttonText = t("home.locked" as TranslationKey);
-              buttonStyle =
-                "bg-slate-100 text-slate-400 rounded-[1.5rem] border border-slate-200 cursor-not-allowed";
-            } else if (!hasEnoughEnergy) {
-              buttonText = "Need 25 EP to Compete";
-              buttonStyle =
-                "bg-slate-100 text-slate-400 rounded-[1.5rem] border border-slate-200 cursor-not-allowed";
-            }
-
-            return (
-              <div
-                key={entry.id}
-                className={`bg-white dark:bg-slate-900 rounded-[2rem] border-2 shadow-sm p-6 flex flex-col gap-4 transition-all duration-200 ${
-                  isLocked ? "opacity-60" : "hover:shadow-md"
-                } ${isRecommended ? "border-amber-300 dark:border-amber-500 ring-2 ring-amber-100 dark:ring-amber-900" : "border-[#E5E7EB] dark:border-slate-800"}`}
-              >
-                {/* Badges */}
-                <div className="flex items-center justify-between">
-                  <div className="flex gap-2 items-center">
-                    <span
-                      className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border ${getCategoryColor(
-                        entry.category,
-                      )}`}
-                    >
-                      {t(
-                        `challenge.surface.${entry.category}` as TranslationKey,
-                      )}
-                    </span>
-                    {entry.surface !== entry.category && (
-                      <span className="text-[10px] font-bold text-gray-450 bg-gray-50 border border-gray-100 rounded-full px-2.5 py-1">
-                        {t(
-                          `challenge.surface.${entry.surface}` as TranslationKey,
-                        ).toUpperCase()}
-                      </span>
-                    )}
-                    {isRecommended && (
-                      <span className="inline-flex items-center gap-0.5 text-[9px] font-black text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5 uppercase tracking-wide">
-                        <Sparkles className="h-2.5 w-2.5 text-amber-550 fill-amber-500" />{" "}
-                        {t("home.recommended" as TranslationKey)}
-                      </span>
-                    )}
-                  </div>
-                  {renderStars(entry.difficulty)}
-                </div>
-
-                {/* Main Content */}
-                <div>
-                  <h3 className="text-lg font-black text-gray-900 dark:text-white font-heading leading-tight mb-1">
-                    {entry.title[lang]}
-                  </h3>
-                  <p className="text-xs text-gray-550 dark:text-gray-300 leading-relaxed">
-                    {entry.scenario.race.description[lang]}
-                  </p>
-                </div>
-
-                {/* Details grid */}
-                <div className="grid grid-cols-2 gap-2 bg-slate-50/50 dark:bg-slate-800/50 rounded-[1.5rem] p-3 text-center text-xs">
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[9px] text-gray-400 uppercase tracking-widest font-semibold">
-                      {t("history.distance" as TranslationKey)}
-                    </span>
-                    <span className="font-bold text-gray-800 dark:text-gray-100">
-                      {entry.distance} KM
-                    </span>
-                  </div>
-                  <div className="flex flex-col gap-0.5 border-l border-slate-200 dark:border-slate-750">
-                    <span className="text-[9px] text-gray-400 uppercase tracking-widest font-semibold">
-                      {t("home.target_time" as TranslationKey)}
-                    </span>
-                    <span className="font-bold text-gray-800 dark:text-gray-100">
-                      {formatTargetTime(entry.scenario.objective.targetTime)}
-                    </span>
-                  </div>
-                </div>
-
-                {/* CTA Button */}
-                <button
-                  type="button"
-                  disabled={
-                    isCompleted || isLocked || (!isSelected && !hasEnoughEnergy)
-                  }
-                  onClick={() => handleSelectRace(entry)}
-                  className={`w-full font-bold text-sm py-3.5 rounded-[1.5rem] transition-all duration-200 ${buttonStyle}`}
-                >
-                  {buttonText}
-                </button>
-              </div>
-            );
-          })}
-        </div>
 
         {/* Player ID (dev helper) */}
         {player && (
@@ -643,6 +389,30 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
             ID: {player.id.slice(0, 8)}
           </p>
         )}
+
+        {/* Navigation to new economy/sponsorship pages */}
+        <div className="flex justify-center gap-4 mt-4">
+          <button
+            type="button"
+            onClick={() => {
+              playSound("click");
+              router.push("/economy");
+            }}
+            className="text-xs uppercase font-bold tracking-wider text-blue-400 hover:text-blue-300 transition-colors"
+          >
+            💰 Economy
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              playSound("click");
+              router.push("/sponsors");
+            }}
+            className="text-xs uppercase font-bold tracking-wider text-purple-400 hover:text-purple-300 transition-colors"
+          >
+            🤝 Sponsors
+          </button>
+        </div>
       </main>
 
       {player && (
@@ -656,7 +426,7 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
           <DailyStatsCard
             player={player}
             lang={language as "en" | "id"}
-            date={todayStr}
+            date={currentDayIndex.toString()}
           />
         </ShareModal>
       )}

@@ -7,13 +7,11 @@
  */
 
 import { deriveDate } from "./calendar";
-import {
-  type Action,
-  type ActionId,
-  type GameState,
-  RETIREMENT_AGE,
-  type StatKey,
-} from "./time-types";
+import type { GameState, Action, ActionId, StatKey } from "./time-types";
+import { RETIREMENT_AGE } from "./time-types";
+import { earnFromWork, earnRacePrize, earnChampionshipBonus, earnSponsorPayout, earnAchievementBonus, earnStreakMilestone, spendRaceEntry, spendTreatment, spendStreakProtection } from "../../economy/earning-engine";
+import { getTrainingBonus, getRaceBonus, getWinBonus, claimMonthlyStipend } from "../../economy/sponsorship-engine";
+import { getEntryFee } from "../../economy/economy-balance";
 
 /** The starter action catalog. Competition resolution is layered by the social engine. */
 export const STARTER_ACTIONS: Record<ActionId, Action> = {
@@ -23,7 +21,7 @@ export const STARTER_ACTIONS: Record<ActionId, Action> = {
     energyCost: 40,
     dayCost: 0,
     requires: { minAge: 18, maxAge: RETIREMENT_AGE },
-    effects: { money: 50, stats: { health: -2 } },
+    effects: { stats: { health: -2 } }, // Money handling is now externalized to earnFromWork
   },
   study: {
     id: "study",
@@ -113,7 +111,6 @@ export function applyAction(state: GameState, action: Action): GameState {
   const flags = { ...state.flags };
 
   const e = action.effects;
-  if (e.money) resources.money += e.money;
   if (e.stats) {
     for (const key of Object.keys(e.stats) as StatKey[]) {
       const delta = e.stats[key] ?? 0;
@@ -143,7 +140,7 @@ export function applyAction(state: GameState, action: Action): GameState {
   const energy =
     action.dayCost > 0 ? state.energyMax : state.energy - action.energyCost;
 
-  return {
+  let updatedState: GameState = {
     ...state,
     dayIndex,
     energy,
@@ -153,4 +150,25 @@ export function applyAction(state: GameState, action: Action): GameState {
     relationships,
     flags,
   };
+
+  // Handle specific action logic that impacts new systems
+  if (action.id === "work") {
+    const { economy: newEconomy } = earnFromWork(updatedState.economy, updatedState);
+    updatedState = { ...updatedState, economy: newEconomy };
+  }
+
+  // Handle sponsor payouts if applicable (e.g., monthly stipend check on new day)
+  if (action.dayCost > 0) {
+    const { sponsorshipState: newSponsorship, amount } = claimMonthlyStipend(updatedState.sponsorship, updatedState.dayIndex);
+    if (amount > 0) {
+      const { economy: newEconomy } = earnSponsorPayout(updatedState.economy, updatedState, updatedState.sponsorship.currentSponsor || "Unknown", amount, "Monthly Stipend");
+      updatedState = { ...updatedState, economy: newEconomy };
+    }
+    updatedState = { ...updatedState, sponsorship: newSponsorship };
+  }
+
+  // Synchronize timeline resources.money with unified economy balance
+  updatedState.resources.money = updatedState.economy.currentBalance;
+
+  return updatedState;
 }

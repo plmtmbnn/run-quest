@@ -6,8 +6,10 @@
  */
 
 import type { GameState } from "../engine/timeline/time-types";
-import type { EconomyState } from "./economy-types";
+import { EconomyState, DEFAULT_ECONOMY_STATE } from "./economy-types";
 import type { RaceTier } from "./economy-types";
+import { DEFAULT_SPONSORSHIP_STATE } from "./sponsorship-types";
+import { DEFAULT_SCHEDULING_STATE } from "../scheduling/race-calendar-types";
 import { ECONOMIC_BALANCE, calculateExpectedPrize } from "./economy-balance";
 import {
   earnFromWork,
@@ -316,6 +318,9 @@ function makeGameState(dayIndex: number, seed: number): GameState {
     relationships: { network: 5 },
     routine: ["work", "train", "rest", "work", "train", "compete", "rest"],
     flags: { rating: 1500 },
+    economy: DEFAULT_ECONOMY_STATE,
+    sponsorship: DEFAULT_SPONSORSHIP_STATE,
+    scheduling: DEFAULT_SCHEDULING_STATE,
   };
 }
 

@@ -323,6 +323,9 @@ function generateScenarioForEntry(
     storySeed: {
       mood: weather === "storm" ? "survival" : "optimistic",
     },
+    tier: "local",
+    entryFee: 50,
+    scheduleId: "daily_challenge",
   };
 
   const analysis = generateRaceAnalysis(scenarioBase, seed);

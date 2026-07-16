@@ -21,7 +21,7 @@ function generateTransactionId(): string {
 /**
  * Record a transaction in the economy state.
  */
-function recordTransaction(
+export function recordTransaction(
   economy: EconomyState,
   type: "earn" | "spend",
   category: TransactionCategory,

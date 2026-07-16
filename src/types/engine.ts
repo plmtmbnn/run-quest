@@ -1,3 +1,5 @@
+import type { RaceTier } from "@/economy/economy-types";
+import type { RacePrerequisites } from "@/economy/race-entry-engine";
 import type { ActiveBreakingPoint } from "@/engine/breaking-points/breaking-types";
 import type { DesperationMode } from "@/engine/desperation/desperation-types";
 import type { RunnerProfile } from "@/runner/runner-types";
@@ -106,6 +108,14 @@ export interface Scenario {
   objective: Objective;
   storySeed: StorySeed;
   analysis?: RaceAnalysis;
+
+  // New Sprint 26 properties (from RaceOccurrence/RaceSchedule)
+  tier: RaceTier;
+  entryFee: number;
+  scheduleId: string;
+  isChampionship?: boolean;
+  totalEntrants?: number;
+  prerequisites?: RacePrerequisites;
 }
 
 export type DailyChallenge = Scenario;

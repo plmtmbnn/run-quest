@@ -73,6 +73,24 @@ export function generateChampionshipChallenge(
     timeOfDay: determineTimeOfDay(championship.location),
   };
 
+  const tier: "regional" | "state" | "national" | "international" =
+    championship.difficulty === "easy"
+      ? "regional"
+      : championship.difficulty === "medium"
+        ? "state"
+        : championship.difficulty === "hard"
+          ? "national"
+          : "international";
+
+  const entryFee =
+    championship.difficulty === "easy"
+      ? 150
+      : championship.difficulty === "medium"
+        ? 400
+        : championship.difficulty === "hard"
+          ? 1000
+          : 2500;
+
   const scenario: ChampionshipScenario = {
     id: championship.id,
     date: String(seedNumber),
@@ -86,6 +104,9 @@ export function generateChampionshipChallenge(
       mood: championship.difficulty === "extreme" ? "tense" : "competitive",
     },
     isChampionship: true,
+    tier,
+    entryFee,
+    scheduleId: championship.id,
     championshipData: {
       location: championship.location,
       stakes: championship.stakes,
