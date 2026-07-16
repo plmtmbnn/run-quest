@@ -114,7 +114,7 @@ export function updateSeasonProgress(
   });
 
   // Update current phase
-  const dateInfo = deriveDate(gameState.dayIndex, gameState.startAge);
+  const dateInfo = deriveDate(gameState);
   const dayOfYear = (gameState.dayIndex - (dateInfo.yearOffset * 336)) % 336;
   const currentPhase = getCurrentPhase(season, dayOfYear) ?? progress.currentPhase;
 
@@ -374,7 +374,7 @@ export function completeSeason(
   }
 
   // Record history
-  const dateInfo = deriveDate(gameState.dayIndex, gameState.startAge);
+  const dateInfo = deriveDate(gameState);
   const historyRecord: SeasonHistoryRecord = {
     seasonId,
     tier: season.tier,
@@ -500,7 +500,7 @@ export function getSeasonStatus(
 
   if (!season) return null;
 
-  const dateInfo = deriveDate(gameState.dayIndex, gameState.startAge);
+  const dateInfo = deriveDate(gameState);
   const dayOfYear = (gameState.dayIndex - (dateInfo.yearOffset * 336)) % 336;
 
   return {

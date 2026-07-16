@@ -6,7 +6,7 @@
  */
 
 import type { GameState } from "../timeline/time-types";
-import type { Injury, InjuryState, InjuryType } from "./injury-types";
+import type { Injury, InjuryState, InjuryType, RiskFactors } from "./injury-types";
 import { DEFAULT_INJURY_STATE } from "./injury-types";
 import { createInjury } from "./injury-database";
 import {

@@ -171,7 +171,7 @@ export interface EliteRunner {
 export interface HighStakesState {
   activeChampionships: Record<string, ChampionshipProgress>;
   qualificationStatus: Record<string, QualificationStatus>;
-  championships Won: ChampionshipRecord[];
+  championshipsWon: ChampionshipRecord[];
   qualificationHistory: QualificationAttempt[];
   pressure: PressureState;
 }
