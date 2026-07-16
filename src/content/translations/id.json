@@ -15,7 +15,8 @@
     "stats": {
       "runs": "Sesi Lari",
       "streak": "Streak",
-      "distance": "Jarak"
+      "distance": "Jarak",
+      "money": "Uang"
     },
     "entry_tickets": "Tiket Masuk Harian:",
     "remaining": "Tersisa",

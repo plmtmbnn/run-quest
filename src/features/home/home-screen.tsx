@@ -44,11 +44,9 @@ export function HomeScreen() {
   const { trainingState } = useTrainingStore();
 
   // Access game state from timeline store (Sprint 23)
-  const { gameState, setGameState, doAction } = useTimelineStore((state) => ({
-    gameState: state.gameState,
-    setGameState: state.setGameState,
-    doAction: state.doAction,
-  }));
+  const gameState = useTimelineStore((state) => state.gameState);
+  const setGameState = useTimelineStore((state) => state.setGameState);
+  const doAction = useTimelineStore((state) => state.doAction);
 
   // Derived values from gameState
   const currentDayIndex = gameState?.dayIndex ?? 0;

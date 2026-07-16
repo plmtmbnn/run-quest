@@ -17,6 +17,26 @@ export interface Dictionary {
     player_profile: string;
     title: string;
     subtitle: string;
+    completed: string;
+    completed_subtitle: string;
+    stats: {
+      runs: string;
+      streak: string;
+      distance: string;
+      money: string;
+    };
+    entry_tickets: string;
+    remaining: string;
+    recommended: string;
+    runner_profile: string;
+    daily_training: string;
+    choose_race: string;
+    resume_race: string;
+    completed_badge: string;
+    locked: string;
+    target_time: string;
+    next_race_in: string;
+    countdown_desc: string;
   };
   language: {
     title: string;

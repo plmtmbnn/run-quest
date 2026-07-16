@@ -15,7 +15,8 @@
     "stats": {
       "runs": "Runs",
       "streak": "Streak",
-      "distance": "Distance"
+      "distance": "Distance",
+      "money": "Money"
     },
     "entry_tickets": "Daily Entry Tickets:",
     "remaining": "Remaining",
