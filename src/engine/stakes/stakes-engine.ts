@@ -5,6 +5,8 @@
  */
 
 import type { GameState } from "../timeline/time-types";
+import { formatCurrency } from "@/economy/currency-converter";
+import { useSettingsStore } from "@/store/settings-store";
 import {
   CHAMPIONSHIPS,
   generateChampionshipField,
@@ -204,6 +206,7 @@ export function completeChampionship(
 
     // Apply rewards
     const raceRewards = championship.championship.rewards;
+    const preferredCurrency = useSettingsStore.getState().settings.preferredCurrency || "USD";
 
     if (raceRewards.rating) {
       const currentRating = (gameState.flags.rating as number) ?? 1500;
@@ -225,7 +228,7 @@ export function completeChampionship(
           money: updatedGameState.resources.money + raceRewards.prize,
         },
       };
-      rewards.push(`$${raceRewards.prize} prize money`);
+        rewards.push(formatCurrency(raceRewards.prize, preferredCurrency));
     }
 
     if (raceRewards.title) {

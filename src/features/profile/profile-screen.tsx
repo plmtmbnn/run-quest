@@ -213,30 +213,30 @@ export function ProfileScreen() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.25, ease: "easeInOut" }}
-      className="min-h-screen bg-background flex flex-col pb-16"
+      className="min-h-screen bg-slate-950 text-white flex flex-col pb-16"
     >
       {/* Sticky Header */}
-      <header className="sticky top-0 z-10 border-b border-[#E5E7EB] bg-surface/90 px-6 py-4 backdrop-blur-md">
+      <header className="sticky top-0 z-10 border-b border-slate-800 bg-slate-900/80 px-6 py-4 backdrop-blur-md">
         <div className="mx-auto flex max-w-3xl items-center justify-between w-full">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => router.push("/")}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white dark:bg-slate-900 transition hover:bg-gray-55 active:scale-95"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-700 bg-slate-900 transition hover:bg-slate-800 active:scale-95"
               aria-label="Back to Home"
             >
-              <ArrowLeft className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+              <ArrowLeft className="h-5 w-5 text-gray-300" />
             </button>
             <div>
-              <h1 className="font-heading text-xl font-bold text-gray-900 dark:text-white">
+              <h1 className="font-heading text-xl font-bold text-white">
                 {t("home.runner_profile" as TranslationKey)}
               </h1>
-              <p className="text-xs text-gray-500 dark:text-gray-300">
+              <p className="text-xs text-slate-400">
                 Your long-term progression and career stats
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 bg-yellow-100 dark:bg-yellow-500/10 border border-yellow-500/20 px-3 py-1.5 rounded-full text-xs font-black text-yellow-600 dark:text-yellow-400 font-mono shadow-sm">
+          <div className="flex items-center gap-1.5 bg-yellow-500/10 border border-yellow-500/20 px-3 py-1.5 rounded-full text-xs font-black text-yellow-400 font-mono shadow-sm">
             <span>🪙</span>
             <span>{(profile.coins || 0).toLocaleString()} RC</span>
           </div>
@@ -246,7 +246,8 @@ export function ProfileScreen() {
       {/* Main content */}
       <main className="mx-auto w-full max-w-3xl px-6 py-6 flex-1 flex flex-col gap-6">
         {/* Level and XP Section */}
-        <div className="bg-gradient-to-br from-blue-900 to-indigo-900 rounded-3xl p-6 text-white shadow-md flex flex-col gap-4">
+        <div className="bg-gradient-to-br from-blue-900/80 to-indigo-950 rounded-3xl p-6 text-white shadow-xl shadow-blue-950/30 border border-blue-800/30 flex flex-col gap-4 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-blue-400/5 rounded-full blur-3xl pointer-events-none" />
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <Award className="h-6 w-6 text-yellow-400" />
@@ -260,7 +261,7 @@ export function ProfileScreen() {
           </div>
           <div className="w-full bg-black/20 h-3 rounded-full overflow-hidden border border-white/5">
             <div
-              className="bg-gradient-to-r from-yellow-400 to-amber-500 h-full transition-all duration-500"
+              className="bg-gradient-to-r from-yellow-400 to-amber-500 h-full transition-all duration-500 shadow-[0_0_8px_rgba(251,191,36,0.5)]"
               style={{ width: `${xpPercent}%` }}
             />
           </div>
@@ -273,7 +274,7 @@ export function ProfileScreen() {
         </div>
 
         {/* RPG Attributes Upgrades */}
-        <div className="bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-[#E5E7EB] dark:border-slate-800 p-6 shadow-sm flex flex-col gap-4">
+        <div className="bg-slate-900/60 border border-slate-800/80 rounded-3xl p-6 shadow-xl flex flex-col gap-4">
           <div className="flex justify-between items-center mb-2 border-b border-[#E5E7EB] dark:border-slate-800 pb-2">
             <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
               <span>🏃</span> RPG Attributes

@@ -22,8 +22,11 @@ export default function SponsorsPage() {
 
   if (!gameState) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-white">
-        Loading Sponsors...
+      <div className="flex items-center justify-center min-h-screen text-white bg-slate-950">
+        <div className="text-center space-y-4">
+          <div className="animate-spin text-purple-500 text-3xl">🔄</div>
+          <p className="text-gray-400">Loading Sponsors...</p>
+        </div>
       </div>
     );
   }
@@ -75,28 +78,28 @@ export default function SponsorsPage() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.25, ease: "easeInOut" }}
-      className="min-h-screen bg-background flex flex-col pb-12"
+      className="min-h-screen bg-slate-950 text-white flex flex-col pb-16"
     >
       {/* Header */}
-      <header className="px-6 pt-10 pb-4 flex justify-between items-center">
+      <header className="px-6 pt-10 pb-4 flex justify-between items-center border-b border-slate-800 bg-slate-900/40 backdrop-blur-md sticky top-0 z-10">
         <button
           type="button"
           onClick={() => {
             playSound("click");
             router.back();
           }}
-          className="rounded-full p-2.5 bg-white dark:bg-slate-900 border-2 border-[#E5E7EB] dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm transition-all active:scale-95"
+          className="rounded-full p-2.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-gray-300 shadow-sm transition-all active:scale-95"
           aria-label="Go back"
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white font-heading">
+        <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
           🤝 Sponsors
         </h1>
-        <div className="w-10"></div> {/* Spacer */}
+        <div className="w-10"></div>
       </header>
 
-      <main className="flex-1 px-6 py-4">
+      <main className="flex-1 px-6 py-6 max-w-3xl mx-auto w-full">
         <SponsorshipScreen
           sponsorshipState={sponsorshipState}
           availableSponsors={availableSponsors}
@@ -110,3 +113,4 @@ export default function SponsorsPage() {
     </motion.div>
   );
 }
+

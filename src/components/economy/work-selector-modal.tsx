@@ -9,11 +9,12 @@
 import { useState } from "react";
 import type { WorkType, WorkTypeId } from "@/economy/work-types";
 import {
-  calculateWorkPay,
   getAllWorkTypesWithStatus,
   getWorkEfficiency,
 } from "@/economy/work-types";
 import type { GameState } from "@/engine/timeline/time-types";
+import { useSettingsStore } from "@/store/settings-store";
+import { formatCurrency } from "@/economy/currency-converter";
 
 interface WorkSelectorModalProps {
   gameState: GameState;
@@ -26,23 +27,28 @@ export function WorkSelectorModal({
   onSelectWork,
   onClose,
 }: WorkSelectorModalProps) {
+  const preferredCurrency = useSettingsStore((state) => state.settings.preferredCurrency) || "USD";
   const [selectedWorkType, setSelectedWorkType] = useState<WorkTypeId | null>(
     null,
   );
+  const lastJobChangeDay = (gameState.flags.lastJobChangeDay as number) ?? -7;
+  const cooldownDaysRemaining = Math.max(0, 7 - (gameState.dayIndex - lastJobChangeDay));
   const workOptions = getAllWorkTypesWithStatus(gameState);
 
+  const currentJobId = (gameState.flags.activeJobId as WorkTypeId) || null;
+
+  const [outcome, setOutcome] = useState<null | 'accepted' | 'rejected'>(null);
+
   const handleConfirm = () => {
-    if (selectedWorkType) {
-      const selectedOption = workOptions.find(
-        (opt) => opt.workType.id === selectedWorkType,
-      );
-      if (selectedOption && selectedOption.workType.energyCost >= 40) {
-        const confirmText = `This work type requires ${selectedOption.workType.energyCost} energy. Are you sure you want to proceed?`;
-        if (!globalThis.confirm?.(confirmText)) {
-          return;
-        }
+    if (selectedWorkType && cooldownDaysRemaining <= 0) {
+      // Simple binary decision (e.g., 70% acceptance chance)
+      const accepted = Math.random() < 0.7;
+      if (accepted) {
+        onSelectWork(selectedWorkType);
+        setOutcome('accepted');
+      } else {
+        setOutcome('rejected');
       }
-      onSelectWork(selectedWorkType);
     }
   };
 
@@ -53,7 +59,7 @@ export function WorkSelectorModal({
         <div className="px-6 py-4 border-b border-gray-700">
           <h2 className="text-2xl font-bold text-white">Choose Work Type</h2>
           <p className="text-gray-400 mt-1">
-            Select how you want to earn money today
+            Select a job to accept as your active job
           </p>
         </div>
 
@@ -66,9 +72,10 @@ export function WorkSelectorModal({
 
               return (
                 <button
+                  type="button"
                   key={workType.id}
                   onClick={() => unlocked && setSelectedWorkType(workType.id)}
-                  disabled={!unlocked}
+                  disabled={!unlocked || workType.id === currentJobId}
                   className={`
                   w-full text-left p-4 rounded-lg border-2 transition-all
                   ${
@@ -100,9 +107,9 @@ export function WorkSelectorModal({
                         <div className="flex items-center gap-1">
                           <span className="text-green-400">💰</span>
                           <span className="text-white font-medium">
-                            ${workType.pay.min}
+                            {formatCurrency(workType.pay.min, preferredCurrency)}
                             {workType.pay.max !== workType.pay.min &&
-                              ` - $${workType.pay.max}`}
+                              ` - ${formatCurrency(workType.pay.max, preferredCurrency)}`}
                           </span>
                         </div>
 
@@ -117,7 +124,7 @@ export function WorkSelectorModal({
                           <div className="flex items-center gap-1">
                             <span className="text-blue-400">📊</span>
                             <span className="text-gray-300">
-                              ${efficiency.toFixed(2)}/energy
+                              {formatCurrency(efficiency, preferredCurrency)}/energy
                             </span>
                           </div>
                         )}
@@ -129,7 +136,7 @@ export function WorkSelectorModal({
                           <span className="text-sm text-blue-300">
                             Your pay:{" "}
                             <span className="font-semibold">
-                              ${estimatedPay}
+                              {formatCurrency(estimatedPay, preferredCurrency)}
                             </span>
                           </span>
                         </div>
@@ -197,9 +204,13 @@ export function WorkSelectorModal({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-700 flex justify-between items-center">
+        <div className="px-6 py-4 border-t border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="text-sm text-gray-400">
-            {selectedWorkType ? (
+            {cooldownDaysRemaining > 0 ? (
+              <span className="text-amber-500 font-semibold flex items-center gap-1">
+                ⏳ Cooldown: {cooldownDaysRemaining}d remaining to change job
+              </span>
+            ) : selectedWorkType ? (
               <span>
                 Current energy:{" "}
                 <span className="text-white font-medium">
@@ -208,33 +219,41 @@ export function WorkSelectorModal({
                 / {gameState.energyMax}
               </span>
             ) : (
-              <span>Select a work type to continue</span>
+              <span>Select a work type to accept</span>
             )}
           </div>
 
           <div className="flex gap-3">
             <button
+              type="button"
               onClick={onClose}
               className="px-4 py-2 rounded bg-gray-700 hover:bg-gray-600 text-white transition-colors"
             >
               Cancel
             </button>
             <button
+              type="button"
               onClick={handleConfirm}
-              disabled={!selectedWorkType}
+              disabled={!selectedWorkType || cooldownDaysRemaining > 0}
               className={`
                 px-6 py-2 rounded font-medium transition-colors
                 ${
-                  selectedWorkType
+                  selectedWorkType && cooldownDaysRemaining <= 0
                     ? "bg-blue-600 hover:bg-blue-500 text-white"
-                    : "bg-gray-700 text-gray-500 cursor-not-allowed"
+                    : "bg-gray-800 text-gray-600 cursor-not-allowed border border-gray-700"
                 }
               `}
             >
-              Start Working
+              Apply Job
             </button>
           </div>
         </div>
+        {/* Outcome Message */}
+        {outcome && (
+          <div className={`px-6 py-2 text-center font-semibold ${outcome === 'accepted' ? 'text-green-400' : 'text-red-400'}`}>
+            {outcome === 'accepted' ? 'Job Applied! 🎉' : 'Job Rejected ❌'}
+          </div>
+        )}
       </div>
     </div>
   );

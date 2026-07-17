@@ -63,12 +63,12 @@ export function SponsorshipScreen({
   }[];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Current Sponsor */}
       {currentSponsor ? (
-        <section>
-          <h2 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
-            <span>🤝</span> Current Sponsor
+        <section className="space-y-3">
+          <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+            <span>🤝</span> Active Sponsorship
           </h2>
           <SponsorCard
             sponsor={currentSponsor}
@@ -80,11 +80,11 @@ export function SponsorshipScreen({
         </section>
       ) : (
         <section>
-          <div className="rounded-lg border border-gray-700 bg-gray-800/50 p-6 text-center">
-            <p className="text-xl mb-2">🤝</p>
-            <h3 className="font-bold text-white mb-1">No Sponsor Yet</h3>
-            <p className="text-sm text-gray-400 mb-3">
-              Win races and build your reputation to attract sponsors
+          <div className="rounded-2xl border border-slate-800/80 bg-slate-900/40 backdrop-blur-md p-8 text-center shadow-lg">
+            <span className="text-4xl p-3 bg-slate-850 rounded-2xl inline-block mb-3">🤝</span>
+            <h3 className="font-bold text-white text-lg mb-1 leading-tight">No Active Sponsor</h3>
+            <p className="text-sm text-gray-400 max-w-sm mx-auto mb-4">
+              Win races, build your reputation, and scale the ranks to attract corporate partnerships.
             </p>
           </div>
         </section>
@@ -92,11 +92,11 @@ export function SponsorshipScreen({
 
       {/* Pending Offers Section */}
       {pendingSponsors.length > 0 && (
-        <section>
-          <h2 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
+        <section className="space-y-3">
+          <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
             <span>📬</span> Pending Offers
           </h2>
-          <div className="grid gap-3">
+          <div className="grid gap-4">
             {pendingSponsors.map((sponsor) => (
               <SponsorCard
                 key={sponsor.id}
@@ -114,11 +114,11 @@ export function SponsorshipScreen({
 
       {/* Available Sponsors */}
       {displayAvailableSponsors.length > 0 && (
-        <section>
-          <h2 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
+        <section className="space-y-3">
+          <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
             <span>✨</span> Available Sponsors
           </h2>
-          <div className="grid gap-3">
+          <div className="grid gap-4">
             {displayAvailableSponsors.map((sponsor) => (
               <SponsorCard
                 key={sponsor.id}
@@ -138,11 +138,11 @@ export function SponsorshipScreen({
 
       {/* Cooldown Sponsors Section */}
       {cooldownSponsors.length > 0 && (
-        <section>
-          <h2 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
+        <section className="space-y-3">
+          <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
             <span>⏳</span> Sponsor Cooldowns
           </h2>
-          <div className="grid gap-3">
+          <div className="grid gap-4">
             {cooldownSponsors.map(({ sponsor, daysRemaining }) => (
               <SponsorCard
                 key={sponsor.id}
@@ -156,12 +156,12 @@ export function SponsorshipScreen({
       )}
 
       {/* Sponsor Tier Progress */}
-      <section>
-        <h2 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
-          <span>📈</span> Sponsor Progression
+      <section className="space-y-3">
+        <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+          <span>📈</span> Sponsor Progression Map
         </h2>
-        <div className="rounded-lg border border-gray-700 bg-gray-800/30 p-4">
-          <div className="flex items-center justify-between mb-3">
+        <div className="rounded-2xl border border-slate-800 bg-slate-900/40 backdrop-blur-md p-6 shadow-xl">
+          <div className="flex items-center justify-between mb-4 relative z-0">
             {SPONSOR_TIER_ORDER.map((tier, idx) => {
               const tiers = ["🏪 Local", "📱 Regional", "🏭 National"];
               const completed = currentSponsor
@@ -172,29 +172,30 @@ export function SponsorshipScreen({
               return (
                 <div
                   key={tier}
-                  className={`flex flex-col items-center gap-1 ${
+                  className={`flex flex-col items-center gap-2 relative z-10 transition-all ${
                     completed ? "opacity-100" : "opacity-40"
                   }`}
                 >
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
+                    className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-black border-2 transition-all shadow-md
+                    ${
                       isCurrent
-                        ? "bg-green-500 text-white"
+                        ? "bg-green-500 text-white border-green-400 ring-4 ring-green-500/20"
                         : completed
-                          ? "bg-green-500/30 text-green-400"
-                          : "bg-gray-700 text-gray-500"
+                          ? "bg-slate-800 text-green-400 border-green-500/40"
+                          : "bg-slate-900 text-slate-500 border-slate-800"
                     }`}
                   >
                     {completed ? "✓" : idx + 1}
                   </div>
-                  <span className="text-xs text-gray-400">{tiers[idx]}</span>
+                  <span className="text-xs font-bold text-slate-300">{tiers[idx]}</span>
                 </div>
               );
             })}
           </div>
-          <div className="h-2 rounded-full bg-gray-700 overflow-hidden">
+          <div className="h-2.5 rounded-full bg-slate-800/80 overflow-hidden border border-slate-700/10 shadow-inner">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 transition-all"
+              className="h-full rounded-full bg-gradient-to-r from-green-500 via-blue-500 to-indigo-500 shadow-[0_0_8px_rgba(34,197,94,0.4)] transition-all duration-500"
               style={{
                 width: `${
                   currentSponsor
@@ -238,52 +239,64 @@ function SponsorCard({
     useSettingsStore((state) => state.settings.preferredCurrency) || "USD";
 
   const tierColors: Record<string, string> = {
-    local: "border-green-500/30 bg-green-500/5",
-    regional: "border-blue-500/30 bg-blue-500/5",
-    national: "border-purple-500/30 bg-purple-500/5",
+    local: "border-green-500/20 bg-green-950/5 hover:border-green-500/30",
+    regional: "border-blue-500/20 bg-blue-950/5 hover:border-blue-500/30",
+    national: "border-purple-500/20 bg-purple-950/5 hover:border-purple-500/30",
+  };
+
+  const badgeColors: Record<string, string> = {
+    local: "bg-green-500/10 text-green-400 border-green-500/20",
+    regional: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+    national: "bg-purple-500/10 text-purple-400 border-purple-500/20",
   };
 
   return (
     <div
-      className={`rounded-lg border p-4 ${
+      className={`rounded-2xl border p-5 transition-all duration-350 shadow-md relative overflow-hidden backdrop-blur-md
+      ${
         status === "active"
-          ? "border-green-500/50 bg-green-500/10"
+          ? "border-green-500/40 bg-green-500/5 shadow-[0_0_15px_rgba(34,197,94,0.05)]"
           : status === "available"
-            ? (tierColors[sponsor.tier] ?? "border-gray-600 bg-gray-800/50")
+            ? (tierColors[sponsor.tier] ?? "border-slate-800 bg-slate-900/40")
             : status === "pending"
-              ? "border-blue-500/40 bg-blue-500/5 animate-pulse"
+              ? "border-indigo-500/40 bg-indigo-500/5 shadow-[0_0_15px_rgba(99,102,241,0.08)] animate-[pulse_3s_infinite]"
               : status === "cooldown"
-                ? "border-amber-500/20 bg-amber-500/5 opacity-80"
-                : "border-gray-700 bg-gray-800/30 opacity-60"
-      } ${isNextUpgrade ? "ring-2 ring-blue-500/50" : ""}`}
+                ? "border-amber-500/10 bg-amber-500/5 opacity-70"
+                : "border-slate-800 bg-slate-900/20 opacity-50"
+      } ${isNextUpgrade ? "ring-2 ring-blue-500/40" : ""}`}
     >
-      <div className="flex items-start justify-between gap-4">
+      {/* Decorative colored glow on card side */}
+      <div className={`absolute top-0 left-0 bottom-0 w-1.5 ${
+        status === "active" ? "bg-green-500" : status === "pending" ? "bg-indigo-500" : "bg-slate-700"
+      }`} />
+
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 pl-2">
         {/* Sponsor Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <h3 className="font-bold text-white">{sponsor.name}</h3>
-            <span className="text-xs px-2 py-0.5 rounded-full capitalize bg-blue-500/20 text-blue-400">
+        <div className="flex-1 min-w-0 space-y-2">
+          <div className="flex items-center flex-wrap gap-2">
+            <h3 className="font-heading font-extrabold text-lg text-white leading-none">{sponsor.name}</h3>
+            <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded border ${badgeColors[sponsor.tier] || "bg-slate-800 text-slate-400"}`}>
               {sponsor.tier}
             </span>
             {status === "active" && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400">
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-green-500/20 text-green-400 border border-green-500/10">
                 ACTIVE
               </span>
             )}
             {status === "pending" && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-450 animate-bounce">
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-400 border border-indigo-500/10 animate-bounce">
                 OFFER
               </span>
             )}
           </div>
 
-          <p className="text-sm text-gray-400 mt-1">{sponsor.description}</p>
-          <p className="text-xs text-gray-500 italic mt-1">
+          <p className="text-sm text-slate-300 leading-relaxed">{sponsor.description}</p>
+          <p className="text-xs text-slate-500 font-medium italic">
             "{sponsor.signature}"
           </p>
 
-          {/* Benefits */}
-          <div className="grid grid-cols-2 gap-2 mt-3">
+          {/* Benefits Grid */}
+          <div className="grid grid-cols-2 gap-x-6 gap-y-2 mt-4 pt-3 border-t border-slate-800/80">
             <BenefitItem
               label="Training Bonus"
               value={`+${formatCurrency(sponsor.benefits.trainingBonus, preferredCurrency)}/session`}
@@ -304,22 +317,24 @@ function SponsorCard({
         </div>
 
         {/* Action Buttons */}
-        <div className="shrink-0 text-right">
+        <div className="shrink-0 md:text-right flex flex-row md:flex-col justify-end items-end gap-2">
           {status === "active" && (
-            <div className="space-y-2">
-              <div className="text-xs text-gray-400">
-                Signed: Day {signedDay}
-              </div>
-              {lifetimeEarnings !== undefined && (
-                <div className="text-sm font-semibold text-green-400">
-                  +{formatCurrency(lifetimeEarnings, preferredCurrency)} earned
+            <div className="flex flex-row md:flex-col items-end gap-3 w-full">
+              <div className="space-y-1">
+                <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+                  Signed: Day {signedDay}
                 </div>
-              )}
+                {lifetimeEarnings !== undefined && (
+                  <div className="text-xs font-semibold text-green-400">
+                    +{formatCurrency(lifetimeEarnings, preferredCurrency)} earned
+                  </div>
+                )}
+              </div>
               {onClaimStipend && (
                 <button
                   type="button"
                   onClick={onClaimStipend}
-                  className="bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1.5 rounded font-medium transition-colors"
+                  className="bg-green-600 hover:bg-green-500 text-white text-xs px-4 py-2 rounded-xl font-bold transition-all shadow-md active:scale-95 cursor-pointer"
                 >
                   Claim Stipend
                 </button>
@@ -333,7 +348,7 @@ function SponsorCard({
                 <button
                   type="button"
                   onClick={onReject}
-                  className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded font-medium transition-colors text-xs"
+                  className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 px-3.5 py-2 rounded-xl font-bold transition-colors text-xs cursor-pointer"
                 >
                   Decline
                 </button>
@@ -342,7 +357,7 @@ function SponsorCard({
                 <button
                   type="button"
                   onClick={onSign}
-                  className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded font-medium transition-colors text-xs"
+                  className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white px-3.5 py-2 rounded-xl font-bold transition-colors text-xs cursor-pointer"
                 >
                   Accept Offer
                 </button>
@@ -354,14 +369,14 @@ function SponsorCard({
             <button
               type="button"
               onClick={onSign}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-bold transition-colors text-sm"
+              className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-md text-xs cursor-pointer active:scale-95"
             >
               Sign Contract
             </button>
           )}
 
           {status === "cooldown" && cooldownDays !== undefined && (
-            <div className="text-xs text-amber-500 font-semibold bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded">
+            <div className="text-xs text-amber-500 font-bold bg-amber-500/10 border border-amber-500/20 px-3 py-2 rounded-xl flex items-center gap-1">
               ⏳ Cooldown: {cooldownDays}d
             </div>
           )}
@@ -373,9 +388,9 @@ function SponsorCard({
 
 function BenefitItem({ label, value }: { label: string; value: string }) {
   return (
-    <div className="text-xs">
-      <span className="text-gray-500">{label}: </span>
-      <span className="text-green-400 font-medium">{value}</span>
+    <div className="text-xs flex items-center justify-between gap-2 border-b border-slate-900 pb-1 md:pb-0 md:border-0 md:justify-start">
+      <span className="text-slate-500 font-medium">{label}: </span>
+      <span className="text-green-400 font-bold ml-1">{value}</span>
     </div>
   );
 }

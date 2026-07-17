@@ -316,7 +316,7 @@ export function ResultScreen() {
 
     const entries = [
       {
-        name: t("challenge.result.you" as TranslationKey) || "You",
+        name: runnerState.profile.displayName,
         time: lastResult.finishTime,
         isDNF: outcome === "dnf",
         isPlayer: true,

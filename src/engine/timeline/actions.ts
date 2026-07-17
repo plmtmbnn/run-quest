@@ -253,14 +253,25 @@ export function applyAction(state: GameState, action: Action): GameState {
 
   // Handle specific action logic that impacts new systems
   if (action.id === "work") {
-    // Extract work type from action metadata if provided, default to "full_time"
-    const workTypeId = (action as any).workTypeId as WorkTypeId | undefined;
+    // Extract work type from action metadata if provided, or default to active job
+    const age = deriveDate(updatedState).age;
+    const defaultJob = age >= 18 ? "full_time" : "part_time";
+    const activeJobId = (updatedState.flags.activeJobId as WorkTypeId) || defaultJob;
+    const workTypeId = (action as any).workTypeId as WorkTypeId | undefined || activeJobId;
+
     const { economy: newEconomy } = earnFromWork(
       updatedState.economy,
       updatedState,
-      workTypeId || "full_time",
+      workTypeId,
     );
-    updatedState = { ...updatedState, economy: newEconomy };
+    updatedState = {
+      ...updatedState,
+      economy: newEconomy,
+      flags: {
+        ...updatedState.flags,
+        lastWorkedDay: updatedState.dayIndex,
+      },
+    };
   }
 
   // Handle sponsor payouts if applicable (e.g., monthly stipend check on new day)

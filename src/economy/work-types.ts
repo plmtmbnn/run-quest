@@ -14,7 +14,10 @@ export type WorkTypeId =
   | "freelance"
   | "coaching"
   | "sponsor_event"
-  | "corporate";
+  | "corporate"
+  | "brand_ambassador"
+  | "marathon_trainer"
+  | "coach";
 
 export interface WorkType {
   id: WorkTypeId;
@@ -56,6 +59,7 @@ export interface WorkType {
     health?: number;
     intellect?: number;
     charisma?: number;
+    running?: number;
   };
 
   /** Visual presentation */
@@ -186,6 +190,47 @@ export const WORK_TYPES: Record<WorkTypeId, WorkType> = {
     icon: "🏢",
     color: "#8b5cf6",
   },
+  // New entertaining work types
+  coach: {
+    id: "coach",
+    name: "Fitness Coach",
+    description: "Guide others on workouts. Small pay, high charisma boost.",
+    pay: { min: 200, max: 200 },
+    energyCost: 30,
+    dayCost: 0,
+    requirements: { minAge: 22, minCharisma: 30 },
+    payScaling: { charisma: 1.5 },
+    effects: { charisma: 2, health: -1 },
+    icon: "🏅",
+    color: "#f97316",
+  },
+  brand_ambassador: {
+    id: "brand_ambassador",
+    name: "Brand Ambassador",
+    description: "Promote brands, earn commissions. Requires social flair.",
+    pay: { min: 150, max: 150 },
+    energyCost: 25,
+    dayCost: 0,
+    requirements: { minAge: 25, minCharisma: 35 },
+    payScaling: { charisma: 2.0 },
+    effects: { charisma: 3 },
+    icon: "📣",
+    color: "#eab308",
+  },
+  marathon_trainer: {
+    id: "marathon_trainer",
+    name: "Marathon Trainer",
+    description: "Train runners for marathons. High stamina payoff.",
+    pay: { min: 250, max: 250 },
+    energyCost: 40,
+    dayCost: 0,
+    requirements: { minAge: 28, minRunningSkill: 40 },
+    payScaling: { running: 1.2 },
+    effects: { running: 1, health: -2 },
+    icon: "🏃‍♀️",
+    color: "#10b981",
+  },
+  // End of new work types
 };
 
 /**

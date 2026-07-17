@@ -125,16 +125,19 @@ export function checkForNewOffers(
     : null;
 
   const newOffers: string[] = [];
+  const pendingOffers = sponsorshipState.pendingOffers || [];
+  const rejectedOffers = sponsorshipState.rejectedOffers || [];
+  const offerReceivedDay = sponsorshipState.offerReceivedDay || {};
 
   for (const [sponsorId, sponsor] of Object.entries(SPONSORS)) {
     // Skip if already has this sponsor
     if (sponsorshipState.currentSponsor === sponsorId) continue;
 
     // Skip if already pending or rejected recently
-    if (sponsorshipState.pendingOffers.includes(sponsorId)) continue;
-    if (sponsorshipState.rejectedOffers.includes(sponsorId)) {
+    if (pendingOffers.includes(sponsorId)) continue;
+    if (rejectedOffers.includes(sponsorId)) {
       // Check if enough time has passed for re-offer (30 days)
-      const lastOfferDay = sponsorshipState.offerReceivedDay[sponsorId] ?? 0;
+      const lastOfferDay = offerReceivedDay[sponsorId] ?? 0;
       if (gameState.dayIndex - lastOfferDay < 30) continue;
     }
 
@@ -156,7 +159,7 @@ export function checkForNewOffers(
   }
 
   // Add new offers to pending
-  const updatedOfferReceivedDay = { ...sponsorshipState.offerReceivedDay };
+  const updatedOfferReceivedDay = { ...offerReceivedDay };
   newOffers.forEach((sponsorId) => {
     updatedOfferReceivedDay[sponsorId] = gameState.dayIndex;
   });
@@ -164,7 +167,7 @@ export function checkForNewOffers(
   return {
     sponsorshipState: {
       ...sponsorshipState,
-      pendingOffers: [...sponsorshipState.pendingOffers, ...newOffers],
+      pendingOffers: [...pendingOffers, ...newOffers],
       offerReceivedDay: updatedOfferReceivedDay,
     },
     newOffers,

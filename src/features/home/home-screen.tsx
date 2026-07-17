@@ -42,6 +42,7 @@ import {
   getScheduleById,
   getTodaysRaces,
   getUpcomingRaces,
+  getRegisteredRaces,
   registerForRace,
 } from "@/scheduling/race-calendar-engine";
 import type { RaceOccurrence } from "@/scheduling/race-calendar-types";
@@ -196,15 +197,21 @@ export function HomeScreen() {
   const upcomingRaces = gameState
     ? getUpcomingRaces(gameState.scheduling, currentDayIndex)
     : [];
+  const registeredRaces = gameState
+    ? getRegisteredRaces(gameState.scheduling, currentDayIndex)
+    : [];
 
   // Handle race selection from calendar
   const handleRaceSelect = (race: RaceOccurrence) => {
     if (!gameState) return;
+    const onlyRegister = race.dayIndex > currentDayIndex;
+    const isRegistered = race.isRegistered;
     const validation = validateRaceEntry(
       gameState.economy,
       gameState,
       race.tier,
       race.prerequisites,
+      { onlyRegister, isRegistered },
     );
     setEntryValidation(validation);
     setSelectedRaceOccurrence(race);
@@ -216,6 +223,9 @@ export function HomeScreen() {
     if (!gameState || !selectedRaceOccurrence || !entryValidation?.canEnter)
       return;
 
+    const onlyRegister = selectedRaceOccurrence.dayIndex > currentDayIndex;
+    const isRegistered = selectedRaceOccurrence.isRegistered;
+
     const {
       economy: updatedEconomy,
       gameState: newGameStateFromProcess,
@@ -226,6 +236,7 @@ export function HomeScreen() {
       selectedRaceOccurrence.tier,
       selectedRaceOccurrence.name,
       selectedRaceOccurrence.prerequisites,
+      { onlyRegister, isRegistered },
     );
 
     if (success) {
@@ -233,60 +244,66 @@ export function HomeScreen() {
       setGameState({ ...newGameStateFromProcess, economy: updatedEconomy });
 
       // Register for the race in scheduling state
-      const updatedScheduling = registerForRace(
-        newGameStateFromProcess.scheduling,
-        selectedRaceOccurrence.scheduleId,
-        currentDayIndex,
-      );
-      setGameState((prev) => ({ ...prev!, scheduling: updatedScheduling }));
+      if (!isRegistered) {
+        const updatedScheduling = registerForRace(
+          newGameStateFromProcess.scheduling,
+          selectedRaceOccurrence.scheduleId,
+          selectedRaceOccurrence.dayIndex,
+        );
+        setGameState((prev) => ({ ...prev!, scheduling: updatedScheduling }));
+      }
 
-      // This doAction("compete") now only deducts energy, money is handled by processRaceEntry
-      // It's still here if there are other side effects for 'compete' action in timeline.ts
-      doAction("compete");
+      if (onlyRegister) {
+        playSound("success");
+      } else {
+        // This doAction("compete") now only deducts energy, money is handled by processRaceEntry
+        // It's still here if there are other side effects for 'compete' action in timeline.ts
+        doAction("compete");
 
-      // Set challenge for briefing screen - need to adapt RaceOccurrence to DailyChallenge
-      // We'll create a DailyChallenge (Scenario) object from RaceOccurrence details.
-      const raceSchedule = getScheduleById(selectedRaceOccurrence.scheduleId); // Get full schedule details
+        // Set challenge for briefing screen - need to adapt RaceOccurrence to DailyChallenge
+        // We'll create a DailyChallenge (Scenario) object from RaceOccurrence details.
+        const raceSchedule = getScheduleById(selectedRaceOccurrence.scheduleId); // Get full schedule details
 
-      const scenarioForBriefing: DailyChallenge = {
-        id: selectedRaceOccurrence.raceId,
-        date: new Date().toISOString(), // Use current date for now
-        environment: {
-          weather: "sunny", // Placeholder, could derive from location/schedule
-          temperature: 20,
-          humidity: 50,
-          wind: { direction: "north", speed: 10 },
-          timeOfDay: "morning",
-        },
-        race: {
-          title: {
-            en: selectedRaceOccurrence.name,
-            id: selectedRaceOccurrence.name,
+        const scenarioForBriefing: DailyChallenge = {
+          id: selectedRaceOccurrence.raceId,
+          date: new Date().toISOString(), // Use current date for now
+          environment: {
+            weather: "sunny", // Placeholder, could derive from location/schedule
+            temperature: 20,
+            humidity: 50,
+            wind: { direction: "north", speed: 10 },
+            timeOfDay: "morning",
           },
-          description: {
-            en: selectedRaceOccurrence.description,
-            id: selectedRaceOccurrence.description,
+          race: {
+            title: {
+              en: selectedRaceOccurrence.name,
+              id: selectedRaceOccurrence.name,
+            },
+            description: {
+              en: selectedRaceOccurrence.description,
+              id: selectedRaceOccurrence.description,
+            },
+            distance: 5, // Placeholder - needs actual distance from raceId
+            surface: "road", // Placeholder - needs actual surface from raceId
+            elevation: "flat", // Placeholder
+            checkpoints: [],
           },
-          distance: 5, // Placeholder - needs actual distance from raceId
-          surface: "road", // Placeholder - needs actual surface from raceId
-          elevation: "flat", // Placeholder
-          checkpoints: [],
-        },
-        objective: { targetTime: 1800 }, // Placeholder for targetTime
-        storySeed: { mood: "competitive" }, // Placeholder
+          objective: { targetTime: 1800 }, // Placeholder for targetTime
+          storySeed: { mood: "competitive" }, // Placeholder
 
-        // New Sprint 26 properties from RaceOccurrence
-        tier: selectedRaceOccurrence.tier,
-        entryFee: selectedRaceOccurrence.entryFee,
-        scheduleId: selectedRaceOccurrence.scheduleId,
-        // isChampionship derived from schedule tier
-        isChampionship: isChampionship(raceSchedule!), // Use helper to determine championship status
-        totalEntrants: selectedRaceOccurrence.entrants,
-        prerequisites: selectedRaceOccurrence.prerequisites,
-      };
+          // New Sprint 26 properties from RaceOccurrence
+          tier: selectedRaceOccurrence.tier,
+          entryFee: selectedRaceOccurrence.entryFee,
+          scheduleId: selectedRaceOccurrence.scheduleId,
+          // isChampionship derived from schedule tier
+          isChampionship: isChampionship(raceSchedule!), // Use helper to determine championship status
+          totalEntrants: selectedRaceOccurrence.entrants,
+          prerequisites: selectedRaceOccurrence.prerequisites,
+        };
 
-      setChallenge(scenarioForBriefing);
-      router.push("/briefing");
+        setChallenge(scenarioForBriefing);
+        router.push("/briefing");
+      }
     } else {
       console.error("Race entry failed despite validation indicating success.");
       // Potentially show an in-game error message to the player
@@ -461,6 +478,7 @@ export function HomeScreen() {
           <RaceCalendar
             todayRaces={todaysRaces}
             upcomingRaces={upcomingRaces}
+            registeredRaces={registeredRaces}
             onRaceClick={handleRaceSelect}
           />
         )}

@@ -18,7 +18,9 @@ import {
   getScheduledStoryEvents,
   isDead,
 } from "@/engine/timeline";
+import { processMonthlySalary } from "@/economy/monthly-salary-engine";
 import { DEFAULT_SCHEDULING_STATE } from "@/scheduling/race-calendar-types";
+import { getScheduleById } from "@/scheduling/race-calendar-engine";
 import { useSocialStore } from "@/social/social-store";
 import { storageRepository } from "@/storage/storage-repository";
 import type { StoredGameState } from "@/storage/types";
@@ -114,8 +116,9 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
       socialStore.ageActivities(next.dayIndex);
     }
 
-    set({ gameState: next });
-    storageRepository.saveGameState(next);
+    const updatedState = processMonthlySalary(next);
+    set({ gameState: updatedState });
+    storageRepository.saveGameState(updatedState);
   },
 
   ff(mode: FastForwardMode) {
@@ -139,13 +142,35 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
 
     const eventsForDay = (d: number) => {
       const allEvents = getScheduledStoryEvents(stateWithFlags, storyProgress);
-      return allEvents.filter((e) => e.dayIndex === d);
+      const dayStoryEvents = allEvents.filter((e) => e.dayIndex === d);
+
+      // Check for registered races scheduled on day d
+      const registeredRacesOnDay: CalendarEvent[] = [];
+      const registeredEntries = Object.entries(stateWithFlags.scheduling.registered);
+      for (const [scheduleId, raceDay] of registeredEntries) {
+        if (raceDay === d) {
+          const schedule = getScheduleById(scheduleId);
+          if (schedule) {
+            registeredRacesOnDay.push({
+              id: `race_${scheduleId}_day_${d}`,
+              type: "competition",
+              dayIndex: d,
+              payload: schedule,
+            });
+          }
+        }
+      }
+
+      return [...dayStoryEvents, ...registeredRacesOnDay];
     };
 
     const { state, events } = fastForward(stateWithFlags, mode, eventsForDay);
 
-    // If day(s) advanced, simulate competition/social days!
-    const daysAdvanced = state.dayIndex - stateWithFlags.dayIndex;
+      // Apply monthly salary credit if applicable
+      const stateAfterSalary = processMonthlySalary(state);
+
+      // If day(s) advanced, simulate competition/social days!
+      const daysAdvanced = stateAfterSalary.dayIndex - stateWithFlags.dayIndex;
     if (daysAdvanced > 0) {
       const socialStore = useSocialStore.getState();
       for (let d = stateWithFlags.dayIndex; d < state.dayIndex; d++) {
@@ -157,8 +182,8 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
       socialStore.ageActivities(state.dayIndex);
     }
 
-    set({ gameState: state, pendingEvents: events });
-    storageRepository.saveGameState(state);
+    set({ gameState: stateAfterSalary, pendingEvents: events });
+    storageRepository.saveGameState(stateAfterSalary);
   },
 
   acknowledgeEvent(eventId: string) {

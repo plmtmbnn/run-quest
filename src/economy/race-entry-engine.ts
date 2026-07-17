@@ -8,6 +8,8 @@ import type { GameState } from "../engine/timeline/time-types";
 import { spendRaceEntry } from "./earning-engine";
 import { getEntryFee } from "./economy-balance";
 import type { EconomyState, RaceTier } from "./economy-types";
+import { useSettingsStore } from "@/store/settings-store";
+import { formatCurrency } from "@/economy/currency-converter";
 
 /**
  * Prerequisites that may be required for a race.
@@ -75,18 +77,29 @@ export function validateRaceEntry(
   gameState: GameState,
   raceTier: RaceTier,
   prerequisites?: RacePrerequisites,
+  options?: {
+    onlyRegister?: boolean;
+    isRegistered?: boolean;
+  }
 ): EntryValidation {
   const blockers: EntryBlocker[] = [];
   const warnings: string[] = [];
 
-  // Determine entry fee
-  const entryFee = prerequisites?.entryFee ?? getEntryFee(raceTier);
-  const energyCost = 25; // compete action cost
+  const onlyRegister = options?.onlyRegister ?? false;
+  const isRegistered = options?.isRegistered ?? false;
+
+  // Determine entry fee - if already registered, fee is 0
+  const entryFee = isRegistered ? 0 : (prerequisites?.entryFee ?? getEntryFee(raceTier));
+  const energyCost = onlyRegister ? 0 : 25; // compete action cost
+
+  const preferredCurrency = useSettingsStore.getState().settings.preferredCurrency || "USD";
+  const entryFeeStr = formatCurrency(entryFee, preferredCurrency);
+  const balanceStr = formatCurrency(economy.currentBalance, preferredCurrency);
 
   // Check money
   if (economy.currentBalance < entryFee) {
     blockers.push({
-      reason: `Need $${entryFee} to enter (have $${economy.currentBalance})`,
+      reason: `Need ${entryFeeStr} to enter (have ${balanceStr})`,
       type: "money",
       resolved: false,
       howToResolve: "Work or win races to earn money",
@@ -94,7 +107,7 @@ export function validateRaceEntry(
   }
 
   // Check energy
-  if (gameState.energy < energyCost) {
+  if (energyCost > 0 && gameState.energy < energyCost) {
     blockers.push({
       reason: `Need ${energyCost} energy to race (have ${gameState.energy})`,
       type: "energy",
@@ -166,11 +179,11 @@ export function validateRaceEntry(
   }
 
   // Add warnings based on state
-  if (economy.currentBalance < entryFee * 0.2) {
+  if (entryFee > 0 && economy.currentBalance < entryFee * 0.2) {
     warnings.push("⚠️ Spending most of your money on this race");
   }
 
-  if (gameState.energy < energyCost + 10) {
+  if (energyCost > 0 && gameState.energy < energyCost + 10) {
     warnings.push("⚠️ Will be very low on energy after this race");
   }
 
@@ -202,38 +215,56 @@ export function processRaceEntry(
   raceTier: RaceTier,
   raceName: string,
   prerequisites?: RacePrerequisites,
+  options?: {
+    onlyRegister?: boolean;
+    isRegistered?: boolean;
+  }
 ): {
   economy: EconomyState;
   gameState: GameState;
   success: boolean;
   validation: EntryValidation;
 } {
+  const onlyRegister = options?.onlyRegister ?? false;
+  const isRegistered = options?.isRegistered ?? false;
+
   // Validate first
   const validation = validateRaceEntry(
     economy,
     gameState,
     raceTier,
     prerequisites,
+    options
   );
 
   if (!validation.eligible) {
     return { economy, gameState, success: false, validation };
   }
 
-  // Deduct entry fee
-  const entryFee = prerequisites?.entryFee ?? getEntryFee(raceTier);
-  const { economy: updatedEconomy, success } = spendRaceEntry(
-    economy,
-    gameState,
-    entryFee,
-    raceName,
-  );
+  // Deduct entry fee if not registered yet
+  const entryFee = isRegistered ? 0 : (prerequisites?.entryFee ?? getEntryFee(raceTier));
+  let updatedEconomy = economy;
+  let success = true;
+
+  if (entryFee > 0) {
+    const res = spendRaceEntry(
+      economy,
+      gameState,
+      entryFee,
+      raceName,
+    );
+    updatedEconomy = res.economy;
+    success = res.success;
+  }
+
+  // Deduct energy if not only registering
+  const energyDeduction = onlyRegister ? 0 : 25;
 
   return {
     economy: updatedEconomy,
     gameState: {
       ...gameState,
-      energy: gameState.energy - 25, // Deduct energy for compete action
+      energy: gameState.energy - energyDeduction,
     },
     success,
     validation,

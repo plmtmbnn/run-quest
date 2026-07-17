@@ -13,10 +13,14 @@
  */
 
 import type { RaceSchedule } from "./race-calendar-types";
+import { formatCurrency } from "../economy/currency-converter";
+import { useSettingsStore } from "@/store/settings-store";
 
 /**
  * Master schedule of all races in the game.
  */
+const preferredCurrency = useSettingsStore.getState().settings.preferredCurrency || "USD";
+
 export const RACE_SCHEDULES: RaceSchedule[] = [
   // ═══════════════════════════════════════════════════════
   // DAILY RACES - Always available, local tier
@@ -215,7 +219,7 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
     maxEntrants: 200,
     icon: "🌷",
     color: "text-orange-500",
-    prizeInfo: "National prize purse: $10,000 to champion",
+    prizeInfo: `National prize purse: ${formatCurrency(10000, preferredCurrency)} to champion`,
   },
 
   {
@@ -245,7 +249,7 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
     maxEntrants: 200,
     icon: "🍂",
     color: "text-amber-500",
-    prizeInfo: "National prize purse: $10,000 to champion",
+    prizeInfo: `National prize purse: ${formatCurrency(10000, preferredCurrency)} to champion`,
   },
 
   // ═══════════════════════════════════════════════════════
@@ -311,7 +315,7 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
     maxEntrants: 300,
     icon: "🇺🇸",
     color: "text-blue-600",
-    prizeInfo: "National Champion title + $25,000 prize",
+    prizeInfo: `National Champion title + ${formatCurrency(25000, preferredCurrency)} prize`,
   },
 
   // ═══════════════════════════════════════════════════════

@@ -391,5 +391,52 @@ export function getMonthlyCalendar(
   };
 }
 
+/**
+ * Get all future or active races the player is currently registered for.
+ */
+export function getRegisteredRaces(
+  schedulingState: SchedulingState,
+  currentDayIndex: number,
+): RaceOccurrence[] {
+  const registered: RaceOccurrence[] = [];
+  const totalEntrants = 50;
+
+  // Gather all registered race occurrences
+  for (const [scheduleId, dayIdx] of Object.entries(schedulingState.registered)) {
+    const schedule = RACE_SCHEDULES.find((s) => s.id === scheduleId);
+    if (!schedule) continue;
+
+    const occurrence = getRaceOccurrence(
+      schedule,
+      schedulingState,
+      Number(dayIdx),
+      totalEntrants,
+    );
+    if (!occurrence) continue;
+
+    // Determine completion status
+    const completedDay = schedulingState.completedRaces[occurrence.raceId];
+    occurrence.isCompleted = completedDay !== undefined && completedDay <= occurrence.dayIndex;
+
+    registered.push(occurrence);
+  }
+
+  const now = currentDayIndex;
+  const ninetyDays = 90;
+
+  const finished = registered.filter((r) => r.isCompleted);
+  const passedNotStarted = registered.filter(
+    (r) => !r.isCompleted && r.dayIndex < now && r.dayIndex >= now - ninetyDays,
+  );
+  const upcoming = registered.filter((r) => r.dayIndex >= now && !r.isCompleted);
+
+  // Sort groups
+  finished.sort((a, b) => b.dayIndex - a.dayIndex); // most recent first
+  passedNotStarted.sort((a, b) => b.dayIndex - a.dayIndex);
+  upcoming.sort((a, b) => a.dayIndex - b.dayIndex);
+
+  return [...finished, ...passedNotStarted, ...upcoming];
+}
+
 // Re-export for convenience
 export { RACE_SCHEDULES };
