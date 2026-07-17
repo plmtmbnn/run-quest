@@ -32,7 +32,7 @@ export const PRIZE_DISTRIBUTION: PrizeDistribution[] = [
  */
 export const ECONOMIC_BALANCE: EconomicBalance = {
   // Starting money
-  startingMoney: 500,
+  startingMoney: 100,
 
   // Race entry fees by tier
   entryFees: {

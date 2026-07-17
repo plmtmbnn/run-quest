@@ -50,7 +50,7 @@ export function RaceCalendar({
   const currentDayIndex = useTimelineStore.getState().gameState?.dayIndex ?? 0;
 
   const tabs = [
-    { id: "today", label: "📅 Today's Races", count: todayRaces.length },
+    { id: "today", label: "🏁 Race Day", count: todayRaces.length },
     { id: "registered", label: "🏆 Registered", count: registeredRaces.length },
     { id: "upcoming", label: "🔮 Upcoming Calendar", count: upcomingRaces.length },
   ] as const;
@@ -110,6 +110,7 @@ export function RaceCalendar({
                     key={race.scheduleId}
                     race={race}
                     onClick={() => onRaceClick?.(race)}
+                    currentDayIndex={currentDayIndex}
                   />
                 ))}
               </div>
@@ -134,6 +135,7 @@ export function RaceCalendar({
                     key={`${race.scheduleId}_reg`}
                     race={race}
                     onClick={() => onRaceClick?.(race)}
+                    currentDayIndex={currentDayIndex}
                   />
                 ))}
               </div>
@@ -170,9 +172,11 @@ export function RaceCalendar({
 function RaceCard({
   race,
   onClick,
+  currentDayIndex,
 }: {
   race: RaceOccurrence;
   onClick?: () => void;
+  currentDayIndex: number;
 }) {
   const preferredCurrency = useSettingsStore((state) => state.settings.preferredCurrency) || "USD";
   
@@ -192,18 +196,30 @@ function RaceCard({
     international: "bg-rose-500/10 text-rose-400 border border-rose-500/20",
   };
 
+  // Determine status
+  let status: "soon" | "race_day" | "finished" | "dns" = "soon";
+  if (race.isCompleted) {
+    status = "finished";
+  } else if (race.dayIndex < currentDayIndex) {
+    status = "dns";
+  } else if (race.dayIndex === currentDayIndex) {
+    status = "race_day";
+  }
+
+  const isClickable = status === "race_day";
+
   return (
     <button
       type="button"
-      onClick={onClick}
-      disabled={race.isCompleted}
-      className={`w-full text-left rounded-2xl border p-4 transition-all duration-200 cursor-pointer shadow-sm active:scale-[0.99] flex flex-col gap-3.5
+      onClick={isClickable ? onClick : undefined}
+      disabled={!isClickable}
+      className={`w-full text-left rounded-2xl border p-4 transition-all duration-200 shadow-sm flex flex-col gap-3.5
         ${
-          race.isCompleted
-            ? "border-slate-800 bg-slate-900/20 opacity-40 cursor-not-allowed"
+          !isClickable
+            ? "border-slate-800 bg-slate-900/20 opacity-60 cursor-not-allowed"
             : race.isFull
-              ? "border-amber-500/30 bg-amber-500/5 hover:border-amber-500/40 hover:bg-amber-500/10"
-              : (tierColors[race.tier] ?? "border-slate-700 bg-slate-800")
+              ? "border-amber-500/30 bg-amber-500/5 hover:border-amber-500/40 hover:bg-amber-500/10 cursor-pointer active:scale-[0.99]"
+              : (tierColors[race.tier] ?? "border-slate-700 bg-slate-800") + " cursor-pointer active:scale-[0.99]"
         }
       `}
     >
@@ -237,21 +253,33 @@ function RaceCard({
             {race.tier}
           </span>
 
-          {race.isRegistered && (
+          {status === "soon" && (
             <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md tracking-wider bg-blue-500/10 text-blue-400 border border-blue-500/20">
-              Registered
+              Soon
+            </span>
+          )}
+
+          {status === "race_day" && (
+            <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md tracking-wider bg-green-500/10 text-green-400 border border-green-500/20 animate-pulse">
+              Race Day
+            </span>
+          )}
+
+          {status === "finished" && (
+            <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md tracking-wider bg-slate-800 text-slate-500 border border-slate-800/50">
+              Finished
+            </span>
+          )}
+
+          {status === "dns" && (
+            <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md tracking-wider bg-rose-500/10 text-rose-400 border border-rose-500/20">
+              DNS (Did Not Start)
             </span>
           )}
 
           {race.isFull && (
             <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md tracking-wider bg-amber-500/10 text-amber-400 border border-amber-500/20">
               FULL
-            </span>
-          )}
-
-          {race.isCompleted && (
-            <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md tracking-wider bg-slate-800 text-slate-500 border border-slate-800/50">
-              Completed
             </span>
           )}
 

@@ -15,6 +15,7 @@ import { RaceEntryModal } from "@/components/scheduling/race-entry-modal";
 import { DailyStatsCard } from "@/components/share/daily-stats-card";
 import { ShareModal } from "@/components/share/share-modal";
 import { GameClock } from "@/components/ui/game-clock";
+import { RestControls } from "@/components/ui/rest-controls";
 import { formatCurrency } from "@/economy/currency-converter";
 import {
   earnAchievementBonus,
@@ -210,7 +211,7 @@ export function HomeScreen() {
       gameState.economy,
       gameState,
       race.tier,
-      race.prerequisites,
+      { ...race.prerequisites, entryFee: race.entryFee },
       { onlyRegister, isRegistered },
     );
     setEntryValidation(validation);
@@ -235,7 +236,7 @@ export function HomeScreen() {
       gameState,
       selectedRaceOccurrence.tier,
       selectedRaceOccurrence.name,
-      selectedRaceOccurrence.prerequisites,
+      { ...selectedRaceOccurrence.prerequisites, entryFee: selectedRaceOccurrence.entryFee },
       { onlyRegister, isRegistered },
     );
 
@@ -323,7 +324,7 @@ export function HomeScreen() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.25, ease: "easeInOut" }}
-      className="min-h-screen bg-background flex flex-col pb-12"
+      className="min-h-screen bg-background flex flex-col pb-28"
     >
       {/* Header */}
       <header className="px-6 pt-10 pb-4 flex justify-between items-start">
@@ -357,11 +358,11 @@ export function HomeScreen() {
 
         {/* Player Stats Panel (Updated to show Money) */}
         {player && gameState && (
-          <div className="bg-gradient-to-br from-orange-500 to-amber-600 rounded-[2rem] p-6 text-white shadow-md flex items-center justify-between">
-            <div className="flex flex-col gap-2">
+          <div className="bg-gradient-to-br from-orange-500 to-amber-600 rounded-[2rem] p-5 md:p-6 text-white shadow-md flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+            <div className="flex flex-col gap-3.5 min-w-0 w-full md:w-auto">
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs text-blue-200 uppercase tracking-wider font-semibold">
+                  <span className="text-[10px] text-orange-100 uppercase tracking-widest font-black">
                     {t("home.player_profile" as TranslationKey)}
                   </span>
                   <button
@@ -370,25 +371,25 @@ export function HomeScreen() {
                       playSound("click");
                       setIsShareOpen(true);
                     }}
-                    className="p-1 rounded-full hover:bg-white/10 text-blue-200 hover:text-white transition active:scale-90"
+                    className="p-1 rounded-full hover:bg-white/10 text-orange-100 hover:text-white transition active:scale-90"
                     aria-label="Share career stats"
                   >
                     <Share2 className="h-3.5 w-3.5" />
                   </button>
                 </div>
-                <span className="text-lg font-bold font-heading">
+                <span className="text-lg md:text-xl font-black font-heading truncate">
                   {player.name ||
                     `Runner #${player.id.slice(0, 5).toUpperCase()}`}
                 </span>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 <button
                   type="button"
                   onClick={() => {
                     playSound("click");
                     router.push("/training");
                   }}
-                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-bold tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-1 rounded-full transition-all border border-white/10"
+                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-1.5 rounded-full transition-all border border-white/10"
                 >
                   {t("home.daily_training" as TranslationKey)} →
                 </button>
@@ -398,7 +399,7 @@ export function HomeScreen() {
                     playSound("click");
                     setIsWorkModalOpen(true);
                   }}
-                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-bold tracking-wider bg-green-600/30 hover:bg-green-600/40 active:scale-95 px-3 py-1 rounded-full transition-all border border-green-500/30"
+                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-emerald-600/30 hover:bg-emerald-600/40 active:scale-95 px-3 py-1.5 rounded-full transition-all border border-emerald-500/30"
                 >
                   <Briefcase className="h-3 w-3" />
                   Work ({availableWorkActions.length}) →
@@ -409,7 +410,7 @@ export function HomeScreen() {
                     playSound("click");
                     router.push("/profile");
                   }}
-                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-bold tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-1 rounded-full transition-all border border-white/10"
+                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-1.5 rounded-full transition-all border border-white/10"
                 >
                   {t("home.runner_profile" as TranslationKey)} →
                 </button>
@@ -419,7 +420,7 @@ export function HomeScreen() {
                     playSound("click");
                     router.push("/social");
                   }}
-                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-bold tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-1 rounded-full transition-all border border-white/10 relative"
+                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-1.5 rounded-full transition-all border border-white/10 relative"
                 >
                   Social Hub →
                   {recentRivalActivities > 0 && (
@@ -434,38 +435,38 @@ export function HomeScreen() {
                     playSound("click");
                     router.push("/history");
                   }}
-                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-bold tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-1 rounded-full transition-all border border-white/10"
+                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-1.5 rounded-full transition-all border border-white/10"
                 >
                   {t("history.title" as TranslationKey)} →
                 </button>
               </div>
             </div>
-            <div className="flex gap-6">
-              <div className="flex flex-col items-center">
-                <span className="text-xs text-blue-200 uppercase font-medium">
+
+            <div className="grid grid-cols-3 gap-2.5 w-full md:w-auto md:flex md:gap-4 shrink-0">
+              <div className="flex flex-col items-center justify-center bg-white/15 rounded-2xl p-2.5 text-center min-w-0 md:min-w-[90px] border border-white/5">
+                <span className="text-[9px] text-orange-200 uppercase font-black tracking-wider">
                   {t("home.stats.money" as TranslationKey)}
                 </span>
-                <span className="text-xl font-bold flex items-center gap-1 mt-0.5">
-                  💰{" "}
-                  {formatCurrency(
+                <span className="text-sm font-black flex items-center gap-0.5 mt-1 truncate">
+                  💰 {formatCurrency(
                     currentBalance,
                     settings.preferredCurrency || "USD",
                   )}
                 </span>
               </div>
-              <div className="flex flex-col items-center">
-                <span className="text-xs text-blue-200 uppercase font-medium">
+              <div className="flex flex-col items-center justify-center bg-white/15 rounded-2xl p-2.5 text-center min-w-0 md:min-w-[90px] border border-white/5">
+                <span className="text-[9px] text-orange-200 uppercase font-black tracking-wider">
                   {t("home.stats.runs" as TranslationKey)}
                 </span>
-                <span className="text-xl font-bold mt-0.5">
+                <span className="text-sm font-black mt-1">
                   {player.statistics.totalRuns}
                 </span>
               </div>
-              <div className="flex flex-col items-center">
-                <span className="text-xs text-blue-200 uppercase font-medium">
+              <div className="flex flex-col items-center justify-center bg-white/15 rounded-2xl p-2.5 text-center min-w-0 md:min-w-[90px] border border-white/5">
+                <span className="text-[9px] text-orange-200 uppercase font-black tracking-wider">
                   {t("home.stats.distance" as TranslationKey)}
                 </span>
-                <span className="text-xl font-bold mt-0.5">
+                <span className="text-sm font-black mt-1 truncate">
                   {player.statistics.totalDistance} km
                 </span>
               </div>
@@ -568,6 +569,9 @@ export function HomeScreen() {
           }}
         />
       )}
+
+      {/* Floating Rest Controls */}
+      <RestControls />
     </motion.div>
   );
 }

@@ -41,14 +41,17 @@ export function getTodaysRaces(
     );
     if (!occurrence) continue;
 
-    // Check if the player can actually enter this race today
-    // (race day OR within registration window)
-    const canEnterToday =
-      currentDayIndex >= occurrence.registrationOpensAt &&
-      currentDayIndex <= occurrence.dayIndex &&
-      !occurrence.isCompleted;
+    // A race on today's date can only be run if:
+    // 1. The player is registered for it, OR
+    // 2. Registration opens today AND closes today (e.g. tutorial/debut race)
+    const isTutorialOrDebut =
+      occurrence.registrationOpensAt === occurrence.dayIndex &&
+      occurrence.registrationClosesAt === occurrence.dayIndex;
 
-    if (canEnterToday) {
+    const canRunToday =
+      !occurrence.isCompleted && (occurrence.isRegistered || isTutorialOrDebut);
+
+    if (canRunToday) {
       available.push(occurrence);
     }
   }
@@ -76,7 +79,7 @@ export function getTodaysRaces(
 export function getUpcomingRaces(
   schedulingState: SchedulingState,
   currentDayIndex: number,
-  daysAhead: number = 7,
+  daysAhead: number = 90,
 ): RaceOccurrence[] {
   const upcoming: RaceOccurrence[] = [];
   const totalEntrants = 50;
@@ -150,10 +153,14 @@ function getRaceOccurrence(
   const entrants = schedule.maxEntrants ?? defaultEntrants;
   const prizePool = calculateExpectedPrize(schedule.entry.fee, entrants, 1) * 5; // Approximate total prize pool (top 5 prizes)
 
+  const yearsElapsed = Math.floor(dayIndex / DAYS_PER_YEAR);
+  const gameYear = 2026 + yearsElapsed;
+  const occurrenceName = `${schedule.name} ${gameYear}`;
+
   return {
     scheduleId: schedule.id,
     raceId: schedule.raceId,
-    name: schedule.name,
+    name: occurrenceName,
     locationId: schedule.locationId,
     tier: schedule.tier,
     description: schedule.description,

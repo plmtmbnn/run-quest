@@ -29,20 +29,20 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
   {
     id: "daily_local_5k",
     raceId: "local_5k_park",
-    name: "Daily 5K Run",
+    name: "Jakarta Fun Run 5K",
     locationId: "local_5k_park",
     tier: "local",
     description:
-      "The classic park run. Same course, different day. A great way to build consistency.",
+      "The classic street run through Jakarta's center. Same course, different day. A great way to build consistency.",
     schedule: {
       frequency: "daily",
     },
     registration: {
-      opensDaysBefore: 0,
-      closesDaysBefore: 0,
+      opensDaysBefore: 30,
+      closesDaysBefore: 7,
     },
     entry: {
-      fee: 50,
+      fee: 35,
     },
     icon: "🏃",
     color: "text-green-500",
@@ -52,20 +52,20 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
   {
     id: "daily_10k_circuit",
     raceId: "regional_10k_hills",
-    name: "Daily 10K Circuit",
+    name: "Bandung Heritage 10K",
     locationId: "regional_10k_hills",
     tier: "local",
     description:
-      "A challenging 10K through rolling hills. Tests endurance and pacing.",
+      "A challenging 10K through the scenic heritage streets of Bandung. Tests endurance and pacing.",
     schedule: {
       frequency: "daily",
     },
     registration: {
-      opensDaysBefore: 0,
-      closesDaysBefore: 0,
+      opensDaysBefore: 30,
+      closesDaysBefore: 7,
     },
     entry: {
-      fee: 50,
+      fee: 55,
     },
     icon: "🏃‍♂️",
     color: "text-emerald-500",
@@ -79,21 +79,21 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
   {
     id: "weekly_saturday_5k",
     raceId: "local_5k_park",
-    name: "Saturday Championship Series 5K",
+    name: "Bali Marathon Saturday Series",
     locationId: "local_5k_park",
     tier: "regional",
     description:
-      "The weekly Saturday showdown. Higher stakes, better competition, bigger prizes.",
+      "The weekly Saturday showdown along the beaches of Bali. Higher stakes, better competition, bigger prizes.",
     schedule: {
       frequency: "weekly",
       dayOfWeek: 6, // Saturday
     },
     registration: {
-      opensDaysBefore: 3, // Wednesday
-      closesDaysBefore: 1, // Friday
+      opensDaysBefore: 30,
+      closesDaysBefore: 7,
     },
     entry: {
-      fee: 150,
+      fee: 120,
     },
     maxEntrants: 100,
     icon: "🏆",
@@ -104,21 +104,21 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
   {
     id: "weekly_sunday_hills",
     raceId: "regional_10k_hills",
-    name: "Sunday Hill Challenge",
+    name: "Borobudur Hills Challenge",
     locationId: "regional_10k_hills",
     tier: "regional",
     description:
-      "Conquer the hills every Sunday. Builds character and leg strength.",
+      "Conquer the historical trails around Borobudur every Sunday. Builds character and leg strength.",
     schedule: {
       frequency: "weekly",
       dayOfWeek: 0, // Sunday
     },
     registration: {
-      opensDaysBefore: 3,
-      closesDaysBefore: 1,
+      opensDaysBefore: 30,
+      closesDaysBefore: 7,
     },
     entry: {
-      fee: 150,
+      fee: 180,
     },
     maxEntrants: 80,
     icon: "⛰️",
@@ -133,21 +133,21 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
   {
     id: "monthly_state_5k",
     raceId: "local_5k_park",
-    name: "Metro State 5K Championship",
+    name: "Jakarta Marathon Championship",
     locationId: "local_5k_park",
     tier: "state",
     description:
-      "Monthly state championship. Top runners from across the region compete. Points count toward annual standings.",
+      "Monthly championship in Jakarta. Top runners from across the region compete. Points count toward annual standings.",
     schedule: {
       frequency: "monthly",
       dayOfMonth: 15, // 15th of each month
     },
     registration: {
-      opensDaysBefore: 7,
-      closesDaysBefore: 2,
+      opensDaysBefore: 45,
+      closesDaysBefore: 10,
     },
     entry: {
-      fee: 400,
+      fee: 450,
       prerequisites: {
         minLevel: 8,
         minRating: 1800,
@@ -162,21 +162,21 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
   {
     id: "monthly_state_half",
     raceId: "state_half_coastal",
-    name: "Coastal State Half Marathon",
+    name: "Mandalika Coastal Half Marathon",
     locationId: "state_half_coastal",
     tier: "state",
     description:
-      "Monthly half marathon along the beautiful coast. The premier distance event of the month.",
+      "Monthly half marathon along the breathtaking Mandalika coastline. The premier distance event of the month.",
     schedule: {
       frequency: "monthly",
       dayOfMonth: 28, // 28th of each month
     },
     registration: {
-      opensDaysBefore: 14,
-      closesDaysBefore: 3,
+      opensDaysBefore: 45,
+      closesDaysBefore: 10,
     },
     entry: {
-      fee: 400,
+      fee: 600,
       prerequisites: {
         minLevel: 12,
         minRating: 1900,
@@ -195,21 +195,21 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
   {
     id: "seasonal_spring_marathon",
     raceId: "national_marathon_city",
-    name: "Capital City Spring Marathon",
+    name: "Tokyo Marathon",
     locationId: "national_marathon_city",
     tier: "national",
     description:
-      "The premier spring marathon. National TV coverage. The best in the country compete.",
+      "The premier Asian major marathon in Tokyo. National TV coverage. The best in the country compete.",
     schedule: {
       frequency: "seasonal",
       dayOfYear: 120, // Early May (day 120 of 336-day year)
     },
     registration: {
-      opensDaysBefore: 30,
-      closesDaysBefore: 7,
+      opensDaysBefore: 60,
+      closesDaysBefore: 14,
     },
     entry: {
-      fee: 1000,
+      fee: 1200,
       prerequisites: {
         minLevel: 18,
         minRating: 2100,
@@ -225,21 +225,21 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
   {
     id: "seasonal_fall_marathon",
     raceId: "national_marathon_city",
-    name: "Capital City Autumn Classic",
+    name: "New York City Marathon",
     locationId: "national_marathon_city",
     tier: "national",
     description:
-      "Fall marathon with perfect racing temperatures. Record-breaking conditions expected.",
+      "Run through the five boroughs of NYC. Fall marathon with perfect racing temperatures. Record-breaking conditions expected.",
     schedule: {
       frequency: "seasonal",
       dayOfYear: 280, // Early October (day 280 of 336-day year)
     },
     registration: {
-      opensDaysBefore: 30,
-      closesDaysBefore: 7,
+      opensDaysBefore: 60,
+      closesDaysBefore: 14,
     },
     entry: {
-      fee: 1000,
+      fee: 1500,
       prerequisites: {
         minLevel: 18,
         minRating: 2100,
@@ -259,11 +259,11 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
   {
     id: "annual_olympic_trials",
     raceId: "olympic_trials",
-    name: "Olympic Marathon Trials",
+    name: "World Athletics Championship Marathon",
     locationId: "olympic_trials",
     tier: "international",
     description:
-      "ONCE A YEAR. Top 3 make the Olympic team. The highest stakes in running. Every four game years, this decides who represents the nation.",
+      "ONCE A YEAR. Top 3 make the World Athletics team. The highest stakes in running. Every four game years, this decides who represents the nation.",
     schedule: {
       frequency: "annual",
       dayOfYear: 150, // Late May (every year)
@@ -273,7 +273,7 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
       closesDaysBefore: 30,
     },
     entry: {
-      fee: 2500,
+      fee: 3000,
       prerequisites: {
         minLevel: 28,
         minRating: 2400,
@@ -290,21 +290,21 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
   {
     id: "annual_national_championship",
     raceId: "national_marathon_city",
-    name: "US National Marathon Championship",
+    name: "Boston Marathon",
     locationId: "national_marathon_city",
     tier: "national",
     description:
-      "The annual national championship. The best runners in the country compete for the title of National Champion.",
+      "The world's oldest annual marathon. The best runners in the country compete for the title of Champion.",
     schedule: {
       frequency: "annual",
       dayOfYear: 90, // Late March
     },
     registration: {
-      opensDaysBefore: 60,
-      closesDaysBefore: 14,
+      opensDaysBefore: 90,
+      closesDaysBefore: 30,
     },
     entry: {
-      fee: 1000,
+      fee: 2000,
       prerequisites: {
         minLevel: 22,
         minRating: 2200,
@@ -325,11 +325,11 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
   {
     id: "one_time_debut",
     raceId: "local_5k_park",
-    name: "Your First Race",
+    name: "Sudirman Street First Run",
     locationId: "local_5k_park",
     tier: "local",
     description:
-      "Your very first race. No pressure, just run. This is where every champion starts.",
+      "Your very first race down Sudirman Street. No pressure, just run. This is where every champion starts.",
     schedule: {
       frequency: "one_time",
       specificDays: [5], // Available on career day 5
@@ -339,7 +339,7 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
       closesDaysBefore: 0,
     },
     entry: {
-      fee: 25, // Discounted first race
+      fee: 0, // Free first race
     },
     icon: "🌟",
     color: "text-yellow-500",
@@ -349,21 +349,21 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
   {
     id: "one_time_chapter_complete",
     raceId: "local_5k_park",
-    name: "Chapter Finale: Local Championship",
+    name: "Ancol Seaside Championship",
     locationId: "local_5k_park",
     tier: "regional",
     description:
-      "The end of your first story chapter. Win this to prove you've grown beyond a local runner.",
+      "The end of your first story chapter by the Ancol seaside. Win this to prove you've grown beyond a local runner.",
     schedule: {
       frequency: "one_time",
       specificDays: [50], // Day 50
     },
     registration: {
-      opensDaysBefore: 7,
-      closesDaysBefore: 1,
+      opensDaysBefore: 14,
+      closesDaysBefore: 3,
     },
     entry: {
-      fee: 100,
+      fee: 80,
       prerequisites: {
         storyChapter: 1,
       },

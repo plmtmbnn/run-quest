@@ -55,6 +55,7 @@ export function createInitialState(seed: number): GameState {
   const rng = new SeededRandom(seed);
   const startAge = Math.floor(rng.nextRange(MIN_START_AGE, MAX_START_AGE + 1));
   const lifespan = Math.floor(rng.nextRange(MIN_LIFESPAN, MAX_LIFESPAN + 1));
+  const startingMoney = Math.floor(rng.nextRange(10, 101));
   return {
     dayIndex: 0,
     startAge,
@@ -62,13 +63,16 @@ export function createInitialState(seed: number): GameState {
     seed,
     energy: ENERGY_MAX,
     energyMax: ENERGY_MAX,
-    resources: { money: 0 },
+    resources: { money: startingMoney },
     stats: { health: 100, strength: 0, intellect: 0, charisma: 0 },
     skills: {},
     relationships: {},
     routine: ["work", "work", "work", "work", "work", "train", "social"],
     flags: {},
-    economy: DEFAULT_ECONOMY_STATE,
+    economy: {
+      ...DEFAULT_ECONOMY_STATE,
+      currentBalance: startingMoney,
+    },
     sponsorship: DEFAULT_SPONSORSHIP_STATE,
     scheduling: DEFAULT_SCHEDULING_STATE,
   };

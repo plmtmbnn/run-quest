@@ -1,14 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Coffee, Moon } from "lucide-react";
+import { Coffee } from "lucide-react";
 import { deriveDate } from "@/engine/timeline/calendar";
-import { useSound } from "@/hooks/use-sound";
 import { useTimelineStore } from "@/store/timeline-store";
 
 export function GameClock() {
-  const { gameState, doAction } = useTimelineStore();
-  const { playSound } = useSound();
+  const { gameState } = useTimelineStore();
 
   if (!gameState) return null;
 
@@ -20,11 +18,6 @@ export function GameClock() {
   const currentDay = dayOfWeek + 1;
 
   const energyPercent = (gameState.energy / gameState.energyMax) * 100;
-
-  const handleRest = () => {
-    playSound("click");
-    doAction("rest");
-  };
 
   return (
     <motion.div
@@ -43,7 +36,7 @@ export function GameClock() {
         </div>
       </div>
 
-      {/* Energy / Stamina Bar & Rest Button */}
+      {/* Energy / Stamina Bar */}
       <div className="flex items-center gap-4 flex-1 justify-end max-w-md w-full">
         {/* Stamina Meter */}
         <div className="flex items-center gap-2 flex-1 min-w-[120px]">
@@ -66,16 +59,6 @@ export function GameClock() {
             </span>
           </div>
         </div>
-
-        {/* Manual Rest Button */}
-        <button
-          type="button"
-          onClick={handleRest}
-          className="inline-flex items-center justify-center gap-1.5 py-2 px-4 rounded-2xl text-xs font-black uppercase tracking-wider bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border border-slate-950 dark:border-slate-50 hover:bg-slate-800 dark:hover:bg-white active:scale-95 transition-all transform flex-shrink-0 shadow-sm"
-        >
-          <Moon className="h-3.5 w-3.5" />
-          <span>Rest (1 Day)</span>
-        </button>
       </div>
     </motion.div>
   );
