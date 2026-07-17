@@ -1,22 +1,22 @@
 /**
  * Location Engine (Sprint 24)
- * 
+ *
  * Manages location discovery, unlocking, and narrative generation.
  */
 
 import type { GameState } from "../timeline/time-types";
+import {
+  getRandomText,
+  getRandomWeather,
+  LOCATION_PERSONALITIES,
+  LOCATIONS,
+} from "./location-database";
 import type {
   Location,
   LocationHistory,
   LocationState,
   WeatherImpact,
 } from "./location-types";
-import {
-  LOCATIONS,
-  LOCATION_PERSONALITIES,
-  getRandomText,
-  getRandomWeather,
-} from "./location-database";
 
 /**
  * Check if a location is unlocked for the player.
@@ -42,7 +42,10 @@ export function isLocationUnlocked(
   // Check story chapter (from flags)
   if (req.storyChapter) {
     const currentChapter = gameState.flags.storyChapter ?? 0;
-    if (typeof currentChapter === "number" && currentChapter < req.storyChapter) {
+    if (
+      typeof currentChapter === "number" &&
+      currentChapter < req.storyChapter
+    ) {
       return false;
     }
   }
@@ -203,15 +206,24 @@ export function generatePreRaceNarrative(
   if (!location || !personality) {
     return {
       arrivalText: "You arrive at the race venue.",
-      weather: { condition: "perfect", label: "Perfect", description: "", speedModifier: 1, staminaModifier: 1, mentalImpact: 0, icon: "☀️" },
+      weather: {
+        condition: "perfect",
+        label: "Perfect",
+        description: "",
+        speedModifier: 1,
+        staminaModifier: 1,
+        mentalImpact: 0,
+        icon: "☀️",
+      },
     };
   }
 
   const arrivalText = getRandomText(personality.arrivalTexts, seed);
   const weather = getRandomWeather(location, seed + 1);
-  const lore = location.lore.length > 0 
-    ? getRandomText(location.lore, seed + 2)
-    : undefined;
+  const lore =
+    location.lore.length > 0
+      ? getRandomText(location.lore, seed + 2)
+      : undefined;
 
   return { arrivalText, weather, lore };
 }
@@ -231,7 +243,7 @@ export function generateRaceAtmosphere(
 
   // Check for landmark-specific text
   const landmark = personality.landmarks.find(
-    (lm) => Math.abs(lm.distance - distance) < 0.5
+    (lm) => Math.abs(lm.distance - distance) < 0.5,
   );
 
   if (landmark) {
@@ -271,7 +283,7 @@ export function getAvailableLocations(
   return Object.values(LOCATIONS).filter(
     (location) =>
       locationState.discovered.includes(location.id) &&
-      isLocationUnlocked(location, gameState, locationState)
+      isLocationUnlocked(location, gameState, locationState),
   );
 }
 
@@ -285,7 +297,7 @@ export function getLockedLocations(
   return Object.values(LOCATIONS).filter(
     (location) =>
       locationState.discovered.includes(location.id) &&
-      !isLocationUnlocked(location, gameState, locationState)
+      !isLocationUnlocked(location, gameState, locationState),
   );
 }
 

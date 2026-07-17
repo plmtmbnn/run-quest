@@ -1,13 +1,13 @@
 /**
  * Injury Probability Calculator (Sprint 24)
- * 
+ *
  * Calculates injury risk based on training load, race frequency,
  * breaking points, equipment condition, and random factors.
  */
 
 import type { GameState } from "../timeline/time-types";
-import type { InjuryState, InjuryType, RiskFactors } from "./injury-types";
 import { INJURY_TEMPLATES } from "./injury-database";
+import type { InjuryState, InjuryType, RiskFactors } from "./injury-types";
 
 /**
  * Calculate current risk factors for the runner.
@@ -22,12 +22,14 @@ export function calculateRiskFactors(
 
   // Training load: based on recent training frequency (last 14 days)
   const recentTraining = recentTrainingDays.filter(
-    (day) => dayIndex - day <= 14
+    (day) => dayIndex - day <= 14,
   ).length;
   const trainingLoad = Math.min(1.0, recentTraining / 10); // 10+ sessions = max load
 
   // Race frequency: races in last 7 days
-  const recentRaces = recentRaceDays.filter((day) => dayIndex - day <= 7).length;
+  const recentRaces = recentRaceDays.filter(
+    (day) => dayIndex - day <= 7,
+  ).length;
   const raceFrequency = Math.min(1.0, recentRaces / 3); // 3+ races/week = max
 
   // Equipment condition: based on equipped shoes durability (if available)
@@ -38,7 +40,8 @@ export function calculateRiskFactors(
 
   // Random factor: 5-10%
   const seed = gameState.seed + dayIndex;
-  const randomFactor = 0.05 + (((seed * 9301 + 49297) % 233280) / 233280) * 0.05;
+  const randomFactor =
+    0.05 + (((seed * 9301 + 49297) % 233280) / 233280) * 0.05;
 
   return {
     trainingLoad,
@@ -74,10 +77,8 @@ export function calculateInjuryProbability(
   }
 
   // Breaking points multiplier
-  probability *= Math.pow(
-    config.breakingPointMultiplier,
-    riskFactors.recentBreakingPoints
-  );
+  probability *=
+    config.breakingPointMultiplier ** riskFactors.recentBreakingPoints;
 
   // Equipment multiplier
   if (riskFactors.equipmentCondition < 0.3) {
@@ -110,7 +111,7 @@ export function selectInjuryType(
   randomSeed: number,
 ): InjuryType {
   // Weighted distribution based on risk factors
-  let weights: Record<InjuryType, number> = {
+  const weights: Record<InjuryType, number> = {
     minor_pain: 40, // Most common
     muscle_strain: 30,
     tendinitis: 15,
@@ -164,7 +165,11 @@ export function getRiskLevelDescription(probability: number): {
     return { level: "low", label: "Low Risk", color: "text-green-500" };
   }
   if (probability < 0.2) {
-    return { level: "moderate", label: "Moderate Risk", color: "text-yellow-500" };
+    return {
+      level: "moderate",
+      label: "Moderate Risk",
+      color: "text-yellow-500",
+    };
   }
   if (probability < 0.3) {
     return { level: "high", label: "High Risk", color: "text-orange-500" };
@@ -183,7 +188,7 @@ export function getRaceWarnings(
 
   if (injuryState.activeInjuries.length > 0) {
     warnings.push(
-      `⚠️ You have ${injuryState.activeInjuries.length} active injury/injuries - racing may worsen them`
+      `⚠️ You have ${injuryState.activeInjuries.length} active injury/injuries - racing may worsen them`,
     );
   }
 
@@ -197,7 +202,7 @@ export function getRaceWarnings(
 
   if (riskFactors.recentBreakingPoints > 2) {
     warnings.push(
-      "⚠️ Multiple breaking points pushed recently - high injury risk"
+      "⚠️ Multiple breaking points pushed recently - high injury risk",
     );
   }
 

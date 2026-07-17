@@ -1,13 +1,17 @@
 /**
  * Sponsorship Engine (Sprint 26 - Task 2)
- * 
+ *
  * Manages sponsor availability, signing, and payouts.
  */
 
 import type { GameState } from "../engine/timeline/time-types";
+import { DAYS_PER_MONTH, MONTHS_PER_YEAR } from "../engine/timeline/time-types";
 import type { Sponsor, SponsorshipState } from "./sponsorship-types";
-import { SPONSORS, SPONSOR_TIER_ORDER, DEFAULT_SPONSORSHIP_STATE } from "./sponsorship-types";
-import { MONTHS_PER_YEAR, DAYS_PER_MONTH } from "../engine/timeline/time-types";
+import {
+  DEFAULT_SPONSORSHIP_STATE,
+  SPONSOR_TIER_ORDER,
+  SPONSORS,
+} from "./sponsorship-types";
 
 /**
  * Check which sponsors are available for the player to sign.
@@ -26,7 +30,10 @@ export function getAvailableSponsors(
 
     for (const [id, sponsor] of Object.entries(SPONSORS)) {
       const tierIndex = SPONSOR_TIER_ORDER.indexOf(sponsor.tier);
-      if (tierIndex > currentTierIndex && meetsRequirements(sponsor, gameState)) {
+      if (
+        tierIndex > currentTierIndex &&
+        meetsRequirements(sponsor, gameState)
+      ) {
         available.push(sponsor);
       }
     }
@@ -49,13 +56,13 @@ function meetsRequirements(sponsor: Sponsor, gameState: GameState): boolean {
 
   // Rating check
   if (req.minRating) {
-    const rating = flags.rating as number ?? 0;
+    const rating = (flags.rating as number) ?? 0;
     if (rating < req.minRating) return false;
   }
 
   // Wins check (from flags)
   if (req.minWins) {
-    const wins = flags.career_wins as number ?? 0;
+    const wins = (flags.career_wins as number) ?? 0;
     if (wins < req.minWins) return false;
   }
 
@@ -67,13 +74,13 @@ function meetsRequirements(sponsor: Sponsor, gameState: GameState): boolean {
 
   // Story chapters check
   if (req.chaptersRequired) {
-    const chapter = flags.storyChapter as number ?? 0;
+    const chapter = (flags.storyChapter as number) ?? 0;
     if (chapter < req.chaptersRequired) return false;
   }
 
   // Previous sponsor check
   if (req.previousSponsor) {
-    const prevSponsors = flags.previous_sponsors as string ?? "";
+    const prevSponsors = (flags.previous_sponsors as string) ?? "";
     if (!prevSponsors.includes(req.previousSponsor)) return false;
   }
 
@@ -94,12 +101,124 @@ export function signSponsor(
     : "";
 
   return {
+    ...sponsorshipState,
     currentSponsor: sponsorId,
     sponsorsAvailable: [],
-    lifetimeSponsorEarnings: sponsorshipState.lifetimeSponsorEarnings,
-    monthlyStipendLastClaimed: sponsorshipState.monthlyStipendLastClaimed,
+    pendingOffers: sponsorshipState.pendingOffers.filter(
+      (id) => id !== sponsorId,
+    ),
     signedAtDay: dayIndex,
   };
+}
+
+/**
+ * Check for new sponsor offers based on player achievements.
+ * Call this after races or when requirements might have changed.
+ */
+export function checkForNewOffers(
+  sponsorshipState: SponsorshipState,
+  gameState: GameState,
+): { sponsorshipState: SponsorshipState; newOffers: string[] } {
+  // Don't send new offers if player already has a sponsor of same or higher tier
+  const currentSponsor = sponsorshipState.currentSponsor
+    ? SPONSORS[sponsorshipState.currentSponsor]
+    : null;
+
+  const newOffers: string[] = [];
+
+  for (const [sponsorId, sponsor] of Object.entries(SPONSORS)) {
+    // Skip if already has this sponsor
+    if (sponsorshipState.currentSponsor === sponsorId) continue;
+
+    // Skip if already pending or rejected recently
+    if (sponsorshipState.pendingOffers.includes(sponsorId)) continue;
+    if (sponsorshipState.rejectedOffers.includes(sponsorId)) {
+      // Check if enough time has passed for re-offer (30 days)
+      const lastOfferDay = sponsorshipState.offerReceivedDay[sponsorId] ?? 0;
+      if (gameState.dayIndex - lastOfferDay < 30) continue;
+    }
+
+    // Check if player meets requirements
+    if (!meetsRequirements(sponsor, gameState)) continue;
+
+    // Check tier progression (only offer higher tiers)
+    if (currentSponsor) {
+      const currentTierIndex = SPONSOR_TIER_ORDER.indexOf(currentSponsor.tier);
+      const offerTierIndex = SPONSOR_TIER_ORDER.indexOf(sponsor.tier);
+      if (offerTierIndex <= currentTierIndex) continue;
+    }
+
+    newOffers.push(sponsorId);
+  }
+
+  if (newOffers.length === 0) {
+    return { sponsorshipState, newOffers: [] };
+  }
+
+  // Add new offers to pending
+  const updatedOfferReceivedDay = { ...sponsorshipState.offerReceivedDay };
+  newOffers.forEach((sponsorId) => {
+    updatedOfferReceivedDay[sponsorId] = gameState.dayIndex;
+  });
+
+  return {
+    sponsorshipState: {
+      ...sponsorshipState,
+      pendingOffers: [...sponsorshipState.pendingOffers, ...newOffers],
+      offerReceivedDay: updatedOfferReceivedDay,
+    },
+    newOffers,
+  };
+}
+
+/**
+ * Accept a sponsor offer.
+ */
+export function acceptOffer(
+  sponsorshipState: SponsorshipState,
+  sponsorId: string,
+  dayIndex: number,
+): SponsorshipState {
+  return signSponsor(sponsorshipState, sponsorId, dayIndex);
+}
+
+/**
+ * Reject a sponsor offer.
+ */
+export function rejectOffer(
+  sponsorshipState: SponsorshipState,
+  sponsorId: string,
+): SponsorshipState {
+  const rejectionCount = {
+    ...sponsorshipState.rejectionCount,
+    [sponsorId]: (sponsorshipState.rejectionCount[sponsorId] ?? 0) + 1,
+  };
+
+  return {
+    ...sponsorshipState,
+    pendingOffers: sponsorshipState.pendingOffers.filter(
+      (id) => id !== sponsorId,
+    ),
+    rejectedOffers: [...sponsorshipState.rejectedOffers, sponsorId],
+    rejectionCount,
+  };
+}
+
+/**
+ * Check if a rejected sponsor can make another offer.
+ */
+export function canReOffer(
+  sponsorshipState: SponsorshipState,
+  sponsorId: string,
+  currentDayIndex: number,
+): boolean {
+  if (!sponsorshipState.rejectedOffers.includes(sponsorId)) return true;
+
+  const lastOfferDay = sponsorshipState.offerReceivedDay[sponsorId] ?? 0;
+  const daysSinceLastOffer = currentDayIndex - lastOfferDay;
+
+  // Can re-offer after 30 days
+  return daysSinceLastOffer >= 30;
 }
 
 /**
@@ -141,7 +260,8 @@ export function claimMonthlyStipend(
   }
 
   const sponsor = SPONSORS[sponsorshipState.currentSponsor];
-  const daysSinceLastClaim = currentDayIndex - sponsorshipState.monthlyStipendLastClaimed;
+  const daysSinceLastClaim =
+    currentDayIndex - sponsorshipState.monthlyStipendLastClaimed;
 
   // Stipend is paid monthly (28 days)
   if (daysSinceLastClaim < DAYS_PER_MONTH) {
@@ -153,7 +273,8 @@ export function claimMonthlyStipend(
       ...sponsorshipState,
       monthlyStipendLastClaimed: currentDayIndex,
       lifetimeSponsorEarnings:
-        sponsorshipState.lifetimeSponsorEarnings + sponsor.benefits.monthlyStipend,
+        sponsorshipState.lifetimeSponsorEarnings +
+        sponsor.benefits.monthlyStipend,
     },
     amount: sponsor.benefits.monthlyStipend,
   };

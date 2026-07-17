@@ -1,34 +1,59 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Settings, Share2, Sparkles } from "lucide-react";
-import { GameClock } from "@/components/ui/game-clock";
+import { Briefcase, Settings, Share2, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import {
+  SponsorNotification,
+  SponsorOfferBadge,
+} from "@/components/economy/sponsor-notification";
+import { WorkSelectorModal } from "@/components/economy/work-selector-modal";
+// New Sprint 26 Imports
+import { RaceCalendar } from "@/components/scheduling/race-calendar";
+import { RaceEntryModal } from "@/components/scheduling/race-entry-modal";
 import { DailyStatsCard } from "@/components/share/daily-stats-card";
 import { ShareModal } from "@/components/share/share-modal";
+import { GameClock } from "@/components/ui/game-clock";
+import { formatCurrency } from "@/economy/currency-converter";
+import {
+  earnAchievementBonus,
+  earnChampionshipBonus,
+  earnRacePrize,
+} from "@/economy/earning-engine";
+import type { EntryValidation } from "@/economy/race-entry-engine";
+import {
+  processRaceEntry,
+  validateRaceEntry,
+} from "@/economy/race-entry-engine";
+import { SPONSORS } from "@/economy/sponsorship-types";
+import type { WorkTypeId } from "@/economy/work-types";
+import { getWorkTypeById } from "@/economy/work-types";
+import {
+  applyAction,
+  createWorkAction,
+  getAvailableWorkActions,
+} from "@/engine/timeline/actions";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { useRunnerStore } from "@/runner/runner-store";
+import {
+  completeRace,
+  getScheduleById,
+  getTodaysRaces,
+  getUpcomingRaces,
+  registerForRace,
+} from "@/scheduling/race-calendar-engine";
+import type { RaceOccurrence } from "@/scheduling/race-calendar-types";
+import { isChampionship } from "@/scheduling/race-schedule-database";
 import { useSocialStore } from "@/social/social-store";
 import { storageRepository } from "@/storage/storage-repository";
 import type { StoredDailyBoard } from "@/storage/types"; // Still needed for now, but will be phased out
 import { useGameStore } from "@/store/game-store";
 import { usePlayerStore } from "@/store/player-store";
 import { useSettingsStore } from "@/store/settings-store";
-import { useTrainingStore } from "@/training/training-store";
 import { useTimelineStore } from "@/store/timeline-store";
-
-// New Sprint 26 Imports
-import { RaceCalendar } from "@/components/scheduling/race-calendar";
-import { RaceEntryModal } from "@/components/scheduling/race-entry-modal";
-import { getTodaysRaces, getUpcomingRaces, completeRace, registerForRace } from "@/scheduling/race-calendar-engine";
-import { validateRaceEntry, processRaceEntry } from "@/economy/race-entry-engine";
-import type { RaceOccurrence } from "@/scheduling/race-calendar-types";
-import type { EntryValidation } from "@/economy/race-entry-engine";
-import { earnAchievementBonus, earnRacePrize, earnChampionshipBonus } from "@/economy/earning-engine";
-import { getScheduleById } from "@/scheduling/race-calendar-engine";
-import { isChampionship } from "@/scheduling/race-schedule-database";
+import { useTrainingStore } from "@/training/training-store";
 import type { DailyChallenge } from "@/types/engine";
 
 export function HomeScreen() {
@@ -53,9 +78,40 @@ export function HomeScreen() {
   const currentBalance = gameState?.economy.currentBalance ?? 0;
 
   // New state for Race Calendar and Entry Modal
-  const [selectedRaceOccurrence, setSelectedRaceOccurrence] = useState<RaceOccurrence | null>(null);
+  const [selectedRaceOccurrence, setSelectedRaceOccurrence] =
+    useState<RaceOccurrence | null>(null);
   const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
-  const [entryValidation, setEntryValidation] = useState<EntryValidation | null>(null);
+  const [entryValidation, setEntryValidation] =
+    useState<EntryValidation | null>(null);
+
+  // Work selector modal state
+  const [isWorkModalOpen, setIsWorkModalOpen] = useState(false);
+  const [dismissedOffers, setDismissedOffers] = useState<string[]>([]);
+  const availableWorkActions = gameState
+    ? getAvailableWorkActions(gameState)
+    : [];
+
+  const activeOfferId = gameState?.sponsorship?.pendingOffers?.find(
+    (id) => !dismissedOffers.includes(id),
+  );
+  const activeOffer = activeOfferId ? SPONSORS[activeOfferId] : null;
+
+  const handleSelectWork = (workTypeId: WorkTypeId) => {
+    playSound("click");
+    setIsWorkModalOpen(false);
+
+    if (!gameState) return;
+
+    const workType = getWorkTypeById(workTypeId);
+    if (!workType) return;
+
+    // Create work action with the selected work type
+    const workAction = createWorkAction(workType);
+
+    // Apply the action
+    const nextState = applyAction(gameState, workAction);
+    setGameState(nextState);
+  };
 
   const recentRivalActivities = useSocialStore(
     (s) =>
@@ -134,13 +190,22 @@ export function HomeScreen() {
   }, [todayStr]);
 
   // New: Get races from scheduling engine
-  const todaysRaces = gameState ? getTodaysRaces(gameState.scheduling, gameState, currentDayIndex) : [];
-  const upcomingRaces = gameState ? getUpcomingRaces(gameState.scheduling, currentDayIndex) : [];
+  const todaysRaces = gameState
+    ? getTodaysRaces(gameState.scheduling, gameState, currentDayIndex)
+    : [];
+  const upcomingRaces = gameState
+    ? getUpcomingRaces(gameState.scheduling, currentDayIndex)
+    : [];
 
   // Handle race selection from calendar
   const handleRaceSelect = (race: RaceOccurrence) => {
     if (!gameState) return;
-    const validation = validateRaceEntry(gameState.economy, gameState, race.tier, race.prerequisites);
+    const validation = validateRaceEntry(
+      gameState.economy,
+      gameState,
+      race.tier,
+      race.prerequisites,
+    );
     setEntryValidation(validation);
     setSelectedRaceOccurrence(race);
     setIsEntryModalOpen(true);
@@ -148,14 +213,19 @@ export function HomeScreen() {
 
   // Handle confirmation from RaceEntryModal
   const handleConfirmRaceEntry = () => {
-    if (!gameState || !selectedRaceOccurrence || !entryValidation?.canEnter) return;
+    if (!gameState || !selectedRaceOccurrence || !entryValidation?.canEnter)
+      return;
 
-    const { economy: updatedEconomy, gameState: newGameStateFromProcess, success } = processRaceEntry(
+    const {
+      economy: updatedEconomy,
+      gameState: newGameStateFromProcess,
+      success,
+    } = processRaceEntry(
       gameState.economy,
       gameState,
       selectedRaceOccurrence.tier,
       selectedRaceOccurrence.name,
-      selectedRaceOccurrence.prerequisites
+      selectedRaceOccurrence.prerequisites,
     );
 
     if (success) {
@@ -163,12 +233,16 @@ export function HomeScreen() {
       setGameState({ ...newGameStateFromProcess, economy: updatedEconomy });
 
       // Register for the race in scheduling state
-      const updatedScheduling = registerForRace(newGameStateFromProcess.scheduling, selectedRaceOccurrence.scheduleId, currentDayIndex);
-      setGameState(prev => ({ ...prev!, scheduling: updatedScheduling }));
+      const updatedScheduling = registerForRace(
+        newGameStateFromProcess.scheduling,
+        selectedRaceOccurrence.scheduleId,
+        currentDayIndex,
+      );
+      setGameState((prev) => ({ ...prev!, scheduling: updatedScheduling }));
 
       // This doAction("compete") now only deducts energy, money is handled by processRaceEntry
       // It's still here if there are other side effects for 'compete' action in timeline.ts
-      doAction("compete"); 
+      doAction("compete");
 
       // Set challenge for briefing screen - need to adapt RaceOccurrence to DailyChallenge
       // We'll create a DailyChallenge (Scenario) object from RaceOccurrence details.
@@ -177,16 +251,22 @@ export function HomeScreen() {
       const scenarioForBriefing: DailyChallenge = {
         id: selectedRaceOccurrence.raceId,
         date: new Date().toISOString(), // Use current date for now
-        environment: { 
+        environment: {
           weather: "sunny", // Placeholder, could derive from location/schedule
           temperature: 20,
           humidity: 50,
           wind: { direction: "north", speed: 10 },
           timeOfDay: "morning",
         },
-        race: { 
-          title: { en: selectedRaceOccurrence.name, id: selectedRaceOccurrence.name },
-          description: { en: selectedRaceOccurrence.description, id: selectedRaceOccurrence.description },
+        race: {
+          title: {
+            en: selectedRaceOccurrence.name,
+            id: selectedRaceOccurrence.name,
+          },
+          description: {
+            en: selectedRaceOccurrence.description,
+            id: selectedRaceOccurrence.description,
+          },
           distance: 5, // Placeholder - needs actual distance from raceId
           surface: "road", // Placeholder - needs actual surface from raceId
           elevation: "flat", // Placeholder
@@ -194,14 +274,14 @@ export function HomeScreen() {
         },
         objective: { targetTime: 1800 }, // Placeholder for targetTime
         storySeed: { mood: "competitive" }, // Placeholder
-        
+
         // New Sprint 26 properties from RaceOccurrence
         tier: selectedRaceOccurrence.tier,
         entryFee: selectedRaceOccurrence.entryFee,
         scheduleId: selectedRaceOccurrence.scheduleId,
         // isChampionship derived from schedule tier
         isChampionship: isChampionship(raceSchedule!), // Use helper to determine championship status
-        totalEntrants: selectedRaceOccurrence.entrants, 
+        totalEntrants: selectedRaceOccurrence.entrants,
         prerequisites: selectedRaceOccurrence.prerequisites,
       };
 
@@ -299,6 +379,17 @@ export function HomeScreen() {
                   type="button"
                   onClick={() => {
                     playSound("click");
+                    setIsWorkModalOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-bold tracking-wider bg-green-600/30 hover:bg-green-600/40 active:scale-95 px-3 py-1 rounded-full transition-all border border-green-500/30"
+                >
+                  <Briefcase className="h-3 w-3" />
+                  Work ({availableWorkActions.length}) →
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playSound("click");
                     router.push("/profile");
                   }}
                   className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-bold tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-1 rounded-full transition-all border border-white/10"
@@ -338,7 +429,11 @@ export function HomeScreen() {
                   {t("home.stats.money" as TranslationKey)}
                 </span>
                 <span className="text-xl font-bold flex items-center gap-1 mt-0.5">
-                  💰 {currentBalance}
+                  💰{" "}
+                  {formatCurrency(
+                    currentBalance,
+                    settings.preferredCurrency || "USD",
+                  )}
                 </span>
               </div>
               <div className="flex flex-col items-center">
@@ -406,9 +501,12 @@ export function HomeScreen() {
               playSound("click");
               router.push("/sponsors");
             }}
-            className="text-xs uppercase font-bold tracking-wider text-purple-400 hover:text-purple-300 transition-colors"
+            className="text-xs uppercase font-bold tracking-wider text-purple-400 hover:text-purple-300 transition-colors relative"
           >
             🤝 Sponsors
+            <SponsorOfferBadge
+              count={gameState?.sponsorship?.pendingOffers?.length ?? 0}
+            />
           </button>
         </div>
       </main>
@@ -427,6 +525,30 @@ export function HomeScreen() {
             date={currentDayIndex.toString()}
           />
         </ShareModal>
+      )}
+
+      {/* Work Selector Modal */}
+      {isWorkModalOpen && gameState && (
+        <WorkSelectorModal
+          gameState={gameState}
+          onSelectWork={handleSelectWork}
+          onClose={() => setIsWorkModalOpen(false)}
+        />
+      )}
+
+      {/* Sponsor Offer Notification */}
+      {activeOffer && (
+        <SponsorNotification
+          sponsor={activeOffer}
+          onView={() => {
+            playSound("click");
+            router.push("/sponsors");
+          }}
+          onDismiss={() => {
+            playSound("click");
+            setDismissedOffers((prev) => [...prev, activeOffer.id]);
+          }}
+        />
       )}
     </motion.div>
   );

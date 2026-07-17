@@ -1,6 +1,6 @@
 /**
  * Injury Database (Sprint 24)
- * 
+ *
  * Definitions of all injury types with their characteristics.
  */
 
@@ -106,11 +106,13 @@ function selectSeverity(
   distribution: { minor: number; moderate: number; severe: number },
   random: number, // 0-1
 ): InjurySeverity {
-  const total = distribution.minor + distribution.moderate + distribution.severe;
+  const total =
+    distribution.minor + distribution.moderate + distribution.severe;
   const normalized = random * total;
 
   if (normalized < distribution.minor) return "minor";
-  if (normalized < distribution.minor + distribution.moderate) return "moderate";
+  if (normalized < distribution.minor + distribution.moderate)
+    return "moderate";
   return "severe";
 }
 
@@ -123,15 +125,16 @@ export function createInjury(
   random: number, // 0-1 for deterministic generation
 ): Injury {
   const template = INJURY_TEMPLATES[type];
-  
+
   // Use random to derive severity
   const severity = selectSeverity(template.severityDistribution, random);
-  
+
   // Calculate recovery days based on severity
   const recoveryRange = template.maxRecoveryDays - template.minRecoveryDays;
-  const severityFactor = severity === "severe" ? 1.0 : severity === "moderate" ? 0.6 : 0.3;
+  const severityFactor =
+    severity === "severe" ? 1.0 : severity === "moderate" ? 0.6 : 0.3;
   const recoveryDays = Math.round(
-    template.minRecoveryDays + recoveryRange * severityFactor
+    template.minRecoveryDays + recoveryRange * severityFactor,
   );
 
   // Determine available treatments (severe injuries get all options)

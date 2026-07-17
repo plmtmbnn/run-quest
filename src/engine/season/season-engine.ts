@@ -1,23 +1,23 @@
 /**
  * Season Engine (Sprint 24)
- * 
+ *
  * Manages season enrollment, progress tracking, and qualification.
  */
 
+import { deriveDate } from "../timeline/calendar";
 import type { GameState } from "../timeline/time-types";
-import type {
-  Season,
-  SeasonProgress,
-  SeasonState,
-  SeasonHistoryRecord,
-} from "./season-types";
-import { STANDARD_POINTS } from "./season-types";
 import {
-  SEASONS,
   getCurrentPhase,
   isInQualificationWindow,
+  SEASONS,
 } from "./season-database";
-import { deriveDate } from "../timeline/calendar";
+import type {
+  Season,
+  SeasonHistoryRecord,
+  SeasonProgress,
+  SeasonState,
+} from "./season-types";
+import { STANDARD_POINTS } from "./season-types";
 
 /**
  * Enroll in a season.
@@ -86,7 +86,8 @@ export function updateSeasonProgress(
   const racesCompleted = [...progress.racesCompleted, raceId];
 
   // Update statistics
-  const victories = position === 1 ? progress.victories + 1 : progress.victories;
+  const victories =
+    position === 1 ? progress.victories + 1 : progress.victories;
   const podiums = position <= 3 ? progress.podiums + 1 : progress.podiums;
   const personalBests = isPersonalBest
     ? progress.personalBests + 1
@@ -101,8 +102,7 @@ export function updateSeasonProgress(
   // Update best time (if time-based system)
   let bestTime = progress.bestTime;
   if (season.qualificationSystem?.method === "time_standard") {
-    bestTime =
-      !bestTime || time < bestTime ? time : bestTime;
+    bestTime = !bestTime || time < bestTime ? time : bestTime;
   }
 
   // Check qualification
@@ -115,8 +115,9 @@ export function updateSeasonProgress(
 
   // Update current phase
   const dateInfo = deriveDate(gameState);
-  const dayOfYear = (gameState.dayIndex - (dateInfo.yearOffset * 336)) % 336;
-  const currentPhase = getCurrentPhase(season, dayOfYear) ?? progress.currentPhase;
+  const dayOfYear = (gameState.dayIndex - dateInfo.yearOffset * 336) % 336;
+  const currentPhase =
+    getCurrentPhase(season, dayOfYear) ?? progress.currentPhase;
 
   // Check goal completion
   const goalsCompleted = checkGoalCompletion(season, {
@@ -163,7 +164,7 @@ function calculatePoints(
 
   // Base points for placement
   const placementPoints = STANDARD_POINTS.raceResults.find(
-    (r) => r.place === position
+    (r) => r.place === position,
   );
   if (placementPoints) {
     points += placementPoints.points;
@@ -190,10 +191,7 @@ function calculatePoints(
 /**
  * Check if qualification requirements are met.
  */
-function checkQualification(
-  season: Season,
-  progress: SeasonProgress,
-): boolean {
+function checkQualification(season: Season, progress: SeasonProgress): boolean {
   if (!season.qualificationSystem) return true; // No qualification needed
 
   const { method, requirements } = season.qualificationSystem;
@@ -236,7 +234,10 @@ function checkGoalCompletion(
   const completed: string[] = [];
 
   // Check primary goal (usually championship victory)
-  if (season.championship && progress.racesCompleted.includes(season.championship)) {
+  if (
+    season.championship &&
+    progress.racesCompleted.includes(season.championship)
+  ) {
     completed.push(season.primaryGoal);
   }
 
@@ -323,7 +324,11 @@ function isGoalCompleted(
   // "Top X"
   if (lowerGoal.includes("top")) {
     const match = goal.match(/top\s+(\d+)/);
-    if (match && season.championship && progress.racesCompleted.includes(season.championship)) {
+    if (
+      match &&
+      season.championship &&
+      progress.racesCompleted.includes(season.championship)
+    ) {
       // Would need championship position tracking
       return false; // Not implemented yet
     }
@@ -359,18 +364,33 @@ export function completeSeason(
 
   // Apply completion reward
   const completionReward = season.rewards.completion;
-  updatedGameState = applyReward(updatedGameState, completionReward, rewards, "Season completion");
+  updatedGameState = applyReward(
+    updatedGameState,
+    completionReward,
+    rewards,
+    "Season completion",
+  );
 
   // Apply championship reward if won
   if (wonChampionship) {
     const championshipReward = season.rewards.championship;
-    updatedGameState = applyReward(updatedGameState, championshipReward, rewards, "Championship victory");
+    updatedGameState = applyReward(
+      updatedGameState,
+      championshipReward,
+      rewards,
+      "Championship victory",
+    );
   }
 
   // Apply all goals reward if completed
   if (allGoalsCompleted) {
     const allGoalsReward = season.rewards.allGoals;
-    updatedGameState = applyReward(updatedGameState, allGoalsReward, rewards, "All goals completed");
+    updatedGameState = applyReward(
+      updatedGameState,
+      allGoalsReward,
+      rewards,
+      "All goals completed",
+    );
   }
 
   // Record history
@@ -458,7 +478,8 @@ function applyReward(
       ...updated,
       flags: {
         ...updated.flags,
-        [`title_${reward.title.replace(/\s+/g, "_").toLowerCase()}`]: reward.title,
+        [`title_${reward.title.replace(/\s+/g, "_").toLowerCase()}`]:
+          reward.title,
       },
     };
     rewardsList.push(`${context}: Title - ${reward.title}`);
@@ -501,7 +522,7 @@ export function getSeasonStatus(
   if (!season) return null;
 
   const dateInfo = deriveDate(gameState);
-  const dayOfYear = (gameState.dayIndex - (dateInfo.yearOffset * 336)) % 336;
+  const dayOfYear = (gameState.dayIndex - dateInfo.yearOffset * 336) % 336;
 
   return {
     enrolled: !!progress,

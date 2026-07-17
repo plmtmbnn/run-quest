@@ -7,9 +7,18 @@
  */
 
 // Import default states for new modules
-import { EconomyState, DEFAULT_ECONOMY_STATE } from "../../economy/economy-types";
-import { SponsorshipState, DEFAULT_SPONSORSHIP_STATE } from "../../economy/sponsorship-types";
-import { SchedulingState, DEFAULT_SCHEDULING_STATE } from "../../scheduling/race-calendar-types";
+import {
+  DEFAULT_ECONOMY_STATE,
+  type EconomyState,
+} from "../../economy/economy-types";
+import {
+  DEFAULT_SPONSORSHIP_STATE,
+  type SponsorshipState,
+} from "../../economy/sponsorship-types";
+import {
+  DEFAULT_SCHEDULING_STATE,
+  type SchedulingState,
+} from "../../scheduling/race-calendar-types";
 
 // ── Calendar constants (flat 4-week months) ────────────────────────────────
 export const DAYS_PER_WEEK = 7;
@@ -126,7 +135,9 @@ export interface GameState {
 export const DEFAULT_GAME_STATE: GameState = {
   dayIndex: 0,
   startAge: MIN_START_AGE,
-  lifespan: Math.floor(MIN_LIFESPAN + Math.random() * (MAX_LIFESPAN - MIN_LIFESPAN + 1)),
+  lifespan: Math.floor(
+    MIN_LIFESPAN + Math.random() * (MAX_LIFESPAN - MIN_LIFESPAN + 1),
+  ),
   seed: Math.floor(Math.random() * 100000), // Random seed
   energy: ENERGY_MAX,
   energyMax: ENERGY_MAX,

@@ -1,10 +1,16 @@
 /**
  * Season Types (Sprint 24)
- * 
+ *
  * Defines racing seasons, qualification windows, and seasonal progression.
  */
 
-export type SeasonPhase = "preseason" | "early" | "mid" | "late" | "championship" | "offseason";
+export type SeasonPhase =
+  | "preseason"
+  | "early"
+  | "mid"
+  | "late"
+  | "championship"
+  | "offseason";
 
 export type SeasonTier = "local" | "regional" | "national" | "international";
 
@@ -15,25 +21,25 @@ export interface Season {
   id: string;
   name: string;
   tier: SeasonTier;
-  
+
   /** Season timing (in days from year start) */
   startDay: number;
   endDay: number;
-  
+
   /** Phases within the season */
   phases: SeasonPhaseDefinition[];
-  
+
   /** Season objectives */
   primaryGoal: string;
   secondaryGoals: string[];
-  
+
   /** Available races during season */
   races: string[]; // Race IDs
   championship?: string; // Championship race ID
-  
+
   /** Qualification system */
   qualificationSystem?: QualificationSystem;
-  
+
   /** Season rewards */
   rewards: {
     completion: SeasonReward;
@@ -96,19 +102,19 @@ export interface SeasonProgress {
   seasonId: string;
   enrolled: boolean;
   currentPhase: SeasonPhase;
-  
+
   /** Races completed this season */
   racesCompleted: string[];
-  
+
   /** Goals completed */
   goalsCompleted: string[];
-  
+
   /** Qualification progress */
   qualified: boolean;
   qualificationAttempts: number;
   points?: number; // For points-based systems
   bestTime?: number; // For time-based systems
-  
+
   /** Season statistics */
   victories: number;
   podiums: number; // Top 3 finishes

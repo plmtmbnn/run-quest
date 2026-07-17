@@ -1,12 +1,19 @@
 /**
  * Earning Engine (Sprint 26 - Task 2)
- * 
+ *
  * Orchestrates all money earning sources in the game.
  */
 
 import type { GameState } from "../engine/timeline/time-types";
-import type { EconomyState, Transaction, RaceTier, TransactionCategory } from "./economy-types";
 import { ECONOMIC_BALANCE } from "./economy-balance";
+import type {
+  EconomyState,
+  RaceTier,
+  Transaction,
+  TransactionCategory,
+} from "./economy-types";
+import type { WorkTypeId } from "./work-types";
+import { calculateWorkPay, getWorkTypeById } from "./work-types";
 
 let transactionCounter = 0;
 
@@ -59,22 +66,45 @@ export function recordTransaction(
 
 /**
  * Earn money from working (work action).
+ *
+ * @param workTypeId - Optional work type ID. Defaults to "full_time" for backward compatibility.
  */
 export function earnFromWork(
   economy: EconomyState,
   gameState: GameState,
-): { economy: EconomyState; earned: number } {
-  const earned = ECONOMIC_BALANCE.earnings.workPerSession;
+  workTypeId: WorkTypeId = "full_time",
+): { economy: EconomyState; earned: number; workType: string } {
+  // Get the work type configuration
+  const workType = getWorkTypeById(workTypeId);
+
+  if (!workType) {
+    // Fallback to default pay if work type not found
+    const earned = ECONOMIC_BALANCE.earnings.workPerSession;
+    const { economy: updatedEconomy } = recordTransaction(
+      economy,
+      "earn",
+      "work",
+      earned,
+      gameState.dayIndex,
+      `Work earnings (unknown type)`,
+    );
+    return { economy: updatedEconomy, earned, workType: "unknown" };
+  }
+
+  // Calculate actual pay based on player stats
+  const earned = calculateWorkPay(workType, gameState);
+
   const { economy: updatedEconomy } = recordTransaction(
     economy,
     "earn",
     "work",
     earned,
     gameState.dayIndex,
-    `Work day earnings`,
+    `${workType.name} earnings`,
+    { workTypeId, workTypeName: workType.name },
   );
 
-  return { economy: updatedEconomy, earned };
+  return { economy: updatedEconomy, earned, workType: workType.name };
 }
 
 /**
@@ -88,7 +118,8 @@ export function earnRacePrize(
   position: number,
   raceName: string,
 ): { economy: EconomyState; prize: number } {
-  const prizePool = entryFee * totalEntrants * (ECONOMIC_BALANCE.prizePoolPercentage ?? 0.7);
+  const prizePool =
+    entryFee * totalEntrants * (ECONOMIC_BALANCE.prizePoolPercentage ?? 0.7);
   let prize = 0;
 
   // Find position distribution
@@ -350,10 +381,7 @@ export function getEconomicSummary(economy: EconomyState): {
 /**
  * Check if player can afford something.
  */
-export function canAfford(
-  economy: EconomyState,
-  cost: number,
-): boolean {
+export function canAfford(economy: EconomyState, cost: number): boolean {
   return economy.currentBalance >= cost;
 }
 

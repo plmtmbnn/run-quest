@@ -102,6 +102,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
         language,
         reducedMotion: false,
         sound: true,
+        preferredCurrency: "USD",
         preferences: {
           preferredSurface: "any",
           preferredDistance: "any",

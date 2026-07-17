@@ -1,6 +1,6 @@
 /**
  * Injury & Risk System Types (Sprint 24)
- * 
+ *
  * Defines injury mechanics, severity levels, and recovery systems.
  * Integrates with the timeline engine to add meaningful stakes to races.
  */

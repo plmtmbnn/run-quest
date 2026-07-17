@@ -1,21 +1,17 @@
 /**
  * Economy Simulator (Sprint 26 - Task 5)
- * 
+ *
  * Simulates economic scenarios to verify balance and sustainability.
  * Tests different playstyles to ensure no game-breaking economic issues.
  */
 
 import type { GameState } from "../engine/timeline/time-types";
-import { EconomyState, DEFAULT_ECONOMY_STATE } from "./economy-types";
-import type { RaceTier } from "./economy-types";
-import { DEFAULT_SPONSORSHIP_STATE } from "./sponsorship-types";
 import { DEFAULT_SCHEDULING_STATE } from "../scheduling/race-calendar-types";
-import { ECONOMIC_BALANCE, calculateExpectedPrize } from "./economy-balance";
-import {
-  earnFromWork,
-  earnRacePrize,
-  spendRaceEntry,
-} from "./earning-engine";
+import { earnFromWork, earnRacePrize, spendRaceEntry } from "./earning-engine";
+import { calculateExpectedPrize, ECONOMIC_BALANCE } from "./economy-balance";
+import type { RaceTier } from "./economy-types";
+import { DEFAULT_ECONOMY_STATE, type EconomyState } from "./economy-types";
+import { DEFAULT_SPONSORSHIP_STATE } from "./sponsorship-types";
 
 /**
  * Player archetype for simulation.
@@ -23,16 +19,16 @@ import {
 export interface PlayerArchetype {
   name: string;
   description: string;
-  
+
   /** Daily routine */
   workFrequency: number; // How often they work (0-1, 1 = every day)
   raceFrequency: number; // How often they race (0-1, 1 = every day)
   trainFrequency: number; // How often they train (0-1, 1 = every day)
-  
+
   /** Performance */
   winRate: number; // 0-1
   averagePosition: number;
-  
+
   /** Progression */
   raceTier: RaceTier;
   raceTierDay: number; // Day when they move to this tier
@@ -44,24 +40,24 @@ export interface PlayerArchetype {
 export interface SimulationResult {
   archetype: string;
   daysSimulated: number;
-  
+
   // Financial stats
   startingBalance: number;
   endingBalance: number;
   totalEarned: number;
   totalSpent: number;
-  
+
   // Activity stats
   racesCompleted: number;
   racesWon: number;
   workSessions: number;
   trainingSessions: number;
-  
+
   // Sustainability
   bankrupt: boolean;
   bankruptOnDay: number;
   avgDailyNetIncome: number;
-  
+
   // Verdict
   verdict: "sustainable" | "barely_sustainable" | "unsustainable";
   notes: string[];
@@ -144,7 +140,7 @@ export function simulateArchetype(
   let bankruptOnDay = 0;
 
   // Use deterministic seed
-  let seed = 42;
+  const seed = 42;
 
   for (let day = 1; day <= days; day++) {
     const currentTier = getCurrentTier(archetype, day);
@@ -173,15 +169,18 @@ export function simulateArchetype(
         if (!entryResult.success) {
           bankrupt = true;
           bankruptOnDay = day;
-          notes.push(`Went bankrupt on day ${day} (couldn't afford ${currentTier} race fee $${entryFee})`);
+          notes.push(
+            `Went bankrupt on day ${day} (couldn't afford ${currentTier} race fee $${entryFee})`,
+          );
           break;
         }
         economy = entryResult.economy;
 
         // Simulate race outcome
         const winRoll = ((seed + day * 13) % 100) / 100;
-        const position = winRoll < archetype.winRate ? 1 : archetype.averagePosition;
-        
+        const position =
+          winRoll < archetype.winRate ? 1 : archetype.averagePosition;
+
         // Earn prize
         const prizeResult = earnRacePrize(
           economy,
@@ -197,8 +196,12 @@ export function simulateArchetype(
         if (position === 1) stats.racesWon++;
       } else {
         // Can't afford - check if this causes bankruptcy
-        const workNeeded = Math.ceil(entryFee / ECONOMIC_BALANCE.earnings.workPerSession);
-        notes.push(`Day ${day}: Couldn't afford $${entryFee} race (balance: $${economy.currentBalance}, need ${workNeeded} work sessions)`);
+        const workNeeded = Math.ceil(
+          entryFee / ECONOMIC_BALANCE.earnings.workPerSession,
+        );
+        notes.push(
+          `Day ${day}: Couldn't afford $${entryFee} race (balance: $${economy.currentBalance}, need ${workNeeded} work sessions)`,
+        );
       }
     }
 
@@ -210,7 +213,8 @@ export function simulateArchetype(
   }
 
   // Calculate sustainability
-  const avgDailyNetIncome = (economy.currentBalance - ECONOMIC_BALANCE.startingMoney) / days;
+  const avgDailyNetIncome =
+    (economy.currentBalance - ECONOMIC_BALANCE.startingMoney) / days;
 
   let verdict: SimulationResult["verdict"] = "sustainable";
   if (economy.currentBalance < ECONOMIC_BALANCE.startingMoney * 0.5) {
@@ -249,7 +253,9 @@ export function simulateArchetype(
  * Run full economic simulation across all archetypes.
  */
 export function runFullSimulation(days: number = 90): SimulationResult[] {
-  return PLAYER_ARCHETYPES.map((archetype) => simulateArchetype(archetype, days));
+  return PLAYER_ARCHETYPES.map((archetype) =>
+    simulateArchetype(archetype, days),
+  );
 }
 
 /**

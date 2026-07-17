@@ -1,10 +1,10 @@
 "use client";
 
-import { useTimelineStore } from "@/store/timeline-store";
-import { deriveDate } from "@/engine/timeline/calendar";
 import { motion } from "framer-motion";
 import { Coffee, Moon } from "lucide-react";
+import { deriveDate } from "@/engine/timeline/calendar";
 import { useSound } from "@/hooks/use-sound";
+import { useTimelineStore } from "@/store/timeline-store";
 
 export function GameClock() {
   const { gameState, doAction } = useTimelineStore();

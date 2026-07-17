@@ -19,10 +19,10 @@ vi.hoisted(() => {
   } as any;
 });
 
-import { useTimelineStore } from "@/store/timeline-store";
-import { useSocialStore } from "@/social/social-store";
-import { useStoryStore } from "@/story/story-store";
 import { getScheduledStoryEvents } from "@/engine/timeline/story-adapter";
+import { useSocialStore } from "@/social/social-store";
+import { useTimelineStore } from "@/store/timeline-store";
+import { useStoryStore } from "@/story/story-store";
 
 describe("Timeline Engine Integration", () => {
   beforeEach(() => {

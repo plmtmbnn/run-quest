@@ -1,5 +1,11 @@
 import { v4 as uuidv4 } from "uuid";
 import { create } from "zustand";
+import { earnRacePrize, earnSponsorPayout } from "@/economy/earning-engine";
+import {
+  checkForNewOffers,
+  getRaceBonus,
+  getWinBonus,
+} from "@/economy/sponsorship-engine";
 import { completeRace } from "@/runner/runner-engine";
 import { storageRepository } from "@/storage/storage-repository";
 import type {
@@ -7,7 +13,9 @@ import type {
   StoredDaily,
   StoredPlayer,
 } from "@/storage/types";
+import { useGameStore } from "@/store/game-store";
 import { usePreparationStore } from "@/store/preparation-store";
+import { useTimelineStore } from "@/store/timeline-store";
 import type { SimulationResult } from "@/types/engine";
 import { generateRunnerName } from "@/utils/name-generator";
 
@@ -144,6 +152,108 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       coinsGained,
       didBeatNemesis,
     );
+
+    // Apply Economy updates (Sprint 27 integration)
+    const gameState = useTimelineStore.getState().gameState;
+    if (gameState) {
+      // 1. Calculate player's position in standings
+      let position = 1;
+      if (finalState && finalState.opponents) {
+        const entries = [
+          {
+            time: result.finishTime,
+            isDNF: result.outcome === "dnf" || result.outcome === "dns",
+            isPlayer: true,
+          },
+          ...finalState.opponents.map((opp) => ({
+            time: opp.accumulatedTime,
+            isDNF: opp.isDNF,
+            isPlayer: false,
+          })),
+        ];
+        entries.sort((a, b) => {
+          if (a.isDNF && !b.isDNF) return 1;
+          if (!a.isDNF && b.isDNF) return -1;
+          return a.time - b.time;
+        });
+        const playerIndex = entries.findIndex((e) => e.isPlayer);
+        position = playerIndex !== -1 ? playerIndex + 1 : 1;
+      }
+
+      // 2. Award race prize money
+      const currentChallenge = useGameStore.getState().currentChallenge;
+      const entryFee = currentChallenge?.entryFee ?? 0;
+      const totalEntrants = currentChallenge?.totalEntrants ?? 5;
+      const raceName =
+        currentChallenge?.race.title[lang] ||
+        currentChallenge?.race.title.en ||
+        "Race";
+
+      let { economy: updatedEconomy, prize } = earnRacePrize(
+        gameState.economy,
+        gameState,
+        entryFee,
+        totalEntrants,
+        position,
+        raceName,
+      );
+
+      // 3. Award sponsorship bonuses
+      let updatedSponsorship = { ...gameState.sponsorship };
+      const sponsorName = updatedSponsorship.currentSponsor;
+      if (sponsorName) {
+        // Race Completion Bonus
+        const completionBonus = getRaceBonus(updatedSponsorship);
+        if (completionBonus > 0) {
+          const res = earnSponsorPayout(
+            updatedEconomy,
+            gameState,
+            sponsorName,
+            completionBonus,
+            "Race Completion Bonus",
+          );
+          updatedEconomy = res.economy;
+        }
+
+        // Victory / Win Bonus
+        if (
+          position === 1 &&
+          result.outcome !== "dnf" &&
+          result.outcome !== "dns"
+        ) {
+          const winBonus = getWinBonus(updatedSponsorship);
+          if (winBonus > 0) {
+            const res = earnSponsorPayout(
+              updatedEconomy,
+              gameState,
+              sponsorName,
+              winBonus,
+              "Race Victory Bonus",
+            );
+            updatedEconomy = res.economy;
+          }
+        }
+      }
+
+      // 4. Check for new sponsor offers
+      const offerCheck = checkForNewOffers(updatedSponsorship, {
+        ...gameState,
+        economy: updatedEconomy,
+        sponsorship: updatedSponsorship,
+      });
+      updatedSponsorship = offerCheck.sponsorshipState;
+
+      // 5. Update timeline store game state
+      useTimelineStore.getState().setGameState((prev) => ({
+        ...prev!,
+        economy: updatedEconomy,
+        sponsorship: updatedSponsorship,
+        resources: {
+          ...prev!.resources,
+          money: updatedEconomy.currentBalance,
+        },
+      }));
+    }
 
     // 1. Create or load history
     const history = storageRepository.loadHistory() || {

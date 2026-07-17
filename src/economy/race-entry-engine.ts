@@ -1,13 +1,13 @@
 /**
  * Race Entry Engine (Sprint 26 - Task 3)
- * 
+ *
  * Validates and processes race entry with fee and prerequisites.
  */
 
 import type { GameState } from "../engine/timeline/time-types";
-import type { EconomyState, RaceTier } from "./economy-types";
-import { getEntryFee } from "./economy-balance";
 import { spendRaceEntry } from "./earning-engine";
+import { getEntryFee } from "./economy-balance";
+import type { EconomyState, RaceTier } from "./economy-types";
 
 /**
  * Prerequisites that may be required for a race.
@@ -15,19 +15,19 @@ import { spendRaceEntry } from "./earning-engine";
 export interface RacePrerequisites {
   /** Minimum money needed (overrides standard entry fee) */
   entryFee?: number;
-  
+
   /** Minimum running skill level */
   minLevel?: number;
-  
+
   /** Minimum competitive rating */
   minRating?: number;
-  
+
   /** Story chapter required */
   storyChapter?: number;
-  
+
   /** Qualification required (for championships) */
   requiresQualification?: boolean;
-  
+
   /** Custom prerequisite check */
   customCheck?: string; // description of custom check
 }
@@ -40,7 +40,7 @@ export interface EntryValidation {
   eligible: boolean;
   blockers: EntryBlocker[];
   warnings: string[];
-  
+
   /** Cost breakdown */
   cost: {
     entryFee: number;
@@ -54,7 +54,15 @@ export interface EntryValidation {
  */
 export interface EntryBlocker {
   reason: string;
-  type: "money" | "energy" | "level" | "rating" | "story" | "qualification" | "schedule" | "custom";
+  type:
+    | "money"
+    | "energy"
+    | "level"
+    | "rating"
+    | "story"
+    | "qualification"
+    | "schedule"
+    | "custom";
   resolved: boolean;
   howToResolve?: string;
 }
@@ -110,7 +118,7 @@ export function validateRaceEntry(
 
   // Check rating
   if (prerequisites?.minRating) {
-    const rating = gameState.flags.rating as number ?? 0;
+    const rating = (gameState.flags.rating as number) ?? 0;
     if (rating < prerequisites.minRating) {
       blockers.push({
         reason: `Rating ${prerequisites.minRating} required (have ${rating})`,
@@ -123,7 +131,7 @@ export function validateRaceEntry(
 
   // Check story chapter
   if (prerequisites?.storyChapter) {
-    const chapter = gameState.flags.storyChapter as number ?? 0;
+    const chapter = (gameState.flags.storyChapter as number) ?? 0;
     if (chapter < prerequisites.storyChapter) {
       blockers.push({
         reason: `Story Chapter ${prerequisites.storyChapter} required`,
@@ -136,7 +144,7 @@ export function validateRaceEntry(
 
   // Check qualification
   if (prerequisites?.requiresQualification) {
-    const qualified = gameState.flags.qualified_for_race as boolean ?? false;
+    const qualified = (gameState.flags.qualified_for_race as boolean) ?? false;
     if (!qualified) {
       blockers.push({
         reason: "Qualification required for this race",
@@ -201,7 +209,12 @@ export function processRaceEntry(
   validation: EntryValidation;
 } {
   // Validate first
-  const validation = validateRaceEntry(economy, gameState, raceTier, prerequisites);
+  const validation = validateRaceEntry(
+    economy,
+    gameState,
+    raceTier,
+    prerequisites,
+  );
 
   if (!validation.eligible) {
     return { economy, gameState, success: false, validation };

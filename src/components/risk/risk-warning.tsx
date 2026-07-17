@@ -1,6 +1,6 @@
 /**
  * Risk Warning Component (Sprint 24)
- * 
+ *
  * Displays pre-race risk assessment and warnings.
  */
 
@@ -58,7 +58,9 @@ export function RiskWarning({
           : "bg-red-500/10";
 
   return (
-    <div className={`rounded-lg border ${borderColor} ${bgColor} p-4 space-y-3`}>
+    <div
+      className={`rounded-lg border ${borderColor} ${bgColor} p-4 space-y-3`}
+    >
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">

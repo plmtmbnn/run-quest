@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { useRunnerStore } from "@/runner/runner-store";
+import { useTimelineStore } from "@/store/timeline-store";
 import { processAdaptationQueue } from "@/training/adaptation-engine";
 import { generateCoachRecommendation } from "@/training/coach-recommendation";
 import {
@@ -12,7 +13,6 @@ import {
 } from "@/training/training-engine";
 import { useTrainingStore } from "@/training/training-store";
 import type { DailyActivity } from "@/training/training-types";
-import { useTimelineStore } from "@/store/timeline-store";
 
 /**
  * Daily Training screen.

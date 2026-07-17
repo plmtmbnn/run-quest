@@ -4,6 +4,9 @@
  */
 
 import { SeededRandom } from "@/utils/random/seeded-random";
+import { DEFAULT_ECONOMY_STATE } from "../../economy/economy-types";
+import { DEFAULT_SPONSORSHIP_STATE } from "../../economy/sponsorship-types";
+import { DEFAULT_SCHEDULING_STATE } from "../../scheduling/race-calendar-types";
 import type { DateInfo, GameState } from "./time-types";
 import {
   DAYS_PER_MONTH,
@@ -15,9 +18,6 @@ import {
   MIN_LIFESPAN,
   MIN_START_AGE,
 } from "./time-types";
-import { DEFAULT_ECONOMY_STATE } from "../../economy/economy-types";
-import { DEFAULT_SPONSORSHIP_STATE } from "../../economy/sponsorship-types";
-import { DEFAULT_SCHEDULING_STATE } from "../../scheduling/race-calendar-types";
 
 /** Derive the calendar position from the global day index. */
 export function deriveDate(state: GameState): DateInfo {

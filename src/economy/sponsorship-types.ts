@@ -1,6 +1,6 @@
 /**
  * Sponsorship Types (Sprint 26 - Task 2)
- * 
+ *
  * Sponsorship tiers and definitions for earning passive income.
  */
 
@@ -16,7 +16,7 @@ export interface Sponsor {
   name: string;
   tier: SponsorTier;
   description: string;
-  
+
   /** Requirements to unlock this sponsor */
   requirements: {
     minRating?: number;
@@ -25,10 +25,10 @@ export interface Sponsor {
     previousSponsor?: string; // Must have this sponsor first
     chaptersRequired?: number;
   };
-  
+
   /** Financial benefits */
   benefits: SponsorBenefits;
-  
+
   /** Narrative flavor */
   signature: string; // Their catchphrase/logo
   colors: {
@@ -57,6 +57,19 @@ export interface SponsorBenefits {
 export interface SponsorshipState {
   currentSponsor?: string;
   sponsorsAvailable: string[];
+
+  /** Sponsors that have sent offers, waiting for player response */
+  pendingOffers: string[];
+
+  /** Sponsors that player has rejected */
+  rejectedOffers: string[];
+
+  /** Track when each offer was received (sponsorId -> dayIndex) */
+  offerReceivedDay: Record<string, number>;
+
+  /** Track how many times each sponsor was rejected (sponsorId -> count) */
+  rejectionCount: Record<string, number>;
+
   lifetimeSponsorEarnings: number;
   monthlyStipendLastClaimed: number; // dayIndex
   signedAtDay: number;
@@ -129,6 +142,10 @@ export const SPONSORS: Record<string, Sponsor> = {
 
 export const DEFAULT_SPONSORSHIP_STATE: SponsorshipState = {
   sponsorsAvailable: [],
+  pendingOffers: [],
+  rejectedOffers: [],
+  offerReceivedDay: {},
+  rejectionCount: {},
   lifetimeSponsorEarnings: 0,
   monthlyStipendLastClaimed: 0,
   signedAtDay: 0,
@@ -137,4 +154,8 @@ export const DEFAULT_SPONSORSHIP_STATE: SponsorshipState = {
 /**
  * Get sponsor by tier ordering.
  */
-export const SPONSOR_TIER_ORDER: SponsorTier[] = ["local", "regional", "national"];
+export const SPONSOR_TIER_ORDER: SponsorTier[] = [
+  "local",
+  "regional",
+  "national",
+];

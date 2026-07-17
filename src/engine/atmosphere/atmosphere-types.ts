@@ -1,10 +1,10 @@
 /**
  * Atmospheric Details Types (Sprint 24)
- * 
+ *
  * Environmental storytelling, sensory details, and immersive moments.
  */
 
-export type AtmosphericLayer = 
+export type AtmosphericLayer =
   | "environment"
   | "crowd"
   | "internal"
@@ -20,13 +20,13 @@ export interface AtmosphericMoment {
   id: string;
   layer: AtmosphericLayer;
   intensity: MomentIntensity;
-  
+
   /** When this moment can occur */
   triggers: MomentTrigger[];
-  
+
   /** The atmospheric text/description */
   description: string;
-  
+
   /** Optional sensory details */
   sensory?: {
     visual?: string;
@@ -34,7 +34,7 @@ export interface AtmosphericMoment {
     physical?: string;
     emotional?: string;
   };
-  
+
   /** Gameplay impact (if any) */
   impact?: {
     mental?: number;
@@ -44,7 +44,13 @@ export interface AtmosphericMoment {
 }
 
 export interface MomentTrigger {
-  condition: "distance" | "pace" | "position" | "energy" | "random" | "breaking_point";
+  condition:
+    | "distance"
+    | "pace"
+    | "position"
+    | "energy"
+    | "random"
+    | "breaking_point";
   value?: number | string;
   probability?: number; // For random triggers
 }
@@ -56,12 +62,12 @@ export interface EnvironmentalAtmosphere {
   timeOfDay: "dawn" | "morning" | "midday" | "afternoon" | "evening" | "night";
   weather: string; // From weather system
   season: "spring" | "summer" | "fall" | "winter";
-  
+
   /** Atmospheric descriptions */
   skyDescription: string;
   temperatureFeeling: string;
   windDescription: string;
-  
+
   /** Sensory details */
   sounds: string[];
   sights: string[];
@@ -74,10 +80,10 @@ export interface EnvironmentalAtmosphere {
 export interface CrowdAtmosphere {
   size: "sparse" | "moderate" | "large" | "massive";
   energy: number; // 0-100
-  
+
   /** Location-specific crowd behaviors */
   behaviors: CrowdBehavior[];
-  
+
   /** Dynamic reactions to race events */
   reactions: {
     leadChange: string[];

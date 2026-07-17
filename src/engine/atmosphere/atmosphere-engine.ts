@@ -1,11 +1,20 @@
 /**
  * Atmosphere Engine (Sprint 24)
- * 
+ *
  * Generates immersive atmospheric moments during races.
  */
 
 import type { DailyChallenge, SimulationState } from "@/types/engine";
 import type { GameState } from "../timeline/time-types";
+import {
+  COMPETITOR_INTERACTIONS,
+  COMPETITOR_MOMENTS,
+  CROWD_MOMENTS,
+  ENVIRONMENTAL_MOMENTS,
+  INTERNAL_MOMENTS,
+  INTERNAL_MONOLOGUES,
+  NARRATIVE_BEATS,
+} from "./atmosphere-database";
 import type {
   AtmosphericConfig,
   AtmosphericMoment,
@@ -17,15 +26,6 @@ import type {
   NarrativeBeat,
 } from "./atmosphere-types";
 import { DEFAULT_ATMOSPHERIC_CONFIG } from "./atmosphere-types";
-import {
-  COMPETITOR_INTERACTIONS,
-  COMPETITOR_MOMENTS,
-  CROWD_MOMENTS,
-  ENVIRONMENTAL_MOMENTS,
-  INTERNAL_MOMENTS,
-  INTERNAL_MONOLOGUES,
-  NARRATIVE_BEATS,
-} from "./atmosphere-database";
 
 /**
  * Generate atmospheric moments for a specific race situation.
@@ -50,13 +50,30 @@ export function generateAtmosphericMoments(
   ].filter((m) => config.focusLayers.includes(m.layer));
 
   for (const moment of allMoments) {
-    if (shouldTriggerMoment(moment, distance, currentPosition, energy, pace, pushedBreakingPoint, seed, config)) {
+    if (
+      shouldTriggerMoment(
+        moment,
+        distance,
+        currentPosition,
+        energy,
+        pace,
+        pushedBreakingPoint,
+        seed,
+        config,
+      )
+    ) {
       moments.push(moment);
     }
   }
 
   const maxMoments =
-    config.detailLevel === "cinematic" ? 4 : config.detailLevel === "rich" ? 3 : config.detailLevel === "standard" ? 2 : 1;
+    config.detailLevel === "cinematic"
+      ? 4
+      : config.detailLevel === "rich"
+        ? 3
+        : config.detailLevel === "standard"
+          ? 2
+          : 1;
 
   return moments.slice(0, maxMoments);
 }
@@ -101,11 +118,12 @@ function shouldTriggerMoment(
       case "breaking_point":
         if (!pushedBreakingPoint) return false;
         break;
-      case "random":
+      case "random": {
         const roll = ((seed * 9301 + 49297) % 233280) / 233280;
         const probability = (trigger.probability ?? 0.5) * config.frequencyMod;
         if (roll > probability) return false;
         break;
+      }
     }
   }
   return true;
@@ -123,7 +141,13 @@ export function buildAtmosphericState(
     locationTier: string;
     raceImportance: "casual" | "competitive" | "championship";
     weather: string;
-    timeOfDay: "dawn" | "morning" | "midday" | "afternoon" | "evening" | "night";
+    timeOfDay:
+      | "dawn"
+      | "morning"
+      | "midday"
+      | "afternoon"
+      | "evening"
+      | "night";
     season: "spring" | "summer" | "fall" | "winter";
   },
   config: AtmosphericConfig = DEFAULT_ATMOSPHERIC_CONFIG,
@@ -137,7 +161,7 @@ export function buildAtmosphericState(
     raceContext.pace,
     raceContext.pushedBreakingPoint,
     seed,
-    config
+    config,
   );
 
   return {
@@ -217,4 +241,3 @@ export class AtmosphereEngine {
     };
   }
 }
-

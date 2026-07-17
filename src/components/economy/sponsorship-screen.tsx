@@ -1,20 +1,27 @@
 /**
- * Sponsorship Screen Component (Sprint 26 - Task 6)
- * 
- * Displays current sponsor and available sponsorship opportunities.
+ * Sponsorship Screen Component (Sprint 26 - Task 6 / Sprint 27 Integration)
+ *
+ * Displays current sponsor, pending offers, available opportunities, and cooldowns.
  */
 
 "use client";
 
-import type { Sponsor, SponsorshipState } from "../../economy/sponsorship-types";
-import { SPONSOR_TIER_ORDER } from "../../economy/sponsorship-types";
+import { formatCurrency } from "@/economy/currency-converter";
+import { useSettingsStore } from "@/store/settings-store";
+import type {
+  Sponsor,
+  SponsorshipState,
+} from "../../economy/sponsorship-types";
+import { SPONSOR_TIER_ORDER, SPONSORS } from "../../economy/sponsorship-types";
 
 interface SponsorshipScreenProps {
   sponsorshipState: SponsorshipState;
   availableSponsors: Sponsor[];
   currentSponsor: Sponsor | null;
   onSignSponsor: (sponsorId: string) => void;
+  onRejectOffer?: (sponsorId: string) => void;
   onClaimStipend: () => void;
+  dayIndex?: number;
 }
 
 export function SponsorshipScreen({
@@ -22,8 +29,39 @@ export function SponsorshipScreen({
   availableSponsors,
   currentSponsor,
   onSignSponsor,
+  onRejectOffer,
   onClaimStipend,
+  dayIndex = 0,
 }: SponsorshipScreenProps) {
+  // Resolve pending offers from state
+  const pendingSponsors = (sponsorshipState.pendingOffers || [])
+    .map((id) => SPONSORS[id])
+    .filter(Boolean) as Sponsor[];
+
+  // Filter available sponsors to exclude pending ones
+  const displayAvailableSponsors = availableSponsors.filter(
+    (sponsor) => !sponsorshipState.pendingOffers?.includes(sponsor.id),
+  );
+
+  // Identify rejected sponsors currently on cooldown
+  const cooldownSponsors = Object.entries(
+    sponsorshipState.offerReceivedDay || {},
+  )
+    .filter(([sponsorId, receivedDay]) => {
+      if (!sponsorshipState.rejectedOffers?.includes(sponsorId)) return false;
+      const daysRemaining = 30 - (dayIndex - receivedDay);
+      return daysRemaining > 0;
+    })
+    .map(([sponsorId, receivedDay]) => {
+      const sponsor = SPONSORS[sponsorId];
+      const daysRemaining = 30 - (dayIndex - receivedDay);
+      return { sponsor, daysRemaining };
+    })
+    .filter((item) => item.sponsor !== undefined) as {
+    sponsor: Sponsor;
+    daysRemaining: number;
+  }[];
+
   return (
     <div className="space-y-6">
       {/* Current Sponsor */}
@@ -52,14 +90,36 @@ export function SponsorshipScreen({
         </section>
       )}
 
+      {/* Pending Offers Section */}
+      {pendingSponsors.length > 0 && (
+        <section>
+          <h2 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
+            <span>📬</span> Pending Offers
+          </h2>
+          <div className="grid gap-3">
+            {pendingSponsors.map((sponsor) => (
+              <SponsorCard
+                key={sponsor.id}
+                sponsor={sponsor}
+                status="pending"
+                onSign={() => onSignSponsor(sponsor.id)}
+                onReject={
+                  onRejectOffer ? () => onRejectOffer(sponsor.id) : undefined
+                }
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Available Sponsors */}
-      {availableSponsors.length > 0 && (
+      {displayAvailableSponsors.length > 0 && (
         <section>
           <h2 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
             <span>✨</span> Available Sponsors
           </h2>
           <div className="grid gap-3">
-            {availableSponsors.map((sponsor) => (
+            {displayAvailableSponsors.map((sponsor) => (
               <SponsorCard
                 key={sponsor.id}
                 sponsor={sponsor}
@@ -70,6 +130,25 @@ export function SponsorshipScreen({
                   SPONSOR_TIER_ORDER.indexOf(sponsor.tier) >
                     SPONSOR_TIER_ORDER.indexOf(currentSponsor.tier)
                 }
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Cooldown Sponsors Section */}
+      {cooldownSponsors.length > 0 && (
+        <section>
+          <h2 className="text-xl font-bold text-white mb-3 flex items-center gap-2">
+            <span>⏳</span> Sponsor Cooldowns
+          </h2>
+          <div className="grid gap-3">
+            {cooldownSponsors.map(({ sponsor, daysRemaining }) => (
+              <SponsorCard
+                key={sponsor.id}
+                sponsor={sponsor}
+                status="cooldown"
+                cooldownDays={daysRemaining}
               />
             ))}
           </div>
@@ -119,9 +198,10 @@ export function SponsorshipScreen({
               style={{
                 width: `${
                   currentSponsor
-                    ? ((SPONSOR_TIER_ORDER.indexOf(currentSponsor.tier) + 1) /
-                        SPONSOR_TIER_ORDER.length) *
-                      100
+                    ? (
+                        (SPONSOR_TIER_ORDER.indexOf(currentSponsor.tier) + 1) /
+                          SPONSOR_TIER_ORDER.length
+                      ) * 100
                     : 0
                 }%`,
               }}
@@ -138,18 +218,25 @@ function SponsorCard({
   status,
   signedDay,
   onSign,
+  onReject,
   onClaimStipend,
   lifetimeEarnings,
   isNextUpgrade,
+  cooldownDays,
 }: {
   sponsor: Sponsor;
-  status: "active" | "available" | "locked";
+  status: "active" | "available" | "pending" | "cooldown" | "locked";
   signedDay?: number;
   onSign?: () => void;
+  onReject?: () => void;
   onClaimStipend?: () => void;
   lifetimeEarnings?: number;
   isNextUpgrade?: boolean;
+  cooldownDays?: number;
 }) {
+  const preferredCurrency =
+    useSettingsStore((state) => state.settings.preferredCurrency) || "USD";
+
   const tierColors: Record<string, string> = {
     local: "border-green-500/30 bg-green-500/5",
     regional: "border-blue-500/30 bg-blue-500/5",
@@ -162,8 +249,12 @@ function SponsorCard({
         status === "active"
           ? "border-green-500/50 bg-green-500/10"
           : status === "available"
-            ? tierColors[sponsor.tier] ?? "border-gray-600 bg-gray-800/50"
-            : "border-gray-700 bg-gray-800/30 opacity-60"
+            ? (tierColors[sponsor.tier] ?? "border-gray-600 bg-gray-800/50")
+            : status === "pending"
+              ? "border-blue-500/40 bg-blue-500/5 animate-pulse"
+              : status === "cooldown"
+                ? "border-amber-500/20 bg-amber-500/5 opacity-80"
+                : "border-gray-700 bg-gray-800/30 opacity-60"
       } ${isNextUpgrade ? "ring-2 ring-blue-500/50" : ""}`}
     >
       <div className="flex items-start justify-between gap-4">
@@ -179,6 +270,11 @@ function SponsorCard({
                 ACTIVE
               </span>
             )}
+            {status === "pending" && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-450 animate-bounce">
+                OFFER
+              </span>
+            )}
           </div>
 
           <p className="text-sm text-gray-400 mt-1">{sponsor.description}</p>
@@ -188,10 +284,22 @@ function SponsorCard({
 
           {/* Benefits */}
           <div className="grid grid-cols-2 gap-2 mt-3">
-            <BenefitItem label="Training Bonus" value={`+$${sponsor.benefits.trainingBonus}/session`} />
-            <BenefitItem label="Race Bonus" value={`+$${sponsor.benefits.raceCompletionBonus}/race`} />
-            <BenefitItem label="Win Bonus" value={`+$${sponsor.benefits.winBonus}/win`} />
-            <BenefitItem label="Monthly Stipend" value={`$${sponsor.benefits.monthlyStipend}/month`} />
+            <BenefitItem
+              label="Training Bonus"
+              value={`+${formatCurrency(sponsor.benefits.trainingBonus, preferredCurrency)}/session`}
+            />
+            <BenefitItem
+              label="Race Bonus"
+              value={`+${formatCurrency(sponsor.benefits.raceCompletionBonus, preferredCurrency)}/race`}
+            />
+            <BenefitItem
+              label="Win Bonus"
+              value={`+${formatCurrency(sponsor.benefits.winBonus, preferredCurrency)}/win`}
+            />
+            <BenefitItem
+              label="Monthly Stipend"
+              value={`${formatCurrency(sponsor.benefits.monthlyStipend, preferredCurrency)}/month`}
+            />
           </div>
         </div>
 
@@ -204,11 +312,12 @@ function SponsorCard({
               </div>
               {lifetimeEarnings !== undefined && (
                 <div className="text-sm font-semibold text-green-400">
-                  +${lifetimeEarnings} earned
+                  +{formatCurrency(lifetimeEarnings, preferredCurrency)} earned
                 </div>
               )}
               {onClaimStipend && (
                 <button
+                  type="button"
                   onClick={onClaimStipend}
                   className="bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1.5 rounded font-medium transition-colors"
                 >
@@ -218,13 +327,43 @@ function SponsorCard({
             </div>
           )}
 
+          {status === "pending" && (
+            <div className="flex gap-2">
+              {onReject && (
+                <button
+                  type="button"
+                  onClick={onReject}
+                  className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1.5 rounded font-medium transition-colors text-xs"
+                >
+                  Decline
+                </button>
+              )}
+              {onSign && (
+                <button
+                  type="button"
+                  onClick={onSign}
+                  className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded font-medium transition-colors text-xs"
+                >
+                  Accept Offer
+                </button>
+              )}
+            </div>
+          )}
+
           {status === "available" && onSign && (
             <button
+              type="button"
               onClick={onSign}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-bold transition-colors text-sm"
             >
               Sign Contract
             </button>
+          )}
+
+          {status === "cooldown" && cooldownDays !== undefined && (
+            <div className="text-xs text-amber-500 font-semibold bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded">
+              ⏳ Cooldown: {cooldownDays}d
+            </div>
           )}
         </div>
       </div>
@@ -232,13 +371,7 @@ function SponsorCard({
   );
 }
 
-function BenefitItem({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function BenefitItem({ label, value }: { label: string; value: string }) {
   return (
     <div className="text-xs">
       <span className="text-gray-500">{label}: </span>

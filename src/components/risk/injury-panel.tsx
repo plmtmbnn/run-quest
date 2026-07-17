@@ -1,13 +1,17 @@
 /**
  * Injury Panel Component (Sprint 24)
- * 
+ *
  * Displays active injuries, recovery status, and treatment options.
  */
 
 "use client";
 
 import { INJURY_TEMPLATES } from "@/engine/risk/injury-database";
-import type { Injury, InjuryState, TreatmentType } from "@/engine/risk/injury-types";
+import type {
+  Injury,
+  InjuryState,
+  TreatmentType,
+} from "@/engine/risk/injury-types";
 import { getInjuryStatusSummary } from "@/engine/risk/risk-engine";
 
 interface InjuryPanelProps {
@@ -91,7 +95,7 @@ function InjuryCard({
   const progressPercent = Math.round(
     ((injury.recoveryDaysTotal - injury.recoveryDaysRemaining) /
       injury.recoveryDaysTotal) *
-      100
+      100,
   );
 
   const severityColor =

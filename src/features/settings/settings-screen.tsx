@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { CurrencySettingRow } from "@/components/economy/currency-selector";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { usePlayerStore } from "@/store/player-store";
@@ -28,6 +29,7 @@ export function SettingsScreen() {
     setLanguage,
     setTheme,
     setPreferences,
+    setPreferredCurrency,
     resetAllData,
   } = useSettingsStore();
   const { playSound } = useSound();
@@ -270,6 +272,17 @@ export function SettingsScreen() {
               </button>
             </div>
           </div>
+
+          <hr className="border-[#E5E7EB]" />
+
+          {/* Currency preference */}
+          <CurrencySettingRow
+            currentCurrency={settings.preferredCurrency || "USD"}
+            onCurrencyChange={(currency) => {
+              playSound("click");
+              setPreferredCurrency(currency);
+            }}
+          />
         </section>
 
         {/* Running Preferences */}

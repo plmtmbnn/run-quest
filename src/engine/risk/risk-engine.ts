@@ -1,14 +1,11 @@
 /**
  * Risk Engine (Sprint 24)
- * 
+ *
  * Main orchestrator for the injury and risk system.
  * Integrates with the timeline engine and race flow.
  */
 
 import type { GameState } from "../timeline/time-types";
-import type { Injury, InjuryState, InjuryType, RiskFactors } from "./injury-types";
-import { DEFAULT_INJURY_STATE } from "./injury-types";
-import { createInjury } from "./injury-database";
 import {
   calculateInjuryProbability,
   calculateRiskFactors,
@@ -17,6 +14,14 @@ import {
   selectInjuryType,
   shouldCauseInjury,
 } from "./injury-calculator";
+import { createInjury } from "./injury-database";
+import type {
+  Injury,
+  InjuryState,
+  InjuryType,
+  RiskFactors,
+} from "./injury-types";
+import { DEFAULT_INJURY_STATE } from "./injury-types";
 import {
   addInjury,
   advanceRecovery,
@@ -88,7 +93,7 @@ export function processRaceCompletion(
   // Check for injury worsening if racing with existing injuries
   const { injuryState: stateAfterWorsening, worsened } = checkInjuryWorsening(
     updatedState,
-    gameState.seed + gameState.dayIndex
+    gameState.seed + gameState.dayIndex,
   );
   updatedState = stateAfterWorsening;
 
@@ -100,12 +105,12 @@ export function processRaceCompletion(
   if (shouldCauseInjury(probability, gameState.seed + gameState.dayIndex + 1)) {
     const injuryType = selectInjuryType(
       riskFactors,
-      gameState.seed + gameState.dayIndex + 2
+      gameState.seed + gameState.dayIndex + 2,
     );
     const injury = createInjury(
       injuryType,
       gameState.dayIndex,
-      ((gameState.seed + gameState.dayIndex + 3) % 233280) / 233280
+      ((gameState.seed + gameState.dayIndex + 3) % 233280) / 233280,
     );
     updatedState = addInjury(updatedState, injury);
     newInjuries.push(injury);
@@ -175,10 +180,10 @@ export function getInjuryStatusSummary(injuryState: InjuryState): {
   }
 
   const hasSevere = injuryState.activeInjuries.some(
-    (inj) => inj.severity === "severe"
+    (inj) => inj.severity === "severe",
   );
   const hasModerate = injuryState.activeInjuries.some(
-    (inj) => inj.severity === "moderate"
+    (inj) => inj.severity === "moderate",
   );
 
   if (hasSevere) {

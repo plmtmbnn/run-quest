@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { CurrencyCode } from "@/economy/currency-config";
 import type { Language } from "@/i18n/types";
 import { storageRepository } from "@/storage/storage-repository";
 import type { StoredSettings } from "@/storage/types";
@@ -9,6 +10,7 @@ const DEFAULT_SETTINGS: StoredSettings = {
   language: "en",
   reducedMotion: false,
   sound: true,
+  preferredCurrency: "USD",
   preferences: {
     preferredSurface: "any",
     preferredDistance: "any",
@@ -23,6 +25,7 @@ export interface SettingsState {
   setTheme: (theme: "light" | "dark" | "system") => void;
   setReducedMotion: (value: boolean) => void;
   setSound: (value: boolean) => void;
+  setPreferredCurrency: (currency: CurrencyCode) => void;
   setPreferences: (prefs: StoredSettings["preferences"]) => void;
   resetAllData: () => void;
 }
@@ -59,6 +62,12 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
 
   setSound(sound) {
     const updated = { ...get().settings, sound };
+    storageRepository.saveSettings(updated);
+    set({ settings: updated });
+  },
+
+  setPreferredCurrency(preferredCurrency) {
+    const updated = { ...get().settings, preferredCurrency };
     storageRepository.saveSettings(updated);
     set({ settings: updated });
   },

@@ -1,9 +1,11 @@
 /**
  * Economy Types (Sprint 26 - Task 1)
- * 
+ *
  * Core types for the unified economy system.
  * Uses 'money' from timeline engine as primary currency.
  */
+
+import { ECONOMIC_BALANCE } from "./economy-balance";
 
 export type TransactionCategory =
   | "race_entry"
@@ -46,7 +48,12 @@ export interface EconomyState {
 /**
  * Race tier for entry fee calculations.
  */
-export type RaceTier = "local" | "regional" | "state" | "national" | "international";
+export type RaceTier =
+  | "local"
+  | "regional"
+  | "state"
+  | "national"
+  | "international";
 
 /**
  * Prize money distribution configuration.
@@ -62,14 +69,14 @@ export interface PrizeDistribution {
 export interface EconomicBalance {
   // Starting amounts
   startingMoney: number;
-  
+
   // Race entry costs by tier
   entryFees: Record<RaceTier, number>;
-  
+
   // Prize pool configuration
   prizePoolPercentage: number; // % of total entry fees that go to prizes
   prizeDistribution: PrizeDistribution[];
-  
+
   // Money earning rates
   earnings: {
     workPerSession: number;
@@ -78,7 +85,7 @@ export interface EconomicBalance {
     streakMilestone: { min: number; max: number };
     championshipWin: Record<RaceTier, number>;
   };
-  
+
   // Other costs
   costs: {
     treatmentActive: number;
@@ -92,6 +99,6 @@ export const DEFAULT_ECONOMY_STATE: EconomyState = {
   transactions: [],
   totalEarned: 0,
   totalSpent: 0,
-  currentBalance: 0,
+  currentBalance: ECONOMIC_BALANCE.startingMoney, // Players start with $500
   lastTransactionDay: 0,
 };

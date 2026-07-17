@@ -1,21 +1,24 @@
 /**
  * Stakes Engine (Sprint 24)
- * 
+ *
  * Manages high-stakes races, pressure systems, and championship progression.
  */
 
 import type { GameState } from "../timeline/time-types";
+import {
+  CHAMPIONSHIPS,
+  generateChampionshipField,
+} from "./championship-database";
 import type {
+  ChampionshipProgress,
+  ChampionshipRecord,
   HighStakesRace,
   HighStakesState,
-  PressureState,
   PressureSource,
-  ChampionshipProgress,
+  PressureState,
   QualificationAttempt,
-  ChampionshipRecord,
 } from "./high-stakes-types";
 import { PRESSURE_EFFECTS } from "./high-stakes-types";
-import { CHAMPIONSHIPS, generateChampionshipField } from "./championship-database";
 
 /**
  * Calculate current pressure level based on race stakes.
@@ -46,7 +49,10 @@ export function calculatePressure(
   }
 
   // Media/spectator pressure for high-tier events
-  if (race.championship?.tier === "national" || race.championship?.tier === "olympic") {
+  if (
+    race.championship?.tier === "national" ||
+    race.championship?.tier === "olympic"
+  ) {
     sources.push({
       source: "media",
       intensity: 40,
@@ -56,9 +62,9 @@ export function calculatePressure(
 
   // Personal stakes (derived from game state)
   const attempts = stakesState.qualificationHistory.filter(
-    (attempt) => attempt.result === "failed"
+    (attempt) => attempt.result === "failed",
   ).length;
-  
+
   if (attempts > 0) {
     sources.push({
       source: "personal",
@@ -70,7 +76,7 @@ export function calculatePressure(
   // Calculate total pressure
   const totalPressure = Math.min(
     100,
-    sources.reduce((sum, s) => sum + s.intensity, 0)
+    sources.reduce((sum, s) => sum + s.intensity, 0),
   );
 
   // Determine active effects
@@ -98,7 +104,9 @@ export function meetsRaceRequirements(
   if (req.minLevel) {
     const runningSkill = gameState.skills.running ?? 0;
     if (runningSkill < req.minLevel) {
-      missing.push(`Running skill ${req.minLevel} required (current: ${runningSkill})`);
+      missing.push(
+        `Running skill ${req.minLevel} required (current: ${runningSkill})`,
+      );
     }
   }
 
@@ -120,7 +128,8 @@ export function meetsRaceRequirements(
 
   // Check qualification status
   if (req.qualificationNeeded && race.qualification) {
-    const status = stakesState.qualificationStatus[race.qualification.targetRace];
+    const status =
+      stakesState.qualificationStatus[race.qualification.targetRace];
     if (status !== "qualified") {
       missing.push("Must qualify first");
     }
@@ -195,7 +204,7 @@ export function completeChampionship(
 
     // Apply rewards
     const raceRewards = championship.championship.rewards;
-    
+
     if (raceRewards.rating) {
       const currentRating = (gameState.flags.rating as number) ?? 1500;
       updatedGameState = {
@@ -278,7 +287,7 @@ export function attemptQualification(
   rewards: string[];
 } {
   const race = Object.values(CHAMPIONSHIPS).find(
-    (r) => r.qualification?.targetRace === qualificationId
+    (r) => r.qualification?.targetRace === qualificationId,
   );
 
   if (!race?.qualification) {
@@ -311,7 +320,7 @@ export function attemptQualification(
     margin,
   };
 
-  let updatedStakesState: HighStakesState = {
+  const updatedStakesState: HighStakesState = {
     ...stakesState,
     qualificationHistory: [...stakesState.qualificationHistory, attempt],
     qualificationStatus: {

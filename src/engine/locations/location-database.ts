@@ -1,6 +1,6 @@
 /**
  * Location Database (Sprint 24)
- * 
+ *
  * Curated collection of memorable race locations with distinct personalities.
  */
 
@@ -45,7 +45,7 @@ export const WEATHER_IMPACTS: Record<string, WeatherImpact> = {
     condition: "rainy",
     label: "Rainy",
     description: "Wet conditions slow pace and reduce traction",
-    speedModifier: 0.90,
+    speedModifier: 0.9,
     staminaModifier: 0.92,
     mentalImpact: -8,
     icon: "🌧️",
@@ -63,8 +63,8 @@ export const WEATHER_IMPACTS: Record<string, WeatherImpact> = {
     condition: "stormy",
     label: "Storm",
     description: "Severe weather threatens race completion",
-    speedModifier: 0.80,
-    staminaModifier: 0.80,
+    speedModifier: 0.8,
+    staminaModifier: 0.8,
     mentalImpact: -15,
     icon: "⛈️",
   },
@@ -294,7 +294,8 @@ export const LOCATION_PERSONALITIES: Record<string, LocationPersonality> = {
       {
         distance: 2.0,
         name: "The Old Oak",
-        description: "The ancient tree that's watched thousands of runners pass",
+        description:
+          "The ancient tree that's watched thousands of runners pass",
       },
     ],
   },
@@ -476,8 +477,7 @@ export function getRandomWeather(
   seed: number,
 ): WeatherImpact {
   const conditions = location.typicalWeather;
-  const index =
-    ((seed * 9301 + 49297) % 233280) % conditions.length;
+  const index = ((seed * 9301 + 49297) % 233280) % conditions.length;
   const condition = conditions[index];
   return WEATHER_IMPACTS[condition];
 }
@@ -485,10 +485,7 @@ export function getRandomWeather(
 /**
  * Get random flavor text from personality.
  */
-export function getRandomText(
-  texts: string[],
-  seed: number,
-): string {
+export function getRandomText(texts: string[], seed: number): string {
   const index = ((seed * 9301 + 49297) % 233280) % texts.length;
   return texts[index];
 }

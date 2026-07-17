@@ -1,13 +1,15 @@
 /**
  * Race Entry Modal Component (Sprint 26 - Task 6)
- * 
+ *
  * Entry confirmation showing costs, prerequisites, and prize info.
  */
 
 "use client";
 
-import type { RaceOccurrence } from "../../scheduling/race-calendar-types";
+import { formatCurrency } from "@/economy/currency-converter";
+import { useSettingsStore } from "@/store/settings-store";
 import type { EntryValidation } from "../../economy/race-entry-engine";
+import type { RaceOccurrence } from "../../scheduling/race-calendar-types";
 
 interface RaceEntryModalProps {
   race: RaceOccurrence;
@@ -24,6 +26,8 @@ export function RaceEntryModal({
   onConfirm,
   onCancel,
 }: RaceEntryModalProps) {
+  const preferredCurrency =
+    useSettingsStore((state) => state.settings.preferredCurrency) || "USD";
   const canAfford = currentBalance >= race.entryFee;
   const hasAllPrereqs = validation.blockers.length === 0;
 
@@ -40,9 +44,7 @@ export function RaceEntryModal({
         </div>
 
         {/* Description */}
-        <p className="text-gray-300 text-sm text-center">
-          {race.description}
-        </p>
+        <p className="text-gray-300 text-sm text-center">{race.description}</p>
 
         {/* Cost Breakdown */}
         <div className="rounded-lg bg-gray-800/50 border border-gray-700 p-4 space-y-2">
@@ -50,8 +52,10 @@ export function RaceEntryModal({
 
           <div className="flex justify-between text-sm">
             <span className="text-gray-400">Entry Fee</span>
-            <span className={`font-bold ${canAfford ? "text-yellow-400" : "text-red-400"}`}>
-              ${race.entryFee}
+            <span
+              className={`font-bold ${canAfford ? "text-yellow-400" : "text-red-400"}`}
+            >
+              {formatCurrency(race.entryFee, preferredCurrency)}
             </span>
           </div>
 
@@ -62,8 +66,10 @@ export function RaceEntryModal({
 
           <div className="flex justify-between text-sm">
             <span className="text-gray-400">Your Balance</span>
-            <span className={`font-bold ${canAfford ? "text-green-400" : "text-red-400"}`}>
-              ${currentBalance}
+            <span
+              className={`font-bold ${canAfford ? "text-green-400" : "text-red-400"}`}
+            >
+              {formatCurrency(currentBalance, preferredCurrency)}
             </span>
           </div>
 
@@ -71,13 +77,19 @@ export function RaceEntryModal({
 
           <div className="flex justify-between text-sm">
             <span className="text-gray-400">Prize Pool</span>
-            <span className="font-bold text-green-400">${race.prizePool}</span>
+            <span className="font-bold text-green-400">
+              {formatCurrency(race.prizePool, preferredCurrency)}
+            </span>
           </div>
 
           {race.maxEntrants && (
             <div className="flex justify-between text-sm">
               <span className="text-gray-400">Entrants</span>
-              <span className={race.isFull ? "text-red-400 font-bold" : "text-gray-300"}>
+              <span
+                className={
+                  race.isFull ? "text-red-400 font-bold" : "text-gray-300"
+                }
+              >
                 {race.entrants ?? 0}/{race.maxEntrants}
                 {race.isFull ? " (FULL)" : ""}
               </span>
@@ -88,7 +100,9 @@ export function RaceEntryModal({
         {/* Prerequisites Blockers */}
         {validation.blockers.length > 0 && (
           <div className="rounded-lg bg-red-500/10 border border-red-500/30 p-3 space-y-2">
-            <h3 className="font-semibold text-red-400 text-sm">❌ Requirements Not Met</h3>
+            <h3 className="font-semibold text-red-400 text-sm">
+              ❌ Requirements Not Met
+            </h3>
             {validation.blockers.map((blocker, idx) => (
               <div key={idx} className="flex items-start gap-2 text-sm">
                 <span className="text-red-400 mt-0.5">•</span>
@@ -109,14 +123,18 @@ export function RaceEntryModal({
         {validation.warnings.length > 0 && hasAllPrereqs && (
           <div className="rounded-lg bg-yellow-500/10 border border-yellow-500/30 p-3">
             {validation.warnings.map((w, idx) => (
-              <p key={idx} className="text-yellow-300 text-sm">{w}</p>
+              <p key={idx} className="text-yellow-300 text-sm">
+                {w}
+              </p>
             ))}
           </div>
         )}
 
         {/* Prize Distribution */}
         <div className="rounded-lg bg-gray-800/30 p-3">
-          <h3 className="font-semibold text-white text-xs mb-2">🏆 Prize Distribution</h3>
+          <h3 className="font-semibold text-white text-xs mb-2">
+            🏆 Prize Distribution
+          </h3>
           <div className="grid grid-cols-5 gap-1 text-center text-xs">
             <div>
               <div className="text-yellow-400 font-bold">1st</div>
@@ -132,11 +150,11 @@ export function RaceEntryModal({
             </div>
             <div>
               <div className="text-gray-400 font-bold">4th</div>
-              <div className="text-gray-500">10%</div>
+              <div className="text-gray-550">10%</div>
             </div>
             <div>
               <div className="text-gray-400 font-bold">5th</div>
-              <div className="text-gray-500">5%</div>
+              <div className="text-gray-550">5%</div>
             </div>
           </div>
         </div>
@@ -151,7 +169,9 @@ export function RaceEntryModal({
           </button>
           <button
             onClick={onConfirm}
-            disabled={!canAfford || !hasAllPrereqs || race.isFull || race.isCompleted}
+            disabled={
+              !canAfford || !hasAllPrereqs || race.isFull || race.isCompleted
+            }
             className={`flex-1 py-3 px-4 rounded-lg font-bold transition-all ${
               canAfford && hasAllPrereqs && !race.isFull && !race.isCompleted
                 ? "bg-green-600 hover:bg-green-700 text-white"
@@ -163,10 +183,10 @@ export function RaceEntryModal({
               : race.isFull
                 ? "Race Full"
                 : !canAfford
-                  ? `Need $${race.entryFee - currentBalance} More`
+                  ? `Need ${formatCurrency(race.entryFee - currentBalance, preferredCurrency)} More`
                   : !hasAllPrereqs
                     ? "Requirements Not Met"
-                    : `Enter Race - $${race.entryFee}`}
+                    : `Enter Race - ${formatCurrency(race.entryFee, preferredCurrency)}`}
           </button>
         </div>
       </div>

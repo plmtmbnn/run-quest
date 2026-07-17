@@ -1,16 +1,24 @@
 /**
  * Race Calendar Engine (Sprint 26 - Task 4)
- * 
+ *
  * Manages when races are available based on the game timeline.
  * No more "race anytime" - races happen on a schedule!
  */
 
-import type { GameState } from "../engine/timeline/time-types";
-import { DAYS_PER_WEEK, DAYS_PER_MONTH, DAYS_PER_YEAR } from "../engine/timeline/time-types";
-import { deriveDate } from "../engine/timeline/calendar";
-import type { SchedulingState, RaceSchedule, RaceOccurrence } from "./race-calendar-types";
-import { RACE_SCHEDULES } from "./race-schedule-database";
 import { calculateExpectedPrize } from "../economy/economy-balance";
+import { deriveDate } from "../engine/timeline/calendar";
+import type { GameState } from "../engine/timeline/time-types";
+import {
+  DAYS_PER_MONTH,
+  DAYS_PER_WEEK,
+  DAYS_PER_YEAR,
+} from "../engine/timeline/time-types";
+import type {
+  RaceOccurrence,
+  RaceSchedule,
+  SchedulingState,
+} from "./race-calendar-types";
+import { RACE_SCHEDULES } from "./race-schedule-database";
 
 /**
  * Get all races available to enter TODAY.
@@ -25,7 +33,12 @@ export function getTodaysRaces(
   const totalEntrants = 50; // Default field size
 
   for (const schedule of RACE_SCHEDULES) {
-    const occurrence = getRaceOccurrence(schedule, schedulingState, currentDayIndex, totalEntrants);
+    const occurrence = getRaceOccurrence(
+      schedule,
+      schedulingState,
+      currentDayIndex,
+      totalEntrants,
+    );
     if (!occurrence) continue;
 
     // Check if the player can actually enter this race today
@@ -41,7 +54,13 @@ export function getTodaysRaces(
   }
 
   // Sort by tier (local first) then by name
-  const tierOrder = { local: 0, regional: 1, state: 2, national: 3, international: 4 };
+  const tierOrder = {
+    local: 0,
+    regional: 1,
+    state: 2,
+    national: 3,
+    international: 4,
+  };
   available.sort((a, b) => {
     const tierDiff = (tierOrder[a.tier] ?? 0) - (tierOrder[b.tier] ?? 0);
     if (tierDiff !== 0) return tierDiff;
@@ -66,7 +85,12 @@ export function getUpcomingRaces(
     // Check next few occurrences of this race
     for (let offset = 0; offset < daysAhead; offset++) {
       const dayToCheck = currentDayIndex + offset;
-      const occurrence = getRaceOccurrence(schedule, schedulingState, dayToCheck, totalEntrants);
+      const occurrence = getRaceOccurrence(
+        schedule,
+        schedulingState,
+        dayToCheck,
+        totalEntrants,
+      );
       if (occurrence && dayToCheck > currentDayIndex) {
         upcoming.push(occurrence);
       }
@@ -109,15 +133,18 @@ function getRaceOccurrence(
 
   // Calculate dates
   const registrationOpensAt = dayIndex - schedule.registration.opensDaysBefore;
-  const registrationClosesAt = dayIndex - schedule.registration.closesDaysBefore;
+  const registrationClosesAt =
+    dayIndex - schedule.registration.closesDaysBefore;
 
   // Count registered entrants (from scheduling state)
-  const registeredCount = Object.entries(schedulingState.registered)
-    .filter(([id, regDay]) => id.startsWith(schedule.id) && regDay === dayIndex)
-    .length;
+  const registeredCount = Object.entries(schedulingState.registered).filter(
+    ([id, regDay]) => id.startsWith(schedule.id) && regDay === dayIndex,
+  ).length;
 
   const isRegistered = !!schedulingState.registered[schedule.id];
-  const isFull = schedule.maxEntrants ? registeredCount >= schedule.maxEntrants : false;
+  const isFull = schedule.maxEntrants
+    ? registeredCount >= schedule.maxEntrants
+    : false;
 
   // Estimate entrants for prize pool calculation
   const entrants = schedule.maxEntrants ?? defaultEntrants;
@@ -158,13 +185,17 @@ function isRaceOnDay(schedule: RaceSchedule, dayIndex: number): boolean {
 
     case "weekly":
       // Check day of week (0=Monday)
-      return sched.dayOfWeek !== undefined && dayIndex % DAYS_PER_WEEK === sched.dayOfWeek % DAYS_PER_WEEK;
+      return (
+        sched.dayOfWeek !== undefined &&
+        dayIndex % DAYS_PER_WEEK === sched.dayOfWeek % DAYS_PER_WEEK
+      );
 
-    case "monthly":
+    case "monthly": {
       // Check day of month (1-28)
       if (sched.dayOfMonth === undefined) return false;
       const dayOfMonth = (dayIndex % DAYS_PER_MONTH) + 1; // 1-based
       return dayOfMonth === sched.dayOfMonth;
+    }
 
     case "seasonal": {
       // Seasonal = specific month, e.g. month 3 (April)
@@ -226,7 +257,9 @@ export function completeRace(
       [raceId]: dayIndex,
     },
     registered: Object.fromEntries(
-      Object.entries(schedulingState.registered).filter(([id]) => id !== scheduleId)
+      Object.entries(schedulingState.registered).filter(
+        ([id]) => id !== scheduleId,
+      ),
     ),
     completedOneTimeEvents: scheduleId.includes("one_time")
       ? [...schedulingState.completedOneTimeEvents, scheduleId]
@@ -246,7 +279,10 @@ export function canRegisterForRace(
   opensAt?: number;
 } {
   // For daily races with no registration window, always available
-  if (schedule.schedule.frequency === "daily" || schedule.registration.opensDaysBefore === 0) {
+  if (
+    schedule.schedule.frequency === "daily" ||
+    schedule.registration.opensDaysBefore === 0
+  ) {
     return { canRegister: true };
   }
 
@@ -280,7 +316,10 @@ export function canRegisterForRace(
 /**
  * Find the next occurrence of a scheduled race.
  */
-function findNextRaceDay(schedule: RaceSchedule, currentDayIndex: number): number | null {
+function findNextRaceDay(
+  schedule: RaceSchedule,
+  currentDayIndex: number,
+): number | null {
   // Check forward up to 90 days
   for (let offset = 0; offset <= 90; offset++) {
     const checkDay = currentDayIndex + offset;
@@ -321,13 +360,23 @@ export function getMonthlyCalendar(
     races: RaceOccurrence[];
   }>;
 } {
-  const dateInfo = deriveDate({ dayIndex: currentDayIndex, startAge: 30 } as unknown as GameState); // Using startAge=30 for rough calendar
-  const startOfMonth = currentDayIndex - (currentDayIndex % DAYS_PER_MONTH) + (monthOffset * DAYS_PER_MONTH);
+  const dateInfo = deriveDate({
+    dayIndex: currentDayIndex,
+    startAge: 30,
+  } as unknown as GameState); // Using startAge=30 for rough calendar
+  const startOfMonth =
+    currentDayIndex -
+    (currentDayIndex % DAYS_PER_MONTH) +
+    monthOffset * DAYS_PER_MONTH;
 
   const days = [];
   for (let d = 0; d < DAYS_PER_MONTH; d++) {
     const dayIndex = startOfMonth + d;
-    const races = getTodaysRaces(schedulingState, null as unknown as GameState, dayIndex);
+    const races = getTodaysRaces(
+      schedulingState,
+      null as unknown as GameState,
+      dayIndex,
+    );
     days.push({
       day: d + 1,
       dayIndex,
@@ -336,8 +385,8 @@ export function getMonthlyCalendar(
   }
 
   return {
-    month: ((currentDayIndex / DAYS_PER_MONTH) + monthOffset) % 12,
-    year: Math.floor((currentDayIndex / DAYS_PER_MONTH) / 12),
+    month: (currentDayIndex / DAYS_PER_MONTH + monthOffset) % 12,
+    year: Math.floor(currentDayIndex / DAYS_PER_MONTH / 12),
     days,
   };
 }

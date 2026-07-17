@@ -1,6 +1,6 @@
 /**
  * Championship Database (Sprint 24)
- * 
+ *
  * Predefined high-stakes championship races and qualifying events.
  */
 
@@ -20,7 +20,8 @@ export const ELITE_RUNNERS: Record<string, EliteRunner> = {
     rating: 2100,
     specialty: "speed",
     personality: "aggressive",
-    backstory: "Former track star transitioning to road racing. Explosive speed but questionable stamina.",
+    backstory:
+      "Former track star transitioning to road racing. Explosive speed but questionable stamina.",
   },
   marcus_steel: {
     name: "Marcus Steel",
@@ -41,14 +42,16 @@ export const ELITE_RUNNERS: Record<string, EliteRunner> = {
     rating: 2400,
     specialty: "clutch",
     personality: "conservative",
-    backstory: "Olympic Trials veteran. Thrives under pressure. Always peaks for big races.",
+    backstory:
+      "Olympic Trials veteran. Thrives under pressure. Always peaks for big races.",
   },
   kenji_tanaka: {
     name: "Kenji Tanaka",
     rating: 2500,
     specialty: "speed",
     personality: "aggressive",
-    backstory: "World record holder. Fearless front-runner. Will he blow up or break away?",
+    backstory:
+      "World record holder. Fearless front-runner. Will he blow up or break away?",
   },
 };
 
@@ -489,7 +492,16 @@ export function generateChampionshipField(
 
   // Select elite runners based on tier
   const elitePool = Object.values(ELITE_RUNNERS);
-  const numElites = tier === "olympic" ? 5 : tier === "national" ? 4 : tier === "state" ? 3 : tier === "regional" ? 2 : 1;
+  const numElites =
+    tier === "olympic"
+      ? 5
+      : tier === "national"
+        ? 4
+        : tier === "state"
+          ? 3
+          : tier === "regional"
+            ? 2
+            : 1;
 
   const eliteRunners: EliteRunner[] = [];
   for (let i = 0; i < numElites && i < elitePool.length; i++) {

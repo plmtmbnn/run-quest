@@ -1,8 +1,8 @@
 /**
  * Race Schedule Database (Sprint 26 - Task 4)
- * 
+ *
  * Defines when every race happens in the game timeline.
- * 
+ *
  * Schedule Philosophy:
  * - Daily races: Always available, local tier, small entry fee
  * - Weekly races: Regional-tier events on specific days
@@ -28,7 +28,8 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
     name: "Daily 5K Run",
     locationId: "local_5k_park",
     tier: "local",
-    description: "The classic park run. Same course, different day. A great way to build consistency.",
+    description:
+      "The classic park run. Same course, different day. A great way to build consistency.",
     schedule: {
       frequency: "daily",
     },
@@ -50,7 +51,8 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
     name: "Daily 10K Circuit",
     locationId: "regional_10k_hills",
     tier: "local",
-    description: "A challenging 10K through rolling hills. Tests endurance and pacing.",
+    description:
+      "A challenging 10K through rolling hills. Tests endurance and pacing.",
     schedule: {
       frequency: "daily",
     },
@@ -76,7 +78,8 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
     name: "Saturday Championship Series 5K",
     locationId: "local_5k_park",
     tier: "regional",
-    description: "The weekly Saturday showdown. Higher stakes, better competition, bigger prizes.",
+    description:
+      "The weekly Saturday showdown. Higher stakes, better competition, bigger prizes.",
     schedule: {
       frequency: "weekly",
       dayOfWeek: 6, // Saturday
@@ -100,7 +103,8 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
     name: "Sunday Hill Challenge",
     locationId: "regional_10k_hills",
     tier: "regional",
-    description: "Conquer the hills every Sunday. Builds character and leg strength.",
+    description:
+      "Conquer the hills every Sunday. Builds character and leg strength.",
     schedule: {
       frequency: "weekly",
       dayOfWeek: 0, // Sunday
@@ -128,7 +132,8 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
     name: "Metro State 5K Championship",
     locationId: "local_5k_park",
     tier: "state",
-    description: "Monthly state championship. Top runners from across the region compete. Points count toward annual standings.",
+    description:
+      "Monthly state championship. Top runners from across the region compete. Points count toward annual standings.",
     schedule: {
       frequency: "monthly",
       dayOfMonth: 15, // 15th of each month
@@ -156,7 +161,8 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
     name: "Coastal State Half Marathon",
     locationId: "state_half_coastal",
     tier: "state",
-    description: "Monthly half marathon along the beautiful coast. The premier distance event of the month.",
+    description:
+      "Monthly half marathon along the beautiful coast. The premier distance event of the month.",
     schedule: {
       frequency: "monthly",
       dayOfMonth: 28, // 28th of each month
@@ -188,7 +194,8 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
     name: "Capital City Spring Marathon",
     locationId: "national_marathon_city",
     tier: "national",
-    description: "The premier spring marathon. National TV coverage. The best in the country compete.",
+    description:
+      "The premier spring marathon. National TV coverage. The best in the country compete.",
     schedule: {
       frequency: "seasonal",
       dayOfYear: 120, // Early May (day 120 of 336-day year)
@@ -217,7 +224,8 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
     name: "Capital City Autumn Classic",
     locationId: "national_marathon_city",
     tier: "national",
-    description: "Fall marathon with perfect racing temperatures. Record-breaking conditions expected.",
+    description:
+      "Fall marathon with perfect racing temperatures. Record-breaking conditions expected.",
     schedule: {
       frequency: "seasonal",
       dayOfYear: 280, // Early October (day 280 of 336-day year)
@@ -250,7 +258,8 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
     name: "Olympic Marathon Trials",
     locationId: "olympic_trials",
     tier: "international",
-    description: "ONCE A YEAR. Top 3 make the Olympic team. The highest stakes in running. Every four game years, this decides who represents the nation.",
+    description:
+      "ONCE A YEAR. Top 3 make the Olympic team. The highest stakes in running. Every four game years, this decides who represents the nation.",
     schedule: {
       frequency: "annual",
       dayOfYear: 150, // Late May (every year)
@@ -280,7 +289,8 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
     name: "US National Marathon Championship",
     locationId: "national_marathon_city",
     tier: "national",
-    description: "The annual national championship. The best runners in the country compete for the title of National Champion.",
+    description:
+      "The annual national championship. The best runners in the country compete for the title of National Champion.",
     schedule: {
       frequency: "annual",
       dayOfYear: 90, // Late March
@@ -314,7 +324,8 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
     name: "Your First Race",
     locationId: "local_5k_park",
     tier: "local",
-    description: "Your very first race. No pressure, just run. This is where every champion starts.",
+    description:
+      "Your very first race. No pressure, just run. This is where every champion starts.",
     schedule: {
       frequency: "one_time",
       specificDays: [5], // Available on career day 5
@@ -337,7 +348,8 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
     name: "Chapter Finale: Local Championship",
     locationId: "local_5k_park",
     tier: "regional",
-    description: "The end of your first story chapter. Win this to prove you've grown beyond a local runner.",
+    description:
+      "The end of your first story chapter. Win this to prove you've grown beyond a local runner.",
     schedule: {
       frequency: "one_time",
       specificDays: [50], // Day 50
@@ -376,13 +388,16 @@ export function getRacesByTier(tier: string): RaceSchedule[] {
 /**
  * Get the next big race (championship or national+) for player targets.
  */
-export function getNextBigRace(currentDayIndex: number): RaceSchedule | undefined {
-  return RACE_SCHEDULES
-    .filter((s) => s.schedule.frequency !== "daily" && s.schedule.frequency !== "weekly")
-    .sort((a, b) => {
-      // Find next occurrence and compare
-      return a.registration.opensDaysBefore - b.registration.opensDaysBefore;
-    })[0];
+export function getNextBigRace(
+  currentDayIndex: number,
+): RaceSchedule | undefined {
+  return RACE_SCHEDULES.filter(
+    (s) =>
+      s.schedule.frequency !== "daily" && s.schedule.frequency !== "weekly",
+  ).sort((a, b) => {
+    // Find next occurrence and compare
+    return a.registration.opensDaysBefore - b.registration.opensDaysBefore;
+  })[0];
 }
 
 /**

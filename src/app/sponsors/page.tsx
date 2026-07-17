@@ -1,13 +1,19 @@
 "use client";
 
-import { SponsorshipScreen } from "@/components/economy/sponsorship-screen";
-import { getAvailableSponsors, getCurrentSponsor, signSponsor, claimMonthlyStipend } from "@/economy/sponsorship-engine";
-import { useTimelineStore } from "@/store/timeline-store";
-import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
-import { useSound } from "@/hooks/use-sound";
+import { ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { SponsorshipScreen } from "@/components/economy/sponsorship-screen";
 import { recordTransaction } from "@/economy/earning-engine";
+import {
+  claimMonthlyStipend,
+  getAvailableSponsors,
+  getCurrentSponsor,
+  rejectOffer,
+  signSponsor,
+} from "@/economy/sponsorship-engine";
+import { useSound } from "@/hooks/use-sound";
+import { useTimelineStore } from "@/store/timeline-store";
 
 export default function SponsorsPage() {
   const router = useRouter();
@@ -15,7 +21,11 @@ export default function SponsorsPage() {
   const { gameState, setGameState } = useTimelineStore();
 
   if (!gameState) {
-    return <div className="flex items-center justify-center min-h-screen text-white">Loading Sponsors...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen text-white">
+        Loading Sponsors...
+      </div>
+    );
   }
 
   const sponsorshipState = gameState.sponsorship;
@@ -24,23 +34,38 @@ export default function SponsorsPage() {
 
   const handleSignSponsor = (sponsorId: string) => {
     playSound("click");
-    const updatedSponsorship = signSponsor(sponsorshipState, sponsorId, gameState.dayIndex);
-    setGameState(prev => ({ ...prev!, sponsorship: updatedSponsorship }));
+    const updatedSponsorship = signSponsor(
+      sponsorshipState,
+      sponsorId,
+      gameState.dayIndex,
+    );
+    setGameState((prev) => ({ ...prev!, sponsorship: updatedSponsorship }));
+  };
+
+  const handleRejectSponsor = (sponsorId: string) => {
+    playSound("click");
+    const updatedSponsorship = rejectOffer(sponsorshipState, sponsorId);
+    setGameState((prev) => ({ ...prev!, sponsorship: updatedSponsorship }));
   };
 
   const handleClaimStipend = () => {
     playSound("success");
-    const { sponsorshipState: updatedSponsorship, amount } = claimMonthlyStipend(sponsorshipState, gameState.dayIndex);
+    const { sponsorshipState: updatedSponsorship, amount } =
+      claimMonthlyStipend(sponsorshipState, gameState.dayIndex);
     if (amount > 0) {
-        const { economy: updatedEconomy } = recordTransaction(
-            gameState.economy, 
-            "earn", 
-            "sponsor", 
-            amount, 
-            gameState.dayIndex, 
-            `Monthly stipend from ${currentSponsor?.name}`
-        );
-        setGameState(prev => ({ ...prev!, sponsorship: updatedSponsorship, economy: updatedEconomy }));
+      const { economy: updatedEconomy } = recordTransaction(
+        gameState.economy,
+        "earn",
+        "sponsor",
+        amount,
+        gameState.dayIndex,
+        `Monthly stipend from ${currentSponsor?.name}`,
+      );
+      setGameState((prev) => ({
+        ...prev!,
+        sponsorship: updatedSponsorship,
+        economy: updatedEconomy,
+      }));
     }
   };
 
@@ -77,7 +102,9 @@ export default function SponsorsPage() {
           availableSponsors={availableSponsors}
           currentSponsor={currentSponsor}
           onSignSponsor={handleSignSponsor}
+          onRejectOffer={handleRejectSponsor}
           onClaimStipend={handleClaimStipend}
+          dayIndex={gameState.dayIndex}
         />
       </main>
     </motion.div>

@@ -1,17 +1,17 @@
 /**
  * Recovery Engine (Sprint 24)
- * 
+ *
  * Handles injury recovery, treatment application, and racing-while-injured logic.
  */
 
 import type { GameState } from "../timeline/time-types";
+import { createInjury } from "./injury-database";
 import type {
   Injury,
   InjuryState,
   Treatment,
   TreatmentType,
 } from "./injury-types";
-import { createInjury } from "./injury-database";
 
 /**
  * Advance recovery for all active injuries by one day.
@@ -27,7 +27,7 @@ export function advanceRecovery(injuryState: InjuryState): InjuryState {
 
   // Move fully recovered injuries to history
   const recovered = injuryState.activeInjuries.filter(
-    (injury) => injury.recoveryDaysRemaining <= 1
+    (injury) => injury.recoveryDaysRemaining <= 1,
   );
 
   const injuryHistory = [
@@ -87,7 +87,7 @@ export function applyTreatment(
         ...inj,
         recoveryDaysRemaining: Math.max(
           1,
-          inj.recoveryDaysRemaining - treatment.daysReduced
+          inj.recoveryDaysRemaining - treatment.daysReduced,
         ),
       };
     }
@@ -99,15 +99,17 @@ export function applyTreatment(
     activeInjuries: updatedInjuries,
   };
 
-  return { injuryState: newInjuryState, gameState: newGameState, success: true };
+  return {
+    injuryState: newInjuryState,
+    gameState: newGameState,
+    success: true,
+  };
 }
 
 /**
  * Calculate performance penalty for racing with injuries.
  */
-export function calculatePerformancePenalty(
-  injuryState: InjuryState,
-): {
+export function calculatePerformancePenalty(injuryState: InjuryState): {
   speedPenalty: number;
   staminaPenalty: number;
   overallPenalty: number;
@@ -116,10 +118,16 @@ export function calculatePerformancePenalty(
   let staminaPenalty = 0;
 
   for (const injury of injuryState.activeInjuries) {
-    if (injury.affectedAttribute === "speed" || injury.affectedAttribute === "all") {
+    if (
+      injury.affectedAttribute === "speed" ||
+      injury.affectedAttribute === "all"
+    ) {
       speedPenalty += injury.performancePenalty;
     }
-    if (injury.affectedAttribute === "stamina" || injury.affectedAttribute === "all") {
+    if (
+      injury.affectedAttribute === "stamina" ||
+      injury.affectedAttribute === "all"
+    ) {
       staminaPenalty += injury.performancePenalty;
     }
   }
@@ -143,7 +151,7 @@ export function checkInjuryWorsening(
   const worsened: Injury[] = [];
   const updatedInjuries = injuryState.activeInjuries.map((injury) => {
     const roll = ((randomSeed * 9301 + 49297) % 233280) / 233280;
-    
+
     if (roll < injury.riskOfWorsening) {
       // Injury worsened - increase recovery time and penalty
       const worsenedInjury: Injury = {
@@ -161,7 +169,7 @@ export function checkInjuryWorsening(
       worsened.push(worsenedInjury);
       return worsenedInjury;
     }
-    
+
     return injury;
   });
 
@@ -193,9 +201,10 @@ export function recordTrainingDay(
   injuryState: InjuryState,
   dayIndex: number,
 ): InjuryState {
-  const recentTrainingDays = [...injuryState.recentTrainingDays, dayIndex].slice(
-    -10
-  );
+  const recentTrainingDays = [
+    ...injuryState.recentTrainingDays,
+    dayIndex,
+  ].slice(-10);
 
   return {
     ...injuryState,
@@ -212,7 +221,7 @@ export function recordBreakingPoint(
 ): InjuryState {
   // Count breaking points in the last 7 days
   const cutoff = dayIndex - 7;
-  let count = 0;
+  const count = 0;
 
   // Increment count (we'll clean it up when checking risk)
   return {
@@ -232,11 +241,11 @@ export function cleanupBreakingPoints(
   // For simplicity, decay the count gradually
   // In a more complex system, you'd track timestamps
   const decayRate = 0.85; // 15% decay per day
-  
+
   return {
     ...injuryState,
     recentBreakingPoints: Math.floor(
-      injuryState.recentBreakingPoints * decayRate
+      injuryState.recentBreakingPoints * decayRate,
     ),
   };
 }
@@ -259,16 +268,14 @@ export function addInjury(
  */
 export function canRaceSafely(injuryState: InjuryState): boolean {
   return !injuryState.activeInjuries.some(
-    (injury) => injury.severity === "severe"
+    (injury) => injury.severity === "severe",
   );
 }
 
 /**
  * Get a recovery status summary for UI display.
  */
-export function getRecoveryStatus(
-  injuryState: InjuryState,
-): {
+export function getRecoveryStatus(injuryState: InjuryState): {
   hasInjuries: boolean;
   totalInjuries: number;
   daysUntilFullRecovery: number;
@@ -279,7 +286,7 @@ export function getRecoveryStatus(
   const totalInjuries = injuryState.activeInjuries.length;
   const daysUntilFullRecovery = Math.max(
     ...injuryState.activeInjuries.map((inj) => inj.recoveryDaysRemaining),
-    0
+    0,
   );
   const canRace = canRaceSafely(injuryState);
 

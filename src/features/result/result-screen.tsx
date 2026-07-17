@@ -25,8 +25,8 @@ import {
 } from "@/social/ranking-engine";
 import { useSocialStore } from "@/social/social-store";
 import { useGameStore } from "@/store/game-store";
-import { useTimelineStore } from "@/store/timeline-store";
 import { usePreparationStore } from "@/store/preparation-store";
+import { useTimelineStore } from "@/store/timeline-store";
 import type { RaceEvent } from "@/types/engine";
 
 export function ResultScreen() {

@@ -19,6 +19,8 @@ vi.hoisted(() => {
   } as any;
 });
 
+import { DEFAULT_ECONOMY_STATE } from "@/economy/economy-types";
+import { DEFAULT_SPONSORSHIP_STATE } from "@/economy/sponsorship-types";
 import {
   applyAction,
   type CalendarEvent,
@@ -34,10 +36,8 @@ import {
   resolveSlot,
   storyEventsToCalendarEvents,
 } from "@/engine/timeline";
-import type { StoryEvent } from "@/story";
-import { DEFAULT_ECONOMY_STATE } from "@/economy/economy-types";
-import { DEFAULT_SPONSORSHIP_STATE } from "@/economy/sponsorship-types";
 import { DEFAULT_SCHEDULING_STATE } from "@/scheduling/race-calendar-types";
+import type { StoryEvent } from "@/story";
 
 function makeState(overrides: Partial<GameState> = {}): GameState {
   return {
@@ -125,7 +125,13 @@ describe("canAfford", () => {
 
 describe("applyAction", () => {
   it("applies same-day effects and spends energy", () => {
-    const after = applyAction(makeState({ energy: 100 }), getAction("work"));
+    const after = applyAction(
+      makeState({
+        energy: 100,
+        economy: { ...DEFAULT_ECONOMY_STATE, currentBalance: 0 },
+      }),
+      getAction("work"),
+    );
     expect(after.resources.money).toBe(50);
     expect(after.dayIndex).toBe(0);
     expect(after.energy).toBe(60);
@@ -175,7 +181,14 @@ describe("endDay", () => {
 
 describe("routine", () => {
   it("resolveSlot ends the day for same-day actions", () => {
-    const after = resolveSlot(makeState({ dayIndex: 0, energy: 100 }), "work");
+    const after = resolveSlot(
+      makeState({
+        dayIndex: 0,
+        energy: 100,
+        economy: { ...DEFAULT_ECONOMY_STATE, currentBalance: 0 },
+      }),
+      "work",
+    );
     expect(after.dayIndex).toBe(1);
     expect(after.resources.money).toBe(50);
   });

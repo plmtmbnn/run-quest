@@ -6,6 +6,8 @@
  */
 
 import { create } from "zustand";
+import { DEFAULT_ECONOMY_STATE } from "@/economy/economy-types";
+import { DEFAULT_SPONSORSHIP_STATE } from "@/economy/sponsorship-types";
 import type { ActionId, CalendarEvent, GameState } from "@/engine/timeline";
 import {
   applyAction,
@@ -16,13 +18,11 @@ import {
   getScheduledStoryEvents,
   isDead,
 } from "@/engine/timeline";
+import { DEFAULT_SCHEDULING_STATE } from "@/scheduling/race-calendar-types";
 import { useSocialStore } from "@/social/social-store";
 import { storageRepository } from "@/storage/storage-repository";
 import type { StoredGameState } from "@/storage/types";
 import { useStoryStore } from "@/story/story-store";
-import { DEFAULT_ECONOMY_STATE } from "@/economy/economy-types";
-import { DEFAULT_SPONSORSHIP_STATE } from "@/economy/sponsorship-types";
-import { DEFAULT_SCHEDULING_STATE } from "@/scheduling/race-calendar-types";
 
 interface TimelineState {
   gameState: GameState | null;

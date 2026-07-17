@@ -16,11 +16,11 @@ import { RaceChoiceCard } from "@/components/share/race-choice-card";
 import { ShareModal } from "@/components/share/share-modal";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
-import { useTimelineStore } from "@/store/timeline-store";
 import { generateDailyChallenge } from "@/services/challenge/generator";
 import { type GhostRun, loadGhostRun } from "@/social/ghost-engine";
 import { storageRepository } from "@/storage/storage-repository";
 import { useGameStore } from "@/store/game-store";
+import { useTimelineStore } from "@/store/timeline-store";
 
 export function BriefingScreen() {
   const router = useRouter();

@@ -1,6 +1,6 @@
 /**
  * Season Database (Sprint 24)
- * 
+ *
  * Predefined racing seasons with goals, phases, and qualification systems.
  */
 
@@ -129,7 +129,8 @@ export const SEASONS: Record<string, Season> = {
         startDay: 151,
         endDay: 220,
       },
-      description: "Earn 300 points or finish top 10 in circuit standings to qualify for championship",
+      description:
+        "Earn 300 points or finish top 10 in circuit standings to qualify for championship",
     },
     rewards: {
       completion: {
@@ -345,7 +346,8 @@ export const SEASONS: Record<string, Season> = {
         startDay: 1,
         endDay: 149,
       },
-      description: "Run 2:10:00 or faster (Olympic A standard) to qualify for Trials",
+      description:
+        "Run 2:10:00 or faster (Olympic A standard) to qualify for Trials",
     },
     rewards: {
       completion: {
@@ -373,7 +375,7 @@ export const SEASONS: Record<string, Season> = {
  */
 export function getCurrentSeason(dayOfYear: number): Season | undefined {
   return Object.values(SEASONS).find(
-    (season) => dayOfYear >= season.startDay && dayOfYear <= season.endDay
+    (season) => dayOfYear >= season.startDay && dayOfYear <= season.endDay,
   );
 }
 
@@ -385,7 +387,7 @@ export function getCurrentPhase(
   dayOfYear: number,
 ): SeasonPhase | undefined {
   const phase = season.phases.find(
-    (p) => dayOfYear >= p.startDay && dayOfYear <= p.endDay
+    (p) => dayOfYear >= p.startDay && dayOfYear <= p.endDay,
   );
   return phase?.phase;
 }
@@ -407,7 +409,7 @@ export function isInQualificationWindow(
   dayOfYear: number,
 ): boolean {
   if (!season.qualificationSystem) return true;
-  
+
   const { startDay, endDay } = season.qualificationSystem.qualificationWindow;
   return dayOfYear >= startDay && dayOfYear <= endDay;
 }

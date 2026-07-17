@@ -1,6 +1,6 @@
 /**
  * Risk Components (Sprint 24)
- * 
+ *
  * Injury and risk management UI components.
  */
 

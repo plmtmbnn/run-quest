@@ -6,12 +6,29 @@
  * is a pure transform of GameState.
  */
 
-import { deriveDate } from "./calendar";
-import type { GameState, Action, ActionId, StatKey } from "./time-types";
-import { RETIREMENT_AGE } from "./time-types";
-import { earnFromWork, earnRacePrize, earnChampionshipBonus, earnSponsorPayout, earnAchievementBonus, earnStreakMilestone, spendRaceEntry, spendTreatment, spendStreakProtection } from "../../economy/earning-engine";
-import { getTrainingBonus, getRaceBonus, getWinBonus, claimMonthlyStipend } from "../../economy/sponsorship-engine";
+import {
+  earnAchievementBonus,
+  earnChampionshipBonus,
+  earnFromWork,
+  earnRacePrize,
+  earnSponsorPayout,
+  earnStreakMilestone,
+  spendRaceEntry,
+  spendStreakProtection,
+  spendTreatment,
+} from "../../economy/earning-engine";
 import { getEntryFee } from "../../economy/economy-balance";
+import {
+  claimMonthlyStipend,
+  getRaceBonus,
+  getTrainingBonus,
+  getWinBonus,
+} from "../../economy/sponsorship-engine";
+import type { WorkType, WorkTypeId } from "../../economy/work-types";
+import { isWorkTypeUnlocked, WORK_TYPES } from "../../economy/work-types";
+import { deriveDate } from "./calendar";
+import type { Action, ActionId, GameState, StatKey } from "./time-types";
+import { RETIREMENT_AGE } from "./time-types";
 
 /** The starter action catalog. Competition resolution is layered by the social engine. */
 export const STARTER_ACTIONS: Record<ActionId, Action> = {
@@ -75,6 +92,89 @@ export const STARTER_ACTIONS: Record<ActionId, Action> = {
 /** Look up a built-in action by id. */
 export function getAction(id: ActionId): Action {
   return STARTER_ACTIONS[id];
+}
+
+/**
+ * Create a work action from a work type.
+ * Extended action with work type metadata for dynamic pay calculation.
+ */
+export function createWorkAction(
+  workType: WorkType,
+): Action & { workTypeId: WorkTypeId } {
+  return {
+    id: "work",
+    label: workType.name,
+    energyCost: workType.energyCost,
+    dayCost: workType.dayCost,
+    requires: {
+      minAge: workType.requirements.minAge,
+      maxAge: workType.requirements.maxAge,
+    },
+    effects: {
+      stats: workType.effects || {},
+    },
+    workTypeId: workType.id,
+  };
+}
+
+/**
+ * Get all available work options for the player.
+ * Returns work actions that are currently unlocked.
+ */
+export function getAvailableWorkActions(
+  gameState: GameState,
+): Array<Action & { workTypeId: WorkTypeId }> {
+  return Object.values(WORK_TYPES)
+    .filter((workType) => isWorkTypeUnlocked(workType, gameState))
+    .map((workType) => createWorkAction(workType));
+}
+
+/**
+ * Get all work actions with unlock status (for UI display).
+ */
+export function getAllWorkActionsWithStatus(gameState: GameState): Array<{
+  action: Action & { workTypeId: WorkTypeId };
+  unlocked: boolean;
+  missingRequirements: string[];
+}> {
+  return Object.values(WORK_TYPES).map((workType) => {
+    const unlocked = isWorkTypeUnlocked(workType, gameState);
+    const action = createWorkAction(workType);
+    const missingRequirements: string[] = [];
+
+    // Check missing requirements
+    const req = workType.requirements;
+    const { age } = deriveDate(gameState);
+    const stats = gameState.stats;
+    const skills = gameState.skills;
+
+    if (req.minAge !== undefined && age < req.minAge) {
+      missingRequirements.push(`Age ${req.minAge}+`);
+    }
+    if (
+      req.minIntellect !== undefined &&
+      (stats.intellect ?? 0) < req.minIntellect
+    ) {
+      missingRequirements.push(`Intellect ${req.minIntellect}+`);
+    }
+    if (
+      req.minCharisma !== undefined &&
+      (stats.charisma ?? 0) < req.minCharisma
+    ) {
+      missingRequirements.push(`Charisma ${req.minCharisma}+`);
+    }
+    if (
+      req.minRunningSkill !== undefined &&
+      (skills.running ?? 0) < req.minRunningSkill
+    ) {
+      missingRequirements.push(`Running ${req.minRunningSkill}+`);
+    }
+    if (req.hasActiveSponsor && !gameState.sponsorship?.currentSponsor) {
+      missingRequirements.push("Active sponsor");
+    }
+
+    return { action, unlocked, missingRequirements };
+  });
 }
 
 /** Whether the state can currently pay the action's energy, age and resource costs. */
@@ -153,15 +253,30 @@ export function applyAction(state: GameState, action: Action): GameState {
 
   // Handle specific action logic that impacts new systems
   if (action.id === "work") {
-    const { economy: newEconomy } = earnFromWork(updatedState.economy, updatedState);
+    // Extract work type from action metadata if provided, default to "full_time"
+    const workTypeId = (action as any).workTypeId as WorkTypeId | undefined;
+    const { economy: newEconomy } = earnFromWork(
+      updatedState.economy,
+      updatedState,
+      workTypeId || "full_time",
+    );
     updatedState = { ...updatedState, economy: newEconomy };
   }
 
   // Handle sponsor payouts if applicable (e.g., monthly stipend check on new day)
   if (action.dayCost > 0) {
-    const { sponsorshipState: newSponsorship, amount } = claimMonthlyStipend(updatedState.sponsorship, updatedState.dayIndex);
+    const { sponsorshipState: newSponsorship, amount } = claimMonthlyStipend(
+      updatedState.sponsorship,
+      updatedState.dayIndex,
+    );
     if (amount > 0) {
-      const { economy: newEconomy } = earnSponsorPayout(updatedState.economy, updatedState, updatedState.sponsorship.currentSponsor || "Unknown", amount, "Monthly Stipend");
+      const { economy: newEconomy } = earnSponsorPayout(
+        updatedState.economy,
+        updatedState,
+        updatedState.sponsorship.currentSponsor || "Unknown",
+        amount,
+        "Monthly Stipend",
+      );
       updatedState = { ...updatedState, economy: newEconomy };
     }
     updatedState = { ...updatedState, sponsorship: newSponsorship };

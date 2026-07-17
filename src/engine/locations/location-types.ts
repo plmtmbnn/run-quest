@@ -1,12 +1,17 @@
 /**
  * Location Types (Sprint 24)
- * 
+ *
  * Defines location characteristics, atmosphere, and personality.
  */
 
-export type LocationTier = "local" | "regional" | "national" | "international" | "legendary";
+export type LocationTier =
+  | "local"
+  | "regional"
+  | "national"
+  | "international"
+  | "legendary";
 
-export type LocationTerrain = 
+export type LocationTerrain =
   | "flat_road"
   | "hilly_road"
   | "mountain_trail"
@@ -16,7 +21,7 @@ export type LocationTerrain =
   | "desert_highway"
   | "alpine_pass";
 
-export type WeatherCondition = 
+export type WeatherCondition =
   | "perfect"
   | "hot"
   | "cold"
@@ -26,7 +31,7 @@ export type WeatherCondition =
   | "snowy"
   | "foggy";
 
-export type LocationAtmosphere = 
+export type LocationAtmosphere =
   | "intimate"
   | "energetic"
   | "challenging"
@@ -45,22 +50,22 @@ export interface Location {
   city: string;
   region: string;
   country: string;
-  
+
   /** Location tier determines prestige and difficulty */
   tier: LocationTier;
-  
+
   /** Physical characteristics */
   terrain: LocationTerrain;
   elevation: number; // meters
   elevationGain?: number; // for courses with significant climbing
-  
+
   /** Typical weather patterns (can be overridden per race) */
   typicalWeather: WeatherCondition[];
-  
+
   /** Atmosphere and personality */
   atmosphere: LocationAtmosphere;
   description: string;
-  
+
   /** Story and lore */
   lore: string[];
   famousRunners?: string[];
@@ -70,18 +75,18 @@ export interface Location {
     holder: string;
     year: number;
   }[];
-  
+
   /** Gameplay modifiers */
   difficultyModifier: number; // 0.8-1.5 (easier to harder)
   crowdSupport: number; // 0-1 (affects mental state)
-  
+
   /** Visual identity */
   colors: {
     primary: string;
     secondary: string;
   };
   landmark?: string;
-  
+
   /** Unlock requirements */
   unlockRequirements?: {
     minLevel?: number;
@@ -108,17 +113,17 @@ export interface WeatherImpact {
  */
 export interface LocationPersonality {
   locationId: string;
-  
+
   /** Pre-race flavor text variations */
   arrivalTexts: string[];
-  
+
   /** During-race atmosphere descriptions */
   raceAtmosphere: string[];
-  
+
   /** Post-race reflections */
   victoryTexts: string[];
   defeatTexts: string[];
-  
+
   /** Location-specific events */
   specialEvents?: {
     name: string;
@@ -126,7 +131,7 @@ export interface LocationPersonality {
     probability: number; // 0-1
     effect: string;
   }[];
-  
+
   /** Memorable moments */
   landmarks: {
     distance: number; // km into race
