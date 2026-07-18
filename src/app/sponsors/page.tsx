@@ -22,10 +22,10 @@ export default function SponsorsPage() {
 
   if (!gameState) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-white bg-slate-950">
+      <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white">
         <div className="text-center space-y-4">
-          <div className="animate-spin text-purple-500 text-3xl">🔄</div>
-          <p className="text-gray-400">Loading Sponsors...</p>
+          <div className="animate-spin text-indigo-500 text-3xl">🔄</div>
+          <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-sm">Loading Sponsors...</p>
         </div>
       </div>
     );
@@ -78,22 +78,22 @@ export default function SponsorsPage() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.25, ease: "easeInOut" }}
-      className="min-h-screen bg-slate-950 text-white flex flex-col pb-16"
+      className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white flex flex-col pb-16"
     >
       {/* Header */}
-      <header className="px-6 pt-10 pb-4 flex justify-between items-center border-b border-slate-800 bg-slate-900/40 backdrop-blur-md sticky top-0 z-10">
+      <header className="px-6 py-4 flex justify-between items-center border-b border-[#E5E7EB] dark:border-slate-800 bg-white/95 dark:bg-slate-900/90 backdrop-blur-md sticky top-0 z-10 shadow-sm">
         <button
           type="button"
           onClick={() => {
             playSound("click");
             router.back();
           }}
-          className="rounded-full p-2.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-gray-300 shadow-sm transition-all active:scale-95"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-[#E5E7EB] dark:border-slate-700 bg-white dark:bg-slate-900 transition hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
           aria-label="Go back"
         >
-          <ArrowLeft className="h-5 w-5" />
+          <ArrowLeft className="h-5 w-5 text-slate-600 dark:text-slate-300" />
         </button>
-        <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
+        <h1 className="text-xl font-heading font-black text-slate-800 dark:text-white tracking-tight flex items-center gap-2">
           🤝 Sponsors
         </h1>
         <div className="w-10"></div>

@@ -15,6 +15,17 @@ export type ScheduleFrequency =
   | "annual"
   | "one_time";
 
+export type CategoryId = "5k" | "10k" | "hm" | "fm";
+
+export interface RaceCategory {
+  id: CategoryId;
+  name: string;
+  distance: number; // in km
+  fee: number;
+  prizeInfo: string;
+  maxEntrants?: number;
+}
+
 /**
  * Schedule definition for a race that repeats.
  */
@@ -47,6 +58,9 @@ export interface RaceSchedule {
     prerequisites?: RacePrerequisites;
   };
 
+  /** Optional race categories (5K, 10K, HM, FM) */
+  categories?: RaceCategory[];
+
   /** Field limits */
   maxEntrants?: number;
 
@@ -65,8 +79,11 @@ export interface SchedulingState {
   /** Track which races have been completed (raceId -> last completed dayIndex) */
   completedRaces: Record<string, number>;
 
-  /** Track registration status (raceScheduleId -> registered dayIndex) */
-  registered: Record<string, number>;
+  /** Track registration status (raceScheduleId -> dayIndex OR registration details) */
+  registered: Record<
+    string,
+    number | { dayIndex: number; categoryId: CategoryId }
+  >;
 
   /** Track which one-time events have occurred */
   completedOneTimeEvents: string[];
@@ -97,6 +114,10 @@ export interface RaceOccurrence {
   entryFee: number;
   prerequisites?: RacePrerequisites;
   maxEntrants?: number;
+
+  /** Available categories & selected category */
+  categories?: RaceCategory[];
+  selectedCategoryId?: CategoryId;
 
   /** Derived info */
   entrants?: number; // How many have entered

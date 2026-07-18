@@ -46,7 +46,7 @@ import {
   getRegisteredRaces,
   registerForRace,
 } from "@/scheduling/race-calendar-engine";
-import type { RaceOccurrence } from "@/scheduling/race-calendar-types";
+import type { RaceOccurrence, CategoryId } from "@/scheduling/race-calendar-types";
 import { isChampionship } from "@/scheduling/race-schedule-database";
 import { useSocialStore } from "@/social/social-store";
 import { storageRepository } from "@/storage/storage-repository";
@@ -205,8 +205,28 @@ export function HomeScreen() {
   // Handle race selection from calendar
   const handleRaceSelect = (race: RaceOccurrence) => {
     if (!gameState) return;
+    
+    // Sprint 29 Task 2: Prevent re-joining finished/past races
+    if (race.isCompleted) {
+      console.warn("Cannot start a race that has already been completed");
+      return;
+    }
+    
+    // Sprint 29 Task 2: Prevent starting races that have passed
+    if (race.dayIndex < currentDayIndex) {
+      console.warn("Cannot start a race from the past");
+      return;
+    }
+    
     const onlyRegister = race.dayIndex > currentDayIndex;
     const isRegistered = race.isRegistered;
+    
+    // Sprint 29 Task 3: Prevent re-registering for already registered races
+    if (isRegistered && onlyRegister) {
+      console.warn("Already registered for this race");
+      return;
+    }
+    
     const validation = validateRaceEntry(
       gameState.economy,
       gameState,
@@ -220,9 +240,19 @@ export function HomeScreen() {
   };
 
   // Handle confirmation from RaceEntryModal
-  const handleConfirmRaceEntry = () => {
+  const handleConfirmRaceEntry = (categoryId?: CategoryId) => {
     if (!gameState || !selectedRaceOccurrence || !entryValidation?.canEnter)
       return;
+
+    const categories = selectedRaceOccurrence.categories ?? [];
+    const selectedCategory = categories.find((c) => c.id === categoryId) ?? categories[0];
+
+    const actualFee = selectedCategory ? selectedCategory.fee : selectedRaceOccurrence.entryFee;
+    const actualDistance = selectedCategory ? selectedCategory.distance : 5;
+    const actualMaxEntrants = selectedCategory?.maxEntrants ?? selectedRaceOccurrence.maxEntrants ?? 100;
+    const raceNameWithCategory = selectedCategory
+      ? `${selectedRaceOccurrence.name} (${selectedCategory.name})`
+      : selectedRaceOccurrence.name;
 
     const onlyRegister = selectedRaceOccurrence.dayIndex > currentDayIndex;
     const isRegistered = selectedRaceOccurrence.isRegistered;
@@ -235,9 +265,9 @@ export function HomeScreen() {
       gameState.economy,
       gameState,
       selectedRaceOccurrence.tier,
-      selectedRaceOccurrence.name,
-      { ...selectedRaceOccurrence.prerequisites, entryFee: selectedRaceOccurrence.entryFee },
-      { onlyRegister, isRegistered },
+      raceNameWithCategory,
+      { ...selectedRaceOccurrence.prerequisites, entryFee: actualFee },
+      { onlyRegister, isRegistered, distanceInKm: actualDistance },
     );
 
     if (success) {
@@ -250,6 +280,7 @@ export function HomeScreen() {
           newGameStateFromProcess.scheduling,
           selectedRaceOccurrence.scheduleId,
           selectedRaceOccurrence.dayIndex,
+          selectedCategory?.id,
         );
         setGameState((prev) => ({ ...prev!, scheduling: updatedScheduling }));
       }
@@ -257,19 +288,16 @@ export function HomeScreen() {
       if (onlyRegister) {
         playSound("success");
       } else {
-        // This doAction("compete") now only deducts energy, money is handled by processRaceEntry
-        // It's still here if there are other side effects for 'compete' action in timeline.ts
+        // Compete action energy deduction
         doAction("compete");
 
-        // Set challenge for briefing screen - need to adapt RaceOccurrence to DailyChallenge
-        // We'll create a DailyChallenge (Scenario) object from RaceOccurrence details.
-        const raceSchedule = getScheduleById(selectedRaceOccurrence.scheduleId); // Get full schedule details
+        const raceSchedule = getScheduleById(selectedRaceOccurrence.scheduleId);
 
         const scenarioForBriefing: DailyChallenge = {
           id: selectedRaceOccurrence.raceId,
-          date: new Date().toISOString(), // Use current date for now
+          date: new Date().toISOString(),
           environment: {
-            weather: "sunny", // Placeholder, could derive from location/schedule
+            weather: "sunny",
             temperature: 20,
             humidity: 50,
             wind: { direction: "north", speed: 10 },
@@ -277,28 +305,26 @@ export function HomeScreen() {
           },
           race: {
             title: {
-              en: selectedRaceOccurrence.name,
-              id: selectedRaceOccurrence.name,
+              en: raceNameWithCategory,
+              id: raceNameWithCategory,
             },
             description: {
               en: selectedRaceOccurrence.description,
               id: selectedRaceOccurrence.description,
             },
-            distance: 5, // Placeholder - needs actual distance from raceId
-            surface: "road", // Placeholder - needs actual surface from raceId
-            elevation: "flat", // Placeholder
+            distance: actualDistance,
+            surface: "road",
+            elevation: "flat",
             checkpoints: [],
           },
-          objective: { targetTime: 1800 }, // Placeholder for targetTime
-          storySeed: { mood: "competitive" }, // Placeholder
+          objective: { targetTime: Math.round(actualDistance * 300) }, // 5:00 min/km pace baseline target
+          storySeed: { mood: "competitive" },
 
-          // New Sprint 26 properties from RaceOccurrence
           tier: selectedRaceOccurrence.tier,
-          entryFee: selectedRaceOccurrence.entryFee,
+          entryFee: actualFee,
           scheduleId: selectedRaceOccurrence.scheduleId,
-          // isChampionship derived from schedule tier
-          isChampionship: isChampionship(raceSchedule!), // Use helper to determine championship status
-          totalEntrants: selectedRaceOccurrence.entrants,
+          isChampionship: isChampionship(raceSchedule!),
+          totalEntrants: actualMaxEntrants,
           prerequisites: selectedRaceOccurrence.prerequisites,
         };
 
@@ -307,7 +333,6 @@ export function HomeScreen() {
       }
     } else {
       console.error("Race entry failed despite validation indicating success.");
-      // Potentially show an in-game error message to the player
     }
     setIsEntryModalOpen(false);
     setSelectedRaceOccurrence(null);
@@ -324,7 +349,7 @@ export function HomeScreen() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.25, ease: "easeInOut" }}
-      className="min-h-screen bg-background flex flex-col pb-28"
+      className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white flex flex-col pb-28"
     >
       {/* Header */}
       <header className="px-6 pt-10 pb-4 flex justify-between items-start">
@@ -358,8 +383,9 @@ export function HomeScreen() {
 
         {/* Player Stats Panel (Updated to show Money) */}
         {player && gameState && (
-          <div className="bg-gradient-to-br from-orange-500 to-amber-600 rounded-[2rem] p-5 md:p-6 text-white shadow-md flex flex-col md:flex-row md:items-center md:justify-between gap-5">
-            <div className="flex flex-col gap-3.5 min-w-0 w-full md:w-auto">
+          <div className="bg-gradient-to-br from-orange-500 to-amber-600 rounded-[2rem] p-5 md:p-6 text-white shadow-xl shadow-orange-500/20 flex flex-col md:flex-row md:items-center md:justify-between gap-5 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="flex flex-col gap-3.5 min-w-0 w-full md:w-auto relative z-10">
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-1.5">
                   <span className="text-[10px] text-orange-100 uppercase tracking-widest font-black">
@@ -392,17 +418,6 @@ export function HomeScreen() {
                   className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-1.5 rounded-full transition-all border border-white/10"
                 >
                   {t("home.daily_training" as TranslationKey)} →
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    playSound("click");
-                    setIsWorkModalOpen(true);
-                  }}
-                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-emerald-600/30 hover:bg-emerald-600/40 active:scale-95 px-3 py-1.5 rounded-full transition-all border border-emerald-500/30"
-                >
-                  <Briefcase className="h-3 w-3" />
-                  Work ({availableWorkActions.length}) →
                 </button>
                 <button
                   type="button"
@@ -442,31 +457,31 @@ export function HomeScreen() {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-2.5 w-full md:w-auto md:flex md:gap-4 shrink-0">
-              <div className="flex flex-col items-center justify-center bg-white/15 rounded-2xl p-2.5 text-center min-w-0 md:min-w-[90px] border border-white/5">
-                <span className="text-[9px] text-orange-200 uppercase font-black tracking-wider">
+            <div className="grid grid-cols-3 gap-2.5 w-full md:w-auto md:flex md:gap-4 shrink-0 relative z-10">
+              <div className="flex flex-col items-center justify-center bg-black/20 rounded-2xl p-3 text-center min-w-0 md:min-w-[90px] border border-white/10 shadow-inner">
+                <span className="text-[9px] text-orange-200 uppercase font-bold tracking-wider">
                   {t("home.stats.money" as TranslationKey)}
                 </span>
-                <span className="text-sm font-black flex items-center gap-0.5 mt-1 truncate">
+                <span className="text-sm font-black flex items-center gap-1 mt-1 truncate tracking-tight text-white">
                   💰 {formatCurrency(
                     currentBalance,
                     settings.preferredCurrency || "USD",
                   )}
                 </span>
               </div>
-              <div className="flex flex-col items-center justify-center bg-white/15 rounded-2xl p-2.5 text-center min-w-0 md:min-w-[90px] border border-white/5">
-                <span className="text-[9px] text-orange-200 uppercase font-black tracking-wider">
+              <div className="flex flex-col items-center justify-center bg-black/20 rounded-2xl p-3 text-center min-w-0 md:min-w-[90px] border border-white/10 shadow-inner">
+                <span className="text-[9px] text-orange-200 uppercase font-bold tracking-wider">
                   {t("home.stats.runs" as TranslationKey)}
                 </span>
-                <span className="text-sm font-black mt-1">
+                <span className="text-sm font-black mt-1 text-white">
                   {player.statistics.totalRuns}
                 </span>
               </div>
-              <div className="flex flex-col items-center justify-center bg-white/15 rounded-2xl p-2.5 text-center min-w-0 md:min-w-[90px] border border-white/5">
-                <span className="text-[9px] text-orange-200 uppercase font-black tracking-wider">
+              <div className="flex flex-col items-center justify-center bg-black/20 rounded-2xl p-3 text-center min-w-0 md:min-w-[90px] border border-white/10 shadow-inner">
+                <span className="text-[9px] text-orange-200 uppercase font-bold tracking-wider">
                   {t("home.stats.distance" as TranslationKey)}
                 </span>
-                <span className="text-sm font-black mt-1 truncate">
+                <span className="text-sm font-black mt-1 truncate text-white">
                   {player.statistics.totalDistance} km
                 </span>
               </div>
@@ -503,16 +518,21 @@ export function HomeScreen() {
         )}
 
         {/* Navigation to new economy/sponsorship pages */}
-        <div className="flex justify-center gap-4 mt-4">
+        <div className="grid grid-cols-2 gap-3 mt-2">
           <button
             type="button"
             onClick={() => {
               playSound("click");
               router.push("/economy");
             }}
-            className="text-xs uppercase font-bold tracking-wider text-blue-400 hover:text-blue-300 transition-colors"
+            className="flex flex-col items-center justify-center gap-2 p-4 bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-2xl shadow-sm hover:scale-[1.02] transition-transform"
           >
-            💰 Economy
+            <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-xl">
+              💰
+            </div>
+            <span className="text-xs font-black font-heading tracking-wider uppercase text-slate-700 dark:text-slate-300">
+              Economy & Work
+            </span>
           </button>
           <button
             type="button"
@@ -520,12 +540,19 @@ export function HomeScreen() {
               playSound("click");
               router.push("/sponsors");
             }}
-            className="text-xs uppercase font-bold tracking-wider text-purple-400 hover:text-purple-300 transition-colors relative"
+            className="flex flex-col items-center justify-center gap-2 p-4 bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-2xl shadow-sm hover:scale-[1.02] transition-transform relative"
           >
-            🤝 Sponsors
-            <SponsorOfferBadge
-              count={gameState?.sponsorship?.pendingOffers?.length ?? 0}
-            />
+            <div className="w-10 h-10 rounded-full bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center text-xl">
+              🤝
+            </div>
+            <span className="text-xs font-black font-heading tracking-wider uppercase text-slate-700 dark:text-slate-300">
+              Sponsors
+            </span>
+            <div className="absolute top-3 right-3">
+              <SponsorOfferBadge
+                count={gameState?.sponsorship?.pendingOffers?.length ?? 0}
+              />
+            </div>
           </button>
         </div>
       </main>

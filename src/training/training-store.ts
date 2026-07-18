@@ -1,11 +1,34 @@
 // training-store.ts
 // State management and persistence for the Training & Recovery System.
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { create } from "zustand";
 import type { TrainingState } from "./training-types";
 import { DEFAULT_TRAINING_STATE } from "./training-types";
 
 const TRAINING_STORAGE_KEY = "trainingState";
+
+interface TrainingStoreState {
+  trainingState: TrainingState;
+  setTrainingState: (state: TrainingState) => void;
+}
+
+const useGlobalTrainingStore = create<TrainingStoreState>((set) => ({
+  trainingState: {
+    trainingHistory: [],
+    weeklyBalance: {
+      easySessions: 0,
+      hardSessions: 0,
+      recoverySessions: 0,
+      strengthSessions: 0,
+      longRuns: 0,
+      restDays: 0,
+    },
+    adaptationQueue: [],
+    lastUpdated: 0,
+  },
+  setTrainingState: (state) => set({ trainingState: state }),
+}));
 
 /**
  * Loads the training state from local storage.
@@ -37,6 +60,7 @@ export const saveTrainingState = (state: TrainingState): void => {
   } catch (error) {
     console.error("Failed to save training state to local storage:", error);
   }
+  useGlobalTrainingStore.getState().setTrainingState(state);
 };
 
 /**
@@ -44,24 +68,17 @@ export const saveTrainingState = (state: TrainingState): void => {
  * @returns The current training state and a function to update it.
  */
 export const useTrainingStore = () => {
-  const [trainingState, setTrainingState] = useState<TrainingState>(
-    DEFAULT_TRAINING_STATE,
-  );
+  const trainingState = useGlobalTrainingStore((s) => s.trainingState);
 
   // Load the training state from local storage on mount.
   useEffect(() => {
     const storedState = loadTrainingState();
-    setTrainingState(storedState);
+    useGlobalTrainingStore.getState().setTrainingState(storedState);
   }, []);
-
-  // Save the training state to local storage whenever it changes.
-  useEffect(() => {
-    saveTrainingState(trainingState);
-  }, [trainingState]);
 
   return {
     trainingState,
-    setTrainingState,
+    setTrainingState: saveTrainingState,
   };
 };
 

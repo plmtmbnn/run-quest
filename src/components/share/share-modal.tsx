@@ -44,13 +44,13 @@ export function ShareModal({
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 bg-slate-900/40 dark:bg-black/75 flex items-center justify-center p-4 backdrop-blur-md animate-in fade-in duration-200"
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ type: "spring", duration: 0.45, bounce: 0.15 }}
-        className="bg-slate-900/95 border border-slate-800 max-w-lg w-full p-6 rounded-3xl shadow-2xl relative flex flex-col gap-6 overflow-hidden shadow-blue-500/5 animate-in zoom-in-95 duration-200"
+        className="bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 max-w-lg w-full p-6 md:p-8 rounded-[2rem] shadow-2xl relative flex flex-col gap-6 md:gap-8 overflow-hidden shadow-blue-500/5 animate-in zoom-in-95 duration-200"
       >
         {/* Glow Aura Background Effect */}
         <div className="absolute -top-40 -left-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -60,7 +60,7 @@ export function ShareModal({
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full border border-slate-800 bg-slate-900/60 hover:bg-slate-800/80 text-slate-400 hover:text-white transition-colors duration-200 cursor-pointer"
+          className="absolute top-4 right-4 p-2 rounded-full border border-slate-200 dark:border-slate-800 bg-slate-100/60 dark:bg-slate-900/60 hover:bg-slate-200/80 dark:hover:bg-slate-800/80 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors duration-200 cursor-pointer"
           aria-label="Close"
         >
           <X className="h-4.5 w-4.5" />
@@ -68,21 +68,21 @@ export function ShareModal({
 
         {/* Title */}
         <div className="flex flex-col items-center gap-2 mt-2">
-          <div className="p-2.5 bg-gradient-to-tr from-blue-500/10 to-indigo-500/10 rounded-full border border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.15)] flex items-center justify-center">
-            <Sparkles className="h-5 w-5 text-blue-400 animate-pulse" />
+          <div className="p-3 bg-gradient-to-tr from-blue-500/10 to-indigo-500/10 rounded-full border border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.15)] flex items-center justify-center">
+            <Sparkles className="h-6 w-6 text-blue-500 dark:text-blue-400 animate-pulse" />
           </div>
-          <h3 className="text-xl font-black font-heading bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
+          <h3 className="text-2xl md:text-3xl font-black font-heading tracking-tight bg-gradient-to-r from-slate-800 via-slate-600 to-slate-800 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent mt-2">
             Share Your Journey
           </h3>
-          <p className="text-xs text-slate-400 text-center max-w-[280px] leading-relaxed">
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 text-center max-w-[280px] leading-relaxed">
             Let others know about your choices and results!
           </p>
         </div>
 
         {/* Card Preview Container */}
-        <div className="relative group bg-slate-950/80 rounded-2xl p-5 overflow-hidden border border-slate-800/80 shadow-[inset_0_2px_4px_rgba(0,0,0,0.8)] flex justify-center">
+        <div className="relative group bg-slate-100/80 dark:bg-slate-950/80 rounded-2xl p-6 overflow-hidden border border-[#E5E7EB] dark:border-slate-800/80 shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(0,0,0,0.8)] flex justify-center">
           {/* Subtle Grid overlay */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:16px_16px] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_70%)] opacity-30 pointer-events-none" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:16px_16px] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_70%)] opacity-60 dark:opacity-30 pointer-events-none" />
 
           {/* Interactive Card scaler */}
           <div className="origin-center scale-[0.45] sm:scale-[0.55] md:scale-[0.6] my-[-115px] sm:my-[-90px] md:my-[-75px] transition-transform duration-300 hover:scale-[0.48] sm:hover:scale-[0.58] md:hover:scale-[0.63]">
@@ -97,21 +97,21 @@ export function ShareModal({
         </div>
 
         {/* Sharing Actions */}
-        <div className="grid grid-cols-3 gap-3 mt-1">
+        <div className="grid grid-cols-3 gap-2 md:gap-4 mt-2">
           {/* Copy Button */}
           <button
             type="button"
             onClick={() => copyText(shareText)}
-            className="group flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl border border-slate-800 bg-slate-900/40 hover:bg-slate-800/60 hover:border-slate-700 text-slate-300 hover:text-white transition-all duration-200 active:scale-95 cursor-pointer"
+            className="group flex flex-col items-center justify-center gap-1.5 md:gap-2 p-3 md:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/40 dark:bg-slate-900/40 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:border-slate-300 dark:hover:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all duration-200 hover:scale-[1.02] active:scale-95 cursor-pointer shadow-sm"
           >
-            <div className="p-1 rounded-lg bg-slate-950 group-hover:scale-110 transition-transform duration-200">
+            <div className="p-1.5 md:p-2 rounded-xl bg-slate-100 dark:bg-slate-950 group-hover:scale-110 transition-transform duration-200">
               {copied ? (
-                <Check className="h-4.5 w-4.5 text-emerald-400" />
+                <Check className="h-4 w-4 md:h-5 md:w-5 text-emerald-500 dark:text-emerald-400" />
               ) : (
-                <Copy className="h-4.5 w-4.5 text-slate-400 group-hover:text-blue-400 transition-colors" />
+                <Copy className="h-4 w-4 md:h-5 md:w-5 text-slate-500 dark:text-slate-400 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors" />
               )}
             </div>
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 group-hover:text-slate-200 transition-colors">
+            <span className="text-[9px] md:text-[10px] text-center font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200 transition-colors">
               {copied
                 ? t("share.copied" as TranslationKey)
                 : t("share.button.copy_text" as TranslationKey)}
@@ -123,12 +123,12 @@ export function ShareModal({
             type="button"
             onClick={() => downloadPng(cardRef, fileName)}
             disabled={isSharing}
-            className="group flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl border border-slate-800 bg-slate-900/40 hover:bg-slate-800/60 hover:border-slate-700 text-slate-300 hover:text-white transition-all duration-200 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            className="group flex flex-col items-center justify-center gap-1.5 md:gap-2 p-3 md:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/40 dark:bg-slate-900/40 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:border-slate-300 dark:hover:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all duration-200 hover:scale-[1.02] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-sm"
           >
-            <div className="p-1 rounded-lg bg-slate-950 group-hover:scale-110 transition-transform duration-200">
-              <Download className="h-4.5 w-4.5 text-slate-400 group-hover:text-indigo-400 transition-colors" />
+            <div className="p-1.5 md:p-2 rounded-xl bg-slate-100 dark:bg-slate-950 group-hover:scale-110 transition-transform duration-200">
+              <Download className="h-4 w-4 md:h-5 md:w-5 text-slate-500 dark:text-slate-400 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors" />
             </div>
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 group-hover:text-slate-200 transition-colors">
+            <span className="text-[9px] md:text-[10px] text-center font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200 transition-colors">
               {t("share.button.download" as TranslationKey)}
             </span>
           </button>
@@ -138,12 +138,12 @@ export function ShareModal({
             type="button"
             onClick={() => nativeShare(cardRef, shareText, shareTitle)}
             disabled={isSharing}
-            className="group flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold transition-all duration-200 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_4px_15px_rgba(59,130,246,0.3)] hover:shadow-[0_4px_20px_rgba(59,130,246,0.5)] cursor-pointer"
+            className="group flex flex-col items-center justify-center gap-1.5 md:gap-2 p-3 md:p-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 hover:from-indigo-600 hover:to-blue-700 text-white font-bold transition-all duration-200 hover:scale-[1.02] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_4px_15px_rgba(59,130,246,0.2)] dark:shadow-[0_4px_15px_rgba(59,130,246,0.3)] hover:shadow-[0_8px_25px_rgba(59,130,246,0.4)] cursor-pointer border border-blue-400/50 dark:border-blue-500/30"
           >
-            <div className="p-1 rounded-lg bg-white/10 group-hover:scale-110 transition-transform duration-200">
-              <Share2 className="h-4.5 w-4.5" />
+            <div className="p-1.5 md:p-2 rounded-xl bg-white/20 group-hover:scale-110 transition-transform duration-200 border border-white/20">
+              <Share2 className="h-4 w-4 md:h-5 md:w-5" />
             </div>
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-white/90">
+            <span className="text-[9px] md:text-[10px] text-center font-black uppercase tracking-wider text-white/90 group-hover:text-white">
               {t("share.button.share" as TranslationKey)}
             </span>
           </button>

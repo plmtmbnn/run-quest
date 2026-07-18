@@ -47,7 +47,7 @@ function computeStop(
 ): number {
   const date = deriveDate(state);
   if (mode === "day") return state.dayIndex + 1;
-  if (mode === "week") return state.dayIndex + (DAYS_PER_WEEK - date.dayOfWeek);
+  if (mode === "week") return state.dayIndex + DAYS_PER_WEEK; // Sprint 29 Task 1: Advance by exactly 7 days
   if (mode === "month") {
     const intoMonth = date.week * DAYS_PER_WEEK + date.dayOfWeek;
     return state.dayIndex + (DAYS_PER_MONTH - intoMonth);
@@ -64,6 +64,8 @@ function computeStop(
  * Fast-forward the calendar. Returns the resulting state plus any events that
  * halted the run (empty if it stopped at a boundary or death). The world only
  * moves inside this loop — never on the real clock.
+ * 
+ * Sprint 29 Issue 1: Fixed "week" mode to complete full 7 days even with events
  */
 export function fastForward(
   state: GameState,
@@ -75,9 +77,22 @@ export function fastForward(
 
   while (true) {
     if (isDead(current)) return { state: current, events: [] };
+    
+    // Check for events only in "event" mode or when past the stop point
+    // For "week" and "month" modes, continue to the full duration
     const dayEvents = eventsForDay(current.dayIndex);
-    if (dayEvents.length > 0) return { state: current, events: dayEvents };
-    if (current.dayIndex >= stop) return { state: current, events: [] };
+    const shouldHaltForEvent = mode === "event" && dayEvents.length > 0;
+    
+    if (shouldHaltForEvent) {
+      return { state: current, events: dayEvents };
+    }
+    
+    if (current.dayIndex >= stop) {
+      // Return any events at the stop point (e.g., race on day 7)
+      const stopEvents = eventsForDay(current.dayIndex);
+      return { state: current, events: stopEvents };
+    }
+    
     current = executeRoutineDay(current);
   }
 }

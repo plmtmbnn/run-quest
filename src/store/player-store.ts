@@ -124,12 +124,37 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     if (prep.pacing === "aggressive") intensity = 1.0;
     else if (prep.pacing === "conservative") intensity = 0.4;
 
-    // Determine if the player beat the Nemesis in this race
-    let didBeatNemesis: boolean | undefined;
     const finalState =
       result.stateLog && result.stateLog.length > 0
         ? result.stateLog[result.stateLog.length - 1]
         : null;
+
+    // Calculate player's position in standings
+    let position = 1;
+    if (finalState && finalState.opponents) {
+      const entries = [
+        {
+          time: result.finishTime,
+          isDNF: result.outcome === "dnf" || result.outcome === "dns",
+          isPlayer: true,
+        },
+        ...finalState.opponents.map((opp) => ({
+          time: opp.accumulatedTime,
+          isDNF: opp.isDNF,
+          isPlayer: false,
+        })),
+      ];
+      entries.sort((a, b) => {
+        if (a.isDNF && !b.isDNF) return 1;
+        if (!a.isDNF && b.isDNF) return -1;
+        return a.time - b.time;
+      });
+      const playerIndex = entries.findIndex((e) => e.isPlayer);
+      position = playerIndex !== -1 ? playerIndex + 1 : 1;
+    }
+
+    // Determine if the player beat the Nemesis in this race
+    let didBeatNemesis: boolean | undefined;
     if (finalState && finalState.opponents) {
       const nemesis = finalState.opponents.find((opp) => opp.isNemesis);
       if (nemesis) {
@@ -156,31 +181,10 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     // Apply Economy updates (Sprint 27 integration)
     const gameState = useTimelineStore.getState().gameState;
     if (gameState) {
-      // 1. Calculate player's position in standings
-      let position = 1;
-      if (finalState && finalState.opponents) {
-        const entries = [
-          {
-            time: result.finishTime,
-            isDNF: result.outcome === "dnf" || result.outcome === "dns",
-            isPlayer: true,
-          },
-          ...finalState.opponents.map((opp) => ({
-            time: opp.accumulatedTime,
-            isDNF: opp.isDNF,
-            isPlayer: false,
-          })),
-        ];
-        entries.sort((a, b) => {
-          if (a.isDNF && !b.isDNF) return 1;
-          if (!a.isDNF && b.isDNF) return -1;
-          return a.time - b.time;
-        });
-        const playerIndex = entries.findIndex((e) => e.isPlayer);
-        position = playerIndex !== -1 ? playerIndex + 1 : 1;
-      }
+      // 1. Position calculated above
 
-      // 2. Award race prize money
+
+      // 2. Award race prize money (only if player didn't DNF/DNS)
       const currentChallenge = useGameStore.getState().currentChallenge;
       const entryFee = currentChallenge?.entryFee ?? 0;
       const totalEntrants = currentChallenge?.totalEntrants ?? 5;
@@ -189,14 +193,21 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
         currentChallenge?.race.title.en ||
         "Race";
 
-      let { economy: updatedEconomy, prize } = earnRacePrize(
-        gameState.economy,
-        gameState,
-        entryFee,
-        totalEntrants,
-        position,
-        raceName,
-      );
+      let updatedEconomy = gameState.economy;
+      let prize = 0;
+
+      if (result.outcome !== "dnf" && result.outcome !== "dns") {
+        const racePrizeResult = earnRacePrize(
+          gameState.economy,
+          gameState,
+          entryFee,
+          totalEntrants,
+          position,
+          raceName,
+        );
+        updatedEconomy = racePrizeResult.economy;
+        prize = racePrizeResult.prize;
+      }
 
       // 3. Award sponsorship bonuses
       let updatedSponsorship = { ...gameState.sponsorship };
@@ -288,7 +299,9 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     );
 
     if (result.outcome !== "dnf" && result.outcome !== "dns") {
-      stats.totalWins += 1;
+      if (position === 1) {
+        stats.totalWins += 1;
+      }
     }
     if (result.grade === "S") {
       stats.perfectRuns += 1;

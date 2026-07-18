@@ -189,13 +189,14 @@ export function ResultScreen() {
 
       const dayIndex = useTimelineStore.getState().gameState?.dayIndex;
 
-      if (isNewPersonalBest(challenge.id, lastResult.finishTime)) {
+      if (isNewPersonalBest(challenge.id, lastResult.finishTime, challenge.race.distance)) {
         saveGhostRun(
           challenge.id,
           profile.displayName,
           lastResult.finishTime,
           splits,
           dayIndex,
+          challenge.race.distance,
         );
       }
 

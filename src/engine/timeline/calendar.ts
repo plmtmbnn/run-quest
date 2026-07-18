@@ -31,6 +31,18 @@ export function deriveDate(state: GameState): DateInfo {
   return { age, yearOffset: yearsElapsed, month, week, dayOfWeek };
 }
 
+/** Format a global day index into a readable date string: Year1, M1, W1, D1 */
+export function formatGameDate(dayIndex: number): string {
+  const yearsElapsed = Math.floor(dayIndex / DAYS_PER_YEAR);
+  const dayOfLife = dayIndex % DAYS_PER_YEAR;
+  const month = Math.floor(dayOfLife / DAYS_PER_MONTH);
+  const dayOfMonth = dayOfLife % DAYS_PER_MONTH;
+  const week = Math.floor(dayOfMonth / DAYS_PER_WEEK);
+  const dayOfWeek = dayOfMonth % DAYS_PER_WEEK;
+  
+  return `Year ${yearsElapsed + 1}, M${month + 1}, W${week + 1}, D${dayOfWeek + 1}`;
+}
+
 /** Whole days left before the rolled lifespan is reached. */
 export function daysRemaining(state: GameState): number {
   const totalDays = (state.lifespan - state.startAge) * DAYS_PER_YEAR;

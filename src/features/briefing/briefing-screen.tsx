@@ -48,9 +48,9 @@ export function BriefingScreen() {
   const [enableGhost, setEnableGhost] = useState(false);
 
   useEffect(() => {
-    const loadedGhost = loadGhostRun(challenge.id);
+    const loadedGhost = loadGhostRun(challenge.id, challenge.race.distance);
     setGhost(loadedGhost);
-  }, [challenge.id]);
+  }, [challenge.id, challenge.race.distance]);
 
   const shareTitle = t("share.race_choice.title" as TranslationKey);
   const shareText = `🏃 RunQuest — ${t("share.race_choice.title" as TranslationKey)}

@@ -17,6 +17,7 @@ import type {
   RaceOccurrence,
   RaceSchedule,
   SchedulingState,
+  CategoryId,
 } from "./race-calendar-types";
 import { RACE_SCHEDULES } from "./race-schedule-database";
 
@@ -79,13 +80,13 @@ export function getTodaysRaces(
 export function getUpcomingRaces(
   schedulingState: SchedulingState,
   currentDayIndex: number,
-  daysAhead: number = 90,
+  daysAhead: number = 336,
 ): RaceOccurrence[] {
   const upcoming: RaceOccurrence[] = [];
   const totalEntrants = 50;
 
   for (const schedule of RACE_SCHEDULES) {
-    // Check next few occurrences of this race
+    // Check next occurrence of this race within the year window
     for (let offset = 0; offset < daysAhead; offset++) {
       const dayToCheck = currentDayIndex + offset;
       const occurrence = getRaceOccurrence(
@@ -96,6 +97,7 @@ export function getUpcomingRaces(
       );
       if (occurrence && dayToCheck > currentDayIndex) {
         upcoming.push(occurrence);
+        break; // Only show the next upcoming occurrence for each race schedule
       }
     }
   }
@@ -103,8 +105,7 @@ export function getUpcomingRaces(
   // Sort by dayIndex (soonest first)
   upcoming.sort((a, b) => a.dayIndex - b.dayIndex);
 
-  // Take closest 10
-  return upcoming.slice(0, 10);
+  return upcoming;
 }
 
 /**
@@ -141,10 +142,17 @@ function getRaceOccurrence(
 
   // Count registered entrants (from scheduling state)
   const registeredCount = Object.entries(schedulingState.registered).filter(
-    ([id, regDay]) => id.startsWith(schedule.id) && regDay === dayIndex,
+    ([id, regVal]) => {
+      const regDay = typeof regVal === "object" ? regVal.dayIndex : regVal;
+      return id.startsWith(schedule.id) && regDay === dayIndex;
+    },
   ).length;
 
-  const isRegistered = !!schedulingState.registered[schedule.id];
+  const regVal = schedulingState.registered[schedule.id];
+  const regDay = typeof regVal === "object" ? regVal.dayIndex : regVal;
+  const selectedCategoryId = typeof regVal === "object" ? regVal.categoryId : undefined;
+
+  const isRegistered = regDay === dayIndex;
   const isFull = schedule.maxEntrants
     ? registeredCount >= schedule.maxEntrants
     : false;
@@ -170,6 +178,8 @@ function getRaceOccurrence(
     entryFee: schedule.entry.fee,
     prerequisites: schedule.entry.prerequisites,
     maxEntrants: schedule.maxEntrants,
+    categories: schedule.categories,
+    selectedCategoryId,
     entrants: registeredCount,
     prizePool,
     icon: schedule.icon,
@@ -182,45 +192,68 @@ function getRaceOccurrence(
 
 /**
  * Check if a race runs on a specific day.
+ * Sprint 29 Task 5: Enforce weekend-only races (except daily training races)
  */
 function isRaceOnDay(schedule: RaceSchedule, dayIndex: number): boolean {
   const sched = schedule.schedule;
 
+  // Sprint 29 Task 5: Helper to check if a day is a weekend
+  // 0 = Sunday, 6 = Saturday in standard week numbering
+  const isWeekend = (day: number): boolean => {
+    const dayOfWeek = day % DAYS_PER_WEEK;
+    return dayOfWeek === 0 || dayOfWeek === 6; // Sunday or Saturday
+  };
+
   switch (sched.frequency) {
     case "daily":
-      return true; // Every day
+      // Daily races are low-tier training races, allow every day
+      return true;
 
     case "weekly":
-      // Check day of week (0=Monday)
-      return (
-        sched.dayOfWeek !== undefined &&
-        dayIndex % DAYS_PER_WEEK === sched.dayOfWeek % DAYS_PER_WEEK
-      );
+      // Check day of week (0=Sunday, 6=Saturday)
+      // Sprint 29: Enforce weekend-only for weekly races
+      if (sched.dayOfWeek === undefined) return false;
+      const targetDay = sched.dayOfWeek % DAYS_PER_WEEK;
+      const currentDay = dayIndex % DAYS_PER_WEEK;
+      
+      // Only allow if it matches the schedule AND is a weekend
+      return currentDay === targetDay && isWeekend(dayIndex);
 
     case "monthly": {
       // Check day of month (1-28)
+      // Sprint 29: Ensure monthly races fall on weekends
       if (sched.dayOfMonth === undefined) return false;
       const dayOfMonth = (dayIndex % DAYS_PER_MONTH) + 1; // 1-based
-      return dayOfMonth === sched.dayOfMonth;
+      
+      // Only allow if it's the right day of month AND a weekend
+      return dayOfMonth === sched.dayOfMonth && isWeekend(dayIndex);
     }
 
     case "seasonal": {
       // Seasonal = specific month, e.g. month 3 (April)
+      // Sprint 29: Ensure seasonal races fall on weekends
       if (sched.dayOfYear === undefined) return false;
       const dayOfYear = dayIndex % DAYS_PER_YEAR;
-      return dayOfYear === sched.dayOfYear;
+      
+      // Only allow if it's the right day of year AND a weekend
+      return dayOfYear === sched.dayOfYear && isWeekend(dayIndex);
     }
 
     case "annual": {
       // Runs on specific day of year
+      // Sprint 29: Ensure annual races fall on weekends
       if (sched.dayOfYear === undefined) return false;
       const dayOfYearAnnual = dayIndex % DAYS_PER_YEAR;
-      return dayOfYearAnnual === sched.dayOfYear;
+      
+      // Only allow if it's the right day of year AND a weekend
+      return dayOfYearAnnual === sched.dayOfYear && isWeekend(dayIndex);
     }
 
     case "one_time":
       // Runs on specific explicit day(s)
-      return sched.specificDays?.includes(dayIndex) ?? false;
+      // Sprint 29: Ensure one-time events fall on weekends
+      const isSpecificDay = sched.specificDays?.includes(dayIndex) ?? false;
+      return isSpecificDay && isWeekend(dayIndex);
 
     default:
       return false;
@@ -234,16 +267,13 @@ export function registerForRace(
   schedulingState: SchedulingState,
   scheduleId: string,
   dayIndex: number,
+  categoryId?: CategoryId,
 ): SchedulingState {
-  if (schedulingState.registered[scheduleId]) {
-    return schedulingState; // Already registered
-  }
-
   return {
     ...schedulingState,
     registered: {
       ...schedulingState.registered,
-      [scheduleId]: dayIndex,
+      [scheduleId]: categoryId ? { dayIndex, categoryId } : dayIndex,
     },
   };
 }
@@ -409,9 +439,11 @@ export function getRegisteredRaces(
   const totalEntrants = 50;
 
   // Gather all registered race occurrences
-  for (const [scheduleId, dayIdx] of Object.entries(schedulingState.registered)) {
+  for (const [scheduleId, regVal] of Object.entries(schedulingState.registered)) {
     const schedule = RACE_SCHEDULES.find((s) => s.id === scheduleId);
     if (!schedule) continue;
+
+    const dayIdx = typeof regVal === "object" ? regVal.dayIndex : regVal;
 
     const occurrence = getRaceOccurrence(
       schedule,

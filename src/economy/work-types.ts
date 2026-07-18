@@ -17,7 +17,12 @@ export type WorkTypeId =
   | "corporate"
   | "brand_ambassador"
   | "marathon_trainer"
-  | "coach";
+  | "coach"
+  | "content_creator"      // Sprint 29 Task 6
+  | "personal_trainer"     // Sprint 29 Task 6
+  | "sports_nutritionist"  // Sprint 29 Task 6
+  | "running_store_staff"  // Sprint 29 Task 6
+  | "event_organizer";     // Sprint 29 Task 6
 
 export interface WorkType {
   id: WorkTypeId;
@@ -230,7 +235,126 @@ export const WORK_TYPES: Record<WorkTypeId, WorkType> = {
     icon: "🏃‍♀️",
     color: "#10b981",
   },
-  // End of new work types
+  
+  // ═══════════════════════════════════════════════════════
+  // Sprint 29 Task 6: New Work Types
+  // ═══════════════════════════════════════════════════════
+  
+  content_creator: {
+    id: "content_creator",
+    name: "Content Creator",
+    description: "Create running content for social media. Build your brand while earning.",
+    pay: { min: 40, max: 80 },
+    energyCost: 30,
+    dayCost: 0,
+    requirements: {
+      minAge: 16,
+      minCharisma: 15,
+    },
+    payScaling: {
+      charisma: 2.5,
+    },
+    effects: {
+      charisma: 1,
+      health: -1,
+    },
+    icon: "🎬",
+    color: "#ec4899",
+  },
+  
+  personal_trainer: {
+    id: "personal_trainer",
+    name: "Personal Trainer",
+    description: "Train clients one-on-one. Use your running expertise to help others.",
+    pay: { min: 60, max: 120 },
+    energyCost: 35,
+    dayCost: 0,
+    requirements: {
+      minAge: 18,
+      minRunningSkill: 25,
+    },
+    payScaling: {
+      running: 2.0,
+    },
+    effects: {
+      running: 1,
+      health: -2,
+    },
+    icon: "💪",
+    color: "#f59e0b",
+  },
+  
+  sports_nutritionist: {
+    id: "sports_nutritionist",
+    name: "Sports Nutritionist",
+    description: "Advise athletes on nutrition and diet. Blend knowledge with running experience.",
+    pay: { min: 80, max: 150 },
+    energyCost: 25,
+    dayCost: 0,
+    requirements: {
+      minAge: 20,
+      minIntellect: 20,
+      minRunningSkill: 15,
+    },
+    payScaling: {
+      intellect: 2.0,
+      running: 1.5,
+    },
+    effects: {
+      intellect: 2,
+      health: 1,
+    },
+    icon: "🥗",
+    color: "#10b981",
+  },
+  
+  running_store_staff: {
+    id: "running_store_staff",
+    name: "Running Store Staff",
+    description: "Work at a specialty running store. Help customers find the right gear.",
+    pay: { min: 35, max: 50 },
+    energyCost: 25,
+    dayCost: 0,
+    requirements: {
+      minAge: 16,
+    },
+    payScaling: {
+      charisma: 0.5,
+    },
+    effects: {
+      charisma: 1,
+      health: -1,
+    },
+    icon: "👟",
+    color: "#6366f1",
+  },
+  
+  event_organizer: {
+    id: "event_organizer",
+    name: "Event Organizer",
+    description: "Organize running events and races. Leadership and experience required.",
+    pay: { min: 100, max: 200 },
+    energyCost: 40,
+    dayCost: 0,
+    requirements: {
+      minAge: 25,
+      minCharisma: 25,
+      minIntellect: 20,
+      minCareerWins: 5,
+    },
+    payScaling: {
+      charisma: 3.0,
+      intellect: 2.0,
+    },
+    effects: {
+      charisma: 2,
+      intellect: 1,
+      health: -2,
+    },
+    icon: "📋",
+    color: "#8b5cf6",
+  },
+  // End of Sprint 29 work types
 };
 
 /**

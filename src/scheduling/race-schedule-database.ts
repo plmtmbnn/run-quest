@@ -1,17 +1,3 @@
-/**
- * Race Schedule Database (Sprint 26 - Task 4)
- *
- * Defines when every race happens in the game timeline.
- *
- * Schedule Philosophy:
- * - Daily races: Always available, local tier, small entry fee
- * - Weekly races: Regional-tier events on specific days
- * - Monthly races: State-level championships
- * - Seasonal races: National events tied to year seasons
- * - Annual races: Olympic Trials, major championships
- * - One-time: Special story events
- */
-
 import type { RaceSchedule } from "./race-calendar-types";
 import { formatCurrency } from "../economy/currency-converter";
 import { useSettingsStore } from "@/store/settings-store";
@@ -23,305 +9,533 @@ const preferredCurrency = useSettingsStore.getState().settings.preferredCurrency
 
 export const RACE_SCHEDULES: RaceSchedule[] = [
   // ═══════════════════════════════════════════════════════
-  // DAILY RACES - Always available, local tier
+  // WEEKLY RACES - Reduced frequency and fee
   // ═══════════════════════════════════════════════════════
-
-  {
-    id: "daily_local_5k",
-    raceId: "local_5k_park",
-    name: "Jakarta Fun Run 5K",
-    locationId: "local_5k_park",
-    tier: "local",
-    description:
-      "The classic street run through Jakarta's center. Same course, different day. A great way to build consistency.",
-    schedule: {
-      frequency: "daily",
-    },
-    registration: {
-      opensDaysBefore: 30,
-      closesDaysBefore: 7,
-    },
-    entry: {
-      fee: 35,
-    },
-    icon: "🏃",
-    color: "text-green-500",
-    prizeInfo: "Winner takes 40% of entry pool",
-  },
-
-  {
-    id: "daily_10k_circuit",
-    raceId: "regional_10k_hills",
-    name: "Bandung Heritage 10K",
-    locationId: "regional_10k_hills",
-    tier: "local",
-    description:
-      "A challenging 10K through the scenic heritage streets of Bandung. Tests endurance and pacing.",
-    schedule: {
-      frequency: "daily",
-    },
-    registration: {
-      opensDaysBefore: 30,
-      closesDaysBefore: 7,
-    },
-    entry: {
-      fee: 55,
-    },
-    icon: "🏃‍♂️",
-    color: "text-emerald-500",
-    prizeInfo: "Winner takes 40% of entry pool",
-  },
-
-  // ═══════════════════════════════════════════════════════
-  // WEEKLY RACES - Regional tier on specific days
-  // ═══════════════════════════════════════════════════════
-
-  {
-    id: "weekly_saturday_5k",
-    raceId: "local_5k_park",
-    name: "Bali Marathon Saturday Series",
-    locationId: "local_5k_park",
-    tier: "regional",
-    description:
-      "The weekly Saturday showdown along the beaches of Bali. Higher stakes, better competition, bigger prizes.",
-    schedule: {
-      frequency: "weekly",
-      dayOfWeek: 6, // Saturday
-    },
-    registration: {
-      opensDaysBefore: 30,
-      closesDaysBefore: 7,
-    },
-    entry: {
-      fee: 120,
-    },
-    maxEntrants: 100,
-    icon: "🏆",
-    color: "text-blue-500",
-    prizeInfo: "Regional prize pool, 70% goes to top 5",
-  },
-
-  {
-    id: "weekly_sunday_hills",
-    raceId: "regional_10k_hills",
-    name: "Borobudur Hills Challenge",
-    locationId: "regional_10k_hills",
-    tier: "regional",
-    description:
-      "Conquer the historical trails around Borobudur every Sunday. Builds character and leg strength.",
-    schedule: {
-      frequency: "weekly",
-      dayOfWeek: 0, // Sunday
-    },
-    registration: {
-      opensDaysBefore: 30,
-      closesDaysBefore: 7,
-    },
-    entry: {
-      fee: 180,
-    },
-    maxEntrants: 80,
-    icon: "⛰️",
-    color: "text-sky-500",
-    prizeInfo: "Regional prize pool, 70% goes to top 5",
-  },
+  // {
+  //   id: "weekly_sunday_morning_run",
+  //   raceId: "local_5k_park",
+  //   name: "Sunday Morning Run Jakarta",
+  //   locationId: "local_5k_park",
+  //   tier: "local",
+  //   description: "A low-stakes weekly community run to test your progress.",
+  //   schedule: {
+  //     frequency: "weekly",
+  //     dayOfWeek: 0, // Sunday
+  //   },
+  //   registration: {
+  //     opensDaysBefore: 6,
+  //     closesDaysBefore: 1,
+  //   },
+  //   entry: {
+  //     fee: 25,
+  //   },
+  //   maxEntrants: 50,
+  //   icon: "🏃",
+  //   color: "text-green-500",
+  //   prizeInfo: `Winner takes ${formatCurrency(100, preferredCurrency)}`,
+  // },
 
   // ═══════════════════════════════════════════════════════
   // MONTHLY RACES - State level championships
   // ═══════════════════════════════════════════════════════
-
   {
-    id: "monthly_state_5k",
-    raceId: "local_5k_park",
-    name: "Jakarta Marathon Championship",
-    locationId: "local_5k_park",
+    id: "monthly_nusantara_10k",
+    raceId: "regional_10k_hills",
+    name: "Nusantara 10K Challenge",
+    locationId: "regional_10k_hills",
     tier: "state",
-    description:
-      "Monthly championship in Jakarta. Top runners from across the region compete. Points count toward annual standings.",
-    schedule: {
-      frequency: "monthly",
-      dayOfMonth: 15, // 15th of each month
-    },
-    registration: {
-      opensDaysBefore: 45,
-      closesDaysBefore: 10,
-    },
-    entry: {
-      fee: 450,
-      prerequisites: {
-        minLevel: 8,
-        minRating: 1800,
-      },
-    },
-    maxEntrants: 50,
-    icon: "👑",
-    color: "text-purple-500",
-    prizeInfo: "State championship purse, champion gets title + bonus",
-  },
-
-  {
-    id: "monthly_state_half",
-    raceId: "state_half_coastal",
-    name: "Mandalika Coastal Half Marathon",
-    locationId: "state_half_coastal",
-    tier: "state",
-    description:
-      "Monthly half marathon along the breathtaking Mandalika coastline. The premier distance event of the month.",
+    description: "Monthly state-tier race. Good stepping stone for major events.",
     schedule: {
       frequency: "monthly",
       dayOfMonth: 28, // 28th of each month
     },
     registration: {
-      opensDaysBefore: 45,
-      closesDaysBefore: 10,
+      opensDaysBefore: 14,
+      closesDaysBefore: 3,
+    },
+    entry: {
+      fee: 25,
+    },
+    categories: [
+      { id: "5k", name: "5K Challenge", distance: 5, fee: 15, prizeInfo: `Champion gets ${formatCurrency(150, preferredCurrency)}`, maxEntrants: 100 },
+      { id: "10k", name: "10K Main Race", distance: 10, fee: 25, prizeInfo: `Champion gets ${formatCurrency(300, preferredCurrency)}`, maxEntrants: 100 },
+    ],
+    maxEntrants: 100,
+    icon: "🏅",
+    color: "text-blue-500",
+    prizeInfo: `Champion gets ${formatCurrency(300, preferredCurrency)}`,
+  },
+
+  // ═══════════════════════════════════════════════════════
+  // ANNUAL RACES - Indonesian Majors
+  // ═══════════════════════════════════════════════════════
+  {
+    id: "annual_pocari_sweat_run",
+    raceId: "state_half_coastal",
+    name: "Pocari Sweat Run Bandung",
+    locationId: "state_half_coastal",
+    tier: "national",
+    description: "One of the most anticipated running events in Indonesia, held in Bandung.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 182, // July (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 60,
+      closesDaysBefore: 14,
+    },
+    entry: {
+      fee: 200,
+      prerequisites: {
+        minLevel: 8,
+        minRating: 1500,
+      },
+    },
+    categories: [
+      { id: "5k", name: "5K Fun Run", distance: 5, fee: 30, prizeInfo: `Champion gets ${formatCurrency(400, preferredCurrency)}`, maxEntrants: 1000 },
+      { id: "10k", name: "10K Race", distance: 10, fee: 50, prizeInfo: `Champion gets ${formatCurrency(800, preferredCurrency)}`, maxEntrants: 1500 },
+      { id: "hm", name: "Half Marathon", distance: 21.1, fee: 100, prizeInfo: `Champion gets ${formatCurrency(2000, preferredCurrency)}`, maxEntrants: 2000 },
+    ],
+    maxEntrants: 2000,
+    icon: "💧",
+    color: "text-blue-400",
+    prizeInfo: `Champion gets ${formatCurrency(2000, preferredCurrency)}`,
+  },
+  {
+    id: "annual_maybank_bali",
+    raceId: "national_marathon_city",
+    name: "Maybank Marathon Bali",
+    locationId: "national_marathon_city",
+    tier: "national",
+    description: "Bali's premier international marathon. Beautiful scenery and intense heat.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 210, // August
+    },
+    registration: {
+      opensDaysBefore: 60,
+      closesDaysBefore: 14,
+    },
+    entry: {
+      fee: 250,
+      prerequisites: {
+        minLevel: 10,
+        minRating: 1600,
+      },
+    },
+    categories: [
+      { id: "10k", name: "10K Sprint", distance: 10, fee: 60, prizeInfo: `Champion gets ${formatCurrency(1000, preferredCurrency)}`, maxEntrants: 1000 },
+      { id: "hm", name: "Half Marathon", distance: 21.1, fee: 120, prizeInfo: `Champion gets ${formatCurrency(2200, preferredCurrency)}`, maxEntrants: 2000 },
+      { id: "fm", name: "Full Marathon", distance: 42.2, fee: 250, prizeInfo: `Champion gets ${formatCurrency(4500, preferredCurrency)}`, maxEntrants: 3000 },
+    ],
+    maxEntrants: 3000,
+    icon: "🌴",
+    color: "text-yellow-500",
+    prizeInfo: `Champion gets ${formatCurrency(4500, preferredCurrency)}`,
+  },
+  {
+    id: "annual_jakarta_marathon",
+    raceId: "national_marathon_city",
+    name: "Jakarta Marathon",
+    locationId: "national_marathon_city",
+    tier: "national",
+    description: "The capital's biggest running festival. Fast, flat, and challenging humidity.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 259, // October (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 60,
+      closesDaysBefore: 14,
+    },
+    entry: {
+      fee: 300,
+      prerequisites: {
+        minLevel: 12,
+        minRating: 1700,
+      },
+    },
+    categories: [
+      { id: "5k", name: "5K Dash", distance: 5, fee: 35, prizeInfo: `Champion gets ${formatCurrency(500, preferredCurrency)}`, maxEntrants: 1500 },
+      { id: "10k", name: "10K Challenge", distance: 10, fee: 65, prizeInfo: `Champion gets ${formatCurrency(1200, preferredCurrency)}`, maxEntrants: 2000 },
+      { id: "hm", name: "Half Marathon", distance: 21.1, fee: 140, prizeInfo: `Champion gets ${formatCurrency(2800, preferredCurrency)}`, maxEntrants: 3000 },
+      { id: "fm", name: "Full Marathon", distance: 42.2, fee: 300, prizeInfo: `Champion gets ${formatCurrency(6000, preferredCurrency)}`, maxEntrants: 5000 },
+    ],
+    maxEntrants: 5000,
+    icon: "🏙️",
+    color: "text-red-500",
+    prizeInfo: `Champion gets ${formatCurrency(6000, preferredCurrency)}`,
+  },
+  {
+    id: "annual_borobudur_marathon",
+    raceId: "regional_10k_hills",
+    name: "Borobudur Marathon",
+    locationId: "regional_10k_hills",
+    tier: "national",
+    description: "Run around the historic Borobudur temple in Magelang.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 287, // November (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 60,
+      closesDaysBefore: 14,
+    },
+    entry: {
+      fee: 250,
+      prerequisites: {
+        minLevel: 10,
+        minRating: 1600,
+      },
+    },
+    maxEntrants: 2500,
+    icon: "🛕",
+    color: "text-orange-500",
+    prizeInfo: `Champion gets ${formatCurrency(3000, preferredCurrency)}`,
+  },
+  {
+    id: "annual_bfi_run",
+    raceId: "local_5k_park",
+    name: "BFI Run Tangerang",
+    locationId: "local_5k_park",
+    tier: "national",
+    description: "A highly popular half and full marathon in Tangerang known for its excellent organization.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 147, // June (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 60,
+      closesDaysBefore: 14,
+    },
+    entry: {
+      fee: 200,
+      prerequisites: {
+        minLevel: 8,
+        minRating: 1500,
+      },
+    },
+    maxEntrants: 2500,
+    icon: "🏃",
+    color: "text-blue-500",
+    prizeInfo: `Champion gets ${formatCurrency(2500, preferredCurrency)}`,
+  },
+  {
+    id: "annual_2xu_compression_run",
+    raceId: "local_5k_park",
+    name: "2XU Compression Run Indonesia",
+    locationId: "local_5k_park",
+    tier: "national",
+    description: "A premium half marathon race in Jakarta.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 294, // Late November (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 60,
+      closesDaysBefore: 14,
+    },
+    entry: {
+      fee: 220,
+      prerequisites: {
+        minLevel: 8,
+        minRating: 1500,
+      },
+    },
+    maxEntrants: 3000,
+    icon: "👕",
+    color: "text-slate-800",
+    prizeInfo: `Champion gets ${formatCurrency(2500, preferredCurrency)}`,
+  },
+
+  // ═══════════════════════════════════════════════════════
+  // ANNUAL RACES - Asian Majors
+  // ═══════════════════════════════════════════════════════
+  {
+    id: "annual_tokyo_marathon",
+    raceId: "national_marathon_city",
+    name: "Tokyo Marathon",
+    locationId: "national_marathon_city",
+    tier: "international",
+    description: "World Marathon Major. The premier marathon in Asia.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 63, // March (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 90,
+      closesDaysBefore: 21,
+    },
+    entry: {
+      fee: 500,
+      prerequisites: {
+        minLevel: 18,
+        minRating: 2100,
+        requiresQualification: true,
+      },
+    },
+    maxEntrants: 30000,
+    icon: "🌸",
+    color: "text-pink-500",
+    prizeInfo: `World Major purse: ${formatCurrency(15000, preferredCurrency)} to champion`,
+  },
+  {
+    id: "annual_seoul_marathon",
+    raceId: "national_marathon_city",
+    name: "Seoul Marathon",
+    locationId: "national_marathon_city",
+    tier: "international",
+    description: "One of the oldest and most prestigious marathons in Asia, known for its flat and fast course.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 77, // March (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 90,
+      closesDaysBefore: 21,
+    },
+    entry: {
+      fee: 450,
+      prerequisites: {
+        minLevel: 15,
+        minRating: 2000,
+        requiresQualification: true,
+      },
+    },
+    maxEntrants: 25000,
+    icon: "🐯",
+    color: "text-red-500",
+    prizeInfo: `International purse: ${formatCurrency(12000, preferredCurrency)} to champion`,
+  },
+  {
+    id: "annual_osaka_marathon",
+    raceId: "national_marathon_city",
+    name: "Osaka Marathon",
+    locationId: "national_marathon_city",
+    tier: "international",
+    description: "A vibrant and scenic marathon taking runners past Osaka's famous landmarks.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 49, // Late February (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 90,
+      closesDaysBefore: 21,
+    },
+    entry: {
+      fee: 400,
+      prerequisites: {
+        minLevel: 15,
+        minRating: 2000,
+      },
+    },
+    maxEntrants: 20000,
+    icon: "🏯",
+    color: "text-blue-500",
+    prizeInfo: `International purse: ${formatCurrency(10000, preferredCurrency)} to champion`,
+  },
+
+  // ═══════════════════════════════════════════════════════
+  // ANNUAL RACES - European & World Majors
+  // ═══════════════════════════════════════════════════════
+  {
+    id: "annual_boston_marathon",
+    raceId: "national_marathon_city",
+    name: "Boston Marathon",
+    locationId: "national_marathon_city",
+    tier: "international",
+    description: "World Marathon Major. The world's oldest annual marathon.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 98, // April (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 90,
+      closesDaysBefore: 21,
     },
     entry: {
       fee: 600,
       prerequisites: {
-        minLevel: 12,
-        minRating: 1900,
-      },
-    },
-    maxEntrants: 100,
-    icon: "🌊",
-    color: "text-cyan-500",
-    prizeInfo: "State half marathon purse + title",
-  },
-
-  // ═══════════════════════════════════════════════════════
-  // SEASONAL RACES - National tier, specific months
-  // ═══════════════════════════════════════════════════════
-
-  {
-    id: "seasonal_spring_marathon",
-    raceId: "national_marathon_city",
-    name: "Tokyo Marathon",
-    locationId: "national_marathon_city",
-    tier: "national",
-    description:
-      "The premier Asian major marathon in Tokyo. National TV coverage. The best in the country compete.",
-    schedule: {
-      frequency: "seasonal",
-      dayOfYear: 120, // Early May (day 120 of 336-day year)
-    },
-    registration: {
-      opensDaysBefore: 60,
-      closesDaysBefore: 14,
-    },
-    entry: {
-      fee: 1200,
-      prerequisites: {
-        minLevel: 18,
-        minRating: 2100,
+        minLevel: 22,
+        minRating: 2200,
         requiresQualification: true,
       },
     },
-    maxEntrants: 200,
-    icon: "🌷",
-    color: "text-orange-500",
-    prizeInfo: `National prize purse: ${formatCurrency(10000, preferredCurrency)} to champion`,
+    maxEntrants: 30000,
+    icon: "🦄",
+    color: "text-blue-600",
+    prizeInfo: `World Major purse: ${formatCurrency(15000, preferredCurrency)} to champion`,
   },
-
   {
-    id: "seasonal_fall_marathon",
+    id: "annual_london_marathon",
+    raceId: "national_marathon_city",
+    name: "London Marathon",
+    locationId: "national_marathon_city",
+    tier: "international",
+    description: "World Marathon Major. Run through the historic streets of London.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 105, // Late April (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 90,
+      closesDaysBefore: 21,
+    },
+    entry: {
+      fee: 600,
+      prerequisites: {
+        minLevel: 20,
+        minRating: 2150,
+        requiresQualification: true,
+      },
+    },
+    maxEntrants: 40000,
+    icon: "💂",
+    color: "text-red-600",
+    prizeInfo: `World Major purse: ${formatCurrency(15000, preferredCurrency)} to champion`,
+  },
+  {
+    id: "annual_berlin_marathon",
+    raceId: "national_marathon_city",
+    name: "Berlin Marathon",
+    locationId: "national_marathon_city",
+    tier: "international",
+    description: "World Marathon Major. The fastest flat course where world records are broken.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 245, // September
+    },
+    registration: {
+      opensDaysBefore: 90,
+      closesDaysBefore: 21,
+    },
+    entry: {
+      fee: 550,
+      prerequisites: {
+        minLevel: 20,
+        minRating: 2150,
+        requiresQualification: true,
+      },
+    },
+    maxEntrants: 40000,
+    icon: "🐻",
+    color: "text-amber-600",
+    prizeInfo: `World Major purse: ${formatCurrency(15000, preferredCurrency)} to champion`,
+  },
+  {
+    id: "annual_chicago_marathon",
+    raceId: "national_marathon_city",
+    name: "Chicago Marathon",
+    locationId: "national_marathon_city",
+    tier: "international",
+    description: "World Marathon Major. A spectacular loop course known for its speed.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 273, // October (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 90,
+      closesDaysBefore: 21,
+    },
+    entry: {
+      fee: 600,
+      prerequisites: {
+        minLevel: 21,
+        minRating: 2150,
+        requiresQualification: true,
+      },
+    },
+    maxEntrants: 45000,
+    icon: "🏙️",
+    color: "text-sky-500",
+    prizeInfo: `World Major purse: ${formatCurrency(15000, preferredCurrency)} to champion`,
+  },
+  {
+    id: "annual_nyc_marathon",
     raceId: "national_marathon_city",
     name: "New York City Marathon",
     locationId: "national_marathon_city",
-    tier: "national",
-    description:
-      "Run through the five boroughs of NYC. Fall marathon with perfect racing temperatures. Record-breaking conditions expected.",
-    schedule: {
-      frequency: "seasonal",
-      dayOfYear: 280, // Early October (day 280 of 336-day year)
-    },
-    registration: {
-      opensDaysBefore: 60,
-      closesDaysBefore: 14,
-    },
-    entry: {
-      fee: 1500,
-      prerequisites: {
-        minLevel: 18,
-        minRating: 2100,
-        requiresQualification: true,
-      },
-    },
-    maxEntrants: 200,
-    icon: "🍂",
-    color: "text-amber-500",
-    prizeInfo: `National prize purse: ${formatCurrency(10000, preferredCurrency)} to champion`,
-  },
-
-  // ═══════════════════════════════════════════════════════
-  // ANNUAL RACES - The biggest events of the year
-  // ═══════════════════════════════════════════════════════
-
-  {
-    id: "annual_olympic_trials",
-    raceId: "olympic_trials",
-    name: "World Athletics Championship Marathon",
-    locationId: "olympic_trials",
     tier: "international",
-    description:
-      "ONCE A YEAR. Top 3 make the World Athletics team. The highest stakes in running. Every four game years, this decides who represents the nation.",
+    description: "World Marathon Major. Run through the five boroughs of NYC.",
     schedule: {
       frequency: "annual",
-      dayOfYear: 150, // Late May (every year)
+      dayOfYear: 280, // November (Sunday)
     },
     registration: {
       opensDaysBefore: 90,
-      closesDaysBefore: 30,
+      closesDaysBefore: 21,
     },
     entry: {
-      fee: 3000,
-      prerequisites: {
-        minLevel: 28,
-        minRating: 2400,
-        requiresQualification: true,
-        storyChapter: 5,
-      },
-    },
-    maxEntrants: 200,
-    icon: "🏅",
-    color: "text-red-500",
-    prizeInfo: "Olympic Trials - Top 3 qualify for Olympic team",
-  },
-
-  {
-    id: "annual_national_championship",
-    raceId: "national_marathon_city",
-    name: "Boston Marathon",
-    locationId: "national_marathon_city",
-    tier: "national",
-    description:
-      "The world's oldest annual marathon. The best runners in the country compete for the title of Champion.",
-    schedule: {
-      frequency: "annual",
-      dayOfYear: 90, // Late March
-    },
-    registration: {
-      opensDaysBefore: 90,
-      closesDaysBefore: 30,
-    },
-    entry: {
-      fee: 2000,
+      fee: 650,
       prerequisites: {
         minLevel: 22,
         minRating: 2200,
         requiresQualification: true,
-        storyChapter: 4,
       },
     },
-    maxEntrants: 300,
-    icon: "🇺🇸",
-    color: "text-blue-600",
-    prizeInfo: `National Champion title + ${formatCurrency(25000, preferredCurrency)} prize`,
+    maxEntrants: 50000,
+    icon: "🗽",
+    color: "text-emerald-500",
+    prizeInfo: `World Major purse: ${formatCurrency(15000, preferredCurrency)} to champion`,
+  },
+  {
+    id: "annual_paris_marathon",
+    raceId: "national_marathon_city",
+    name: "Paris Marathon",
+    locationId: "national_marathon_city",
+    tier: "international",
+    description: "Run through the beautiful city of love, starting at the Champs-Élysées.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 91, // April (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 90,
+      closesDaysBefore: 21,
+    },
+    entry: {
+      fee: 550,
+      prerequisites: {
+        minLevel: 18,
+        minRating: 2100,
+      },
+    },
+    maxEntrants: 45000,
+    icon: "🥐",
+    color: "text-blue-700",
+    prizeInfo: `International purse: ${formatCurrency(12000, preferredCurrency)} to champion`,
+  },
+  {
+    id: "annual_sydney_marathon",
+    raceId: "national_marathon_city",
+    name: "Sydney Marathon",
+    locationId: "national_marathon_city",
+    tier: "international",
+    description: "A spectacular course passing the Sydney Opera House and Harbour Bridge.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 252, // September (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 90,
+      closesDaysBefore: 21,
+    },
+    entry: {
+      fee: 550,
+      prerequisites: {
+        minLevel: 18,
+        minRating: 2100,
+      },
+    },
+    maxEntrants: 30000,
+    icon: "🦘",
+    color: "text-amber-500",
+    prizeInfo: `International purse: ${formatCurrency(12000, preferredCurrency)} to champion`,
   },
 
   // ═══════════════════════════════════════════════════════
   // ONE-TIME EVENTS - Story-specific races
   // ═══════════════════════════════════════════════════════
-
   {
     id: "one_time_debut",
     raceId: "local_5k_park",
@@ -345,7 +559,6 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
     color: "text-yellow-500",
     prizeInfo: "No prize pool - this is about participation",
   },
-
   {
     id: "one_time_chapter_complete",
     raceId: "local_5k_park",

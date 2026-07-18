@@ -82,10 +82,10 @@ export function SettingsScreen() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.25, ease: "easeInOut" }}
-      className="min-h-screen bg-background flex flex-col pb-16"
+      className="min-h-screen bg-slate-50 dark:bg-gray-950 text-slate-900 dark:text-white flex flex-col pb-16"
     >
       {/* Sticky Header */}
-      <header className="sticky top-0 z-10 border-b border-[#E5E7EB] bg-surface/90 px-6 py-4 backdrop-blur-md">
+      <header className="sticky top-0 z-10 border-b border-[#E5E7EB] dark:border-gray-800 bg-white/95 dark:bg-slate-900/90 px-6 py-4 backdrop-blur-md">
         <div className="mx-auto flex max-w-3xl items-center gap-3">
           <button
             type="button"
@@ -97,12 +97,12 @@ export function SettingsScreen() {
               }
               router.push("/");
             }}
-            className="rounded-full p-2 hover:bg-gray-100 transition-colors"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white dark:bg-slate-900 transition hover:bg-gray-50 dark:hover:bg-slate-800 active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
           >
-            <ArrowLeft className="h-5 w-5 text-gray-700 dark:text-gray-200" />
+            <ArrowLeft className="h-5 w-5 text-gray-600 dark:text-gray-300" />
           </button>
           <div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white font-heading">
+            <h1 className="text-xl font-black text-slate-900 dark:text-white font-heading">
               {t("settings.title" as TranslationKey)}
             </h1>
             <p className="text-xs text-gray-550 dark:text-gray-350">
@@ -115,7 +115,7 @@ export function SettingsScreen() {
       {/* Main Content */}
       <main className="flex-1 max-w-3xl w-full mx-auto px-6 py-6 flex flex-col gap-8">
         {/* General Settings */}
-        <section className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-[#E5E7EB] shadow-sm p-6 flex flex-col gap-6">
+        <section className="bg-white dark:bg-slate-900 rounded-[2rem] border border-[#E5E7EB] dark:border-slate-800 shadow-sm p-6 flex flex-col gap-6">
           <h2 className="text-base font-bold text-gray-800 dark:text-gray-100 uppercase tracking-wider">
             {t("settings.sections.general" as TranslationKey)}
           </h2>
@@ -138,17 +138,17 @@ export function SettingsScreen() {
                   value={nameInput}
                   onChange={(e) => handleNameChange(e.target.value)}
                   maxLength={24}
-                  className={`flex-grow border rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:border-blue-500 bg-slate-50 focus:bg-white text-gray-800 dark:text-white font-bold transition-all ${
+                  className={`flex-grow border rounded-xl px-3.5 py-2 text-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none bg-slate-50 dark:bg-slate-900 focus:bg-white dark:focus:bg-slate-800 text-slate-800 dark:text-white font-bold transition-all ${
                     hasNameError
-                      ? "border-red-500 focus:border-red-500"
-                      : "border-gray-250 dark:border-gray-850"
+                      ? "border-red-500"
+                      : "border-[#E5E7EB] dark:border-slate-700"
                   }`}
                   placeholder="Runner Name"
                 />
                 <button
                   type="button"
                   onClick={handleRegenerateName}
-                  className="p-2.5 bg-gray-100 dark:bg-slate-800 hover:bg-gray-205 dark:hover:bg-slate-700 active:scale-95 text-gray-650 dark:text-gray-300 rounded-xl transition-all shadow-sm flex items-center justify-center border border-gray-250/20"
+                  className="p-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 text-slate-600 dark:text-gray-300 rounded-xl transition-all shadow-sm flex items-center justify-center border border-[#E5E7EB] dark:border-slate-700 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                   title="Roll for random name"
                 >
                   <Dices className="w-4 h-4" />
@@ -162,7 +162,7 @@ export function SettingsScreen() {
             </div>
           </div>
 
-          <hr className="border-[#E5E7EB]" />
+          <hr className="border-[#E5E7EB] dark:border-slate-800" />
 
           {/* Sound Toggle */}
           <div className="flex items-center justify-between">
@@ -181,8 +181,8 @@ export function SettingsScreen() {
                 playSound("click");
                 setSound(!settings.sound);
               }}
-              className={`w-14 h-8 rounded-full p-1 transition-colors duration-200 focus:outline-none ${
-                settings.sound ? "bg-blue-600" : "bg-gray-200"
+              className={`w-14 h-8 rounded-full p-1 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                settings.sound ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"
               }`}
             >
               <div
@@ -229,7 +229,7 @@ export function SettingsScreen() {
             </>
           )}
 
-          <hr className="border-[#E5E7EB]" />
+          <hr className="border-[#E5E7EB] dark:border-slate-800" />
 
           {/* Language selection */}
           <div className="flex flex-col gap-2">
@@ -248,10 +248,10 @@ export function SettingsScreen() {
                   playSound("click");
                   setLanguage("en");
                 }}
-                className={`text-sm font-bold py-3 rounded-2xl transition-all border-2 ${
+                className={`text-sm font-bold py-3 rounded-2xl transition-all border-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   settings.language === "en"
-                    ? "bg-blue-50 border-blue-500 text-blue-700"
-                    : "border-gray-200 bg-white dark:bg-slate-900 text-gray-600 hover:border-gray-300"
+                    ? "bg-indigo-50 dark:bg-indigo-950/20 border-indigo-500 text-indigo-700 dark:text-indigo-400"
+                    : "border-[#E5E7EB] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600"
                 }`}
               >
                 {t("language.english" as TranslationKey)}
@@ -262,10 +262,10 @@ export function SettingsScreen() {
                   playSound("click");
                   setLanguage("id");
                 }}
-                className={`text-sm font-bold py-3 rounded-2xl transition-all border-2 ${
+                className={`text-sm font-bold py-3 rounded-2xl transition-all border-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   settings.language === "id"
-                    ? "bg-blue-50 border-blue-500 text-blue-700"
-                    : "border-gray-200 bg-white dark:bg-slate-900 text-gray-600 hover:border-gray-300"
+                    ? "bg-indigo-50 dark:bg-indigo-950/20 border-indigo-500 text-indigo-700 dark:text-indigo-400"
+                    : "border-[#E5E7EB] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600"
                 }`}
               >
                 {t("language.indonesian" as TranslationKey)}
@@ -273,7 +273,7 @@ export function SettingsScreen() {
             </div>
           </div>
 
-          <hr className="border-[#E5E7EB]" />
+          <hr className="border-[#E5E7EB] dark:border-slate-800" />
 
           {/* Currency preference */}
           <CurrencySettingRow
@@ -286,7 +286,7 @@ export function SettingsScreen() {
         </section>
 
         {/* Running Preferences */}
-        <section className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-[#E5E7EB] shadow-sm p-6 flex flex-col gap-6">
+        <section className="bg-white dark:bg-slate-900 rounded-[2rem] border border-[#E5E7EB] dark:border-slate-800 shadow-sm p-6 flex flex-col gap-6">
           <h2 className="text-base font-bold text-gray-800 dark:text-gray-100 uppercase tracking-wider">
             {t("settings.sections.race_preferences" as TranslationKey)}
           </h2>
@@ -307,10 +307,10 @@ export function SettingsScreen() {
                   onClick={() =>
                     handlePreferencesChange("preferredSurface", surface)
                   }
-                  className={`text-xs font-bold py-3 rounded-2xl transition-all border-2 ${
+                  className={`text-xs font-bold py-3 rounded-2xl transition-all border-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                     settings.preferences.preferredSurface === surface
-                      ? "border-blue-500 bg-blue-50 text-blue-700"
-                      : "border-gray-200 bg-white dark:bg-slate-900 text-gray-600 hover:border-gray-300"
+                      ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950/20 text-indigo-700 dark:text-indigo-400"
+                      : "border-[#E5E7EB] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600"
                   }`}
                 >
                   {t(
@@ -334,10 +334,10 @@ export function SettingsScreen() {
                   onClick={() =>
                     handlePreferencesChange("preferredDistance", distance)
                   }
-                  className={`text-xs font-bold py-3 rounded-2xl transition-all border-2 ${
+                  className={`text-xs font-bold py-3 rounded-2xl transition-all border-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                     settings.preferences.preferredDistance === distance
-                      ? "border-blue-500 bg-blue-50 text-blue-700"
-                      : "border-gray-200 bg-white dark:bg-slate-900 text-gray-600 hover:border-gray-300"
+                      ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950/20 text-indigo-700 dark:text-indigo-400"
+                      : "border-[#E5E7EB] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600"
                   }`}
                 >
                   {t(
@@ -350,9 +350,9 @@ export function SettingsScreen() {
         </section>
 
         {/* Danger Zone */}
-        <section className="bg-red-50/50 rounded-3xl border-2 border-red-200 shadow-sm p-6 flex flex-col gap-4">
-          <h2 className="text-base font-bold text-red-800 uppercase tracking-wider flex items-center gap-1.5">
-            <ShieldAlert className="h-5 w-5 text-red-650" />{" "}
+        <section className="bg-red-50/40 dark:bg-red-950/10 rounded-[2rem] border border-red-100/30 dark:border-red-950/30 shadow-sm p-6 flex flex-col gap-4">
+          <h2 className="text-base font-bold text-red-800 dark:text-red-400 uppercase tracking-wider flex items-center gap-1.5">
+            <ShieldAlert className="h-5 w-5 text-red-600 dark:text-red-400" />{" "}
             {t("settings.sections.danger_zone" as TranslationKey)}
           </h2>
 
@@ -361,7 +361,7 @@ export function SettingsScreen() {
               <span className="text-sm font-bold text-gray-900 dark:text-white">
                 {t("settings.danger.reset" as TranslationKey)}
               </span>
-              <span className="text-xs text-gray-550 leading-relaxed">
+              <span className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                 {t("settings.danger.desc" as TranslationKey)}
               </span>
             </div>
@@ -371,7 +371,7 @@ export function SettingsScreen() {
                 playSound("click");
                 setShowResetConfirm(true);
               }}
-              className="flex items-center gap-1.5 px-4 py-2.5 bg-red-600 hover:bg-red-700 active:scale-95 text-white text-xs font-bold rounded-2xl transition-all shadow-sm"
+              className="flex items-center gap-1.5 px-4 py-2.5 bg-red-600 hover:bg-red-700 active:scale-95 text-white text-xs font-bold rounded-2xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none"
             >
               <Trash2 className="h-4 w-4" />{" "}
               {t("settings.danger.button" as TranslationKey)}
@@ -382,16 +382,16 @@ export function SettingsScreen() {
 
       {/* Confirmation Modal */}
       {showResetConfirm && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-6 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-red-200 p-6 max-w-sm w-full shadow-lg flex flex-col gap-6 animate-in fade-in zoom-in duration-200">
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-6 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-red-200 dark:border-red-950/30 p-6 max-w-sm w-full shadow-xl flex flex-col gap-6 animate-in fade-in zoom-in duration-200">
             <div className="flex flex-col gap-2 text-center items-center">
-              <div className="bg-red-100 p-3 rounded-full text-red-650 mb-2">
+              <div className="bg-red-100 dark:bg-red-500/10 p-3 rounded-full text-red-600 dark:text-red-400 mb-2">
                 <Trash2 className="h-6 w-6" />
               </div>
               <h3 className="text-lg font-black text-gray-900 dark:text-white font-heading">
                 {t("settings.danger.modal_title" as TranslationKey)}
               </h3>
-              <p className="text-xs text-gray-550 leading-relaxed">
+              <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                 {t("settings.danger.modal_desc" as TranslationKey)}
               </p>
             </div>
@@ -403,7 +403,7 @@ export function SettingsScreen() {
                   playSound("click");
                   setShowResetConfirm(false);
                 }}
-                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 dark:text-gray-200 font-bold text-xs py-3 rounded-2xl transition-all"
+                className="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs py-3 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               >
                 {t("settings.danger.cancel" as TranslationKey)}
               </button>
@@ -413,7 +413,7 @@ export function SettingsScreen() {
                   playSound("click");
                   resetAllData();
                 }}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-3 rounded-2xl transition-all shadow-sm"
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-3 rounded-xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none"
               >
                 {t("settings.danger.confirm" as TranslationKey)}
               </button>

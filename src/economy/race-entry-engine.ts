@@ -54,6 +54,13 @@ export interface EntryValidation {
 /**
  * A specific reason why entry is blocked.
  */
+export function getEnergyCostForDistance(distanceInKm?: number): number {
+  if (!distanceInKm || distanceInKm <= 5) return 15;
+  if (distanceInKm <= 10) return 25;
+  if (distanceInKm <= 21.1) return 50;
+  return 90; // Full marathon or ultra
+}
+
 export interface EntryBlocker {
   reason: string;
   type:
@@ -80,6 +87,7 @@ export function validateRaceEntry(
   options?: {
     onlyRegister?: boolean;
     isRegistered?: boolean;
+    distanceInKm?: number;
   }
 ): EntryValidation {
   const blockers: EntryBlocker[] = [];
@@ -90,7 +98,7 @@ export function validateRaceEntry(
 
   // Determine entry fee - if already registered, fee is 0
   const entryFee = isRegistered ? 0 : (prerequisites?.entryFee ?? getEntryFee(raceTier));
-  const energyCost = onlyRegister ? 0 : 25; // compete action cost
+  const energyCost = onlyRegister ? 0 : getEnergyCostForDistance(options?.distanceInKm);
 
   const preferredCurrency = useSettingsStore.getState().settings.preferredCurrency || "USD";
   const entryFeeStr = formatCurrency(entryFee, preferredCurrency);
@@ -116,16 +124,23 @@ export function validateRaceEntry(
     });
   }
 
+  const hasMoney = economy.currentBalance >= entryFee;
+  const isNationalOrAbove = raceTier === "national" || raceTier === "international";
+
   // Check level
   if (prerequisites?.minLevel) {
     const level = gameState.skills.running ?? 0;
     if (level < prerequisites.minLevel) {
-      blockers.push({
-        reason: `Running skill ${prerequisites.minLevel} required (have ${level})`,
-        type: "level",
-        resolved: false,
-        howToResolve: "Train to increase running skill",
-      });
+      if (hasMoney && isNationalOrAbove) {
+        warnings.push(`Recommended running skill ${prerequisites.minLevel} (you have ${level}).`);
+      } else {
+        blockers.push({
+          reason: `Running skill ${prerequisites.minLevel} required (have ${level})`,
+          type: "level",
+          resolved: false,
+          howToResolve: "Train to increase running skill",
+        });
+      }
     }
   }
 
@@ -133,12 +148,16 @@ export function validateRaceEntry(
   if (prerequisites?.minRating) {
     const rating = (gameState.flags.rating as number) ?? 0;
     if (rating < prerequisites.minRating) {
-      blockers.push({
-        reason: `Rating ${prerequisites.minRating} required (have ${rating})`,
-        type: "rating",
-        resolved: false,
-        howToResolve: "Race and win to increase rating",
-      });
+      if (hasMoney && isNationalOrAbove) {
+        warnings.push(`Recommended rating ${prerequisites.minRating} (you have ${rating}).`);
+      } else {
+        blockers.push({
+          reason: `Rating ${prerequisites.minRating} required (have ${rating})`,
+          type: "rating",
+          resolved: false,
+          howToResolve: "Race and win to increase rating",
+        });
+      }
     }
   }
 
@@ -218,6 +237,7 @@ export function processRaceEntry(
   options?: {
     onlyRegister?: boolean;
     isRegistered?: boolean;
+    distanceInKm?: number;
   }
 ): {
   economy: EconomyState;
@@ -258,7 +278,7 @@ export function processRaceEntry(
   }
 
   // Deduct energy if not only registering
-  const energyDeduction = onlyRegister ? 0 : 25;
+  const energyDeduction = onlyRegister ? 0 : getEnergyCostForDistance(options?.distanceInKm);
 
   return {
     economy: updatedEconomy,

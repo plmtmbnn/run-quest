@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
   Compass,
@@ -29,6 +29,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
   const setPlayerName = usePlayerStore((state) => state.setPlayerName);
 
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [direction, setDirection] = useState(0); // -1 for prev, 1 for next
   const [nameInput, setNameInput] = useState("");
   const [hasInitializedName, setHasInitializedName] = useState(false);
   const [hasNameError, setHasNameError] = useState(false);
@@ -45,8 +46,9 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       titleKey: "onboarding.slide_1.title",
       subtitleKey: "onboarding.slide_1.subtitle",
       contentKey: "onboarding.slide_1.content",
-      icon: <Flame className="w-16 h-16 text-orange-500 animate-pulse" />,
+      icon: <Flame className="w-20 h-20 text-orange-500 animate-pulse drop-shadow-[0_0_15px_rgba(249,115,22,0.4)]" />,
       color: "from-orange-500/10 via-orange-100/20 to-amber-200/10",
+      bgGradient: "from-orange-500 to-amber-500",
       accent: "border-orange-200",
     },
     {
@@ -55,28 +57,31 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       contentKey: "onboarding.slide_2.content",
       icon: (
         <Compass
-          className="w-16 h-16 text-blue-500 animate-bounce"
+          className="w-20 h-20 text-indigo-500 animate-bounce drop-shadow-[0_0_15px_rgba(99,102,241,0.4)]"
           style={{ animationDuration: "3s" }}
         />
       ),
       color: "from-blue-500/10 via-blue-100/20 to-indigo-200/10",
+      bgGradient: "from-indigo-500 to-blue-600",
       accent: "border-blue-200",
     },
     {
       titleKey: "onboarding.slide_3.title",
       subtitleKey: "onboarding.slide_3.subtitle",
       contentKey: "onboarding.slide_3.content",
-      icon: <HelpCircle className="w-16 h-16 text-emerald-500" />,
+      icon: <HelpCircle className="w-20 h-20 text-emerald-500 drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]" />,
       color: "from-emerald-500/10 via-emerald-100/20 to-teal-200/10",
+      bgGradient: "from-emerald-500 to-teal-600",
       accent: "border-emerald-200",
     },
     {
       titleKey: "onboarding.slide_4.title",
       subtitleKey: "onboarding.slide_4.subtitle",
       contentKey: "onboarding.slide_4.content",
-      icon: <User className="w-16 h-16 text-blue-500" />,
-      color: "from-blue-500/10 via-blue-100/20 to-indigo-200/10",
-      accent: "border-blue-200",
+      icon: <User className="w-20 h-20 text-violet-500 drop-shadow-[0_0_15px_rgba(139,92,246,0.4)]" />,
+      color: "from-violet-500/10 via-violet-100/20 to-purple-200/10",
+      bgGradient: "from-violet-500 to-purple-600",
+      accent: "border-violet-200",
     },
   ];
 
@@ -86,10 +91,15 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
     setHasNameError(false);
   };
 
+  const setSlideWithDirection = (newSlide: number) => {
+    setDirection(newSlide > currentSlide ? 1 : -1);
+    setCurrentSlide(newSlide);
+  };
+
   const handleNext = () => {
     playSound("click");
     if (currentSlide < slides.length - 1) {
-      setCurrentSlide((prev) => prev + 1);
+      setSlideWithDirection(currentSlide + 1);
     } else {
       if (!nameInput.trim()) {
         setHasNameError(true);
@@ -114,40 +124,67 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
 
   const activeSlide = slides[currentSlide];
 
+  // Motion variants for slide transition
+  const slideVariants = {
+    enter: (dir: number) => ({
+      x: dir > 0 ? 100 : -100,
+      opacity: 0,
+      scale: 0.98,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+      scale: 1,
+      transition: {
+        x: { type: "spring" as const, stiffness: 350, damping: 30 },
+        opacity: { duration: 0.2 },
+      },
+    },
+    exit: (dir: number) => ({
+      x: dir > 0 ? -100 : 100,
+      opacity: 0,
+      scale: 0.98,
+      transition: {
+        x: { type: "spring" as const, stiffness: 350, damping: 30 },
+        opacity: { duration: 0.2 },
+      },
+    }),
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -15 }}
-      transition={{ duration: 0.25, ease: "easeInOut" }}
-      className="min-h-screen bg-gradient-to-tr from-slate-50 via-slate-100 to-zinc-50 flex flex-col justify-between p-6 relative overflow-hidden"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white flex flex-col justify-between p-6 relative overflow-hidden"
     >
-      {/* Decorative Blur Backgrounds */}
-      <div className="absolute top-[-10%] left-[-20%] w-[80%] h-[50%] rounded-full bg-blue-400/10 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-20%] w-[80%] h-[50%] rounded-full bg-indigo-400/10 blur-[120px] pointer-events-none" />
+      {/* Decorative Brand Glow Circles */}
+      <div className="absolute top-[-20%] left-[-30%] w-[100%] h-[60%] rounded-full bg-indigo-500/5 dark:bg-indigo-500/10 blur-[150px] pointer-events-none" />
+      <div className="absolute bottom-[-20%] right-[-30%] w-[100%] h-[60%] rounded-full bg-emerald-500/5 dark:bg-emerald-500/10 blur-[150px] pointer-events-none" />
 
-      {/* Header Info with Language Toggle */}
-      <header className="flex justify-between items-center max-w-md mx-auto w-full pt-8 z-10">
-        <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded-lg bg-blue-600 flex items-center justify-center shadow-sm">
-            <Flame className="w-4 h-4 text-white animate-pulse" />
+      {/* Header */}
+      <header className="flex justify-between items-center max-w-md mx-auto w-full pt-4 z-10">
+        <div className="flex items-center gap-3">
+          <div className="h-9 w-9 rounded-xl bg-indigo-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+            <Flame className="w-5 h-5 text-white animate-pulse" />
           </div>
-          <span className="text-xs font-black uppercase tracking-widest text-gray-800">
+          <span className="font-heading font-black text-sm uppercase tracking-widest text-slate-800 dark:text-white">
             RunQuest
           </span>
         </div>
 
-        <div className="flex gap-0.5 bg-gray-200/70 p-1 rounded-full text-[10px] border border-gray-300/30">
+        {/* Pill-styled Language Selector from UI Guidelines */}
+        <div className="flex bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 p-1 rounded-full shadow-sm relative">
           <button
             type="button"
             onClick={() => {
               playSound("click");
               setLanguage("en");
             }}
-            className={`px-3.5 py-1 rounded-full font-black transition-all ${
+            className={`px-4 py-1.5 rounded-full text-xs font-black tracking-wider transition-all duration-200 ${
               language === "en"
-                ? "bg-white text-blue-600 shadow-sm"
-                : "text-gray-500 hover:text-gray-800"
+                ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/20"
+                : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             EN
@@ -158,10 +195,10 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
               playSound("click");
               setLanguage("id");
             }}
-            className={`px-3.5 py-1 rounded-full font-black transition-all ${
+            className={`px-4 py-1.5 rounded-full text-xs font-black tracking-wider transition-all duration-200 ${
               language === "id"
-                ? "bg-white text-blue-600 shadow-sm"
-                : "text-gray-500 hover:text-gray-800"
+                ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/20"
+                : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             ID
@@ -170,101 +207,109 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       </header>
 
       {/* Main Slide Card Container */}
-      <main className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full py-8 z-10">
-        <div
-          className={`bg-white rounded-3xl border-2 shadow-[0_20px_50px_rgba(15,23,42,0.06)] overflow-hidden flex flex-col min-h-[440px] transition-all duration-300 border-[#E5E7EB]`}
-        >
+      <main className="flex-1 flex flex-col justify-center max-w-md mx-auto w-full py-6 z-10">
+        <div className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] shadow-sm hover:shadow-md overflow-hidden flex flex-col min-h-[460px] relative transition-all duration-300">
+          
           {/* Top visual graphic area */}
-          <div
-            className={`h-48 bg-gradient-to-b ${activeSlide.color} flex items-center justify-center border-b border-gray-150`}
-          >
+          <div className="h-44 bg-slate-50/50 dark:bg-slate-950/40 flex items-center justify-center border-b border-slate-100 dark:border-slate-800/80 relative overflow-hidden">
+            {/* Slide specific abstract background glow */}
+            <div className={`absolute inset-0 bg-gradient-to-b ${activeSlide.color} opacity-40 blur-md`} />
+            
             <motion.div
               key={currentSlide}
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.3, type: "spring", stiffness: 120 }}
+              transition={{ duration: 0.35, type: "spring", stiffness: 125 }}
+              className="z-10"
             >
               {activeSlide.icon}
             </motion.div>
           </div>
 
-          {/* Slide Text Content */}
-          <div className="flex-1 p-8 flex flex-col justify-between">
-            <motion.div
-              key={currentSlide}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25 }}
-              className="flex flex-col gap-2.5"
-            >
-              <h2 className="text-2xl font-black font-heading text-gray-900 leading-tight">
-                {t(activeSlide.titleKey as TranslationKey)}
-              </h2>
-              <p className="text-sm font-bold text-blue-600 leading-snug">
-                {t(activeSlide.subtitleKey as TranslationKey)}
-              </p>
-              {currentSlide === 3 ? (
-                <div className="flex flex-col gap-4 mt-2">
-                  <p className="text-xs text-gray-550 leading-relaxed">
-                    {t(activeSlide.contentKey as TranslationKey)}
+          {/* Slide Text Content Container */}
+          <div className="flex-1 p-8 flex flex-col justify-between overflow-hidden">
+            <div className="flex-1 relative min-h-[180px]">
+              <AnimatePresence initial={false} custom={direction} mode="wait">
+                <motion.div
+                  key={currentSlide}
+                  custom={direction}
+                  variants={slideVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  className="w-full flex flex-col gap-3"
+                >
+                  <h2 className="font-heading font-black text-2xl text-slate-800 dark:text-white leading-tight">
+                    {t(activeSlide.titleKey as TranslationKey)}
+                  </h2>
+                  <p className="font-heading font-extrabold text-sm text-indigo-600 dark:text-indigo-400 leading-snug">
+                    {t(activeSlide.subtitleKey as TranslationKey)}
                   </p>
-                  <div className="flex flex-col gap-1.5 w-full">
-                    <div className="flex gap-2 items-center">
-                      <input
-                        type="text"
-                        value={nameInput}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setNameInput(val);
-                          if (val.trim()) {
-                            setHasNameError(false);
-                          }
-                        }}
-                        maxLength={24}
-                        className={`flex-grow border-2 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 bg-slate-50 focus:bg-white text-gray-800 font-bold transition-all ${
-                          hasNameError
-                            ? "border-red-500 focus:border-red-500"
-                            : "border-gray-200"
-                        }`}
-                        placeholder="Runner Name"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleRegenerate}
-                        className="p-3 bg-gray-100 hover:bg-gray-200 active:scale-95 text-gray-650 rounded-2xl transition-all shadow-sm flex items-center justify-center"
-                        title="Roll for random name"
-                      >
-                        <Dices className="w-5 h-5" />
-                      </button>
-                    </div>
-                    {hasNameError && (
-                      <p className="text-xs text-red-500 font-bold px-1">
-                        {t("onboarding.name_error" as TranslationKey)}
+                  
+                  {currentSlide === 3 ? (
+                    <div className="flex flex-col gap-4 mt-2">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                        {t(activeSlide.contentKey as TranslationKey)}
                       </p>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                  {t(activeSlide.contentKey as TranslationKey)}
-                </p>
-              )}
-            </motion.div>
+                      <div className="flex flex-col gap-2 w-full">
+                        <div className="flex gap-2.5 items-center">
+                          <input
+                            type="text"
+                            value={nameInput}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setNameInput(val);
+                              if (val.trim()) {
+                                setHasNameError(false);
+                              }
+                            }}
+                            maxLength={24}
+                            className={`flex-grow border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white border-slate-200 dark:border-slate-800 font-bold transition-all ${
+                              hasNameError
+                                ? "border-rose-500 focus:ring-rose-500"
+                                : "focus:border-indigo-500"
+                            }`}
+                            placeholder="Runner Name"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleRegenerate}
+                            className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900 active:scale-95 text-slate-600 dark:text-slate-350 transition flex items-center justify-center shadow-sm"
+                            title="Roll for random name"
+                          >
+                            <Dices className="w-5 h-5" />
+                          </button>
+                        </div>
+                        {hasNameError && (
+                          <p className="text-xs text-rose-600 dark:text-rose-400 font-bold px-1 animate-pulse">
+                            ⚠️ {t("onboarding.name_error" as TranslationKey)}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mt-1">
+                      {t(activeSlide.contentKey as TranslationKey)}
+                    </p>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </div>
 
             {/* Carousel indicator dots */}
-            <div className="flex gap-2 justify-center mt-6">
+            <div className="flex gap-2.5 justify-center mt-8">
               {slides.map((slide, idx) => (
                 <button
                   key={slide.titleKey}
                   type="button"
                   onClick={() => {
                     playSound("click");
-                    setCurrentSlide(idx);
+                    setSlideWithDirection(idx);
                   }}
-                  className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                  className={`w-2 h-2 rounded-full transition-all duration-300 cursor-pointer ${
                     idx === currentSlide
-                      ? "bg-blue-600 w-7"
-                      : "bg-gray-200 hover:bg-gray-300"
+                      ? "bg-indigo-500 w-8"
+                      : "bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700"
                   }`}
                   aria-label={`Go to slide ${idx + 1}`}
                 />
@@ -275,18 +320,18 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       </main>
 
       {/* Actions footer */}
-      <footer className="max-w-md mx-auto w-full pb-8 z-10">
+      <footer className="max-w-md mx-auto w-full pb-4 z-10">
         <button
           type="button"
           onClick={handleNext}
-          className="w-full bg-blue-600 hover:bg-blue-750 active:scale-[0.98] text-white font-bold text-base py-4 rounded-full transition duration-200 flex items-center justify-center gap-2 shadow-md"
+          className="w-full py-3.5 rounded-[2rem] text-sm font-black bg-indigo-500 hover:bg-indigo-600 text-white shadow-md shadow-indigo-500/20 active:scale-95 transition flex items-center justify-center gap-2"
         >
           <span>
             {currentSlide === slides.length - 1
               ? t("onboarding.start" as TranslationKey)
               : t("onboarding.next" as TranslationKey)}
           </span>
-          <ArrowRight className="w-5 h-5 animate-pulse" />
+          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
         </button>
       </footer>
     </motion.div>

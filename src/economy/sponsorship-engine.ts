@@ -236,19 +236,25 @@ export function getTrainingBonus(sponsorshipState: SponsorshipState): number {
 /**
  * Calculate race completion bonus from current sponsor.
  */
-export function getRaceBonus(sponsorshipState: SponsorshipState): number {
+export function getRaceBonus(sponsorshipState: SponsorshipState, distanceInKm?: number): number {
   if (!sponsorshipState.currentSponsor) return 0;
   const sponsor = SPONSORS[sponsorshipState.currentSponsor];
-  return sponsor?.benefits.raceCompletionBonus ?? 0;
+  const baseBonus = sponsor?.benefits.raceCompletionBonus ?? 0;
+  if (!distanceInKm) return baseBonus;
+  const multiplier = Math.max(0.8, distanceInKm / 5);
+  return Math.round(baseBonus * multiplier);
 }
 
 /**
  * Calculate win bonus from current sponsor.
  */
-export function getWinBonus(sponsorshipState: SponsorshipState): number {
+export function getWinBonus(sponsorshipState: SponsorshipState, distanceInKm?: number): number {
   if (!sponsorshipState.currentSponsor) return 0;
   const sponsor = SPONSORS[sponsorshipState.currentSponsor];
-  return sponsor?.benefits.winBonus ?? 0;
+  const baseBonus = sponsor?.benefits.winBonus ?? 0;
+  if (!distanceInKm) return baseBonus;
+  const multiplier = Math.max(0.8, distanceInKm / 5);
+  return Math.round(baseBonus * multiplier);
 }
 
 /**
