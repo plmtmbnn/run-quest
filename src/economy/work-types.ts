@@ -22,7 +22,12 @@ export type WorkTypeId =
   | "personal_trainer"     // Sprint 29 Task 6
   | "sports_nutritionist"  // Sprint 29 Task 6
   | "running_store_staff"  // Sprint 29 Task 6
-  | "event_organizer";     // Sprint 29 Task 6
+  | "event_organizer"      // Sprint 29 Task 6
+  | "warehouse_worker"     // Sprint 30 - New jobs
+  | "delivery_driver"      // Sprint 30 - New jobs
+  | "social_media_manager" // Sprint 30 - New jobs
+  | "physical_therapist"   // Sprint 30 - New jobs
+  | "race_official";       // Sprint 30 - New jobs
 
 export interface WorkType {
   id: WorkTypeId;
@@ -57,6 +62,7 @@ export interface WorkType {
     intellect?: number; // Pay multiplier per intellect point
     running?: number; // Pay multiplier per running skill point
     charisma?: number; // Pay multiplier per charisma point
+    strength?: number; // Pay multiplier per strength point
   };
 
   /** Side effects on stats */
@@ -65,6 +71,7 @@ export interface WorkType {
     intellect?: number;
     charisma?: number;
     running?: number;
+    strength?: number;
   };
 
   /** Visual presentation */
@@ -355,6 +362,125 @@ export const WORK_TYPES: Record<WorkTypeId, WorkType> = {
     color: "#8b5cf6",
   },
   // End of Sprint 29 work types
+
+  // Sprint 30 - New diverse work types
+  warehouse_worker: {
+    id: "warehouse_worker",
+    name: "Warehouse Worker",
+    description: "Physical labor loading and unloading packages. Low requirements, decent pay.",
+    pay: { min: 40, max: 55 },
+    energyCost: 35,
+    dayCost: 0,
+    requirements: {
+      minAge: 18,
+    },
+    payScaling: {
+      strength: 0.5,
+    },
+    effects: {
+      strength: 1,
+      health: -2,
+    },
+    icon: "📦",
+    color: "#94a3b8",
+  },
+
+  delivery_driver: {
+    id: "delivery_driver",
+    name: "Delivery Driver",
+    description: "Deliver packages around the city. Flexible hours, moderate pay.",
+    pay: { min: 45, max: 70 },
+    energyCost: 30,
+    dayCost: 0,
+    requirements: {
+      minAge: 21,
+    },
+    payScaling: {
+      intellect: 0.3,
+      charisma: 0.5,
+    },
+    effects: {
+      charisma: 1,
+      health: -1,
+    },
+    icon: "🚚",
+    color: "#f59e0b",
+  },
+
+  social_media_manager: {
+    id: "social_media_manager",
+    name: "Social Media Manager",
+    description: "Manage social media for local businesses. Charisma and creativity focused.",
+    pay: { min: 60, max: 120 },
+    energyCost: 25,
+    dayCost: 0,
+    requirements: {
+      minAge: 20,
+      minCharisma: 20,
+      minIntellect: 15,
+    },
+    payScaling: {
+      charisma: 2.5,
+      intellect: 1.5,
+    },
+    effects: {
+      charisma: 2,
+      intellect: 1,
+    },
+    icon: "📱",
+    color: "#ec4899",
+  },
+
+  physical_therapist: {
+    id: "physical_therapist",
+    name: "Physical Therapist",
+    description: "Help athletes recover from injuries. Running knowledge and intellect required.",
+    pay: { min: 80, max: 150 },
+    energyCost: 30,
+    dayCost: 0,
+    requirements: {
+      minAge: 24,
+      minIntellect: 30,
+      minRunningSkill: 20,
+    },
+    payScaling: {
+      intellect: 2.0,
+      running: 1.5,
+    },
+    effects: {
+      intellect: 2,
+      health: 1,
+      running: 1,
+    },
+    icon: "🏥",
+    color: "#06b6d4",
+  },
+
+  race_official: {
+    id: "race_official",
+    name: "Race Official",
+    description: "Officiate at running events. Requires race experience and professionalism.",
+    pay: { min: 70, max: 110 },
+    energyCost: 25,
+    dayCost: 0,
+    requirements: {
+      minAge: 25,
+      minCareerWins: 3,
+      minRunningSkill: 15,
+      minIntellect: 18,
+    },
+    payScaling: {
+      running: 1.5,
+      intellect: 1.0,
+    },
+    effects: {
+      intellect: 1,
+      charisma: 1,
+    },
+    icon: "🏁",
+    color: "#8b5cf6",
+  },
+  // End of Sprint 30 work types
 };
 
 /**
@@ -444,6 +570,14 @@ export function calculateWorkPay(
       (stats.charisma ?? 0) - (workType.requirements.minCharisma ?? 0),
     );
     pay += charismaAboveMin * workType.payScaling.charisma;
+  }
+
+  if (workType.payScaling.strength) {
+    const strengthAboveMin = Math.max(
+      0,
+      (stats.strength ?? 0) - 0, // No minStrength requirement in current interface
+    );
+    pay += strengthAboveMin * workType.payScaling.strength;
   }
 
   // Clamp to max pay

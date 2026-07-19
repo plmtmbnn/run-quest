@@ -430,6 +430,7 @@ export function RaceScreen() {
   // Compute live runners list for leaderboard and progress visualizer
   const currentSnapshot = fullStateLogRef.current[currentKm];
   const runners: {
+    id: string;
     name: string;
     isPlayer: boolean;
     distance: number;
@@ -440,6 +441,7 @@ export function RaceScreen() {
 
   if (currentSnapshot) {
     runners.push({
+      id: "player_local",
       name: "You",
       isPlayer: true,
       distance: currentSnapshot.distanceCovered,
@@ -451,6 +453,7 @@ export function RaceScreen() {
     if (currentSnapshot.opponents) {
       for (const opp of currentSnapshot.opponents) {
         runners.push({
+          id: opp.id,
           name: opp.name,
           isPlayer: false,
           distance: opp.distanceCovered,
@@ -464,6 +467,7 @@ export function RaceScreen() {
 
   if (runners.length === 0) {
     runners.push({
+      id: "player_local",
       name: "You",
       isPlayer: true,
       distance: 0,
@@ -472,7 +476,7 @@ export function RaceScreen() {
     });
   }
 
-  // Sort: non-DNF runners first, then by distance desc, then by time asc
+  // Sort: DNF runners last, then by distance desc, then by time asc
   runners.sort((a, b) => {
     if (a.isDNF && !b.isDNF) return 1;
     if (!a.isDNF && b.isDNF) return -1;
@@ -486,16 +490,16 @@ export function RaceScreen() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-gray-950 text-slate-900 dark:text-white flex flex-col justify-between overflow-hidden relative">
       {/* Header */}
-      <header className="px-6 py-6 border-b border-slate-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/50 backdrop-blur-md">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div>
-            <span className="text-xs uppercase tracking-widest text-blue-500 dark:text-blue-400 font-semibold">
+      <header className="px-4 md:px-6 py-4 md:py-6 border-b border-slate-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/50 backdrop-blur-md">
+        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0">
+          <div className="flex-1 min-w-0">
+            <span className="text-[10px] md:text-xs uppercase tracking-widest text-blue-500 dark:text-blue-400 font-semibold">
               {t("challenge.race.live_simulation" as TranslationKey)}
             </span>
-            <h1 className="font-heading text-lg font-bold text-slate-800 dark:text-gray-100">
+            <h1 className="font-heading text-base md:text-lg lg:text-xl font-bold text-slate-800 dark:text-gray-100 truncate">
               {challenge.race.title[lang]}
             </h1>
-            <div className="flex items-center gap-2 mt-1 text-xs text-slate-500 dark:text-gray-400">
+            <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mt-1 text-[10px] md:text-xs text-slate-500 dark:text-gray-400">
               <span className="capitalize">
                 {t(
                   `challenge.weather.${challenge.environment.weather}` as TranslationKey,
@@ -511,19 +515,20 @@ export function RaceScreen() {
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-600 dark:text-orange-400 text-xs font-semibold">
-            <Activity className="h-4.5 w-4.5 animate-pulse" />
-            <span>{t("challenge.race.simulating" as TranslationKey)}</span>
+          <div className="flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1 md:py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-600 dark:text-orange-400 text-[10px] md:text-xs font-semibold shrink-0">
+            <Activity className="h-3.5 md:h-4.5 w-3.5 md:w-4.5 animate-pulse" />
+            <span className="hidden sm:inline">{t("challenge.race.simulating" as TranslationKey)}</span>
+            <span className="sm:hidden">Live</span>
           </div>
         </div>
       </header>
-
+ 
       {/* Main content area */}
-      <main className="flex-grow max-w-4xl w-full mx-auto px-6 py-8 flex flex-col justify-center gap-6 relative">
+      <main className="flex-grow max-w-4xl w-full mx-auto px-4 md:px-6 py-4 md:py-8 flex flex-col justify-center gap-4 md:gap-6 relative">
         {/* Distance Tracker & Visual Track Progress */}
-        <div className="flex flex-col gap-5 items-center justify-center bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[2rem] p-6 shadow-sm">
+        <div className="flex flex-col gap-4 md:gap-5 items-center justify-center bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[2rem] p-4 md:p-6 shadow-sm">
           {/* Distance Circular Tracker */}
-          <div className="relative w-40 h-40 flex items-center justify-center">
+          <div className="relative w-32 h-32 md:w-40 md:h-40 flex items-center justify-center">
             <svg
               className="w-full h-full transform -rotate-90"
               role="img"
@@ -551,13 +556,13 @@ export function RaceScreen() {
                 transition={{ duration: 0.1 }}
               />
             </svg>
-
+ 
             {/* Inner Content */}
             <div className="absolute flex flex-col items-center">
-              <span className="text-4xl font-extrabold tracking-tight font-heading">
+              <span className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight font-heading">
                 {currentKm}
               </span>
-              <span className="text-[10px] text-slate-400 dark:text-gray-400 uppercase tracking-widest">
+              <span className="text-[9px] md:text-[10px] text-slate-400 dark:text-gray-400 uppercase tracking-widest">
                 {t("challenge.race.of_distance" as TranslationKey).replace(
                   "{{distance}}",
                   challenge.race.distance.toString(),
@@ -565,13 +570,13 @@ export function RaceScreen() {
               </span>
             </div>
           </div>
-
+ 
           {/* Visual Race Track Progress */}
-          <div className="w-full flex flex-col gap-2 mt-2 border-t border-slate-100 dark:border-gray-800 pt-4">
-            <h4 className="text-[10px] uppercase font-extrabold tracking-wider text-slate-400 dark:text-gray-500">
+          <div className="w-full flex flex-col gap-2 mt-2 border-t border-slate-100 dark:border-gray-800 pt-3 md:pt-4">
+            <h4 className="text-[9px] md:text-[10px] uppercase font-extrabold tracking-wider text-slate-400 dark:text-gray-550">
               Track Progress
             </h4>
-            <div className="relative bg-slate-50 dark:bg-slate-950 h-10 rounded-[1.5rem] border border-slate-200 dark:border-slate-850 p-2 flex items-center overflow-hidden">
+            <div className="relative bg-slate-50 dark:bg-slate-950 h-8 md:h-10 rounded-[1.5rem] border border-slate-200 dark:border-slate-850 p-1.5 md:p-2 flex items-center overflow-hidden">
               {/* Kilometer markers */}
               <div className="absolute inset-0 flex justify-between px-4 pointer-events-none">
                 {Array.from({
@@ -589,13 +594,13 @@ export function RaceScreen() {
                   </div>
                 ))}
               </div>
-
+ 
               {/* Runners on the track */}
               {runners.map((r) => {
                 const pct = (r.distance / challenge.race.distance) * 100;
                 return (
                   <motion.div
-                    key={r.name}
+                    key={r.id}
                     initial={{ left: 0 }}
                     animate={{ left: `${Math.min(94, Math.max(2, pct))}%` }}
                     transition={{ duration: 0.3 }}
@@ -621,19 +626,19 @@ export function RaceScreen() {
         </div>
 
         {/* Live Simulation HUD Dashboard */}
-        <div className="flex flex-col gap-6 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[2rem] p-6 shadow-sm">
+        <div className="flex flex-col gap-4 md:gap-6 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[2rem] p-4 md:p-6 shadow-sm">
           {/* Strategy Tactics & Leaderboard Section */}
-          <div className="grid md:grid-cols-2 gap-6 border-b border-slate-100 dark:border-gray-800 pb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 border-b border-slate-100 dark:border-gray-800 pb-4 md:pb-6">
             {/* Left Column: Real-Time Tactics (Pacing Buttons) */}
             <div className="flex flex-col gap-3">
-              <h4 className="text-xs uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-500 flex items-center gap-1.5">
+              <h4 className="text-xs md:text-sm uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-500 flex items-center gap-1.5">
                 <span>⚡</span> Real-Time Tactics
               </h4>
-              <p className="text-[10.5px] text-slate-450 dark:text-gray-400 leading-relaxed mb-1">
+              <p className="text-[10.5px] md:text-xs text-slate-450 dark:text-gray-400 leading-relaxed mb-1">
                 Select your pacing strategy. Changes apply to the next kilometer
                 simulated. Sprints are locked until the final 2km.
               </p>
-              <div className="grid grid-cols-2 gap-2.5">
+              <div className="grid grid-cols-2 gap-2 md:gap-2.5">
                 {(["jog", "cruise", "push", "sprint"] as const).map((mode) => {
                   const isActive = selectedPacing === mode;
                   const isSprintLocked =
@@ -657,10 +662,10 @@ export function RaceScreen() {
                         ${isSprintLocked ? "opacity-40 cursor-not-allowed border-dashed" : ""}
                       `}
                     >
-                      <span className="capitalize text-sm font-extrabold">
+                      <span className="capitalize text-sm md:text-base font-extrabold">
                         {mode}
                       </span>
-                      <span className="text-[9px] font-semibold opacity-75">
+                      <span className="text-[9px] md:text-[10px] font-semibold opacity-75">
                         {mode === "jog" && "Conserve fatigue"}
                         {mode === "cruise" && "Steady pace"}
                         {mode === "push" && "Attack segments"}
@@ -675,8 +680,8 @@ export function RaceScreen() {
               </div>
 
               {/* Consumables Inventory */}
-              <div className="mt-4 border-t border-slate-100 dark:border-gray-800 pt-4 flex flex-col gap-2">
-                <h4 className="text-[10px] uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-550 flex items-center gap-1.5">
+              <div className="mt-3 md:mt-4 border-t border-slate-100 dark:border-gray-800 pt-3 md:pt-4 flex flex-col gap-2">
+                <h4 className="text-[10px] md:text-xs uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-550 flex items-center gap-1.5">
                   <span>🥤</span> Active Consumables
                 </h4>
                 <div className="flex flex-wrap gap-2 mt-1">
@@ -731,11 +736,11 @@ export function RaceScreen() {
 
             {/* Right Column: Live Leaderboard */}
             <div className="flex flex-col gap-3">
-              <h4 className="text-xs uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-550 flex items-center gap-1.5">
+              <h4 className="text-xs md:text-sm uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-550 flex items-center gap-1.5">
                 <span>🏆</span> Live Standings
               </h4>
-              <div className="bg-slate-50 dark:bg-slate-950/40 rounded-[1.5rem] border border-slate-150 dark:border-gray-800 overflow-hidden text-xs">
-                <div className="grid grid-cols-12 gap-1 px-3 py-2 bg-slate-100 dark:bg-gray-800/40 border-b border-slate-200 dark:border-gray-800 font-extrabold text-[10px] text-slate-400 dark:text-gray-550 uppercase tracking-wider">
+              <div className="bg-slate-50 dark:bg-slate-950/40 rounded-[1.5rem] border border-slate-150 dark:border-gray-800 overflow-hidden text-xs md:text-sm">
+                <div className="grid grid-cols-12 gap-1 px-2 md:px-3 py-1.5 md:py-2 bg-slate-100 dark:bg-gray-800/40 border-b border-slate-200 dark:border-gray-800 font-extrabold text-[9px] md:text-[10px] text-slate-400 dark:text-gray-550 uppercase tracking-wider">
                   <span className="col-span-2 text-center">Pos</span>
                   <span className="col-span-6">Runner</span>
                   <span className="col-span-4 text-right">Gap</span>
@@ -749,13 +754,13 @@ export function RaceScreen() {
 
                     return (
                       <div
-                        key={r.name}
-                        className={`grid grid-cols-12 gap-1 px-3 py-2.5 items-center font-medium
+                        key={r.id}
+                        className={`grid grid-cols-12 gap-1 px-2 md:px-3 py-2 md:py-2.5 items-center font-medium text-xs md:text-sm
                           ${r.isPlayer ? "bg-orange-50/50 dark:bg-orange-950/20 text-orange-900 dark:text-orange-100 font-bold" : r.isGhost ? "bg-indigo-50/50 dark:bg-indigo-950/20 text-indigo-900 dark:text-indigo-100 font-semibold" : "text-slate-700 dark:text-gray-300"}
                           ${r.isDNF ? "opacity-50" : ""}
                         `}
                       >
-                        <span className="col-span-2 text-center text-sm">
+                        <span className="col-span-2 text-center text-sm md:text-base">
                           {idx < 3 && !r.isDNF
                             ? r.isGhost
                               ? "👻"
@@ -797,58 +802,58 @@ export function RaceScreen() {
 
           {/* Main Attributes Panel */}
           <div>
-            <h3 className="text-xs uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-550 mb-3 flex items-center gap-1.5">
+            <h3 className="text-xs md:text-sm uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-550 mb-2 md:mb-3 flex items-center gap-1.5">
               <span>📊</span> Live Runner Metrics
             </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="border border-slate-200 dark:border-gray-800 rounded-[1.5rem] p-4 flex flex-col items-center bg-slate-50/50 dark:bg-gray-950/20">
-                <span className="text-slate-400 dark:text-gray-550 text-[10px] uppercase font-bold mb-1">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
+              <div className="border border-slate-200 dark:border-gray-800 rounded-[1.5rem] p-3 md:p-4 flex flex-col items-center bg-slate-50/50 dark:bg-gray-950/20">
+                <span className="text-slate-400 dark:text-gray-550 text-[9px] md:text-[10px] uppercase font-bold mb-1">
                   Pace
                 </span>
                 <div className="flex items-center gap-1 text-slate-800 dark:text-gray-200">
-                  <Gauge className="h-4.5 w-4.5 text-orange-500" />
-                  <span className="text-lg font-bold">
+                  <Gauge className="h-4 w-4 md:h-4.5 md:w-4.5 text-orange-500" />
+                  <span className="text-base md:text-lg font-bold">
                     {formatPace(stats.pace)} /km
                   </span>
                 </div>
               </div>
-              <div className="border border-slate-200 dark:border-gray-800 rounded-[1.5rem] p-4 flex flex-col items-center bg-slate-50/50 dark:bg-gray-950/20">
-                <span className="text-slate-400 dark:text-gray-550 text-[10px] uppercase font-bold mb-1">
+              <div className="border border-slate-200 dark:border-gray-800 rounded-[1.5rem] p-3 md:p-4 flex flex-col items-center bg-slate-50/50 dark:bg-gray-950/20">
+                <span className="text-slate-400 dark:text-gray-550 text-[9px] md:text-[10px] uppercase font-bold mb-1">
                   Energy
                 </span>
                 <div className="flex items-center gap-1 text-amber-655 dark:text-amber-500">
-                  <Flame className="h-4.5 w-4.5" />
-                  <span className="text-lg font-bold">{stats.energy}%</span>
+                  <Flame className="h-4 w-4 md:h-4.5 md:w-4.5" />
+                  <span className="text-base md:text-lg font-bold">{stats.energy}%</span>
                 </div>
               </div>
-              <div className="border border-slate-200 dark:border-gray-800 rounded-[1.5rem] p-4 flex flex-col items-center bg-slate-50/50 dark:bg-gray-950/20">
-                <span className="text-slate-400 dark:text-gray-550 text-[10px] uppercase font-bold mb-1">
+              <div className="border border-slate-200 dark:border-gray-800 rounded-[1.5rem] p-3 md:p-4 flex flex-col items-center bg-slate-50/50 dark:bg-gray-950/20">
+                <span className="text-slate-400 dark:text-gray-550 text-[9px] md:text-[10px] uppercase font-bold mb-1">
                   Hydration
                 </span>
                 <div className="flex items-center gap-1 text-blue-650 dark:text-blue-500">
-                  <Activity className="h-4.5 w-4.5" />
-                  <span className="text-lg font-bold">{stats.hydration}%</span>
+                  <Activity className="h-4 w-4 md:h-4.5 md:w-4.5" />
+                  <span className="text-base md:text-lg font-bold">{stats.hydration}%</span>
                 </div>
               </div>
-              <div className="border border-slate-200 dark:border-gray-800 rounded-[1.5rem] p-4 flex flex-col items-center bg-slate-50/50 dark:bg-gray-950/20">
-                <span className="text-slate-400 dark:text-gray-550 text-[10px] uppercase font-bold mb-1">
+              <div className="border border-slate-200 dark:border-gray-800 rounded-[1.5rem] p-3 md:p-4 flex flex-col items-center bg-slate-50/50 dark:bg-gray-950/20">
+                <span className="text-slate-400 dark:text-gray-550 text-[9px] md:text-[10px] uppercase font-bold mb-1">
                   Focus
                 </span>
                 <div className="flex items-center gap-1 text-purple-650 dark:text-purple-550">
-                  <TrendingUp className="h-4.5 w-4.5" />
-                  <span className="text-lg font-bold">{stats.focus}%</span>
+                  <TrendingUp className="h-4 w-4 md:h-4.5 md:w-4.5" />
+                  <span className="text-base md:text-lg font-bold">{stats.focus}%</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Sub-attributes / Indicators */}
-          <div className="grid sm:grid-cols-2 gap-6 border-t border-slate-100 dark:border-gray-800 pt-6">
-            <div className="flex flex-col gap-3">
-              <span className="text-xs uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-500">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 border-t border-slate-100 dark:border-gray-800 pt-4 md:pt-6">
+            <div className="flex flex-col gap-2 md:gap-3">
+              <span className="text-xs md:text-sm uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-500">
                 Fatigue & Stability
               </span>
-              <div className="flex flex-col gap-2.5 text-xs">
+              <div className="flex flex-col gap-2 md:gap-2.5 text-xs md:text-sm">
                 <div>
                   <div className="flex justify-between font-semibold mb-1 text-slate-700 dark:text-gray-300">
                     <span>Muscle Fatigue</span>

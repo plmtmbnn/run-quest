@@ -86,3 +86,107 @@ export interface CoachRecommendation {
   message: string;
   reason: string;
 }
+
+// ═══════════════════════════════════════════════════════════════════════
+// Sprint 30: Weekly Training Planner Types
+// ═══════════════════════════════════════════════════════════════════════
+
+/**
+ * Represents a planned activity for a specific day in the weekly plan.
+ */
+export interface PlannedActivity {
+  /** Absolute day index in the game timeline */
+  dayIndex: number;
+  /** Day of week (0 = Monday, 6 = Sunday) */
+  dayOfWeek: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  /** The planned activity for this day */
+  activity: DailyActivity;
+  /** Whether this activity has been completed */
+  isCompleted: boolean;
+  /** The actual activity performed (if different from planned) */
+  actualActivity?: DailyActivity;
+  /** Timestamp when the activity was completed */
+  completedAt?: number;
+  /** Status of the activity */
+  reason?: "completed" | "swapped" | "missed";
+  /** Energy cost for this activity */
+  energyCost: number;
+}
+
+/**
+ * Represents a complete weekly training plan.
+ */
+export interface WeeklyPlan {
+  /** Unique identifier for this plan */
+  id: string;
+  /** Day index of Monday (week start) */
+  weekStartDay: number;
+  /** Day index of Sunday (week end) */
+  weekEndDay: number;
+  /** Planned activities for the 7 days */
+  plannedActivities: PlannedActivity[];
+  /** Template used to generate this plan */
+  templateUsed?: "beginner" | "base" | "performance" | "recovery" | "custom";
+  /** Timestamp when plan was created */
+  createdAt: number;
+  /** Overall adherence rate (0-100) */
+  adherenceRate?: number;
+  /** Coach feedback messages for this plan */
+  coachFeedback?: string[];
+  /** Whether this plan is currently active */
+  isActive: boolean;
+}
+
+/**
+ * Represents a training plan template.
+ */
+export interface PlanTemplate {
+  /** Unique template identifier */
+  id: string;
+  /** Display name of the template */
+  name: string;
+  /** Brief description of the template */
+  description: string;
+  /** Difficulty level */
+  difficulty: "beginner" | "intermediate" | "advanced";
+  /** 7 daily activities (Monday to Sunday) */
+  weeklyActivities: DailyActivity[];
+  /** Minimum fitness level recommended */
+  targetFitness: number;
+  /** Maximum safe fatigue level */
+  maxFatigue: number;
+  /** Total weekly volume in kilometers */
+  totalVolume: number;
+  /** Icon/emoji for the template */
+  icon: string;
+}
+
+/**
+ * Validation result for a weekly plan.
+ */
+export interface PlanValidation {
+  /** Whether the plan is safe and valid */
+  isValid: boolean;
+  /** Warning messages about potential issues */
+  warnings: string[];
+  /** Suggestions for improvement */
+  suggestions: string[];
+  /** Overall plan quality score (0-100) */
+  score: number;
+}
+
+/**
+ * Metrics tracking how well the player follows their plan.
+ */
+export interface AdherenceMetrics {
+  /** Percentage of workouts completed as planned (0-100) */
+  completionRate: number;
+  /** Percentage of workouts that were substituted (0-100) */
+  substitutionRate: number;
+  /** Number of missed workouts */
+  missedWorkouts: number;
+  /** Total planned workouts */
+  totalPlanned: number;
+  /** Total completed workouts */
+  totalCompleted: number;
+}

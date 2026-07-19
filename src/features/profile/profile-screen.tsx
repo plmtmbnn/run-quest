@@ -21,6 +21,7 @@ import {
   getReadinessLevel,
 } from "@/runner/runner-selectors";
 import { useRunnerStore } from "@/runner/runner-store";
+import { usePlayerStore } from "@/store/player-store";
 
 interface AttributeUpgradeCardProps {
   name: string;
@@ -100,8 +101,12 @@ export function ProfileScreen() {
   const router = useRouter();
   const { runnerState, setRunnerState } = useRunnerStore();
   const profile = runnerState.profile;
+  const player = usePlayerStore((state) => state.player);
   const { t } = useTranslation();
   const { playSound } = useSound();
+  
+  // Get player name from player store
+  const playerName = player?.name || `Runner #${player?.id.slice(0, 5).toUpperCase() || "00000"}`;
 
   const handleUpgradeAttribute = (
     attr: "speedAttr" | "staminaAttr" | "hydrationAttr" | "willpowerAttr",
@@ -614,7 +619,7 @@ export function ProfileScreen() {
               Runner Name
             </h2>
             <p className="text-lg font-bold text-slate-800 dark:text-white">
-              {profile.displayName}
+              {playerName}
             </p>
           </div>
 

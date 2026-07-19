@@ -10,10 +10,24 @@ import { formatCurrency } from "@/economy/currency-converter";
 import { useSettingsStore } from "@/store/settings-store";
 import { useTimelineStore } from "@/store/timeline-store";
 import { formatGameDate } from "@/engine/timeline/calendar";
+import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import type { EntryValidation } from "../../economy/race-entry-engine";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getEnergyCostForDistance } from "../../economy/race-entry-engine";
 import type { CategoryId, RaceCategory, RaceOccurrence } from "../../scheduling/race-calendar-types";
+
+// Interpolate {placeholder} tokens in translation strings.
+function interpolate(
+  template: string,
+  vars: Record<string, string | number>,
+): string {
+  return template.replace(/\{(\w+)\}/g, (_, key: string) =>
+    key in vars ? String(vars[key]) : `{${key}}`,
+  );
+}
+
+const MODAL_ID = "race-entry-modal";
+const MODAL_TITLE_ID = "race-entry-modal-title";
 
 interface RaceEntryModalProps {
   race: RaceOccurrence;
@@ -30,9 +44,22 @@ export function RaceEntryModal({
   onConfirm,
   onCancel,
 }: RaceEntryModalProps) {
+  const { t } = useTranslation();
   const preferredCurrency =
     useSettingsStore((state) => state.settings.preferredCurrency) || "USD";
   const currentDayIndex = useTimelineStore((state) => state.gameState?.dayIndex ?? 0);
+
+  // Close on Escape
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onCancel();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onCancel]);
 
   const categories = race.categories ?? [];
   const [selectedCatId, setSelectedCatId] = useState<CategoryId>(
@@ -54,22 +81,22 @@ export function RaceEntryModal({
   const isRaceDay = race.dayIndex === currentDayIndex;
 
   const getButtonState = () => {
-    if (race.isCompleted) return { disabled: true, text: "Completed", color: "" };
+    if (race.isCompleted) return { disabled: true, text: t("race_entry.button.completed" as TranslationKey), color: "" };
     if (race.isRegistered) {
       if (isRaceDay) {
-        return { disabled: false, text: "Start Race", color: "bg-indigo-600 hover:bg-indigo-700 text-white" };
+        return { disabled: false, text: t("race_entry.button.start_race" as TranslationKey), color: "bg-indigo-600 hover:bg-indigo-700 text-white" };
       } else {
-        return { disabled: true, text: "Already Registered", color: "" };
+        return { disabled: true, text: t("race_entry.button.already_registered" as TranslationKey), color: "" };
       }
     }
-    if (race.isFull) return { disabled: true, text: "Race Full", color: "" };
-    if (!canAfford) return { disabled: true, text: `Need ${formatCurrency(activeEntryFee - currentBalance, preferredCurrency)} More`, color: "" };
-    if (!hasAllPrereqs) return { disabled: true, text: "Requirements Not Met", color: "" };
-    
-    return { 
-      disabled: false, 
-      text: `Enter Race - ${formatCurrency(activeEntryFee, preferredCurrency)}`, 
-      color: "bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-lg shadow-emerald-500/20" 
+    if (race.isFull) return { disabled: true, text: t("race_entry.button.race_full" as TranslationKey), color: "" };
+    if (!canAfford) return { disabled: true, text: interpolate(t("race_entry.need_more" as TranslationKey), { amount: formatCurrency(activeEntryFee - currentBalance, preferredCurrency) }), color: "" };
+    if (!hasAllPrereqs) return { disabled: true, text: t("race_entry.button.requirements_not_met" as TranslationKey), color: "" };
+
+    return {
+      disabled: false,
+      text: interpolate(t("race_entry.button.enter_race" as TranslationKey), { fee: formatCurrency(activeEntryFee, preferredCurrency) }),
+      color: "bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-lg shadow-emerald-500/20"
     };
   };
 
@@ -77,12 +104,18 @@ export function RaceEntryModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="max-w-lg w-full max-h-[90vh] flex flex-col rounded-[2rem] border border-[#E5E7EB] dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-hidden">
-        
+      <div
+        id={MODAL_ID}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={MODAL_TITLE_ID}
+        className="max-w-lg w-full max-h-[90vh] flex flex-col rounded-[2rem] border border-[#E5E7EB] dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-hidden"
+      >
+
         {/* Header - Fixed */}
         <div className="text-center p-6 shrink-0 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 z-10">
-          <span className={`text-4xl ${race.color}`}>{race.icon}</span>
-          <h2 className="text-2xl font-black font-heading text-slate-800 dark:text-white mt-2">{race.name}</h2>
+          <span className={`text-4xl ${race.color}`} aria-hidden="true">{race.icon}</span>
+          <h2 id={MODAL_TITLE_ID} className="text-2xl font-black font-heading text-slate-800 dark:text-white mt-2">{race.name}</h2>
           <p className="text-sm text-slate-500 dark:text-gray-400 mt-1 capitalize">
             {race.tier} Event • {formatGameDate(race.dayIndex)}
           </p>
@@ -94,7 +127,7 @@ export function RaceEntryModal({
           {categories.length > 0 && (
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-gray-400">
-                Select Race Category
+                {t("race_entry.category_label" as TranslationKey)}
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {categories.map((cat) => {
@@ -127,10 +160,14 @@ export function RaceEntryModal({
 
           {/* Cost Breakdown */}
           <div className="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-[#E5E7EB] dark:border-slate-700 p-4 space-y-2">
-            <h3 className="font-bold text-slate-800 dark:text-white text-sm">Entry Summary</h3>
+            <h3 className="font-bold text-slate-800 dark:text-white text-sm">
+              {t("race_entry.entry_summary" as TranslationKey)}
+            </h3>
 
             <div className="flex justify-between text-sm">
-              <span className="text-slate-500 dark:text-gray-400">Entry Fee</span>
+              <span className="text-slate-500 dark:text-gray-400">
+                {t("race_entry.entry_fee" as TranslationKey)}
+              </span>
               <span
                 className={`font-bold ${canAfford ? "text-yellow-600 dark:text-yellow-400" : "text-red-500 dark:text-red-400"}`}
               >
@@ -139,12 +176,16 @@ export function RaceEntryModal({
             </div>
 
             <div className="flex justify-between text-sm">
-              <span className="text-slate-500 dark:text-gray-400">Energy Required</span>
+              <span className="text-slate-500 dark:text-gray-400">
+                {t("race_entry.energy_required" as TranslationKey)}
+              </span>
               <span className="font-bold text-blue-600 dark:text-blue-400">{activeEnergyCost} EP</span>
             </div>
 
             <div className="flex justify-between text-sm">
-              <span className="text-slate-500 dark:text-gray-400">Your Balance</span>
+              <span className="text-slate-500 dark:text-gray-400">
+                {t("race_entry.your_balance" as TranslationKey)}
+              </span>
               <span
                 className={`font-bold ${canAfford ? "text-green-600 dark:text-green-400" : "text-red-500 dark:text-red-400"}`}
               >
@@ -155,7 +196,9 @@ export function RaceEntryModal({
             <hr className="border-[#E5E7EB] dark:border-slate-700" />
 
             <div className="flex justify-between text-sm">
-              <span className="text-slate-500 dark:text-gray-400">Prize Pool / Info</span>
+              <span className="text-slate-500 dark:text-gray-400">
+                {t("race_entry.prize_pool" as TranslationKey)}
+              </span>
               <span className="font-bold text-green-600 dark:text-green-400 text-right">
                 {activePrizeInfo}
               </span>
@@ -163,14 +206,16 @@ export function RaceEntryModal({
 
             {activeMaxEntrants && (
               <div className="flex justify-between text-sm">
-                <span className="text-slate-500 dark:text-gray-400">Entrants</span>
+                <span className="text-slate-500 dark:text-gray-400">
+                  {t("race_entry.entrants" as TranslationKey)}
+                </span>
                 <span
                   className={
                     race.isFull ? "text-red-500 dark:text-red-400 font-bold" : "text-slate-600 dark:text-gray-300"
                   }
                 >
                   {race.entrants ?? 0}/{activeMaxEntrants}
-                  {race.isFull ? " (FULL)" : ""}
+                  {race.isFull ? ` (${t("race_entry.full" as TranslationKey)})` : ""}
                 </span>
               </div>
             )}
@@ -180,7 +225,7 @@ export function RaceEntryModal({
         {validation.blockers.length > 0 && (
           <div className="rounded-xl bg-red-50/40 dark:bg-red-500/10 border border-red-100/30 dark:border-red-500/30 p-3 space-y-2">
             <h3 className="font-bold text-red-600 dark:text-red-400 text-sm">
-              ❌ Requirements Not Met
+              ❌ {t("race_entry.requirements_not_met" as TranslationKey)}
             </h3>
             {validation.blockers.map((blocker, idx) => (
               <div key={idx} className="flex items-start gap-2 text-sm">
@@ -212,7 +257,7 @@ export function RaceEntryModal({
         {/* Prize Distribution */}
         <div className="rounded-xl bg-slate-50 dark:bg-gray-800/30 p-3 border border-[#E5E7EB] dark:border-slate-800/0">
           <h3 className="font-bold text-slate-800 dark:text-white text-xs mb-2">
-            🏆 Prize Distribution
+            🏆 {t("race_entry.prize_distribution" as TranslationKey)}
           </h3>
           <div className="grid grid-cols-5 gap-1 text-center text-xs">
             <div>
@@ -245,9 +290,9 @@ export function RaceEntryModal({
           <div className="flex gap-3">
             <button
               onClick={onCancel}
-              className="flex-1 py-3 px-4 rounded-xl bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white font-bold transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+              className="flex-1 min-h-[44px] py-3 px-4 rounded-xl bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white font-bold transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
             >
-              Cancel
+              {t("race_entry.button.cancel" as TranslationKey)}
             </button>
             <button
               onClick={() => onConfirm(selectedCatId)}

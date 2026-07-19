@@ -19,7 +19,7 @@ import type {
   SchedulingState,
   CategoryId,
 } from "./race-calendar-types";
-import { RACE_SCHEDULES } from "./race-schedule-database";
+import { RACE_SCHEDULES, RACE_SCHEDULES_GETTER } from "./race-schedule-database";
 
 /**
  * Get all races available to enter TODAY.

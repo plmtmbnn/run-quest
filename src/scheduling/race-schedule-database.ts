@@ -1,13 +1,32 @@
 import type { RaceSchedule } from "./race-calendar-types";
 import { formatCurrency } from "../economy/currency-converter";
-import { useSettingsStore } from "@/store/settings-store";
+import { useSettingsStore } from "../store/settings-store";
+import type { CurrencyCode } from "../economy/currency-config";
+import { DEFAULT_CURRENCY } from "../economy/currency-config";
+
+/**
+ * Helper function to get current preferred currency safely
+ */
+function getPreferredCurrency(): CurrencyCode {
+  try {
+    const settings = useSettingsStore.getState().settings;
+    const preferred = settings.preferredCurrency as CurrencyCode;
+    // Validate that it's a valid CurrencyCode
+    const validCurrencies: CurrencyCode[] = ["USD", "EUR", "JPY", "IDR"];
+    return validCurrencies.includes(preferred) ? preferred : DEFAULT_CURRENCY;
+  } catch {
+    return DEFAULT_CURRENCY;
+  }
+}
 
 /**
  * Master schedule of all races in the game.
+ * Note: This is a function to ensure currency formatting is always current
  */
-const preferredCurrency = useSettingsStore.getState().settings.preferredCurrency || "USD";
-
-export const RACE_SCHEDULES: RaceSchedule[] = [
+export function getRaceSchedules(): RaceSchedule[] {
+  const preferredCurrency = getPreferredCurrency();
+  
+  return [
   // ═══════════════════════════════════════════════════════
   // WEEKLY RACES - Reduced frequency and fee
   // ═══════════════════════════════════════════════════════
@@ -586,20 +605,61 @@ export const RACE_SCHEDULES: RaceSchedule[] = [
     color: "text-indigo-500",
     prizeInfo: "Story milestone - unlocks next chapter",
   },
-];
+  ];
+}
+
+/**
+ * Lazy-loaded race schedules with current currency
+ * This ensures currency is always up-to-date
+ */
+let cachedRaceSchedules: RaceSchedule[] | null = null;
+let lastCurrency: string | null = null;
+
+export function RACE_SCHEDULES_GETTER(): RaceSchedule[] {
+  const currentCurrency = getPreferredCurrency();
+  
+  // Regenerate if currency changed or first time
+  if (!cachedRaceSchedules || lastCurrency !== currentCurrency) {
+    cachedRaceSchedules = getRaceSchedules();
+    lastCurrency = currentCurrency;
+  }
+  
+  return cachedRaceSchedules;
+}
+
+// Backward-compatible export as a getter property
+export const RACE_SCHEDULES = new Proxy([] as RaceSchedule[], {
+  get(target, prop) {
+    const schedules = RACE_SCHEDULES_GETTER();
+    if (prop === 'length') return schedules.length;
+    if (typeof prop === 'string' && !isNaN(Number(prop))) {
+      return schedules[Number(prop)];
+    }
+    return (schedules as any)[prop];
+  },
+  has(target, prop) {
+    return prop in RACE_SCHEDULES_GETTER();
+  },
+  ownKeys() {
+    return Reflect.ownKeys(RACE_SCHEDULES_GETTER());
+  },
+  getOwnPropertyDescriptor(target, prop) {
+    return Reflect.getOwnPropertyDescriptor(RACE_SCHEDULES_GETTER(), prop);
+  }
+});
 
 /**
  * Get the default daily races (always available).
  */
 export function getDefaultDailyRaces(): RaceSchedule[] {
-  return RACE_SCHEDULES.filter((s) => s.schedule.frequency === "daily");
+  return RACE_SCHEDULES_GETTER().filter((s) => s.schedule.frequency === "daily");
 }
 
 /**
  * Get races by tier.
  */
 export function getRacesByTier(tier: string): RaceSchedule[] {
-  return RACE_SCHEDULES.filter((s) => s.tier === tier);
+  return RACE_SCHEDULES_GETTER().filter((s) => s.tier === tier);
 }
 
 /**
@@ -608,7 +668,7 @@ export function getRacesByTier(tier: string): RaceSchedule[] {
 export function getNextBigRace(
   currentDayIndex: number,
 ): RaceSchedule | undefined {
-  return RACE_SCHEDULES.filter(
+  return RACE_SCHEDULES_GETTER().filter(
     (s) =>
       s.schedule.frequency !== "daily" && s.schedule.frequency !== "weekly",
   ).sort((a, b) => {
@@ -645,7 +705,7 @@ export function getRaceScheduleSummary(): {
     oneTime: 0,
   };
 
-  for (const s of RACE_SCHEDULES) {
+  for (const s of RACE_SCHEDULES_GETTER()) {
     const freq = s.schedule.frequency;
     if (freq === "one_time") {
       counts.oneTime++;
@@ -656,6 +716,6 @@ export function getRaceScheduleSummary(): {
 
   return {
     ...counts,
-    total: RACE_SCHEDULES.length,
+    total: RACE_SCHEDULES_GETTER().length,
   };
 }

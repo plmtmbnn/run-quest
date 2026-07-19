@@ -82,7 +82,7 @@ export function SettingsScreen() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.25, ease: "easeInOut" }}
-      className="min-h-screen bg-slate-50 dark:bg-gray-950 text-slate-900 dark:text-white flex flex-col pb-16"
+      className="min-h-[100dvh] bg-slate-50 dark:bg-gray-950 text-slate-900 dark:text-white flex flex-col pb-16 pt-[max(1rem,env(safe-area-inset-top))]"
     >
       {/* Sticky Header */}
       <header className="sticky top-0 z-10 border-b border-[#E5E7EB] dark:border-gray-800 bg-white/95 dark:bg-slate-900/90 px-6 py-4 backdrop-blur-md">
@@ -97,7 +97,8 @@ export function SettingsScreen() {
               }
               router.push("/");
             }}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white dark:bg-slate-900 transition hover:bg-gray-50 dark:hover:bg-slate-800 active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            aria-label={t("settings.title" as TranslationKey)}
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-gray-200 bg-white dark:bg-slate-900 transition hover:bg-gray-50 dark:hover:bg-slate-800 active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
           >
             <ArrowLeft className="h-5 w-5 text-gray-600 dark:text-gray-300" />
           </button>
@@ -138,7 +139,10 @@ export function SettingsScreen() {
                   value={nameInput}
                   onChange={(e) => handleNameChange(e.target.value)}
                   maxLength={24}
-                  className={`flex-grow border rounded-xl px-3.5 py-2 text-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none bg-slate-50 dark:bg-slate-900 focus:bg-white dark:focus:bg-slate-800 text-slate-800 dark:text-white font-bold transition-all ${
+                  aria-label={t("settings.name.title" as TranslationKey)}
+                  aria-invalid={hasNameError}
+                  aria-describedby={hasNameError ? "settings-name-error" : undefined}
+                  className={`flex-grow min-h-[44px] border rounded-xl px-3.5 py-2 text-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none bg-slate-50 dark:bg-slate-900 focus:bg-white dark:focus:bg-slate-800 text-slate-800 dark:text-white font-bold transition-all ${
                     hasNameError
                       ? "border-red-500"
                       : "border-[#E5E7EB] dark:border-slate-700"
@@ -148,14 +152,19 @@ export function SettingsScreen() {
                 <button
                   type="button"
                   onClick={handleRegenerateName}
-                  className="p-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 text-slate-600 dark:text-gray-300 rounded-xl transition-all shadow-sm flex items-center justify-center border border-[#E5E7EB] dark:border-slate-700 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+                  aria-label="Roll for random name"
+                  className="min-h-[44px] min-w-[44px] p-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-95 text-slate-600 dark:text-gray-300 rounded-xl transition-all shadow-sm flex items-center justify-center border border-[#E5E7EB] dark:border-slate-700 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
                   title="Roll for random name"
                 >
                   <Dices className="w-4 h-4" />
                 </button>
               </div>
               {hasNameError && (
-                <p className="text-[11px] text-red-500 font-bold px-1 leading-none">
+                <p
+                  id="settings-name-error"
+                  role="alert"
+                  className="text-[11px] text-red-500 font-bold px-1 leading-none"
+                >
                   {t("settings.name.error" as TranslationKey)}
                 </p>
               )}
@@ -177,11 +186,14 @@ export function SettingsScreen() {
             </div>
             <button
               type="button"
+              role="switch"
+              aria-checked={settings.sound}
+              aria-label={t("settings.sound.title" as TranslationKey)}
               onClick={() => {
                 playSound("click");
                 setSound(!settings.sound);
               }}
-              className={`w-14 h-8 rounded-full p-1 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+              className={`w-14 h-8 shrink-0 rounded-full p-1 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                 settings.sound ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"
               }`}
             >
@@ -241,14 +253,20 @@ export function SettingsScreen() {
                 {t("settings.language.desc" as TranslationKey)}
               </span>
             </div>
-            <div className="grid grid-cols-2 gap-3 mt-2">
+            <div
+              role="radiogroup"
+              aria-label={t("settings.language.title" as TranslationKey)}
+              className="grid grid-cols-2 gap-3 mt-2"
+            >
               <button
                 type="button"
+                role="radio"
+                aria-checked={settings.language === "en"}
                 onClick={() => {
                   playSound("click");
                   setLanguage("en");
                 }}
-                className={`text-sm font-bold py-3 rounded-2xl transition-all border-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                className={`text-sm font-bold py-3 min-h-[44px] rounded-2xl transition-all border-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   settings.language === "en"
                     ? "bg-indigo-50 dark:bg-indigo-950/20 border-indigo-500 text-indigo-700 dark:text-indigo-400"
                     : "border-[#E5E7EB] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600"
@@ -258,11 +276,13 @@ export function SettingsScreen() {
               </button>
               <button
                 type="button"
+                role="radio"
+                aria-checked={settings.language === "id"}
                 onClick={() => {
                   playSound("click");
                   setLanguage("id");
                 }}
-                className={`text-sm font-bold py-3 rounded-2xl transition-all border-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                className={`text-sm font-bold py-3 min-h-[44px] rounded-2xl transition-all border-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
                   settings.language === "id"
                     ? "bg-indigo-50 dark:bg-indigo-950/20 border-indigo-500 text-indigo-700 dark:text-indigo-400"
                     : "border-[#E5E7EB] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600"
@@ -283,70 +303,6 @@ export function SettingsScreen() {
               setPreferredCurrency(currency);
             }}
           />
-        </section>
-
-        {/* Running Preferences */}
-        <section className="bg-white dark:bg-slate-900 rounded-[2rem] border border-[#E5E7EB] dark:border-slate-800 shadow-sm p-6 flex flex-col gap-6">
-          <h2 className="text-base font-bold text-gray-800 dark:text-gray-100 uppercase tracking-wider">
-            {t("settings.sections.race_preferences" as TranslationKey)}
-          </h2>
-          <p className="text-xs text-gray-400 -mt-2">
-            {t("settings.preferences.desc" as TranslationKey)}
-          </p>
-
-          {/* Preferred Surface */}
-          <div className="flex flex-col gap-2">
-            <span className="text-sm font-bold text-gray-900 dark:text-white">
-              {t("settings.preferences.surface" as TranslationKey)}
-            </span>
-            <div className="grid grid-cols-4 gap-2 mt-1">
-              {["any", "road", "trail", "track"].map((surface) => (
-                <button
-                  key={surface}
-                  type="button"
-                  onClick={() =>
-                    handlePreferencesChange("preferredSurface", surface)
-                  }
-                  className={`text-xs font-bold py-3 rounded-2xl transition-all border-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
-                    settings.preferences.preferredSurface === surface
-                      ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950/20 text-indigo-700 dark:text-indigo-400"
-                      : "border-[#E5E7EB] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600"
-                  }`}
-                >
-                  {t(
-                    `challenge.surface.${surface}` as TranslationKey,
-                  ).toUpperCase()}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Preferred Distance */}
-          <div className="flex flex-col gap-2">
-            <span className="text-sm font-bold text-gray-900 dark:text-white">
-              {t("settings.preferences.distance" as TranslationKey)}
-            </span>
-            <div className="grid grid-cols-4 gap-2 mt-1">
-              {["any", "short", "medium", "long"].map((distance) => (
-                <button
-                  key={distance}
-                  type="button"
-                  onClick={() =>
-                    handlePreferencesChange("preferredDistance", distance)
-                  }
-                  className={`text-xs font-bold py-3 rounded-2xl transition-all border-2 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
-                    settings.preferences.preferredDistance === distance
-                      ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950/20 text-indigo-700 dark:text-indigo-400"
-                      : "border-[#E5E7EB] dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600"
-                  }`}
-                >
-                  {t(
-                    `challenge.distance_types.${distance}` as TranslationKey,
-                  ).toUpperCase()}
-                </button>
-              ))}
-            </div>
-          </div>
         </section>
 
         {/* Danger Zone */}
@@ -371,7 +327,7 @@ export function SettingsScreen() {
                 playSound("click");
                 setShowResetConfirm(true);
               }}
-              className="flex items-center gap-1.5 px-4 py-2.5 bg-red-600 hover:bg-red-700 active:scale-95 text-white text-xs font-bold rounded-2xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none"
+              className="flex items-center gap-1.5 px-4 py-2.5 min-h-[44px] bg-red-600 hover:bg-red-700 active:scale-95 text-white text-xs font-bold rounded-2xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:outline-none"
             >
               <Trash2 className="h-4 w-4" />{" "}
               {t("settings.danger.button" as TranslationKey)}

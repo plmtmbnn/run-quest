@@ -349,18 +349,18 @@ export function HomeScreen() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.25, ease: "easeInOut" }}
-      className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white flex flex-col pb-28"
+      className="min-h-[100dvh] bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white flex flex-col pb-28 pt-[max(1rem,env(safe-area-inset-top))]"
     >
       {/* Header */}
-      <header className="px-6 pt-10 pb-4 flex justify-between items-start">
-        <div>
-          <p className="text-sm font-medium text-gray-400 uppercase tracking-widest mb-1">
+      <header className="px-4 md:px-6 pt-6 md:pt-10 pb-3 md:pb-4 flex justify-between items-start gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-xs md:text-sm font-medium text-gray-400 uppercase tracking-widest mb-1">
             RunQuest
           </p>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white font-heading">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white font-heading truncate">
             {t("home.title" as TranslationKey)}
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-xs md:text-sm text-gray-500 mt-0.5 md:mt-1 truncate">
             {t("home.subtitle" as TranslationKey)}
           </p>
         </div>
@@ -370,25 +370,25 @@ export function HomeScreen() {
             playSound("click");
             router.push("/settings");
           }}
-          className="rounded-full p-2.5 bg-white dark:bg-slate-900 border-2 border-[#E5E7EB] dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm transition-all active:scale-95 mt-2"
-          aria-label="Settings"
+          className="rounded-full min-h-[44px] min-w-[44px] flex items-center justify-center p-2 md:p-2.5 bg-white dark:bg-slate-900 border-2 border-[#E5E7EB] dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm transition-all active:scale-95 mt-2 shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40"
+          aria-label={t("settings.title" as TranslationKey)}
         >
-          <Settings className="h-5 w-5" />
+          <Settings className="h-4.5 w-4.5 md:h-5 md:w-5" />
         </button>
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 px-6 py-4 flex flex-col gap-6">
+      <main className="flex-1 px-4 md:px-6 py-3 md:py-4 flex flex-col gap-4 md:gap-6">
         <GameClock />
 
         {/* Player Stats Panel (Updated to show Money) */}
         {player && gameState && (
-          <div className="bg-gradient-to-br from-orange-500 to-amber-600 rounded-[2rem] p-5 md:p-6 text-white shadow-xl shadow-orange-500/20 flex flex-col md:flex-row md:items-center md:justify-between gap-5 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="flex flex-col gap-3.5 min-w-0 w-full md:w-auto relative z-10">
-              <div className="flex flex-col gap-1">
+          <div className="bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl md:rounded-[2rem] p-4 md:p-5 lg:p-6 text-white shadow-xl shadow-orange-500/20 flex flex-col gap-4 md:gap-5 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 md:w-48 md:h-48 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="flex flex-col gap-3 md:gap-3.5 min-w-0 w-full relative z-10">
+              <div className="flex flex-col gap-0.5 md:gap-1">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] text-orange-100 uppercase tracking-widest font-black">
+                  <span className="text-[9px] md:text-[10px] text-orange-100 uppercase tracking-widest font-black">
                     {t("home.player_profile" as TranslationKey)}
                   </span>
                   <button
@@ -397,25 +397,29 @@ export function HomeScreen() {
                       playSound("click");
                       setIsShareOpen(true);
                     }}
-                    className="p-1 rounded-full hover:bg-white/10 text-orange-100 hover:text-white transition active:scale-90"
-                    aria-label="Share career stats"
+                    className="flex items-center justify-center min-h-[32px] min-w-[32px] p-1 rounded-full hover:bg-white/10 text-orange-100 hover:text-white transition active:scale-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                    aria-label={t("share.stats.title" as TranslationKey)}
                   >
-                    <Share2 className="h-3.5 w-3.5" />
+                    <Share2 className="h-3 w-3 md:h-3.5 md:w-3.5" />
                   </button>
                 </div>
-                <span className="text-lg md:text-xl font-black font-heading truncate">
+                <span className="text-base md:text-lg lg:text-xl font-black font-heading truncate">
                   {player.name ||
                     `Runner #${player.id.slice(0, 5).toUpperCase()}`}
                 </span>
               </div>
-              <div className="flex flex-wrap gap-1.5">
+              <nav
+                aria-label="Quick navigation"
+                className="flex flex-wrap gap-1.5"
+              >
                 <button
                   type="button"
                   onClick={() => {
                     playSound("click");
                     router.push("/training");
                   }}
-                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-1.5 rounded-full transition-all border border-white/10"
+                  aria-label={t("home.daily_training" as TranslationKey)}
+                  className="inline-flex items-center gap-1.5 self-start text-[9px] md:text-[10px] uppercase font-black tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-2.5 md:px-3 py-2 md:py-1.5 rounded-full transition-all border border-white/10 min-h-[36px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                 >
                   {t("home.daily_training" as TranslationKey)} →
                 </button>
@@ -425,7 +429,8 @@ export function HomeScreen() {
                     playSound("click");
                     router.push("/profile");
                   }}
-                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-1.5 rounded-full transition-all border border-white/10"
+                  aria-label={t("home.runner_profile" as TranslationKey)}
+                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-2 md:py-1.5 rounded-full transition-all border border-white/10 min-h-[36px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                 >
                   {t("home.runner_profile" as TranslationKey)} →
                 </button>
@@ -435,7 +440,8 @@ export function HomeScreen() {
                     playSound("click");
                     router.push("/social");
                   }}
-                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-1.5 rounded-full transition-all border border-white/10 relative"
+                  aria-label="Social Hub"
+                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-2 md:py-1.5 rounded-full transition-all border border-white/10 relative min-h-[36px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                 >
                   Social Hub →
                   {recentRivalActivities > 0 && (
@@ -450,41 +456,39 @@ export function HomeScreen() {
                     playSound("click");
                     router.push("/history");
                   }}
-                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-1.5 rounded-full transition-all border border-white/10"
+                  aria-label={t("history.title" as TranslationKey)}
+                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-2 md:py-1.5 rounded-full transition-all border border-white/10 min-h-[36px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                 >
                   {t("history.title" as TranslationKey)} →
                 </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2.5 w-full md:w-auto md:flex md:gap-4 shrink-0 relative z-10">
-              <div className="flex flex-col items-center justify-center bg-black/20 rounded-2xl p-3 text-center min-w-0 md:min-w-[90px] border border-white/10 shadow-inner">
-                <span className="text-[9px] text-orange-200 uppercase font-bold tracking-wider">
-                  {t("home.stats.money" as TranslationKey)}
-                </span>
-                <span className="text-sm font-black flex items-center gap-1 mt-1 truncate tracking-tight text-white">
-                  💰 {formatCurrency(
-                    currentBalance,
-                    settings.preferredCurrency || "USD",
+                <button
+                  type="button"
+                  onClick={() => {
+                    playSound("click");
+                    router.push("/economy");
+                  }}
+                  aria-label="Economy"
+                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-2 md:py-1.5 rounded-full transition-all border border-white/10 min-h-[36px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                >
+                  💰 Economy →
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playSound("click");
+                    router.push("/sponsors");
+                  }}
+                  aria-label="Sponsors"
+                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-2 md:py-1.5 rounded-full transition-all border border-white/10 relative min-h-[36px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                >
+                  🤝 Sponsors →
+                  {(gameState?.sponsorship?.pendingOffers?.length ?? 0) > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 h-4 min-w-[16px] px-1 bg-purple-500 text-white text-[8px] font-black rounded-full flex items-center justify-center shadow-md shadow-purple-500/30 animate-pulse">
+                      {gameState?.sponsorship?.pendingOffers?.length ?? 0}
+                    </span>
                   )}
-                </span>
-              </div>
-              <div className="flex flex-col items-center justify-center bg-black/20 rounded-2xl p-3 text-center min-w-0 md:min-w-[90px] border border-white/10 shadow-inner">
-                <span className="text-[9px] text-orange-200 uppercase font-bold tracking-wider">
-                  {t("home.stats.runs" as TranslationKey)}
-                </span>
-                <span className="text-sm font-black mt-1 text-white">
-                  {player.statistics.totalRuns}
-                </span>
-              </div>
-              <div className="flex flex-col items-center justify-center bg-black/20 rounded-2xl p-3 text-center min-w-0 md:min-w-[90px] border border-white/10 shadow-inner">
-                <span className="text-[9px] text-orange-200 uppercase font-bold tracking-wider">
-                  {t("home.stats.distance" as TranslationKey)}
-                </span>
-                <span className="text-sm font-black mt-1 truncate text-white">
-                  {player.statistics.totalDistance} km
-                </span>
-              </div>
+                </button>
+              </nav>
             </div>
           </div>
         )}
@@ -516,45 +520,6 @@ export function HomeScreen() {
             ID: {player.id.slice(0, 8)}
           </p>
         )}
-
-        {/* Navigation to new economy/sponsorship pages */}
-        <div className="grid grid-cols-2 gap-3 mt-2">
-          <button
-            type="button"
-            onClick={() => {
-              playSound("click");
-              router.push("/economy");
-            }}
-            className="flex flex-col items-center justify-center gap-2 p-4 bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-2xl shadow-sm hover:scale-[1.02] transition-transform"
-          >
-            <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-xl">
-              💰
-            </div>
-            <span className="text-xs font-black font-heading tracking-wider uppercase text-slate-700 dark:text-slate-300">
-              Economy & Work
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              playSound("click");
-              router.push("/sponsors");
-            }}
-            className="flex flex-col items-center justify-center gap-2 p-4 bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-2xl shadow-sm hover:scale-[1.02] transition-transform relative"
-          >
-            <div className="w-10 h-10 rounded-full bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center text-xl">
-              🤝
-            </div>
-            <span className="text-xs font-black font-heading tracking-wider uppercase text-slate-700 dark:text-slate-300">
-              Sponsors
-            </span>
-            <div className="absolute top-3 right-3">
-              <SponsorOfferBadge
-                count={gameState?.sponsorship?.pendingOffers?.length ?? 0}
-              />
-            </div>
-          </button>
-        </div>
       </main>
 
       {player && (

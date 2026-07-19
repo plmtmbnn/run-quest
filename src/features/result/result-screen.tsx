@@ -25,6 +25,7 @@ import {
 } from "@/social/ranking-engine";
 import { useSocialStore } from "@/social/social-store";
 import { useGameStore } from "@/store/game-store";
+import { usePlayerStore } from "@/store/player-store";
 import { usePreparationStore } from "@/store/preparation-store";
 import { useTimelineStore } from "@/store/timeline-store";
 import type { RaceEvent } from "@/types/engine";
@@ -37,6 +38,10 @@ export function ResultScreen() {
   const { lastResult, currentChallenge, clearState } = useGameStore();
   const { reset } = usePreparationStore();
   const { runnerState, setRunnerState } = useRunnerStore();
+  const player = usePlayerStore((state) => state.player);
+  
+  // Get player name from player store
+  const playerName = player?.name || `Runner #${player?.id.slice(0, 5).toUpperCase() || "00000"}`;
 
   // Ranking States
   const [hasProcessed, setHasProcessed] = useState(false);
@@ -192,7 +197,7 @@ export function ResultScreen() {
       if (isNewPersonalBest(challenge.id, lastResult.finishTime, challenge.race.distance)) {
         saveGhostRun(
           challenge.id,
-          profile.displayName,
+          playerName,
           lastResult.finishTime,
           splits,
           dayIndex,
@@ -317,7 +322,7 @@ export function ResultScreen() {
 
     const entries = [
       {
-        name: runnerState.profile.displayName,
+        name: playerName,
         time: lastResult.finishTime,
         isDNF: outcome === "dnf",
         isPlayer: true,

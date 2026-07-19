@@ -153,7 +153,10 @@ export const DEFAULT_GAME_STATE: GameState = {
   },
   relationships: {},
   routine: ["rest", "rest", "rest", "rest", "rest", "rest", "rest"], // Default to rest
-  flags: {},
+  flags: {
+    activeJobId: "full_time", // Sprint 30: Default job as Employee (full-time)
+    lastJobChangeDay: -7, // Allow immediate job change on first day
+  },
   // NEW SPRINT 26 INITIALIZATIONS
   economy: DEFAULT_ECONOMY_STATE,
   sponsorship: DEFAULT_SPONSORSHIP_STATE,

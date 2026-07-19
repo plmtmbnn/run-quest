@@ -18,6 +18,7 @@ import { getTierAndDivision } from "@/social/ranking-engine";
 import type { Competitor } from "@/social/ranking-types";
 import { CLUBS } from "@/social/social-persistence";
 import { useSocialStore } from "@/social/social-store";
+import { usePlayerStore } from "@/store/player-store";
 
 type Tab = "leaderboard" | "club" | "stats";
 type LeaderboardScope = "regional" | "global" | "rivals";
@@ -28,6 +29,10 @@ export function SocialScreen() {
   const { playSound } = useSound();
   const { runnerState, setRunnerState } = useRunnerStore();
   const profile = runnerState.profile;
+  const player = usePlayerStore((state) => state.player);
+  
+  // Get player name from player store
+  const playerName = player?.name || "You";
 
   const socialState = useSocialStore();
   const {
@@ -99,7 +104,7 @@ export function SocialScreen() {
       const { tier, division } = getTierAndDivision(profile.rankPoints || 0);
       list.push({
         id: "player",
-        name: profile.displayName || "You",
+        name: playerName,
         region: region || "Global",
         rp: profile.rankPoints || 0,
         tier,
@@ -114,7 +119,7 @@ export function SocialScreen() {
   }, [
     regionalCompetitors,
     profile.rankPoints,
-    profile.displayName,
+    playerName,
     profile.level,
     region,
   ]);
@@ -128,7 +133,7 @@ export function SocialScreen() {
       const { tier, division } = getTierAndDivision(profile.rankPoints || 0);
       list.push({
         id: "player",
-        name: profile.displayName || "You",
+        name: playerName,
         region: region || "Global",
         rp: profile.rankPoints || 0,
         tier,
@@ -142,7 +147,7 @@ export function SocialScreen() {
   }, [
     globalLeaderboard,
     profile.rankPoints,
-    profile.displayName,
+    playerName,
     profile.level,
     region,
   ]);
@@ -188,7 +193,7 @@ export function SocialScreen() {
     const { tier, division } = getTierAndDivision(profile.rankPoints || 0);
     list.push({
       id: "player",
-      name: `${profile.displayName || "You"} (You)`,
+      name: `${playerName} (You)`,
       rp: profile.rankPoints || 0,
       tier,
       division,
@@ -200,7 +205,7 @@ export function SocialScreen() {
   }, [
     profile.rivalRelationships,
     profile.rankPoints,
-    profile.displayName,
+    playerName,
     profile.level,
   ]);
 
@@ -529,7 +534,7 @@ export function SocialScreen() {
                     <div className="flex justify-between items-center bg-indigo-50/50 dark:bg-indigo-950/10 p-3 rounded-2xl border border-indigo-50 dark:border-indigo-950/40 text-xs">
                       <span className="font-bold flex items-center gap-1">
                         <span>🏃</span>
-                        <span>{profile.displayName || "You"} (You)</span>
+                        <span>{playerName} (You)</span>
                       </span>
                       <span className="font-mono font-bold">
                         {weeklyContributedKm} km

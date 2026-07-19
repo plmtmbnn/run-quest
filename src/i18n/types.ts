@@ -230,6 +230,51 @@ export interface Dictionary {
     segment_sprint: string;
     segment_flat: string;
   };
+  training: {
+    coach_feedback: string;
+    no_feedback: string;
+    choose_activity: string;
+    quick_templates: string;
+    recommended: string;
+    selected: string;
+    create_custom_plan: string;
+    weekly_planner: string;
+    plan_your_week: string;
+    this_weeks_plan: string;
+    adherence: string;
+    weekly_stats: string;
+    volume: string;
+    energy_cost: string;
+    hard_days: string;
+    rest_days: string;
+    plan_adherence: string;
+    complete: string;
+    missed: string;
+    regenerate_plan: string;
+    start_workout: string;
+    need_energy: string;
+    no_workout_today: string;
+    days: {
+      mon: string;
+      tue: string;
+      wed: string;
+      thu: string;
+      fri: string;
+      sat: string;
+      sun: string;
+    };
+    activities: {
+      recovery_run: string;
+      easy_run: string;
+      tempo_run: string;
+      interval_training: string;
+      long_run: string;
+      hill_repeats: string;
+      strength_training: string;
+      mobility_session: string;
+      full_rest: string;
+    };
+  };
   onboarding: {
     header: string;
     next: string;

@@ -80,6 +80,38 @@
       "content": "We've generated a runner name for you. Feel free to edit it below, or roll the dice to get a new one!"
     }
   },
+  "race_calendar": {
+    "tabs": {
+      "today": "Race Day",
+      "registered": "Registered",
+      "upcoming": "Upcoming"
+    },
+    "empty": {
+      "today_title": "No races scheduled today",
+      "today_desc": "Take a rest day, hit the training screen to boost your runner stats, or apply for jobs.",
+      "registered_title": "No registered races",
+      "registered_desc": "Browse the Upcoming Calendar tab to find events and sign up before registration closes!",
+      "upcoming_title": "No upcoming races found",
+      "upcoming_desc": "Check back later for new events."
+    },
+    "status": {
+      "completed": "Race completed",
+      "passed": "Race passed",
+      "race_day": "Race day - tap to enter",
+      "in_days": "Race in {days} days",
+      "registered": "You are registered",
+      "full": "Entry full",
+      "registration_open": "Registration open",
+      "opens_in": "Opens in {days} days"
+    },
+    "labels": {
+      "entry_fee": "Entry Fee",
+      "prize_pool": "Prize Pool",
+      "entry_fee_value": "Entry fee: {fee}",
+      "tier_race_on": "{tier} race on {date}",
+      "days_until": "{days}d"
+    }
+  },
   "settings": {
     "title": "Settings",
     "subtitle": "Customize your preferences and app configurations",
@@ -121,6 +153,95 @@
       "modal_desc": "This will wipe all records of your running journey. All stats, completion histories, and preferences will be permanently destroyed.",
       "cancel": "Cancel",
       "confirm": "Yes, WIPE ALL"
+    },
+    "currency": {
+      "title": "Display Currency",
+      "desc": "Choose how money amounts are displayed. This doesn't affect game balance.",
+      "trigger_label": "Preferred currency: {name}. Activate to change.",
+      "listbox_label": "Select preferred currency",
+      "example": "Example: {amount}"
+    }
+  },
+  "sponsors": {
+    "title": "Sponsors",
+    "active_heading": "Active Sponsorship",
+    "progression_heading": "Sponsor Progression Map",
+    "directory_heading": "Sponsor Directory",
+    "directory_desc": "Build your reputation and win races to unlock top-tier corporate partnerships.",
+    "tiers": {
+      "local": "Local",
+      "regional": "Regional",
+      "national": "National"
+    },
+    "status": {
+      "active": "Active",
+      "offer": "Offer",
+      "locked": "Locked",
+      "cooldown": "Cooldown: {days}d",
+      "next_upgrade": "Next Upgrade"
+    },
+    "benefits": {
+      "training_bonus": "Training Bonus",
+      "race_bonus": "Race Bonus",
+      "win_bonus": "Win Bonus",
+      "monthly_stipend": "Monthly Stipend",
+      "per_session": "/session",
+      "per_race": "/race",
+      "per_win": "/win",
+      "per_month": "/month"
+    },
+    "actions": {
+      "claim_stipend": "Claim Stipend",
+      "decline": "Decline",
+      "accept_offer": "Accept Offer",
+      "sign_contract": "Sign Contract"
+    },
+    "signed": "Signed: Day {day}",
+    "earned": "{amount} earned",
+    "unlock_requirements": "Unlock Requirements",
+    "req_wins": "{count} Wins",
+    "req_rating": "{rating} Rating",
+    "req_prev_sponsor": "Prev. Sponsor"
+  },
+  "race_entry": {
+    "category_label": "Select Race Category",
+    "entry_summary": "Entry Summary",
+    "entry_fee": "Entry Fee",
+    "energy_required": "Energy Required",
+    "your_balance": "Your Balance",
+    "prize_pool": "Prize Pool / Info",
+    "entrants": "Entrants",
+    "requirements_not_met": "Requirements Not Met",
+    "prize_distribution": "Prize Distribution",
+    "full": "FULL",
+    "need_more": "Need {amount} More",
+    "button": {
+      "cancel": "Cancel",
+      "completed": "Completed",
+      "start_race": "Start Race",
+      "already_registered": "Already Registered",
+      "race_full": "Race Full",
+      "requirements_not_met": "Requirements Not Met",
+      "enter_race": "Enter Race - {fee}"
+    }
+  },
+  "work": {
+    "title": "Choose Work Type",
+    "subtitle": "Select a job to accept as your active job",
+    "est_pay": "Est. Pay",
+    "current_energy": "Current energy",
+    "select_to_apply": "Select a work type to apply",
+    "cooldown": "Cooldown: {days}d remaining",
+    "effects": {
+      "health": "Health",
+      "intellect": "Intellect",
+      "charisma": "Charisma"
+    },
+    "cancel": "Cancel",
+    "apply_job": "Apply Job",
+    "outcome": {
+      "accepted": "🎉 JOB APPLIED!",
+      "rejected": "❌ JOB REJECTED"
     }
   },
   "preparation": {
@@ -358,7 +479,11 @@
     },
     "copied": "Copied!",
     "downloading": "Saving...",
-    "native_title": "RunQuest Share"
+    "native_title": "RunQuest Share",
+    "modal": {
+      "title": "Share Your Journey",
+      "subtitle": "Let others know about your choices and results!"
+    }
   },
   "analysis": {
     "title": "Race Analysis",
@@ -374,5 +499,50 @@
     "segment_descent": "Technical Descent Segment",
     "segment_sprint": "Final Sprint Segment",
     "segment_flat": "Flat Section Segment"
+  },
+  "training": {
+    "coach_feedback": "Coach's Feedback",
+    "no_feedback": "No feedback yet. Keep training!",
+    "choose_activity": "Choose Activity",
+    "quick_templates": "Quick Plan Templates",
+    "recommended": "Recommended Plan",
+    "selected": "Selected",
+    "create_custom_plan": "Create Custom Plan",
+    "weekly_planner": "Weekly Training Planner",
+    "plan_your_week": "Plan your weekly workouts to build fitness and manage fatigue.",
+    "this_weeks_plan": "This Week's Plan",
+    "adherence": "Weekly Adherence",
+    "weekly_stats": "Weekly Plan Stats",
+    "volume": "Estimated Volume",
+    "energy_cost": "Total Energy Cost",
+    "hard_days": "Hard Days Count",
+    "rest_days": "Rest Days Count",
+    "plan_adherence": "Plan Adherence",
+    "complete": "Completed",
+    "missed": "Missed",
+    "regenerate_plan": "Regenerate New Weekly Plan",
+    "start_workout": "Start Workout",
+    "need_energy": "Need Energy",
+    "no_workout_today": "No Workout Planned Today",
+    "days": {
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "sun": "Sun"
+    },
+    "activities": {
+      "recovery_run": "Recovery Run",
+      "easy_run": "Easy Run",
+      "tempo_run": "Tempo Run",
+      "interval_training": "Interval Training",
+      "long_run": "Long Run",
+      "hill_repeats": "Hill Repeats",
+      "strength_training": "Strength Training",
+      "mobility_session": "Mobility Session",
+      "full_rest": "Full Rest"
+    }
   }
 }

@@ -80,6 +80,38 @@
       "content": "Kami telah membuat nama pelari untuk Anda. Jangan ragu untuk mengubahnya di bawah ini, atau acak ulang untuk mendapatkan nama baru!"
     }
   },
+  "race_calendar": {
+    "tabs": {
+      "today": "Hari Balapan",
+      "registered": "Terdaftar",
+      "upcoming": "Akan Datang"
+    },
+    "empty": {
+      "today_title": "Tidak ada balapan hari ini",
+      "today_desc": "Ambil hari istirahat, buka layar latihan untuk meningkatkan stat pelari Anda, atau lamar pekerjaan.",
+      "registered_title": "Tidak ada balapan terdaftar",
+      "registered_desc": "Telusuri tab Kalender Akan Datang untuk menemukan acara dan daftar sebelum pendaftaran ditutup!",
+      "upcoming_title": "Tidak ada balapan akan datang",
+      "upcoming_desc": "Cek kembali nanti untuk acara baru."
+    },
+    "status": {
+      "completed": "Balapan selesai",
+      "passed": "Balapan lewat",
+      "race_day": "Hari balapan - ketuk untuk masuk",
+      "in_days": "Balapan dalam {days} hari",
+      "registered": "Anda terdaftar",
+      "full": "Kuota penuh",
+      "registration_open": "Pendaftaran dibuka",
+      "opens_in": "Dibuka dalam {days} hari"
+    },
+    "labels": {
+      "entry_fee": "Biaya Masuk",
+      "prize_pool": "Hadiah",
+      "entry_fee_value": "Biaya masuk: {fee}",
+      "tier_race_on": "Balapan {tier} pada {date}",
+      "days_until": "{days}h"
+    }
+  },
   "settings": {
     "title": "Pengaturan",
     "subtitle": "Sesuaikan preferensi dan konfigurasi aplikasi Anda",
@@ -121,6 +153,95 @@
       "modal_desc": "Tindakan ini akan menghapus semua catatan perjalanan lari Anda. Semua statistik, riwayat penyelesaian, dan preferensi akan dihancurkan secara permanen.",
       "cancel": "Batal",
       "confirm": "Ya, HAPUS SEMUA"
+    },
+    "currency": {
+      "title": "Mata Uang Tampilan",
+      "desc": "Pilih cara menampilkan jumlah uang. Ini tidak memengaruhi keseimbangan game.",
+      "trigger_label": "Mata uang pilihan: {name}. Aktifkan untuk mengubah.",
+      "listbox_label": "Pilih mata uang pilihan",
+      "example": "Contoh: {amount}"
+    }
+  },
+  "sponsors": {
+    "title": "Sponsor",
+    "active_heading": "Sponsorship Aktif",
+    "progression_heading": "Peta Progresi Sponsor",
+    "directory_heading": "Direktori Sponsor",
+    "directory_desc": "Bangun reputasi dan menangkan balapan untuk membuka kemitraan perusahaan tingkat atas.",
+    "tiers": {
+      "local": "Lokal",
+      "regional": "Regional",
+      "national": "Nasional"
+    },
+    "status": {
+      "active": "Aktif",
+      "offer": "Penawaran",
+      "locked": "Terkunci",
+      "cooldown": "Cooldown: {days}h",
+      "next_upgrade": "Upgrade Berikutnya"
+    },
+    "benefits": {
+      "training_bonus": "Bonus Latihan",
+      "race_bonus": "Bonus Balapan",
+      "win_bonus": "Bonus Menang",
+      "monthly_stipend": "Uang Bulanan",
+      "per_session": "/sesi",
+      "per_race": "/balapan",
+      "per_win": "/menang",
+      "per_month": "/bulan"
+    },
+    "actions": {
+      "claim_stipend": "Klaim Uang",
+      "decline": "Tolak",
+      "accept_offer": "Terima Penawaran",
+      "sign_contract": "Tanda Kontrak"
+    },
+    "signed": "Tertanda: Hari {day}",
+    "earned": "{amount} diperoleh",
+    "unlock_requirements": "Persyaratan Pembukaan",
+    "req_wins": "{count} Kemenangan",
+    "req_rating": "{rating} Rating",
+    "req_prev_sponsor": "Sponsor Sebelumnya"
+  },
+  "race_entry": {
+    "category_label": "Pilih Kategori Balapan",
+    "entry_summary": "Ringkasan Entri",
+    "entry_fee": "Biaya Masuk",
+    "energy_required": "Energi Diperlukan",
+    "your_balance": "Saldo Anda",
+    "prize_pool": "Hadiah / Info",
+    "entrants": "Peserta",
+    "requirements_not_met": "Persyaratan Belum Terpenuhi",
+    "prize_distribution": "Distribusi Hadiah",
+    "full": "PENUH",
+    "need_more": "Perlu {amount} Lagi",
+    "button": {
+      "cancel": "Batal",
+      "completed": "Selesai",
+      "start_race": "Mulai Balapan",
+      "already_registered": "Sudah Terdaftar",
+      "race_full": "Balapan Penuh",
+      "requirements_not_met": "Persyaratan Belum Terpenuhi",
+      "enter_race": "Ikut Balapan - {fee}"
+    }
+  },
+  "work": {
+    "title": "Pilih Jenis Pekerjaan",
+    "subtitle": "Pilih pekerjaan untuk dijadikan pekerjaan aktif Anda",
+    "est_pay": "Perkiraan Bayaran",
+    "current_energy": "Energi saat ini",
+    "select_to_apply": "Pilih jenis pekerjaan untuk melamar",
+    "cooldown": "Cooldown: {days}h tersisa",
+    "effects": {
+      "health": "Kesehatan",
+      "intellect": "Intelektual",
+      "charisma": "Kharisma"
+    },
+    "cancel": "Batal",
+    "apply_job": "Ajukan Pekerjaan",
+    "outcome": {
+      "accepted": "🎉 PEKERJAAN DILAMAR!",
+      "rejected": "❌ PEKERJAAN DITOLAK"
     }
   },
   "preparation": {
@@ -358,7 +479,11 @@
     },
     "copied": "Tersalin!",
     "downloading": "Menyimpan...",
-    "native_title": "Bagikan RunQuest"
+    "native_title": "Bagikan RunQuest",
+    "modal": {
+      "title": "Bagikan Perjalananmu",
+      "subtitle": "Biarkan orang lain tahu pilihan dan hasilmu!"
+    }
   },
   "analysis": {
     "title": "Analisis Balapan",
@@ -374,5 +499,50 @@
     "segment_descent": "Segmen Turunan Teknis",
     "segment_sprint": "Segmen Sprint Akhir",
     "segment_flat": "Segmen Jalan Datar"
+  },
+  "training": {
+    "coach_feedback": "Umpan Balik Pelatih",
+    "no_feedback": "Belum ada umpan balik. Teruslah berlatih!",
+    "choose_activity": "Pilih Aktivitas",
+    "quick_templates": "Templat Rencana Cepat",
+    "recommended": "Rencana yang Direkomendasikan",
+    "selected": "Terpilih",
+    "create_custom_plan": "Buat Rencana Khusus",
+    "weekly_planner": "Perencana Latihan Mingguan",
+    "plan_your_week": "Rencanakan latihan mingguan Anda untuk membangun kebugaran dan mengelola kelelahan.",
+    "this_weeks_plan": "Rencana Minggu Ini",
+    "adherence": "Kepatuhan Mingguan",
+    "weekly_stats": "Statistik Rencana Mingguan",
+    "volume": "Perkiraan Volume",
+    "energy_cost": "Total Biaya Energi",
+    "hard_days": "Jumlah Hari Berat",
+    "rest_days": "Jumlah Hari Istirahat",
+    "plan_adherence": "Kepatuhan Rencana",
+    "complete": "Selesai",
+    "missed": "Terlewat",
+    "regenerate_plan": "Buat Ulang Rencana Mingguan Baru",
+    "start_workout": "Mulai Latihan",
+    "need_energy": "Butuh Energi",
+    "no_workout_today": "Tidak Ada Latihan yang Direncanakan Hari Ini",
+    "days": {
+      "mon": "Sen",
+      "tue": "Sel",
+      "wed": "Rab",
+      "thu": "Kam",
+      "fri": "Jum",
+      "sat": "Sab",
+      "sun": "Min"
+    },
+    "activities": {
+      "recovery_run": "Lari Pemulihan",
+      "easy_run": "Lari Santai",
+      "tempo_run": "Lari Tempo",
+      "interval_training": "Latihan Interval",
+      "long_run": "Lari Jauh",
+      "hill_repeats": "Ulangan Tanjakan",
+      "strength_training": "Latihan Kekuatan",
+      "mobility_session": "Sesi Mobilitas",
+      "full_rest": "Istirahat Penuh"
+    }
   }
 }

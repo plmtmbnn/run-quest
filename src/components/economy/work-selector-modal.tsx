@@ -6,7 +6,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { WorkType, WorkTypeId } from "@/economy/work-types";
 import {
   getAllWorkTypesWithStatus,
@@ -15,6 +15,20 @@ import {
 import type { GameState } from "@/engine/timeline/time-types";
 import { useSettingsStore } from "@/store/settings-store";
 import { formatCurrency } from "@/economy/currency-converter";
+import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+
+// Interpolate {placeholder} tokens in translation strings.
+function interpolate(
+  template: string,
+  vars: Record<string, string | number>,
+): string {
+  return template.replace(/\{(\w+)\}/g, (_, key: string) =>
+    key in vars ? String(vars[key]) : `{${key}}`,
+  );
+}
+
+const MODAL_ID = "work-selector-modal";
+const MODAL_TITLE_ID = "work-selector-modal-title";
 
 interface WorkSelectorModalProps {
   gameState: GameState;
@@ -27,7 +41,21 @@ export function WorkSelectorModal({
   onSelectWork,
   onClose,
 }: WorkSelectorModalProps) {
-  const preferredCurrency = useSettingsStore((state) => state.settings.preferredCurrency) || "USD";
+  const { t } = useTranslation();
+  const preferredCurrency =
+    useSettingsStore((state) => state.settings.preferredCurrency) || "USD";
+
+  // Close on Escape
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
   const [selectedWorkType, setSelectedWorkType] = useState<WorkTypeId | null>(
     null,
   );
@@ -54,12 +82,23 @@ export function WorkSelectorModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] text-slate-800 dark:text-white shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+      <div
+        id={MODAL_ID}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={MODAL_TITLE_ID}
+        className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] text-slate-800 dark:text-white shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+      >
         {/* Header */}
         <div className="px-6 py-5 border-b border-[#E5E7EB] dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900 text-center shrink-0">
-          <h2 className="text-2xl font-black font-heading tracking-tight text-slate-900 dark:text-white">💼 Choose Work Type</h2>
+          <h2
+            id={MODAL_TITLE_ID}
+            className="text-2xl font-black font-heading tracking-tight text-slate-900 dark:text-white"
+          >
+            💼 {t("work.title" as TranslationKey)}
+          </h2>
           <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">
-            Select a job to accept as your active job
+            {t("work.subtitle" as TranslationKey)}
           </p>
         </div>
 
@@ -136,7 +175,7 @@ export function WorkSelectorModal({
                       {unlocked && estimatedPay !== workType.pay.min && (
                         <div className="mt-3 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 px-3 py-2 rounded-xl inline-block">
                           <span className="text-xs font-semibold text-indigo-700 dark:text-indigo-400 uppercase tracking-wider">
-                            Est. Pay:{" "}
+                            {t("work.est_pay" as TranslationKey)}:{" "}
                             <span className="font-black text-sm ml-1">
                               {formatCurrency(estimatedPay, preferredCurrency)}
                             </span>
@@ -170,18 +209,21 @@ export function WorkSelectorModal({
                                     : "bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border-red-200 dark:border-red-900/30"
                                 }`}
                               >
-                                Health {workType.effects.health > 0 ? "+" : ""}
+                                {t("work.effects.health" as TranslationKey)}{" "}
+                                {workType.effects.health > 0 ? "+" : ""}
                                 {workType.effects.health}
                               </span>
                             )}
                             {workType.effects.intellect && (
                               <span className="px-2.5 py-1 bg-purple-50 dark:bg-purple-950/20 text-purple-600 dark:text-purple-400 font-bold uppercase tracking-wider text-[10px] rounded-lg border border-purple-200 dark:border-purple-900/30">
-                                Intellect +{workType.effects.intellect}
+                                {t("work.effects.intellect" as TranslationKey)} +
+                                {workType.effects.intellect}
                               </span>
                             )}
                             {workType.effects.charisma && (
                               <span className="px-2.5 py-1 bg-pink-50 dark:bg-pink-950/20 text-pink-600 dark:text-pink-400 font-bold uppercase tracking-wider text-[10px] rounded-lg border border-pink-200 dark:border-pink-900/30">
-                                Charisma +{workType.effects.charisma}
+                                {t("work.effects.charisma" as TranslationKey)} +
+                                {workType.effects.charisma}
                               </span>
                             )}
                           </div>
@@ -210,18 +252,21 @@ export function WorkSelectorModal({
           <div className="text-sm font-medium text-slate-500 dark:text-slate-400">
             {cooldownDaysRemaining > 0 ? (
               <span className="text-amber-600 dark:text-amber-500 font-bold flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/20 px-3 py-1.5 rounded-lg border border-amber-200 dark:border-amber-900/30">
-                ⏳ Cooldown: {cooldownDaysRemaining}d remaining
+                <span aria-hidden="true">⏳</span>{" "}
+                {interpolate(t("work.cooldown" as TranslationKey), {
+                  days: cooldownDaysRemaining,
+                })}
               </span>
             ) : selectedWorkType ? (
               <span>
-                Current energy:{" "}
+                {t("work.current_energy" as TranslationKey)}:{" "}
                 <span className="text-slate-900 dark:text-white font-black text-base">
                   {gameState.energy}
                 </span>{" "}
                 / {gameState.energyMax}
               </span>
             ) : (
-              <span>Select a work type to apply</span>
+              <span>{t("work.select_to_apply" as TranslationKey)}</span>
             )}
           </div>
 
@@ -229,16 +274,16 @@ export function WorkSelectorModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 sm:flex-none px-6 py-3 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-white font-bold border border-[#E5E7EB] dark:border-slate-700 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+              className="flex-1 sm:flex-none min-h-[44px] px-6 py-3 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-white font-bold border border-[#E5E7EB] dark:border-slate-700 transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
             >
-              Cancel
+              {t("work.cancel" as TranslationKey)}
             </button>
             <button
               type="button"
               onClick={handleConfirm}
               disabled={!selectedWorkType || cooldownDaysRemaining > 0}
               className={`
-                flex-1 sm:flex-none px-8 py-3 rounded-xl font-black transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none
+                flex-1 sm:flex-none min-h-[44px] px-8 py-3 rounded-xl font-black transition-all focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none
                 ${
                   selectedWorkType && cooldownDaysRemaining <= 0
                     ? "bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-500/20"
@@ -246,14 +291,20 @@ export function WorkSelectorModal({
                 }
               `}
             >
-              Apply Job
+              {t("work.apply_job" as TranslationKey)}
             </button>
           </div>
         </div>
         {/* Outcome Message */}
         {outcome && (
-          <div className={`px-6 py-3 text-center font-black tracking-wide text-sm ${outcome === 'accepted' ? 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/20' : 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20'}`}>
-            {outcome === 'accepted' ? '🎉 JOB APPLIED!' : '❌ JOB REJECTED'}
+          <div
+            role="status"
+            aria-live="polite"
+            className={`px-6 py-3 text-center font-black tracking-wide text-sm ${outcome === "accepted" ? "text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/20" : "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20"}`}
+          >
+            {outcome === "accepted"
+              ? t("work.outcome.accepted" as TranslationKey)
+              : t("work.outcome.rejected" as TranslationKey)}
           </div>
         )}
       </div>

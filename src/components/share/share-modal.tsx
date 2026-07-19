@@ -4,6 +4,9 @@ import { useEffect, useRef } from "react";
 import { useShareCard } from "@/hooks/use-share-card";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 
+const MODAL_ID = "share-modal";
+const MODAL_TITLE_ID = "share-modal-title";
+
 interface ShareModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -26,17 +29,23 @@ export function ShareModal({
   const { isSharing, copied, copyText, downloadPng, nativeShare } =
     useShareCard();
 
-  // Prevent background scrolling when open
+  // Prevent background scrolling when open + Escape to close
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
+    if (!isOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+      }
     };
-  }, [isOpen]);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -50,6 +59,10 @@ export function ShareModal({
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ type: "spring", duration: 0.45, bounce: 0.15 }}
+        id={MODAL_ID}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={MODAL_TITLE_ID}
         className="bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 max-w-lg w-full p-6 md:p-8 rounded-[2rem] shadow-2xl relative flex flex-col gap-6 md:gap-8 overflow-hidden shadow-blue-500/5 animate-in zoom-in-95 duration-200"
       >
         {/* Glow Aura Background Effect */}
@@ -60,7 +73,7 @@ export function ShareModal({
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full border border-slate-200 dark:border-slate-800 bg-slate-100/60 dark:bg-slate-900/60 hover:bg-slate-200/80 dark:hover:bg-slate-800/80 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors duration-200 cursor-pointer"
+          className="absolute top-4 right-4 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full border border-slate-200 dark:border-slate-800 bg-slate-100/60 dark:bg-slate-900/60 hover:bg-slate-200/80 dark:hover:bg-slate-800/80 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors duration-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
           aria-label="Close"
         >
           <X className="h-4.5 w-4.5" />
@@ -71,11 +84,14 @@ export function ShareModal({
           <div className="p-3 bg-gradient-to-tr from-blue-500/10 to-indigo-500/10 rounded-full border border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.15)] flex items-center justify-center">
             <Sparkles className="h-6 w-6 text-blue-500 dark:text-blue-400 animate-pulse" />
           </div>
-          <h3 className="text-2xl md:text-3xl font-black font-heading tracking-tight bg-gradient-to-r from-slate-800 via-slate-600 to-slate-800 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent mt-2">
-            Share Your Journey
+          <h3
+            id={MODAL_TITLE_ID}
+            className="text-2xl md:text-3xl font-black font-heading tracking-tight bg-gradient-to-r from-slate-800 via-slate-600 to-slate-800 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent mt-2"
+          >
+            {t("share.modal.title" as TranslationKey)}
           </h3>
           <p className="text-sm font-medium text-slate-500 dark:text-slate-400 text-center max-w-[280px] leading-relaxed">
-            Let others know about your choices and results!
+            {t("share.modal.subtitle" as TranslationKey)}
           </p>
         </div>
 
