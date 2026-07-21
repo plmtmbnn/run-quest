@@ -211,7 +211,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
             className={`px-4 py-1.5 rounded-full text-xs font-black tracking-wider transition-all duration-200 min-h-[32px] focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
               language === "en"
                 ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/20"
-                : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             EN
@@ -226,7 +226,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
             className={`px-4 py-1.5 rounded-full text-xs font-black tracking-wider transition-all duration-200 min-h-[32px] focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
               language === "id"
                 ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/20"
-                : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             ID

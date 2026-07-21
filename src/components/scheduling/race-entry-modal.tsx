@@ -117,7 +117,7 @@ export function RaceEntryModal({
           <span className={`text-4xl ${race.color}`} aria-hidden="true">{race.icon}</span>
           <h2 id={MODAL_TITLE_ID} className="text-2xl font-black font-heading text-slate-800 dark:text-white mt-2">{race.name}</h2>
           <p className="text-sm text-slate-500 dark:text-gray-400 mt-1 capitalize">
-            {race.tier} Event • {formatGameDate(race.dayIndex)}
+            {t(`race_tiers.${race.tier}` as TranslationKey)} Event • {formatGameDate(race.dayIndex)}
           </p>
         </div>
 
@@ -274,11 +274,11 @@ export function RaceEntryModal({
             </div>
             <div>
               <div className="text-slate-400 dark:text-gray-400 font-bold">4th</div>
-              <div className="text-slate-400 dark:text-gray-550">10%</div>
+              <div className="text-slate-400 dark:text-gray-500">10%</div>
             </div>
             <div>
               <div className="text-slate-400 dark:text-gray-400 font-bold">5th</div>
-              <div className="text-slate-400 dark:text-gray-550">5%</div>
+              <div className="text-slate-400 dark:text-gray-500">5%</div>
             </div>
           </div>
         </div>

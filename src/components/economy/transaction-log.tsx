@@ -8,6 +8,7 @@
 
 import { formatCurrency } from "@/economy/currency-converter";
 import { formatGameDate } from "@/engine/timeline/calendar";
+import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { useSettingsStore } from "@/store/settings-store";
 import type { EconomyState } from "../../economy/economy-types";
 
@@ -26,6 +27,7 @@ interface TransactionLogProps {
 }
 
 export function TransactionLog({ economy, getSummary }: TransactionLogProps) {
+  const { t } = useTranslation();
   const summary = getSummary();
   const recentTransactions = economy.transactions.slice(0, 20);
   const preferredCurrency =
@@ -37,7 +39,7 @@ export function TransactionLog({ economy, getSummary }: TransactionLogProps) {
       <div className="rounded-3xl border border-[#E5E7EB] dark:border-slate-800 bg-white dark:bg-slate-900/50 p-6 shadow-sm relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
         <div className="text-center">
-          <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-widest">Current Balance</div>
+          <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-widest">{t("economy.balance_label" as TranslationKey)}</div>
           <div
             className={`text-5xl font-black font-heading tracking-tight ${summary.balance >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
           >
@@ -46,7 +48,7 @@ export function TransactionLog({ economy, getSummary }: TransactionLogProps) {
           <div
             className={`text-sm mt-2 font-semibold bg-slate-50 dark:bg-slate-800/50 inline-block px-3 py-1 rounded-full ${summary.netWorthVsStart >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
           >
-            {summary.netWorthVsStart >= 0 ? "↗" : "↘"} {formatCurrency(Math.abs(summary.netWorthVsStart), preferredCurrency)} net change
+            {summary.netWorthVsStart >= 0 ? "↗" : "↘"} {formatCurrency(Math.abs(summary.netWorthVsStart), preferredCurrency)} {t("economy.net_change" as TranslationKey)}
           </div>
         </div>
       </div>
@@ -54,22 +56,22 @@ export function TransactionLog({ economy, getSummary }: TransactionLogProps) {
       {/* Summary Stats */}
       <div className="grid grid-cols-2 gap-3">
         <StatCard
-          label="Total Earned"
+          label={t("economy.total_earned" as TranslationKey)}
           value={formatCurrency(summary.totalEarned, preferredCurrency)}
           color="text-green-600 dark:text-green-400"
         />
         <StatCard
-          label="Total Spent"
+          label={t("economy.total_spent" as TranslationKey)}
           value={formatCurrency(summary.totalSpent, preferredCurrency)}
           color="text-red-600 dark:text-red-400"
         />
         <StatCard
-          label="Race Entry Costs"
+          label={t("economy.race_entry_costs" as TranslationKey)}
           value={formatCurrency(summary.raceEntrySpending, preferredCurrency)}
           color="text-amber-600 dark:text-amber-400"
         />
         <StatCard
-          label="Prize Earnings"
+          label={t("economy.prize_earnings" as TranslationKey)}
           value={formatCurrency(summary.prizeEarnings, preferredCurrency)}
           color="text-indigo-600 dark:text-indigo-400"
         />
@@ -78,32 +80,32 @@ export function TransactionLog({ economy, getSummary }: TransactionLogProps) {
       {/* Earning Breakdown */}
       <div className="space-y-4 bg-white dark:bg-slate-900/50 rounded-2xl border border-[#E5E7EB] dark:border-slate-800 p-5 shadow-sm">
         <h3 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
-          💰 Earnings Breakdown
+          💰 {t("economy.earnings_breakdown" as TranslationKey)}
         </h3>
         <div className="space-y-3">
           <EarningBar
-            label="Race Prizes"
+            label={t("economy.race_prizes" as TranslationKey)}
             amount={summary.prizeEarnings}
             total={summary.totalEarned}
             color="bg-indigo-500"
             preferredCurrency={preferredCurrency}
           />
           <EarningBar
-            label="Work"
+            label={t("economy.work" as TranslationKey)}
             amount={summary.workEarnings}
             total={summary.totalEarned}
             color="bg-blue-500"
             preferredCurrency={preferredCurrency}
           />
           <EarningBar
-            label="Sponsors"
+            label={t("economy.sponsors" as TranslationKey)}
             amount={summary.sponsorEarnings}
             total={summary.totalEarned}
             color="bg-green-500"
             preferredCurrency={preferredCurrency}
           />
           <EarningBar
-            label="Other"
+            label={t("economy.other" as TranslationKey)}
             amount={
               summary.totalEarned -
               summary.prizeEarnings -
@@ -120,11 +122,11 @@ export function TransactionLog({ economy, getSummary }: TransactionLogProps) {
       {/* Recent Transactions */}
       <div className="bg-white dark:bg-slate-900/50 rounded-2xl border border-[#E5E7EB] dark:border-slate-800 p-5 shadow-sm">
         <h3 className="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-          📜 Recent Transactions
+          📜 {t("economy.recent_transactions" as TranslationKey)}
         </h3>
         {recentTransactions.length === 0 ? (
           <div className="text-slate-500 dark:text-slate-400 text-sm text-center py-8 bg-slate-50 dark:bg-slate-800/30 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
-            No transactions yet
+            {t("economy.no_transactions" as TranslationKey)}
           </div>
         ) : (
           <div className="space-y-2 max-h-[350px] overflow-y-auto custom-scrollbar pr-2">

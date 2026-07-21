@@ -195,7 +195,7 @@ export function TrainingScreen() {
               <h1 className="font-heading text-xl font-black text-slate-800 dark:text-white">
                 {t("training.weekly_planner" as TranslationKey)}
               </h1>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-400 dark:text-slate-500">
                 {t("training.plan_your_week")}
               </p>
             </div>

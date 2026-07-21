@@ -274,6 +274,20 @@ export interface Dictionary {
       mobility_session: string;
       full_rest: string;
     };
+    feedback: {
+      overtraining_risk: string;
+      no_rest_days: string;
+      back_to_back_hard_days: string;
+      high_fatigue: string;
+      good_spacing: string;
+      good_balance: string;
+      add_second_session: string;
+      more_volume: string;
+      great_race_recovery: string;
+      taper_week: string;
+      solid_plan: string;
+      decent_plan: string;
+    };
   };
   onboarding: {
     header: string;
@@ -342,6 +356,85 @@ export interface Dictionary {
       modal_desc: string;
       cancel: string;
       confirm: string;
+    };
+    currency: {
+      title: string;
+      desc: string;
+      trigger_label: string;
+      listbox_label: string;
+      example: string;
+      select: string;
+      backdrop: string;
+      search: string;
+      no_results: string;
+    };
+  };
+  economy: {
+    page_title: string;
+    ledger_title: string;
+    active_job: string;
+    perform_work: string;
+    apply_job: string;
+    wait_days: string;
+    pay_rate: string;
+    energy_cost: string;
+    current_energy: string;
+    already_worked_today: string;
+    low_energy_warning: string;
+    balance_label: string;
+    net_change: string;
+    total_earned: string;
+    total_spent: string;
+    race_entry_costs: string;
+    prize_earnings: string;
+    earnings_breakdown: string;
+    race_prizes: string;
+    work: string;
+    sponsors: string;
+    other: string;
+    recent_transactions: string;
+    no_transactions: string;
+    category_label: string;
+  };
+  race_tiers: {
+    local: string;
+    regional: string;
+    state: string;
+    national: string;
+    international: string;
+    beginner: string;
+    intermediate: string;
+    advanced: string;
+    elite: string;
+    legendary: string;
+  };
+  work: {
+    title: string;
+    subtitle: string;
+    est_pay: string;
+    current_energy: string;
+    select_to_apply: string;
+    cooldown: string;
+    effects: {
+      health: string;
+      intellect: string;
+      charisma: string;
+    };
+    cancel: string;
+    apply_job: string;
+    outcome: {
+      accepted: string;
+      rejected: string;
+    };
+    types: Record<string, { name: string; desc: string }>;
+    missing_req: {
+      age_min: string;
+      age_max: string;
+      intellect: string;
+      charisma: string;
+      running_skill: string;
+      sponsor: string;
+      career_wins: string;
     };
   };
 }

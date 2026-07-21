@@ -159,7 +159,11 @@
       "desc": "Pilih cara menampilkan jumlah uang. Ini tidak memengaruhi keseimbangan game.",
       "trigger_label": "Mata uang pilihan: {name}. Aktifkan untuk mengubah.",
       "listbox_label": "Pilih mata uang pilihan",
-      "example": "Contoh: {amount}"
+      "example": "Contoh: {amount}",
+      "select": "Pilih mata uang",
+      "backdrop": "Tutup pemilih mata uang",
+      "search": "Cari mata uang…",
+      "no_results": "Mata uang tidak ditemukan"
     }
   },
   "sponsors": {
@@ -225,6 +229,49 @@
       "enter_race": "Ikut Balapan - {fee}"
     }
   },
+  "economy": {
+    "page_title": "Ekonomi & Pekerjaan",
+    "ledger_title": "Buku Besar & Riwayat",
+    "active_job": "Pekerjaan Aktif",
+    "perform_work": "Kerja",
+    "apply_job": "Lamar Pekerjaan",
+    "wait_days": "Tunggu {days}h",
+    "pay_rate": "Tarif Bayaran",
+    "energy_cost": "Biaya Energi",
+    "current_energy": "Energi Saat Ini",
+    "already_worked_today": "Sudah kerja hari ini. Istirahat atau tunggu besok untuk bekerja lagi.",
+    "low_energy_warning": "Energi rendah! Istirahat untuk memulihkan energi.",
+    "balance_label": "Saldo Saat Ini",
+    "net_change": "perubahan bersih",
+    "total_earned": "Total Pendapatan",
+    "total_spent": "Total Pengeluaran",
+    "race_entry_costs": "Biaya Masuk Balapan",
+    "prize_earnings": "Pendapatan Hadiah",
+    "earnings_breakdown": "Rincian Pendapatan",
+    "race_prizes": "Hadiah Balapan",
+    "work": "Pekerjaan",
+    "sponsors": "Sponsor",
+    "other": "Lainnya",
+    "recent_transactions": "Transaksi Terbaru",
+    "no_transactions": "Belum ada transaksi",
+    "category_label": "kategori",
+    "select_currency": "Pilih mata uang",
+    "currency_backdrop": "Tutup pemilih mata uang",
+    "search_placeholder": "Cari mata uang…",
+    "no_results": "Mata uang tidak ditemukan"
+  },
+  "race_tiers": {
+    "local": "Balapan Lokal",
+    "regional": "Acara Regional",
+    "state": "Kejuaraan Negara Bagian",
+    "national": "Kejuaraan Nasional",
+    "international": "Acara Elit Internasional",
+    "beginner": "Pemula",
+    "intermediate": "Menengah",
+    "advanced": "Lanjutan",
+    "elite": "Elit",
+    "legendary": "Legendaris"
+  },
   "work": {
     "title": "Pilih Jenis Pekerjaan",
     "subtitle": "Pilih pekerjaan untuk dijadikan pekerjaan aktif Anda",
@@ -242,6 +289,36 @@
     "outcome": {
       "accepted": "🎉 PEKERJAAN DILAMAR!",
       "rejected": "❌ PEKERJAAN DITOLAK"
+    },
+    "types": {
+      "part_time": { "name": "Pekerjaan Paruh Waktu", "desc": "Pekerjaan ringan di toko lokal. Selalu tersedia, bayaran sederhana." },
+      "full_time": { "name": "Pekerjaan Penuh Waktu", "desc": "Pekerjaan standar dengan pendapatan stabil. Opsi dasar." },
+      "freelance": { "name": "Gig Freelance", "desc": "Pekerjaan kontrak dengan bayaran variatif. Intelektual lebih tinggi menghasilkan lebih banyak." },
+      "coaching": { "name": "Pelari Pelatih", "desc": "Latih pelari lain. Bayaran skala dengan keahlian berlari Anda." },
+      "sponsor_event": { "name": "Acara Sponsor", "desc": "Penampilan berbayar untuk sponsor Anda. Rasio bayaran/energi terbaik." },
+      "corporate": { "name": "Pekerjaan Korporat", "desc": "Pekerjaan kantor berbayar tinggi. Menuntut tapi menguntungkan." },
+      "coach": { "name": "Pelatih Kebugaran", "desc": "Bimbing orang lain dalam olahraga. Bayaran kecil, peningkatan kharisma tinggi." },
+      "brand_ambassador": { "name": "Duta Merek", "desc": "Promosikan merek, dapatkan komisi. Membutuhkan bakat sosial." },
+      "marathon_trainer": { "name": "Pelatih Marathon", "desc": "Latih pelari untuk marathon. Imbalan stamina tinggi." },
+      "content_creator": { "name": "Pembuat Konten", "desc": "Buat konten lari untuk media sosial. Bangun merek Anda sambil menghasilkan." },
+      "personal_trainer": { "name": "Pelatih Pribadi", "desc": "Latih klien satu per satu. Gunakan keahlian berlari Anda untuk membantu orang lain." },
+      "sports_nutritionist": { "name": "Ahli Gizi Olahraga", "desc": "Kasih saran atlet tentang nutrisi dan diet. Gabungkan pengetahuan dengan pengalaman berlari." },
+      "running_store_staff": { "name": "Karyawan Toko Lari", "desc": "Bekerja di toko khusus lari. Bantu pelanggan menemukan perlengkapan yang tepat." },
+      "event_organizer": { "name": "Penyelenggara Acara", "desc": "Selenggarakan acara dan balapan lari. Kepemimpinan dan pengalaman diperlukan." },
+      "warehouse_worker": { "name": "Pekerja Gudang", "desc": "Kerja fisik bongkar muat paket. Persyaratan rendah, bayaran layak." },
+      "delivery_driver": { "name": "Pengantar Paket", "desc": "Antar paket di sekitar kota. Jam kerja fleksibel, bayaran sedang." },
+      "social_media_manager": { "name": "Manajer Media Sosial", "desc": "Kelola media sosial untuk bisnis lokal. Fokus pada kharisma dan kreativitas." },
+      "physical_therapist": { "name": "Fisioterapis", "desc": "Bantu atlet pulih dari cedera. Memerlukan pengetahuan lari dan intelektual." },
+      "race_official": { "name": "Pejabat Balapan", "desc": "Menjadi petugas di acara lari. Memerlukan pengalaman balapan dan profesionalisme." }
+    },
+    "missing_req": {
+      "age_min": "Usia {min}+ diperlukan (saat ini {age})",
+      "age_max": "Usia {max} atau kurang diperlukan (saat ini {age})",
+      "intellect": "Intelektual {min}+ diperlukan (saat ini {val})",
+      "charisma": "Kharisma {min}+ diperlukan (saat ini {val})",
+      "running_skill": "Keahlian lari {min}+ diperlukan (saat ini {val})",
+      "sponsor": "Sponsor aktif diperlukan",
+      "career_wins": "{count} kemenangan karier diperlukan (saat ini {val})"
     }
   },
   "preparation": {
@@ -543,6 +620,20 @@
       "strength_training": "Latihan Kekuatan",
       "mobility_session": "Sesi Mobilitas",
       "full_rest": "Istirahat Penuh"
+    },
+    "feedback": {
+      "overtraining_risk": "{count} hari berat dijadwalkan - risiko cedera tinggi. Pertimbangkan mengganti satu dengan lari santai.",
+      "no_rest_days": "Tidak ada hari istirahat - risiko overtraining. Tambahkan setidaknya satu hari istirahat penuh.",
+      "back_to_back_hard_days": "Hari berturut-turut tanpa istirahat. Beri jarak 48+ jam antara sesi intens.",
+      "high_fatigue": "Kelelahan Anda tinggi. Pertimbangkan minggu pemulihan.",
+      "good_spacing": "Rencana bagus! Hari-hari berat Anda terdistribusi optimal untuk pemulihan.",
+      "good_balance": "Keseimbangan latihan dan pemulihan yang baik.",
+      "add_second_session": "Tips: Pertimbangkan menambahkan sesi berkualitas kedua untuk perbaikan lebih cepat.",
+      "more_volume": "Anda bisa menangani lebih banyak volume - pertimbangkan menambah lari ringan lainnya.",
+      "great_race_recovery": "Balapan hebat! Minggu ini untuk pemulihan - usaha ringan saja.",
+      "taper_week": "Balapan mendekati! Ini minggu taper. Fokus pada istirahat dan lari ringan.",
+      "solid_plan": "Ini rencana latihan yang solid dan seimbang. Tetap konsisten!",
+      "decent_plan": "Rencana lumayan, pertimbangkan saran di atas untuk optimasi."
     }
   }
 }

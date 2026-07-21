@@ -106,7 +106,7 @@ export function SettingsScreen() {
             <h1 className="text-xl font-black text-slate-900 dark:text-white font-heading">
               {t("settings.title" as TranslationKey)}
             </h1>
-            <p className="text-xs text-gray-550 dark:text-gray-350">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               {t("settings.subtitle" as TranslationKey)}
             </p>
           </div>
@@ -125,10 +125,10 @@ export function SettingsScreen() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex flex-col">
               <span className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
-                <User className="h-4.5 w-4.5 text-gray-550" />{" "}
+                <User className="h-4.5 w-4.5 text-gray-500 dark:text-gray-400" />{" "}
                 {t("settings.name.title" as TranslationKey)}
               </span>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-gray-400 dark:text-gray-500">
                 {t("settings.name.desc" as TranslationKey)}
               </span>
             </div>
@@ -177,10 +177,10 @@ export function SettingsScreen() {
           <div className="flex items-center justify-between">
             <div className="flex flex-col">
               <span className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
-                <Volume2 className="h-4.5 w-4.5 text-gray-550" />{" "}
+                <Volume2 className="h-4.5 w-4.5 text-gray-500 dark:text-gray-400" />{" "}
                 {t("settings.sound.title" as TranslationKey)}
               </span>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-gray-400 dark:text-gray-500">
                 {t("settings.sound.desc" as TranslationKey)}
               </span>
             </div>
@@ -205,16 +205,15 @@ export function SettingsScreen() {
             </button>
           </div>
 
-          {/* Theme selection (temporarily disabled for Sprint 13.1) */}
-          {false && (
-            <>
-              <hr className="border-[#E5E7EB]" />
+          {/* Theme selection */}
+          <>
+            <hr className="border-[#E5E7EB] dark:border-slate-800" />
               <div className="flex flex-col gap-2">
                 <div className="flex flex-col">
                   <span className="text-sm font-bold text-gray-900 dark:text-white">
                     {t("settings.theme.title" as TranslationKey)}
                   </span>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-gray-400 dark:text-gray-500">
                     {t("settings.theme.desc" as TranslationKey)}
                   </span>
                 </div>
@@ -229,8 +228,8 @@ export function SettingsScreen() {
                       }}
                       className={`text-xs font-bold py-3 rounded-2xl transition-all border-2 capitalize ${
                         settings.theme === themeMode
-                          ? "bg-blue-50 border-blue-500 text-blue-700"
-                          : "border-gray-200 bg-white dark:bg-slate-900 text-gray-600 hover:border-gray-300"
+                          ? "bg-blue-50 border-blue-500 text-blue-700 dark:bg-indigo-950/20 dark:text-indigo-300 dark:border-indigo-500"
+                          : "border-gray-200 bg-white dark:bg-slate-900 text-gray-600 dark:text-slate-300 hover:border-gray-300 dark:hover:border-slate-600"
                       }`}
                     >
                       {t(`settings.theme.${themeMode}` as TranslationKey)}
@@ -239,7 +238,6 @@ export function SettingsScreen() {
                 </div>
               </div>
             </>
-          )}
 
           <hr className="border-[#E5E7EB] dark:border-slate-800" />
 
@@ -249,7 +247,7 @@ export function SettingsScreen() {
               <span className="text-sm font-bold text-gray-900 dark:text-white">
                 {t("settings.language.title" as TranslationKey)}
               </span>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-gray-400 dark:text-gray-500">
                 {t("settings.language.desc" as TranslationKey)}
               </span>
             </div>

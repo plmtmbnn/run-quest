@@ -183,7 +183,7 @@ export function StoryBeatCinematic({
           <button
             type="button"
             onClick={onComplete}
-            className="px-8 py-3 bg-white text-black rounded-lg font-semibold hover:bg-gray-100 transition-colors shadow-lg"
+            className="px-8 py-3 bg-white text-black dark:bg-slate-900 dark:text-white rounded-lg font-semibold hover:bg-gray-100 transition-colors shadow-lg"
           >
             {lang === "en" ? "Continue" : "Lanjut"}
           </button>

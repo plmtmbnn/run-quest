@@ -112,7 +112,7 @@ export function DesperationOverlay({
                 option.risk === "high"
                   ? "bg-red-600"
                   : option.risk === "medium"
-                    ? "bg-orange-500 text-black"
+                    ? "bg-orange-500 text-black dark:bg-orange-400 dark:text-black"
                     : "bg-slate-500";
 
               return (

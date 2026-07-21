@@ -420,7 +420,7 @@ export function ResultScreen() {
       case "gold":
         return "text-yellow-500 bg-yellow-500/10 border-yellow-500/30";
       case "silver":
-        return "text-gray-400 bg-gray-400/10 border-gray-400/30";
+        return "text-gray-400 dark:text-gray-500 bg-gray-400/10 border-gray-400/30";
       case "bronze":
         return "text-amber-600 bg-amber-600/10 border-amber-600/30";
       case "finish":
@@ -458,7 +458,7 @@ export function ResultScreen() {
             className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white dark:bg-slate-900 transition hover:bg-gray-50 active:scale-95"
             aria-label="Go Home"
           >
-            <Home className="h-4.5 w-4.5 text-gray-600" />
+            <Home className="h-4.5 w-4.5 text-gray-600 dark:text-gray-300" />
           </button>
         </div>
       </header>
@@ -479,7 +479,7 @@ export function ResultScreen() {
           </div>
 
           <div className="flex flex-col items-center">
-            <span className="text-xs text-gray-400 uppercase tracking-widest mb-1">
+            <span className="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-500 uppercase tracking-widest mb-1">
               {t("challenge.result.grade" as TranslationKey)}
             </span>
             <span className="text-6xl font-black font-heading text-gray-900 dark:text-white">
@@ -488,23 +488,23 @@ export function ResultScreen() {
           </div>
 
           <div className="flex flex-col items-center">
-            <span className="text-xs text-gray-400 uppercase tracking-widest mb-1">
+            <span className="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-500 uppercase tracking-widest mb-1">
               {t("history.score" as TranslationKey)}
             </span>
             <span className="text-4xl font-extrabold text-blue-600">
               {score}
             </span>
-            <span className="text-[10px] text-gray-400">
+            <span className="text-[10px] text-gray-400 dark:text-gray-500">
               {t("challenge.result.score_out_of" as TranslationKey)}
             </span>
           </div>
 
           <div className="flex flex-col items-center">
-            <span className="text-xs text-gray-400 uppercase tracking-widest mb-1">
+            <span className="text-xs text-gray-400 dark:text-gray-500 dark:text-gray-500 uppercase tracking-widest mb-1">
               {t("challenge.result.time" as TranslationKey)}
             </span>
             <div className="flex items-center gap-1.5 font-bold text-gray-800 dark:text-gray-100 text-2xl mt-2">
-              <Clock className="h-5 w-5 text-gray-400" />
+              <Clock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
               <span>{formatTime(finishTime)}</span>
             </div>
           </div>
@@ -517,7 +517,7 @@ export function ResultScreen() {
               <div className="flex items-center gap-2">
                 <span className="text-2xl">🏆</span>
                 <div>
-                  <h3 className="font-heading font-black text-sm text-indigo-955 dark:text-indigo-200">
+                  <h3 className="font-heading font-black text-sm text-indigo-900 dark:text-indigo-200 dark:text-indigo-200">
                     Rank Points Progress
                   </h3>
                   <p className="text-[10px] text-gray-500">
@@ -545,7 +545,7 @@ export function ResultScreen() {
                   {getTierAndDivision(newRp).division &&
                     `Division ${getTierAndDivision(newRp).division}`}
                 </h4>
-                <p className="text-[10px] text-gray-400 mt-1">
+                <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
                   {newRp} Total RP
                 </p>
               </div>
@@ -557,7 +557,7 @@ export function ResultScreen() {
             </div>
 
             {/* RP Breakdown */}
-            <div className="flex flex-col gap-1.5 text-xs text-slate-650 dark:text-slate-350">
+            <div className="flex flex-col gap-1.5 text-xs text-slate-600 dark:text-slate-300 dark:text-slate-350">
               <span className="text-[10px] uppercase font-bold text-gray-405 tracking-wider">
                 Breakdown
               </span>
@@ -579,7 +579,7 @@ export function ResultScreen() {
 
         {/* Visual Share Card Preview */}
         <div className="flex flex-col gap-3">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
             {t("challenge.result.share_card" as TranslationKey)}
           </h3>
 
@@ -624,12 +624,12 @@ export function ResultScreen() {
                     key={entry.name}
                     className={`flex items-center justify-between p-3.5 rounded-2xl border transition-all duration-200 ${
                       entry.isPlayer
-                        ? "bg-orange-500/10 border-orange-500/30 text-orange-950 dark:text-orange-350 font-semibold"
-                        : "bg-gray-55/40 dark:bg-slate-900/30 border-gray-100 dark:border-slate-800/40"
+                        ? "bg-orange-500/10 border-orange-500/30 text-orange-900 dark:text-orange-200 dark:text-orange-350 font-semibold"
+                        : "bg-gray-50/40 dark:bg-gray-800/40 dark:bg-slate-900/30 border-gray-100 dark:border-slate-800/40"
                     }`}
                   >
                     <div className="flex items-center gap-3.5">
-                      <span className="font-heading font-black text-sm text-gray-400 dark:text-gray-500 min-w-[20px]">
+                      <span className="font-heading font-black text-sm text-gray-400 dark:text-gray-500 dark:text-gray-500 min-w-[20px]">
                         #{idx + 1}
                       </span>
                       <span className="text-xs font-bold flex items-center gap-1.5">
@@ -666,17 +666,17 @@ export function ResultScreen() {
         {/* Narrative & Highlights Section */}
         <section className="rounded-[2rem] border border-[#E5E7EB] bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-6">
           <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-3">
-            <Sparkles className="h-5 w-5 text-amber-550" />
+            <Sparkles className="h-5 w-5 text-amber-500 dark:text-amber-300" />
             <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
               {story.headline[lang]}
             </h2>
           </div>
-          <p className="text-sm leading-relaxed text-gray-600">
+          <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
             {story.summary[lang]}
           </p>
 
           <div className="flex flex-col gap-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
               {t("challenge.result.story_headline" as TranslationKey)}
             </h3>
             <ul className="flex flex-col gap-2.5">
@@ -690,7 +690,7 @@ export function ResultScreen() {
                 return (
                   <li
                     key={h.en}
-                    className="text-xs text-gray-700 dark:text-gray-250 bg-gray-50 dark:bg-slate-900 border border-gray-100 dark:border-slate-800/40 rounded-xl p-3 flex items-center justify-between gap-4"
+                    className="text-xs text-gray-700 dark:text-gray-200 dark:text-gray-300 bg-gray-50 dark:bg-slate-900 border border-gray-100 dark:border-slate-800/40 rounded-xl p-3 flex items-center justify-between gap-4"
                   >
                     <span className="flex-grow leading-relaxed">{h[lang]}</span>
                     <button
@@ -726,7 +726,7 @@ export function ResultScreen() {
             {story.lessons.map((lesson) => (
               <li
                 key={lesson.en}
-                className="text-xs leading-relaxed text-gray-600 flex items-center justify-between gap-4 bg-gray-50 dark:bg-slate-900 border border-gray-100 dark:border-slate-800/40 p-3 rounded-xl"
+                className="text-xs leading-relaxed text-gray-600 dark:text-gray-300 flex items-center justify-between gap-4 bg-gray-50 dark:bg-slate-900 border border-gray-100 dark:border-slate-800/40 p-3 rounded-xl"
               >
                 <div className="flex items-start gap-2 flex-grow">
                   <span className="text-blue-500 font-bold mt-0.5">•</span>
@@ -756,8 +756,8 @@ export function ResultScreen() {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left text-slate-500 dark:text-gray-400">
-                <thead className="text-[10px] text-slate-400 dark:text-gray-550 uppercase bg-slate-55 dark:bg-gray-800/40 rounded-xl">
+              <table className="w-full text-xs text-left text-slate-500 dark:text-gray-400 dark:text-gray-500">
+                <thead className="text-[10px] text-slate-400 dark:text-gray-500 dark:text-gray-400 dark:text-gray-500 uppercase bg-slate-50 dark:bg-slate-800 dark:bg-gray-800/40 rounded-xl">
                   <tr>
                     <th scope="col" className="px-4 py-3 text-center">
                       KM
@@ -782,12 +782,12 @@ export function ResultScreen() {
                     return (
                       <tr
                         key={s.km}
-                        className="hover:bg-slate-50/50 dark:hover:bg-slate-850/20"
+                        className="hover:bg-slate-50/50 dark:hover:bg-slate-800/20 dark:hover:bg-slate-700/20"
                       >
                         <td className="px-4 py-3 font-bold text-center text-slate-700 dark:text-white font-mono">
                           {s.km}
                         </td>
-                        <td className="px-4 py-3 font-mono font-bold text-slate-800 dark:text-gray-250 flex items-center gap-1">
+                        <td className="px-4 py-3 font-mono font-bold text-slate-800 dark:text-gray-200 dark:text-gray-300 flex items-center gap-1">
                           {formatPace(s.time)}
                           {isFastest && (
                             <span
@@ -843,7 +843,7 @@ export function ResultScreen() {
                 </div>
                 <div className="flex-grow">
                   <div className="flex justify-between items-baseline">
-                    <span className="text-xs font-black text-slate-850 dark:text-white">
+                    <span className="text-xs font-black text-slate-800 dark:text-slate-200 dark:text-white">
                       {comment.author}
                     </span>
                     <span className="text-[9px] font-mono text-slate-400">

@@ -61,7 +61,7 @@ export function DailyStatsCard({ player, lang, date }: DailyStatsCardProps) {
           </div>
 
           <div className="flex flex-col items-center gap-1.5 p-2 bg-slate-900/40 border border-slate-800/50 rounded-xl">
-            <Trophy className="h-6 w-6 text-amber-550 fill-amber-500/20" />
+            <Trophy className="h-6 w-6 text-amber-500 dark:text-amber-300 fill-amber-500/20" />
             <span className="text-[10px] text-slate-400 uppercase font-bold">
               Perfect Runs
             </span>

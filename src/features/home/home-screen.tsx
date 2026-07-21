@@ -360,7 +360,7 @@ export function HomeScreen() {
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white font-heading truncate">
             {t("home.title" as TranslationKey)}
           </h1>
-          <p className="text-xs md:text-sm text-gray-500 mt-0.5 md:mt-1 truncate">
+          <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 mt-0.5 md:mt-1 truncate">
             {t("home.subtitle" as TranslationKey)}
           </p>
         </div>
@@ -516,7 +516,7 @@ export function HomeScreen() {
 
         {/* Player ID (dev helper) */}
         {player && (
-          <p className="text-xs text-center text-gray-300 select-all">
+          <p className="text-xs text-center text-gray-300 dark:text-gray-500 select-all">
             ID: {player.id.slice(0, 8)}
           </p>
         )}

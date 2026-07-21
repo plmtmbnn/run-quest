@@ -36,9 +36,13 @@ export default function Page() {
   }, []);
 
   if (screen === "loading") {
-    // Render nothing until the client has checked localStorage.
-    // This avoids the SSR/client hydration mismatch.
-    return null;
+    // Render a minimal skeleton loader until the client has checked localStorage.
+    // This avoids the SSR/client hydration mismatch while providing visual feedback.
+    return (
+      <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
+        <div className="text-neutral-400 text-sm animate-pulse">Loading RunQuest...</div>
+      </div>
+    );
   }
 
   if (screen === "onboarding") {

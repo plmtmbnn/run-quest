@@ -208,7 +208,7 @@ function getImpactStyles(
       };
     case "warning":
       return {
-        badge: "bg-yellow-600 text-black",
+        badge: "bg-yellow-600 text-black dark:bg-yellow-500 dark:text-black",
         title: "text-yellow-200",
         text: "text-yellow-100",
         textBg: "bg-yellow-950/80",

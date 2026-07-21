@@ -78,19 +78,14 @@ export function fastForward(
   while (true) {
     if (isDead(current)) return { state: current, events: [] };
     
-    // Check for events only in "event" mode or when past the stop point
-    // For "week" and "month" modes, continue to the full duration
+    // Halt on any scheduled event at the current day first
     const dayEvents = eventsForDay(current.dayIndex);
-    const shouldHaltForEvent = mode === "event" && dayEvents.length > 0;
-    
-    if (shouldHaltForEvent) {
+    if (dayEvents.length > 0) {
       return { state: current, events: dayEvents };
     }
     
     if (current.dayIndex >= stop) {
-      // Return any events at the stop point (e.g., race on day 7)
-      const stopEvents = eventsForDay(current.dayIndex);
-      return { state: current, events: stopEvents };
+      return { state: current, events: [] };
     }
     
     current = executeRoutineDay(current);

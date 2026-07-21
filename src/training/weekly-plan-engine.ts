@@ -15,6 +15,7 @@ import type {
   PlanValidation,
   AdherenceMetrics,
   DailyActivity,
+  CoachFeedbackMessage,
 } from "./training-types";
 import {
   PLAN_TEMPLATES,
@@ -170,45 +171,45 @@ export function validateWeeklyPlan(
 
   // Rule 1: Maximum 2 hard days per week
   if (hardDays > 2) {
-    warnings.push(`⚠️ ${hardDays} hard days scheduled - high injury risk. Consider replacing one with an easy run.`);
+    warnings.push("training.feedback.overtraining_risk");
     score -= 20;
   }
 
   // Rule 2: Minimum 1 rest day per week
   if (restDays === 0) {
-    warnings.push("⚠️ No rest days scheduled - overtraining risk. Add at least one full rest day.");
+    warnings.push("training.feedback.no_rest_days");
     score -= 25;
   }
 
   // Rule 3: Check hard day spacing (minimum 48 hours apart)
   const hardDaySpacing = validateHardDaySpacing(activities);
   if (!hardDaySpacing) {
-    warnings.push("⚠️ Hard days are back-to-back. Allow 48+ hours between intense sessions.");
+    warnings.push("training.feedback.back_to_back_hard_days");
     score -= 15;
   }
 
   // Rule 4: High fatigue warning
   if ((runnerState.profile.currentFatigue || 0) > 70 && hardDays > 1) {
-    warnings.push("⚠️ Your fatigue is high. Consider a recovery week instead.");
+    warnings.push("training.feedback.high_fatigue");
     score -= 10;
   }
 
   // Positive feedback
   if (hardDays === 2 && hardDaySpacing) {
-    suggestions.push("✅ Great plan! Your hard days are well-spaced for optimal recovery.");
+    suggestions.push("training.feedback.good_spacing");
   }
 
   if (restDays >= 1 && restDays <= 2) {
-    suggestions.push("✅ Good balance of training and recovery.");
+    suggestions.push("training.feedback.good_balance");
   }
 
   // Suggestions for improvement
   if (hardDays === 1) {
-    suggestions.push("💡 Tip: Consider adding a second quality session for faster improvement.");
+    suggestions.push("training.feedback.add_second_session");
   }
 
   if (restDays > 2 && (runnerState.profile.currentFitness || 0) > 50) {
-    suggestions.push("💡 You could handle more volume - consider adding another easy run.");
+    suggestions.push("training.feedback.more_volume");
   }
 
   const isValid = warnings.length === 0;
@@ -247,25 +248,25 @@ export function generatePlanFeedback(
   validation: PlanValidation,
   hasUpcomingRace: boolean = false,
   hadRecentRace: boolean = false
-): string[] {
-  const feedback: string[] = [];
+): CoachFeedbackMessage[] {
+  const feedback: CoachFeedbackMessage[] = [];
 
   // Race-specific feedback
   if (hadRecentRace) {
-    feedback.push("🎉 Great race! This week is for recovery - easy efforts only.");
+    feedback.push({ key: "training.feedback.great_race_recovery" });
   } else if (hasUpcomingRace) {
-    feedback.push("🏁 Race coming up! This is your taper week. Focus on rest and light runs.");
+    feedback.push({ key: "training.feedback.taper_week" });
   }
 
   // Add validation warnings and suggestions
-  feedback.push(...validation.warnings);
-  feedback.push(...validation.suggestions);
+  feedback.push(...validation.warnings.map((key) => ({ key })));
+  feedback.push(...validation.suggestions.map((key) => ({ key })));
 
   // General encouragement
   if (validation.score >= 80) {
-    feedback.push("👍 This is a solid, balanced training plan. Stay consistent!");
+    feedback.push({ key: "training.feedback.solid_plan" });
   } else if (validation.score >= 60) {
-    feedback.push("⚡ Decent plan, but consider the suggestions above for optimization.");
+    feedback.push({ key: "training.feedback.decent_plan" });
   }
 
   return feedback;

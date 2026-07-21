@@ -1,10 +1,20 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useTranslation } from "@/i18n/use-translation";
+import type { CoachFeedbackMessage } from "@/training/training-types";
+import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+
+function interpolate(
+  template: string,
+  vars: Record<string, string | number>,
+): string {
+  return template.replace(/\{(\w+)\}/g, (_, k) =>
+    k in vars ? String(vars[k]) : "{" + k + "}",
+  );
+}
 
 interface CoachFeedbackPanelProps {
-  feedback: string[];
+  feedback: readonly (CoachFeedbackMessage | string)[];
   isExpanded?: boolean;
   onToggle?: () => void;
 }
@@ -17,12 +27,13 @@ export function CoachFeedbackPanel({
   const { t } = useTranslation();
 
   // Categorize feedback by type
-  const getFeedbackType = (message: string) => {
-    if (message.startsWith("✅")) return "positive";
-    if (message.startsWith("⚠️")) return "warning";
-    if (message.startsWith("💡")) return "tip";
-    if (message.startsWith("🎉")) return "celebration";
-    if (message.startsWith("🏁")) return "race";
+  const getFeedbackType = (msg: CoachFeedbackMessage) => {
+    const key = msg.key;
+    if (key.includes("good_") || key.includes("solid") || key.includes("great")) return "positive";
+    if (key.includes("overtraining") || key.includes("no_rest") || key.includes("back_to_back") || key.includes("high_fatigue")) return "warning";
+    if (key.includes("tip") || key.includes("add_") || key.includes("more_") || key.includes("decent")) return "tip";
+    if (key.includes("great_race")) return "celebration";
+    if (key.includes("taper")) return "race";
     return "neutral";
   };
 
@@ -43,7 +54,7 @@ export function CoachFeedbackPanel({
     <div className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-4 md:p-6 shadow-sm">
       <div className="flex justify-between items-center mb-4">
         <h3 className="font-heading font-black text-lg text-slate-800 dark:text-white flex items-center gap-2">
-          <span>👨🏫</span> {t("training.coach_feedback")}
+          <span>👨🏫</span> {t("training.coach_feedback" as TranslationKey)}
         </h3>
         {onToggle && (
           <button
@@ -67,10 +78,17 @@ export function CoachFeedbackPanel({
           >
             {feedback.length > 0 ? (
               <div className="space-y-3">
-                {feedback.map((message, index) => {
-                  const type = getFeedbackType(message);
+                {feedback.map((item, index) => {
+                  // Backward compat: legacy plans store raw strings
+                  const msg: CoachFeedbackMessage = typeof item === "string"
+                    ? { key: item }
+                    : item;
+
+                  const type = getFeedbackType(msg);
                   const { icon, color } = getFeedbackIcon(type);
-                  const displayMessage = message.replace(/^[✅⚠️💡🎉🏁]/, "").trim();
+                  const translated = msg.vars
+                    ? interpolate(t(msg.key as TranslationKey), msg.vars)
+                    : t(msg.key as TranslationKey);
 
                   return (
                     <motion.div
@@ -82,7 +100,7 @@ export function CoachFeedbackPanel({
                     >
                       <span className={`text-xl ${color}`}>{icon}</span>
                       <p className="text-sm text-slate-700 dark:text-slate-300 flex-1">
-                        {displayMessage}
+                        {translated}
                       </p>
                     </motion.div>
                   );
@@ -92,7 +110,7 @@ export function CoachFeedbackPanel({
               <div className="text-center py-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
                 <span className="text-2xl mb-2 block">🤔</span>
                 <p className="text-sm text-slate-500 dark:text-slate-400">
-                  {t("training.no_feedback")}
+                  {t("training.no_feedback" as TranslationKey)}
                 </p>
               </div>
             )}

@@ -87,6 +87,16 @@ export interface CoachRecommendation {
   reason: string;
 }
 
+/**
+ * A translatable coach feedback message.
+ */
+export interface CoachFeedbackMessage {
+  /** Translation key (e.g. "training.feedback.overtraining_risk") */
+  key: string;
+  /** Interpolation variables for the key */
+  vars?: Record<string, string | number>;
+}
+
 // ═══════════════════════════════════════════════════════════════════════
 // Sprint 30: Weekly Training Planner Types
 // ═══════════════════════════════════════════════════════════════════════
@@ -132,7 +142,7 @@ export interface WeeklyPlan {
   /** Overall adherence rate (0-100) */
   adherenceRate?: number;
   /** Coach feedback messages for this plan */
-  coachFeedback?: string[];
+  coachFeedback?: CoachFeedbackMessage[];
   /** Whether this plan is currently active */
   isActive: boolean;
 }
@@ -167,9 +177,9 @@ export interface PlanTemplate {
 export interface PlanValidation {
   /** Whether the plan is safe and valid */
   isValid: boolean;
-  /** Warning messages about potential issues */
+  /** Warning message keys about potential issues */
   warnings: string[];
-  /** Suggestions for improvement */
+  /** Suggestion message keys for improvement */
   suggestions: string[];
   /** Overall plan quality score (0-100) */
   score: number;

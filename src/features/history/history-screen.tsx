@@ -58,7 +58,7 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
       case "S":
         return "text-amber-600 dark:text-amber-400 bg-amber-50/40 dark:bg-amber-950/10 border-amber-100/30 dark:border-amber-950/30";
       case "A":
-        return "text-slate-650 dark:text-slate-400 bg-slate-50/40 dark:bg-slate-950/10 border-slate-100/30 dark:border-slate-850/30";
+        return "text-slate-600 dark:text-slate-300 dark:text-slate-400 bg-slate-50/40 dark:bg-slate-950/10 border-slate-100/30 dark:border-slate-850/30";
       case "B":
         return "text-orange-600 dark:text-orange-400 bg-orange-50/40 dark:bg-orange-950/10 border-orange-100/30 dark:border-orange-950/30";
       case "C":
@@ -114,7 +114,7 @@ ${t("share.stats.cta" as TranslationKey)} https://runquest.game`;
       <main className="mx-auto w-full max-w-3xl px-6 py-6 flex-1 flex flex-col">
         {entries.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center py-16 text-center">
-            <Trophy className="h-16 w-16 text-gray-350 mb-4 stroke-1" />
+            <Trophy className="h-16 w-16 text-gray-300 dark:text-gray-400 mb-4 stroke-1" />
             <p className="text-gray-500 dark:text-gray-400 max-w-sm text-sm">
               {t("history.empty" as TranslationKey)}
             </p>

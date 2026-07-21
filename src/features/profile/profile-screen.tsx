@@ -405,7 +405,7 @@ export function ProfileScreen() {
                         ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 cursor-default"
                         : canUnlock
                           ? "bg-orange-500 hover:bg-orange-600 text-white cursor-pointer border-orange-500 shadow-md shadow-orange-500/20 active:scale-95"
-                          : "bg-slate-100 dark:bg-slate-900 text-slate-400 dark:text-slate-650 cursor-not-allowed opacity-45 border-slate-200 dark:border-slate-850"
+                          : "bg-slate-100 dark:bg-slate-900 text-slate-400 dark:text-slate-600 dark:text-slate-300 cursor-not-allowed opacity-45 border-slate-200 dark:border-slate-850"
                     }`}
                   >
                     {isUnlocked ? "Unlocked" : "Unlock (1 Skill Point)"}
@@ -472,7 +472,7 @@ export function ProfileScreen() {
                       <h3 className="font-bold text-xs text-slate-800 dark:text-white truncate">
                         {item.name}
                       </h3>
-                      <span className="text-[10px] bg-white/70 dark:bg-slate-800 px-1.5 py-0.5 rounded font-mono font-bold text-slate-650 dark:text-slate-400 flex-shrink-0">
+                      <span className="text-[10px] bg-white/70 dark:bg-slate-800 px-1.5 py-0.5 rounded font-mono font-bold text-slate-600 dark:text-slate-300 dark:text-slate-400 flex-shrink-0">
                         Qty: {qty}
                       </span>
                     </div>
@@ -488,7 +488,7 @@ export function ProfileScreen() {
                       ${
                         canAfford
                           ? "bg-orange-500 hover:bg-orange-600 border-orange-500 text-white cursor-pointer shadow-md shadow-orange-500/20"
-                          : "bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-850 text-slate-400 dark:text-slate-650 cursor-not-allowed opacity-45"
+                          : "bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-850 text-slate-400 dark:text-slate-600 dark:text-slate-300 cursor-not-allowed opacity-45"
                       }
                     `}
                   >
@@ -598,7 +598,7 @@ export function ProfileScreen() {
                       ${
                         canAfford
                           ? "bg-orange-500 hover:bg-orange-600 border-orange-500 text-white cursor-pointer shadow-md shadow-orange-500/20"
-                          : "bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-850 text-slate-400 dark:text-slate-650 cursor-not-allowed opacity-45"
+                          : "bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-850 text-slate-400 dark:text-slate-600 dark:text-slate-300 cursor-not-allowed opacity-45"
                       }
                     `}
                   >

@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Coffee } from "lucide-react";
 import { deriveDate } from "@/engine/timeline/calendar";
 import { useTimelineStore } from "@/store/timeline-store";
 import { usePlayerStore } from "@/store/player-store";
@@ -24,7 +23,6 @@ export function GameClock() {
   const currentWeek = week + 1;
   const currentDay = dayOfWeek + 1;
 
-  const energyPercent = (gameState.energy / gameState.energyMax) * 100;
   const currentBalance = gameState.economy?.currentBalance ?? 0;
 
   return (
@@ -76,27 +74,7 @@ export function GameClock() {
         </div>
       </div>
 
-      {/* Bottom Row: Energy Bar */}
-      <div className="flex items-center gap-2 md:gap-3">
-        <div className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full bg-orange-50 dark:bg-orange-900/30 border border-orange-100 dark:border-orange-800/30 text-orange-500 shrink-0 shadow-sm">
-          <Coffee className="h-3.5 w-3.5 md:h-4 md:w-4" />
-        </div>
-        <div className="relative flex-1 h-3 md:h-3.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden border border-[#E5E7EB] dark:border-slate-700/50 shadow-inner">
-          <div
-            className={`h-full rounded-full transition-all duration-1000 ease-out shadow-sm ${
-              energyPercent > 50
-                ? "bg-gradient-to-r from-emerald-500 to-green-400"
-                : energyPercent > 20
-                  ? "bg-gradient-to-r from-amber-500 to-orange-400"
-                  : "bg-gradient-to-r from-rose-500 to-red-400 animate-pulse"
-            }`}
-            style={{ width: `${energyPercent}%` }}
-          />
-          <span className="absolute inset-0 flex items-center justify-center font-black font-heading tracking-tight text-[9px] md:text-[10px] text-slate-800 dark:text-white mix-blend-overlay">
-            {Math.round(gameState.energy)}/{gameState.energyMax} EP
-          </span>
-        </div>
-      </div>
+
     </motion.div>
   );
 }

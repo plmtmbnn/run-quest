@@ -13,6 +13,7 @@ import {
   getWorkEfficiency,
 } from "@/economy/work-types";
 import type { GameState } from "@/engine/timeline/time-types";
+import { deriveDate } from "@/engine/timeline/calendar";
 import { useSettingsStore } from "@/store/settings-store";
 import { formatCurrency } from "@/economy/currency-converter";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
@@ -64,6 +65,40 @@ export function WorkSelectorModal({
   const workOptions = getAllWorkTypesWithStatus(gameState);
 
   const currentJobId = (gameState.flags.activeJobId as WorkTypeId) || null;
+  const { age } = deriveDate(gameState);
+  const stats = gameState.stats;
+  const skills = gameState.skills;
+  const flags = gameState.flags;
+
+  // Generate translated missing requirements for a work type
+  const getMissingReqLabels = (workType: WorkType): string[] => {
+    const req = workType.requirements;
+    const missing: string[] = [];
+
+    if (req.minAge !== undefined && age < req.minAge) {
+      missing.push(interpolate(t("work.missing_req.age_min" as TranslationKey), { min: req.minAge, age }));
+    }
+    if (req.maxAge !== undefined && age > req.maxAge) {
+      missing.push(interpolate(t("work.missing_req.age_max" as TranslationKey), { max: req.maxAge, age }));
+    }
+    if (req.minIntellect !== undefined && (stats.intellect ?? 0) < req.minIntellect) {
+      missing.push(interpolate(t("work.missing_req.intellect" as TranslationKey), { min: req.minIntellect, val: stats.intellect ?? 0 }));
+    }
+    if (req.minCharisma !== undefined && (stats.charisma ?? 0) < req.minCharisma) {
+      missing.push(interpolate(t("work.missing_req.charisma" as TranslationKey), { min: req.minCharisma, val: stats.charisma ?? 0 }));
+    }
+    if (req.minRunningSkill !== undefined && (skills.running ?? 0) < req.minRunningSkill) {
+      missing.push(interpolate(t("work.missing_req.running_skill" as TranslationKey), { min: req.minRunningSkill, val: skills.running ?? 0 }));
+    }
+    if (req.hasActiveSponsor && !gameState.sponsorship?.currentSponsor) {
+      missing.push(t("work.missing_req.sponsor" as TranslationKey));
+    }
+    if (req.minCareerWins !== undefined && ((flags.career_wins as number) ?? 0) < req.minCareerWins) {
+      missing.push(interpolate(t("work.missing_req.career_wins" as TranslationKey), { count: req.minCareerWins, val: (flags.career_wins as number) ?? 0 }));
+    }
+
+    return missing;
+  };
 
   const [outcome, setOutcome] = useState<null | 'accepted' | 'rejected'>(null);
 
@@ -135,10 +170,10 @@ export function WorkSelectorModal({
                         </div>
                         <div>
                           <h3 className="text-lg font-black font-heading tracking-tight text-slate-800 dark:text-white">
-                            {workType.name}
+                            {t(`work.types.${workType.id}.name` as TranslationKey)}
                           </h3>
                           <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-0.5">
-                            {workType.description}
+                            {t(`work.types.${workType.id}.desc` as TranslationKey)}
                           </p>
                         </div>
                       </div>
@@ -186,7 +221,7 @@ export function WorkSelectorModal({
                       {/* Locked Requirements */}
                       {!unlocked && missingRequirements.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-2">
-                          {missingRequirements.map((req, idx) => (
+                          {getMissingReqLabels(workType).map((req, idx) => (
                             <span
                               key={idx}
                               className="px-2.5 py-1 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 font-bold uppercase tracking-wider text-[10px] rounded-lg border border-red-200 dark:border-red-900/30"

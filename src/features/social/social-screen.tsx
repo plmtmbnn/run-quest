@@ -249,7 +249,7 @@ export function SocialScreen() {
               <h1 className="font-heading text-xl font-bold">
                 Social & Competition Hub
               </h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">
                 Simulated online rankings, clubs, and head-to-head stats
               </p>
             </div>
@@ -303,7 +303,7 @@ export function SocialScreen() {
                     ${
                       scope === sc
                         ? "bg-slate-900 dark:bg-white text-white dark:text-black border-slate-900 dark:border-white"
-                        : "bg-white dark:bg-slate-900 text-slate-550 border-[#E5E7EB] dark:border-slate-800 hover:bg-slate-50"
+                        : "bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 border-[#E5E7EB] dark:border-slate-800 hover:bg-slate-50"
                     }
                   `}
                   >
@@ -326,7 +326,7 @@ export function SocialScreen() {
                   <h3 className="font-heading font-black text-base">
                     Select Your League Region
                   </h3>
-                  <p className="text-xs text-gray-500 max-w-sm mt-1 leading-relaxed">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 max-w-sm mt-1 leading-relaxed">
                     Select a competitive region to unlock simulated daily
                     divisions, leaderboards, and contribution stats.
                   </p>
@@ -388,7 +388,7 @@ export function SocialScreen() {
                             {comp.name}
                           </span>
                           {comp.archetype && (
-                            <span className="text-[8px] bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded font-mono font-bold text-gray-500 uppercase">
+                            <span className="text-[8px] bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded font-mono font-bold text-gray-500 dark:text-gray-400 uppercase">
                               {comp.archetype[0]}
                             </span>
                           )}
@@ -401,7 +401,7 @@ export function SocialScreen() {
                         <span className="col-span-2 text-center font-semibold text-[11px]">
                           {comp.tier} {comp.division && comp.division}
                         </span>
-                        <span className="col-span-2 text-right font-mono font-bold text-slate-850 dark:text-white">
+                        <span className="col-span-2 text-right font-mono font-bold text-slate-800 dark:text-slate-200 dark:text-white">
                           {comp.rp} RP
                         </span>
                       </div>
@@ -422,7 +422,7 @@ export function SocialScreen() {
                 <h3 className="font-heading font-black text-base text-center">
                   Join a Running Syndicate
                 </h3>
-                <p className="text-xs text-gray-500 text-center max-w-sm mx-auto leading-relaxed mb-2">
+                <p className="text-xs text-gray-500 dark:text-gray-400 text-center max-w-sm mx-auto leading-relaxed mb-2">
                   Joining a club provides unique weekly combined distance goals
                   and passive training bonuses for attribute gains.
                 </p>
@@ -439,7 +439,7 @@ export function SocialScreen() {
                         <h4 className="font-heading font-black text-sm">
                           {club.name}
                         </h4>
-                        <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-normal">
+                        <p className="text-[10px] text-gray-500 dark:text-gray-400 dark:text-gray-400 leading-normal">
                           {club.description.en}
                         </p>
                       </div>
@@ -475,7 +475,7 @@ export function SocialScreen() {
                         <h3 className="font-heading font-black text-xl mt-0.5">
                           {selectedClub.name}
                         </h3>
-                        <p className="text-[10px] text-gray-350 leading-relaxed mt-1 max-w-sm">
+                        <p className="text-[10px] text-gray-300 dark:text-gray-400 leading-relaxed mt-1 max-w-sm">
                           {selectedClub.description.en}
                         </p>
                       </div>
@@ -496,7 +496,7 @@ export function SocialScreen() {
                       <h4 className="font-heading font-black text-sm text-slate-800 dark:text-white">
                         Weekly Combined Distance Goal
                       </h4>
-                      <p className="text-[10px] text-gray-500 mt-0.5">
+                      <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
                         Progress of all members towards the weekly chest
                       </p>
                     </div>
@@ -577,7 +577,7 @@ export function SocialScreen() {
                 <span className="text-3xl font-black text-indigo-600 dark:text-indigo-400 font-heading">
                   Top {percentile}%
                 </span>
-                <p className="text-[9px] text-gray-500 mt-1 max-w-[150px] leading-relaxed">
+                <p className="text-[9px] text-gray-500 dark:text-gray-400 mt-1 max-w-[150px] leading-relaxed">
                   Compared to other active runners in the regional ladder
                 </p>
               </div>
@@ -585,12 +585,12 @@ export function SocialScreen() {
                 <span className="text-slate-400 uppercase text-[9px] tracking-wider font-extrabold">
                   League Rank
                 </span>
-                <span className="text-xl font-black text-slate-850 dark:text-white font-heading">
+                <span className="text-xl font-black text-slate-800 dark:text-slate-200 dark:text-white font-heading">
                   {getTierAndDivision(profile.rankPoints || 0).tier}{" "}
                   {getTierAndDivision(profile.rankPoints || 0).division &&
                     `Division ${getTierAndDivision(profile.rankPoints || 0).division}`}
                 </span>
-                <p className="text-[9px] text-gray-500 mt-1 max-w-[150px] leading-relaxed">
+                <p className="text-[9px] text-gray-500 dark:text-gray-400 mt-1 max-w-[150px] leading-relaxed">
                   {profile.rankPoints || 0} competitive Rank Points
                 </p>
               </div>
@@ -604,7 +604,7 @@ export function SocialScreen() {
                   <h4 className="font-heading font-black text-sm text-slate-800 dark:text-white">
                     Performance Trend
                   </h4>
-                  <p className="text-[10px] text-gray-500 mt-0.5">
+                  <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
                     Based on your last{" "}
                     {Math.min(5, (profile.runHistory || []).length)} runs
                   </p>
@@ -731,7 +731,7 @@ export function SocialScreen() {
                 <h4 className="font-heading font-black text-sm text-slate-800 dark:text-white">
                   Rival Head to Head
                 </h4>
-                <p className="text-[10px] text-gray-500 mt-0.5">
+                <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
                   Your lifetime win-loss records against named rivals
                 </p>
               </div>
@@ -816,7 +816,7 @@ export function SocialScreen() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <span className="font-mono font-black text-slate-850 dark:text-white">
+                          <span className="font-mono font-black text-slate-800 dark:text-slate-200 dark:text-white">
                             {relationship.wins}W - {relationship.losses}L
                           </span>
                           {relationship.closestMargin < Infinity && (
@@ -840,7 +840,7 @@ export function SocialScreen() {
                 <h4 className="font-heading font-black text-sm text-slate-800 dark:text-white">
                   Rival Activities Feed
                 </h4>
-                <p className="text-[10px] text-gray-500 mt-0.5">
+                <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
                   Real-time simulated logs of competitor activity and training
                   logs
                 </p>
@@ -864,7 +864,7 @@ export function SocialScreen() {
                           {act.timestamp}
                         </span>
                       </div>
-                      <p className="text-gray-500 dark:text-gray-400 mt-0.5 leading-normal text-[11px]">
+                      <p className="text-gray-500 dark:text-gray-400 dark:text-gray-400 mt-0.5 leading-normal text-[11px]">
                         {act.action.en}
                       </p>
                     </div>

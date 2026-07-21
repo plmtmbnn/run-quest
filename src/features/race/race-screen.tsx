@@ -573,7 +573,7 @@ export function RaceScreen() {
  
           {/* Visual Race Track Progress */}
           <div className="w-full flex flex-col gap-2 mt-2 border-t border-slate-100 dark:border-gray-800 pt-3 md:pt-4">
-            <h4 className="text-[9px] md:text-[10px] uppercase font-extrabold tracking-wider text-slate-400 dark:text-gray-550">
+            <h4 className="text-[9px] md:text-[10px] uppercase font-extrabold tracking-wider text-slate-400 dark:text-gray-500 dark:text-gray-400">
               Track Progress
             </h4>
             <div className="relative bg-slate-50 dark:bg-slate-950 h-8 md:h-10 rounded-[1.5rem] border border-slate-200 dark:border-slate-850 p-1.5 md:p-2 flex items-center overflow-hidden">
@@ -681,7 +681,7 @@ export function RaceScreen() {
 
               {/* Consumables Inventory */}
               <div className="mt-3 md:mt-4 border-t border-slate-100 dark:border-gray-800 pt-3 md:pt-4 flex flex-col gap-2">
-                <h4 className="text-[10px] md:text-xs uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-550 flex items-center gap-1.5">
+                <h4 className="text-[10px] md:text-xs uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
                   <span>🥤</span> Active Consumables
                 </h4>
                 <div className="flex flex-wrap gap-2 mt-1">
@@ -736,11 +736,11 @@ export function RaceScreen() {
 
             {/* Right Column: Live Leaderboard */}
             <div className="flex flex-col gap-3">
-              <h4 className="text-xs md:text-sm uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-550 flex items-center gap-1.5">
+              <h4 className="text-xs md:text-sm uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
                 <span>🏆</span> Live Standings
               </h4>
               <div className="bg-slate-50 dark:bg-slate-950/40 rounded-[1.5rem] border border-slate-150 dark:border-gray-800 overflow-hidden text-xs md:text-sm">
-                <div className="grid grid-cols-12 gap-1 px-2 md:px-3 py-1.5 md:py-2 bg-slate-100 dark:bg-gray-800/40 border-b border-slate-200 dark:border-gray-800 font-extrabold text-[9px] md:text-[10px] text-slate-400 dark:text-gray-550 uppercase tracking-wider">
+                <div className="grid grid-cols-12 gap-1 px-2 md:px-3 py-1.5 md:py-2 bg-slate-100 dark:bg-gray-800/40 border-b border-slate-200 dark:border-gray-800 font-extrabold text-[9px] md:text-[10px] text-slate-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   <span className="col-span-2 text-center">Pos</span>
                   <span className="col-span-6">Runner</span>
                   <span className="col-span-4 text-right">Gap</span>
@@ -802,12 +802,12 @@ export function RaceScreen() {
 
           {/* Main Attributes Panel */}
           <div>
-            <h3 className="text-xs md:text-sm uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-550 mb-2 md:mb-3 flex items-center gap-1.5">
+            <h3 className="text-xs md:text-sm uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-500 dark:text-gray-400 mb-2 md:mb-3 flex items-center gap-1.5">
               <span>📊</span> Live Runner Metrics
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
               <div className="border border-slate-200 dark:border-gray-800 rounded-[1.5rem] p-3 md:p-4 flex flex-col items-center bg-slate-50/50 dark:bg-gray-950/20">
-                <span className="text-slate-400 dark:text-gray-550 text-[9px] md:text-[10px] uppercase font-bold mb-1">
+                <span className="text-slate-400 dark:text-gray-500 dark:text-gray-400 text-[9px] md:text-[10px] uppercase font-bold mb-1">
                   Pace
                 </span>
                 <div className="flex items-center gap-1 text-slate-800 dark:text-gray-200">
@@ -818,7 +818,7 @@ export function RaceScreen() {
                 </div>
               </div>
               <div className="border border-slate-200 dark:border-gray-800 rounded-[1.5rem] p-3 md:p-4 flex flex-col items-center bg-slate-50/50 dark:bg-gray-950/20">
-                <span className="text-slate-400 dark:text-gray-550 text-[9px] md:text-[10px] uppercase font-bold mb-1">
+                <span className="text-slate-400 dark:text-gray-500 dark:text-gray-400 text-[9px] md:text-[10px] uppercase font-bold mb-1">
                   Energy
                 </span>
                 <div className="flex items-center gap-1 text-amber-655 dark:text-amber-500">
@@ -827,7 +827,7 @@ export function RaceScreen() {
                 </div>
               </div>
               <div className="border border-slate-200 dark:border-gray-800 rounded-[1.5rem] p-3 md:p-4 flex flex-col items-center bg-slate-50/50 dark:bg-gray-950/20">
-                <span className="text-slate-400 dark:text-gray-550 text-[9px] md:text-[10px] uppercase font-bold mb-1">
+                <span className="text-slate-400 dark:text-gray-500 dark:text-gray-400 text-[9px] md:text-[10px] uppercase font-bold mb-1">
                   Hydration
                 </span>
                 <div className="flex items-center gap-1 text-blue-650 dark:text-blue-500">
@@ -836,7 +836,7 @@ export function RaceScreen() {
                 </div>
               </div>
               <div className="border border-slate-200 dark:border-gray-800 rounded-[1.5rem] p-3 md:p-4 flex flex-col items-center bg-slate-50/50 dark:bg-gray-950/20">
-                <span className="text-slate-400 dark:text-gray-550 text-[9px] md:text-[10px] uppercase font-bold mb-1">
+                <span className="text-slate-400 dark:text-gray-500 dark:text-gray-400 text-[9px] md:text-[10px] uppercase font-bold mb-1">
                   Focus
                 </span>
                 <div className="flex items-center gap-1 text-purple-650 dark:text-purple-550">
@@ -930,7 +930,7 @@ export function RaceScreen() {
 
           {/* Active Effects List */}
           <div className="border-t border-slate-100 dark:border-gray-800 pt-4 flex flex-wrap gap-2 items-center">
-            <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-gray-550 mr-2">
+            <span className="text-[10px] uppercase font-bold text-slate-400 dark:text-gray-500 dark:text-gray-400 mr-2">
               Active Effects:
             </span>
             {preparation.nutrition.map((item) => (
@@ -1051,7 +1051,7 @@ export function RaceScreen() {
             </p>
 
             <div className="flex flex-col gap-2.5">
-              <span className="text-[10px] uppercase tracking-wider text-slate-455 dark:text-gray-550 font-bold">
+              <span className="text-[10px] uppercase tracking-wider text-slate-455 dark:text-gray-500 dark:text-gray-400 font-bold">
                 {t("challenge.race.strategic_choices" as TranslationKey)}
               </span>
               {activeDecision.choices.map((choice) => (

@@ -125,7 +125,7 @@ export function BreakingPointOverlay({
                           option.risk === "high"
                             ? "bg-red-500"
                             : option.risk === "medium"
-                              ? "bg-yellow-500 text-black"
+                              ? "bg-yellow-500 text-black dark:bg-yellow-400 dark:text-black"
                               : "bg-green-500"
                         } text-white font-bold uppercase`}
                       >

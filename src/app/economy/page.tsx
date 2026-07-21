@@ -15,13 +15,21 @@ import {
   getAvailableWorkActions,
 } from "@/engine/timeline/actions";
 import { useSound } from "@/hooks/use-sound";
+import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { useTimelineStore } from "@/store/timeline-store";
 import { formatCurrency } from "@/economy/currency-converter";
 import { useSettingsStore } from "@/store/settings-store";
 
+function interpolate(tpl: string, vars: Record<string, string | number>): string {
+  return tpl.replace(/\{(\w+)\}/g, (_, k) =>
+    k in vars ? String(vars[k]) : "{" + k + "}",
+  );
+}
+
 export default function EconomyPage() {
   const router = useRouter();
   const { playSound } = useSound();
+  const { t } = useTranslation();
   const { gameState, setGameState } = useTimelineStore();
   const [isWorkModalOpen, setIsWorkModalOpen] = useState(false);
   const preferredCurrency = useSettingsStore((state) => state.settings.preferredCurrency) || "USD";
@@ -31,7 +39,7 @@ export default function EconomyPage() {
       <div className="flex items-center justify-center min-h-screen text-slate-800 dark:text-white bg-slate-50 dark:bg-slate-950">
         <div className="text-center space-y-4">
           <div className="animate-spin text-blue-500 text-3xl">🔄</div>
-          <p className="text-gray-400">Loading Economy...</p>
+          <p className="text-gray-400 dark:text-gray-500">Loading Economy...</p>
         </div>
       </div>
     );
@@ -98,7 +106,7 @@ export default function EconomyPage() {
             <ArrowLeft className="h-5 w-5 text-gray-600 dark:text-gray-300" />
           </button>
           <h1 className="font-heading text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-            💰 Economy & Work
+            💰 {t("economy.page_title" as TranslationKey)}
           </h1>
           <div className="w-10"></div>
         </div>
@@ -119,10 +127,10 @@ export default function EconomyPage() {
                   <div className="flex items-center gap-2">
                     <h2 className="font-heading text-xl font-bold text-slate-900 dark:text-white tracking-tight">{activeJob.name}</h2>
                     <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/10">
-                      Active Job
+                      {t("economy.active_job" as TranslationKey)}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed max-w-md">{activeJob.description}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500 leading-relaxed max-w-md">{activeJob.description}</p>
                 </div>
               </div>
 
@@ -142,7 +150,7 @@ export default function EconomyPage() {
                   `}
                 >
                   <Zap className="h-4.5 w-4.5 text-yellow-400" />
-                  Perform Work
+                  {t("economy.perform_work" as TranslationKey)}
                 </button>
 
                 <button
@@ -156,15 +164,17 @@ export default function EconomyPage() {
                     cooldownDaysRemaining > 0 ? "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-500 cursor-not-allowed" : "hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
                   }`}
                 >
-                  {cooldownDaysRemaining > 0 ? `Wait ${cooldownDaysRemaining}d` : "Apply Job"}
+                  {cooldownDaysRemaining > 0
+                    ? interpolate(t("economy.wait_days" as TranslationKey), { days: cooldownDaysRemaining })
+                    : t("economy.apply_job" as TranslationKey)}
                 </button>
               </div>
             </div>
 
             {/* Constraints Display */}
-            <div className="mt-6 pt-4 border-t border-slate-100/50 dark:border-slate-800/50 flex flex-wrap gap-x-6 gap-y-2 text-xs text-gray-500 dark:text-gray-400">
+            <div className="mt-6 pt-4 border-t border-slate-100/50 dark:border-slate-800/50 flex flex-wrap gap-x-6 gap-y-2 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">
               <div className="flex items-center gap-1.5">
-                <span className="text-green-500 dark:text-green-400">💰</span> Pay Rate:{" "}
+                <span className="text-green-500 dark:text-green-400">💰</span> {t("economy.pay_rate" as TranslationKey)}:{" "}
                 <span className="text-slate-800 dark:text-white font-medium">
                   {formatCurrency(activeJob.pay.min, preferredCurrency)}
                   {activeJob.pay.max !== activeJob.pay.min &&
@@ -172,23 +182,23 @@ export default function EconomyPage() {
                 </span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-yellow-500 dark:text-yellow-400">⚡</span> Energy Cost:{" "}
+                <span className="text-yellow-500 dark:text-yellow-400">⚡</span> {t("economy.energy_cost" as TranslationKey)}:{" "}
                 <span className="text-slate-800 dark:text-white font-medium">{activeJob.energyCost} EP</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-blue-500 dark:text-blue-400">⚡</span> Current Energy:{" "}
+                <span className="text-blue-500 dark:text-blue-400">⚡</span> {t("economy.current_energy" as TranslationKey)}:{" "}
                 <span className="text-slate-800 dark:text-white font-medium">{gameState.energy} / {gameState.energyMax} EP</span>
               </div>
 
               {/* Status Warning */}
               {hasWorkedToday && (
                 <div className="w-full mt-3 px-3 py-2 bg-amber-50/40 dark:bg-amber-950/10 border border-amber-100/30 dark:border-amber-950/30 text-amber-600 dark:text-amber-400 font-bold rounded-lg flex items-center gap-1.5 animate-pulse">
-                  <Calendar className="h-4 w-4" /> Already worked today. Rest or wait until tomorrow to work again.
+                  <Calendar className="h-4 w-4" /> {t("economy.already_worked_today" as TranslationKey)}
                 </div>
               )}
               {!hasWorkedToday && gameState.energy < activeJob.energyCost && (
                 <div className="w-full mt-3 px-3 py-2 bg-red-50/40 dark:bg-red-950/10 border border-red-100/30 dark:border-red-950/30 text-red-500 dark:text-red-400 font-bold rounded-lg flex items-center gap-1.5">
-                  <Zap className="h-4 w-4" /> Low energy! Rest to recover energy.
+                  <Zap className="h-4 w-4" /> {t("economy.low_energy_warning" as TranslationKey)}
                 </div>
               )}
             </div>
@@ -198,7 +208,7 @@ export default function EconomyPage() {
         {/* Transaction History & Balance Card */}
         <section className="space-y-4">
           <h2 className="font-heading text-xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-            📊 Ledger & History
+            📊 {t("economy.ledger_title" as TranslationKey)}
           </h2>
           <TransactionLog
             economy={economyState}

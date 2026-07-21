@@ -179,7 +179,7 @@ function getToneStyles(tone: ActiveCoachRadio["tone"]) {
         border: "border-gray-300",
         iconBg: "bg-gray-100",
         label: "text-gray-700",
-        text: "text-gray-900",
+        text: "text-gray-900 dark:text-neutral-100",
         progress: "bg-gray-500 h-full",
         icon: "🎯",
       };
@@ -189,7 +189,7 @@ function getToneStyles(tone: ActiveCoachRadio["tone"]) {
         border: "border-gray-300",
         iconBg: "bg-gray-100",
         label: "text-gray-700",
-        text: "text-gray-900",
+        text: "text-gray-900 dark:text-neutral-100",
         progress: "bg-gray-500 h-full",
         icon: "🎙️",
       };

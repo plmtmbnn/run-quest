@@ -159,7 +159,11 @@
       "desc": "Choose how money amounts are displayed. This doesn't affect game balance.",
       "trigger_label": "Preferred currency: {name}. Activate to change.",
       "listbox_label": "Select preferred currency",
-      "example": "Example: {amount}"
+      "example": "Example: {amount}",
+      "select": "Select currency",
+      "backdrop": "Close currency picker",
+      "search": "Search currency…",
+      "no_results": "No currencies found"
     }
   },
   "sponsors": {
@@ -225,6 +229,49 @@
       "enter_race": "Enter Race - {fee}"
     }
   },
+  "economy": {
+    "page_title": "Economy & Work",
+    "ledger_title": "Ledger & History",
+    "active_job": "Active Job",
+    "perform_work": "Perform Work",
+    "apply_job": "Apply Job",
+    "wait_days": "Wait {days}d",
+    "pay_rate": "Pay Rate",
+    "energy_cost": "Energy Cost",
+    "current_energy": "Current Energy",
+    "already_worked_today": "Already worked today. Rest or wait until tomorrow to work again.",
+    "low_energy_warning": "Low energy! Rest to recover energy.",
+    "balance_label": "Current Balance",
+    "net_change": "net change",
+    "total_earned": "Total Earned",
+    "total_spent": "Total Spent",
+    "race_entry_costs": "Race Entry Costs",
+    "prize_earnings": "Prize Earnings",
+    "earnings_breakdown": "Earnings Breakdown",
+    "race_prizes": "Race Prizes",
+    "work": "Work",
+    "sponsors": "Sponsors",
+    "other": "Other",
+    "recent_transactions": "Recent Transactions",
+    "no_transactions": "No transactions yet",
+    "category_label": "category",
+    "select_currency": "Select currency",
+    "currency_backdrop": "Close currency picker",
+    "search_placeholder": "Search currency…",
+    "no_results": "No currencies found"
+  },
+  "race_tiers": {
+    "local": "Local Race",
+    "regional": "Regional Event",
+    "state": "State Championship",
+    "national": "National Championship",
+    "international": "International Elite Event",
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "elite": "Elite",
+    "legendary": "Legendary"
+  },
   "work": {
     "title": "Choose Work Type",
     "subtitle": "Select a job to accept as your active job",
@@ -242,6 +289,36 @@
     "outcome": {
       "accepted": "🎉 JOB APPLIED!",
       "rejected": "❌ JOB REJECTED"
+    },
+    "types": {
+      "part_time": { "name": "Part-time Job", "desc": "Low-stress work at a local shop. Always available, modest pay." },
+      "full_time": { "name": "Full-time Work", "desc": "Standard job with steady income. The baseline option." },
+      "freelance": { "name": "Freelance Gig", "desc": "Contract work with variable pay. Higher intellect earns more." },
+      "coaching": { "name": "Running Coach", "desc": "Train other runners. Pay scales with your running skill." },
+      "sponsor_event": { "name": "Sponsorship Event", "desc": "Paid appearance for your sponsor. Best pay/energy ratio." },
+      "corporate": { "name": "Corporate Work", "desc": "High-paying office job. Demanding but lucrative." },
+      "coach": { "name": "Fitness Coach", "desc": "Guide others on workouts. Small pay, high charisma boost." },
+      "brand_ambassador": { "name": "Brand Ambassador", "desc": "Promote brands, earn commissions. Requires social flair." },
+      "marathon_trainer": { "name": "Marathon Trainer", "desc": "Train runners for marathons. High stamina payoff." },
+      "content_creator": { "name": "Content Creator", "desc": "Create running content for social media. Build your brand while earning." },
+      "personal_trainer": { "name": "Personal Trainer", "desc": "Train clients one-on-one. Use your running expertise to help others." },
+      "sports_nutritionist": { "name": "Sports Nutritionist", "desc": "Advise athletes on nutrition and diet. Blend knowledge with running experience." },
+      "running_store_staff": { "name": "Running Store Staff", "desc": "Work at a specialty running store. Help customers find the right gear." },
+      "event_organizer": { "name": "Event Organizer", "desc": "Organize running events and races. Leadership and experience required." },
+      "warehouse_worker": { "name": "Warehouse Worker", "desc": "Physical labor loading and unloading packages. Low requirements, decent pay." },
+      "delivery_driver": { "name": "Delivery Driver", "desc": "Deliver packages around the city. Flexible hours, moderate pay." },
+      "social_media_manager": { "name": "Social Media Manager", "desc": "Manage social media for local businesses. Charisma and creativity focused." },
+      "physical_therapist": { "name": "Physical Therapist", "desc": "Help athletes recover from injuries. Running knowledge and intellect required." },
+      "race_official": { "name": "Race Official", "desc": "Officiate at running events. Requires race experience and professionalism." }
+    },
+    "missing_req": {
+      "age_min": "Age {min}+ required (currently {age})",
+      "age_max": "Age {max} or younger required (currently {age})",
+      "intellect": "Intellect {min}+ required (currently {val})",
+      "charisma": "Charisma {min}+ required (currently {val})",
+      "running_skill": "Running skill {min}+ required (currently {val})",
+      "sponsor": "Active sponsor required",
+      "career_wins": "{count} career wins required (currently {val})"
     }
   },
   "preparation": {
@@ -543,6 +620,20 @@
       "strength_training": "Strength Training",
       "mobility_session": "Mobility Session",
       "full_rest": "Full Rest"
+    },
+    "feedback": {
+      "overtraining_risk": "{count} hard days scheduled - high injury risk. Consider replacing one with an easy run.",
+      "no_rest_days": "No rest days scheduled - overtraining risk. Add at least one full rest day.",
+      "back_to_back_hard_days": "Hard days are back-to-back. Allow 48+ hours between intense sessions.",
+      "high_fatigue": "Your fatigue is high. Consider a recovery week instead.",
+      "good_spacing": "Great plan! Your hard days are well-spaced for optimal recovery.",
+      "good_balance": "Good balance of training and recovery.",
+      "add_second_session": "Tip: Consider adding a second quality session for faster improvement.",
+      "more_volume": "You could handle more volume - consider adding another easy run.",
+      "great_race_recovery": "Great race! This week is for recovery - easy efforts only.",
+      "taper_week": "Race coming up! This is your taper week. Focus on rest and light runs.",
+      "solid_plan": "This is a solid, balanced training plan. Stay consistent!",
+      "decent_plan": "Decent plan, but consider the suggestions above for optimization."
     }
   }
 }

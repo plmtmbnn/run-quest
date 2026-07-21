@@ -1,9 +1,7 @@
 import dynamic from "next/dynamic";
 
-const SettingsScreen = dynamic(() =>
-  import("@/features/settings/settings-screen").then(
-    (mod) => mod.SettingsScreen,
-  ),
+const SettingsScreen = dynamic(
+  () => import("@/features/settings/settings-screen").then((mod) => mod.SettingsScreen),
 );
 
 export const metadata = {

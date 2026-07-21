@@ -89,7 +89,7 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.25, ease: "easeInOut" }}
-      className="min-h-screen bg-background pb-24 text-gray-900"
+      className="min-h-screen bg-background pb-24 text-gray-900 dark:text-white"
     >
       {/* Header */}
       <header className="sticky top-0 z-10 border-b border-[#E5E7EB] bg-white/95 px-6 py-4 backdrop-blur-md">
@@ -107,7 +107,7 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
               <ArrowLeft className="h-4.5 w-4.5 text-gray-600" />
             </button>
             <div>
-              <h1 className="font-heading text-xl font-bold text-gray-900">
+              <h1 className="font-heading text-xl font-bold text-gray-900 dark:text-white">
                 {t("analysis.title" as TranslationKey)}
               </h1>
               <p className="text-xs text-gray-500">
@@ -142,7 +142,7 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
                   `challenge.surface.${currentChallenge.race.surface}` as TranslationKey,
                 ).toUpperCase()}
               </span>
-              <h2 className="text-2xl font-bold font-heading text-gray-900 mt-2">
+              <h2 className="text-2xl font-bold font-heading text-gray-900 dark:text-white mt-2">
                 {currentChallenge.race.title[lang]}
               </h2>
             </div>
@@ -205,7 +205,7 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
         {analysis?.segments && (
           <section className="flex flex-col gap-4">
             <div className="flex justify-between items-center">
-              <h3 className="text-lg font-bold font-heading text-gray-900">
+              <h3 className="text-lg font-bold font-heading text-gray-900 dark:text-white">
                 {t("analysis.course_segments" as TranslationKey)}
               </h3>
               <span className="text-xs text-gray-500 font-medium">
@@ -226,7 +226,7 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
                       {getSegmentIcon(seg.type)}
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-gray-800 capitalize">
+                      <h4 className="text-sm font-bold text-gray-800 dark:text-neutral-100 capitalize">
                         {`${lang === "id" ? "Segmen" : "Segment"} ${i + 1}: ${
                           seg.type === "climb"
                             ? t("analysis.segment_climb" as TranslationKey)
@@ -277,7 +277,7 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
         {/* Weather Timeline Forecast */}
         {analysis?.weather && (
           <section className="flex flex-col gap-4">
-            <h3 className="text-lg font-bold font-heading text-gray-900">
+            <h3 className="text-lg font-bold font-heading text-gray-900 dark:text-white">
               {t("analysis.weather_forecast" as TranslationKey)}
             </h3>
 
@@ -307,7 +307,7 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
                       )}
                     </div>
 
-                    <span className="font-bold text-gray-800 block text-lg">
+                    <span className="font-bold text-gray-800 dark:text-neutral-100 block text-lg">
                       {tempVal}°C
                     </span>
                     <span className="text-[10px] text-gray-450 uppercase font-bold block mt-1">

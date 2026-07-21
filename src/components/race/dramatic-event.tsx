@@ -130,7 +130,7 @@ export function DramaticEventOverlay({
                           choice.risk === "high"
                             ? "bg-red-500 text-white"
                             : choice.risk === "medium"
-                              ? "bg-yellow-500 text-black"
+                              ? "bg-yellow-500 text-black dark:bg-yellow-400 dark:text-black"
                               : "bg-green-500 text-white"
                         }`}
                       >

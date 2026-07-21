@@ -173,13 +173,13 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
       const daysAdvanced = stateAfterSalary.dayIndex - stateWithFlags.dayIndex;
     if (daysAdvanced > 0) {
       const socialStore = useSocialStore.getState();
-      for (let d = stateWithFlags.dayIndex; d < state.dayIndex; d++) {
+      for (let d = stateWithFlags.dayIndex; d < stateAfterSalary.dayIndex; d++) {
         const dow = d % 7;
         const slot = stateWithFlags.routine[dow] || "rest";
         const playerKm = slot === "compete" ? 10 : slot === "train" ? 5 : 0;
         socialStore.simulateCompetitionDay(playerKm, undefined, d);
       }
-      socialStore.ageActivities(state.dayIndex);
+      socialStore.ageActivities(stateAfterSalary.dayIndex);
     }
 
     set({ gameState: stateAfterSalary, pendingEvents: events });
