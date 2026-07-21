@@ -268,6 +268,394 @@ export function getRaceSchedules(): RaceSchedule[] {
   },
 
   // ═══════════════════════════════════════════════════════
+  // INDONESIAN REGIONAL RACES
+  // ═══════════════════════════════════════════════════════
+  {
+    id: "annual_bromo_ultramarathon",
+    raceId: "regional_10k_hills",
+    name: "Bromo Ultramarathon",
+    locationId: "regional_10k_hills",
+    tier: "national",
+    description: "Run across the stunning Bromo volcanic landscape in East Java.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 105, // Mid-April (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 60,
+      closesDaysBefore: 14,
+    },
+    entry: {
+      fee: 350,
+      prerequisites: {
+        minLevel: 12,
+        minRating: 1800,
+      },
+    },
+    maxEntrants: 700,
+    icon: "🌋",
+    color: "text-orange-600",
+    prizeInfo: `50K Champion gets ${formatCurrency(8000, preferredCurrency)}`,
+  },
+  {
+    id: "annual_lombok_marathon",
+    raceId: "state_half_coastal",
+    name: "Lombok Marathon",
+    locationId: "state_half_coastal",
+    tier: "national",
+    description: "Run with views of Mount Rinjani in beautiful Lombok.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 238, // August (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 60,
+      closesDaysBefore: 14,
+    },
+    entry: {
+      fee: 200,
+      prerequisites: {
+        minLevel: 8,
+        minRating: 1500,
+      },
+    },
+    categories: [
+      { id: "hm", name: "Half Marathon", distance: 21.1, fee: 80, prizeInfo: `Champion gets ${formatCurrency(2000, preferredCurrency)}`, maxEntrants: 1500 },
+      { id: "fm", name: "Full Marathon", distance: 42.2, fee: 200, prizeInfo: `Champion gets ${formatCurrency(4000, preferredCurrency)}`, maxEntrants: 1000 },
+    ],
+    maxEntrants: 2500,
+    icon: "🏝️",
+    color: "text-teal-500",
+    prizeInfo: `Champion gets ${formatCurrency(4000, preferredCurrency)}`,
+  },
+  {
+    id: "annual_merapi_ultramarathon",
+    raceId: "regional_10k_hills",
+    name: "Merapi Ultramarathon",
+    locationId: "regional_10k_hills",
+    tier: "national",
+    description: "Challenge the slopes of Mount Merapi in Yogyakarta.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 322, // November (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 60,
+      closesDaysBefore: 14,
+    },
+    entry: {
+      fee: 280,
+      prerequisites: {
+        minLevel: 10,
+        minRating: 1700,
+      },
+    },
+    maxEntrants: 1200,
+    icon: "⛰️",
+    color: "text-red-600",
+    prizeInfo: `50K Champion gets ${formatCurrency(6000, preferredCurrency)}`,
+  },
+
+  // ═══════════════════════════════════════════════════════
+  // ASIAN MAJORS (Other Asian Countries)
+  // ═══════════════════════════════════════════════════════
+  {
+    id: "annual_singapore_marathon",
+    raceId: "national_marathon_city",
+    name: "Singapore Marathon",
+    locationId: "national_marathon_city",
+    tier: "international",
+    description: "World Marathon Major candidate. Flat, fast night race through the city.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 343, // Early December (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 90,
+      closesDaysBefore: 21,
+    },
+    entry: {
+      fee: 450,
+      prerequisites: {
+        minLevel: 15,
+        minRating: 2000,
+      },
+    },
+    categories: [
+      { id: "10k", name: "10K", distance: 10, fee: 100, prizeInfo: `Champion gets ${formatCurrency(1500, preferredCurrency)}`, maxEntrants: 5000 },
+      { id: "hm", name: "Half Marathon", distance: 21.1, fee: 180, prizeInfo: `Champion gets ${formatCurrency(3500, preferredCurrency)}`, maxEntrants: 10000 },
+      { id: "fm", name: "Full Marathon", distance: 42.2, fee: 450, prizeInfo: `Champion gets ${formatCurrency(10000, preferredCurrency)}`, maxEntrants: 15000 },
+    ],
+    maxEntrants: 30000,
+    icon: "🦁",
+    color: "text-red-500",
+    prizeInfo: `World Major purse: ${formatCurrency(15000, preferredCurrency)} to champion`,
+  },
+  {
+    id: "annual_kuala_lumpur_marathon",
+    raceId: "national_marathon_city",
+    name: "Kuala Lumpur Marathon",
+    locationId: "national_marathon_city",
+    tier: "international",
+    description: " Malaysia's premier marathon through the city streets.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 84, // Late March (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 90,
+      closesDaysBefore: 21,
+    },
+    entry: {
+      fee: 380,
+      prerequisites: {
+        minLevel: 12,
+        minRating: 1800,
+      },
+    },
+    maxEntrants: 25000,
+    icon: "🏛️",
+    color: "text-blue-600",
+    prizeInfo: `Champion gets ${formatCurrency(8000, preferredCurrency)}`,
+  },
+  {
+    id: "annual_chiang_mai_marathon",
+    raceId: "regional_10k_hills",
+    name: "Chiang Mai Marathon",
+    locationId: "regional_10k_hills",
+    tier: "international",
+    description: "Run through the ancient city of Chiang Mai in northern Thailand.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 357, // Late December (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 60,
+      closesDaysBefore: 14,
+    },
+    entry: {
+      fee: 250,
+      prerequisites: {
+        minLevel: 8,
+        minRating: 1500,
+      },
+    },
+    categories: [
+      { id: "10k", name: "10K", distance: 10, fee: 60, prizeInfo: `Champion gets ${formatCurrency(800, preferredCurrency)}`, maxEntrants: 3000 },
+      { id: "hm", name: "Half Marathon", distance: 21.1, fee: 120, prizeInfo: `Champion gets ${formatCurrency(1800, preferredCurrency)}`, maxEntrants: 4000 },
+      { id: "fm", name: "Full Marathon", distance: 42.2, fee: 250, prizeInfo: `Champion gets ${formatCurrency(4000, preferredCurrency)}`, maxEntrants: 3000 },
+    ],
+    maxEntrants: 10000,
+    icon: "🛕",
+    color: "text-purple-500",
+    prizeInfo: `Champion gets ${formatCurrency(4000, preferredCurrency)}`,
+  },
+
+  // ═══════════════════════════════════════════════════════
+  // TRAIL RUNNING EVENTS
+  // ═══════════════════════════════════════════════════════
+  {
+    id: "annual_utmb_jawa",
+    raceId: "regional_10k_hills",
+    name: "UTMB Java",
+    locationId: "regional_10k_hills",
+    tier: "international",
+    description: "Ultra Trail Mount Borneo Java - the ultimate trail running challenge.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 196, // Mid-July (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 90,
+      closesDaysBefore: 30,
+    },
+    entry: {
+      fee: 600,
+      prerequisites: {
+        minLevel: 20,
+        minRating: 2500,
+        requiresQualification: true,
+      },
+    },
+    maxEntrants: 800,
+    icon: "🥾",
+    color: "text-green-600",
+    prizeInfo: `100 Mile Champion gets ${formatCurrency(50000, preferredCurrency)}`,
+  },
+  {
+    id: "annual_bali_trail_marathon",
+    raceId: "regional_10k_hills",
+    name: "Bali Trail Marathon",
+    locationId: "regional_10k_hills",
+    tier: "national",
+    description: "Technical trail run through Bali's rice terraces and volcanic paths.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 252, // Early September (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 60,
+      closesDaysBefore: 14,
+    },
+    entry: {
+      fee: 300,
+      prerequisites: {
+        minLevel: 10,
+        minRating: 1700,
+      },
+    },
+    categories: [
+      { id: "hm", name: "21K Trail", distance: 21.1, fee: 120, prizeInfo: `Champion gets ${formatCurrency(2500, preferredCurrency)}`, maxEntrants: 1000 },
+      { id: "fm", name: "42K Trail", distance: 42.2, fee: 300, prizeInfo: `Champion gets ${formatCurrency(6000, preferredCurrency)}`, maxEntrants: 500 },
+    ],
+    maxEntrants: 1500,
+    icon: "🌾",
+    color: "text-emerald-500",
+    prizeInfo: `Champion gets ${formatCurrency(6000, preferredCurrency)}`,
+  },
+
+  // ═══════════════════════════════════════════════════════
+  // EUROPEAN MAJORS
+  // ═══════════════════════════════════════════════════════
+  {
+    id: "annual_london_marathon",
+    raceId: "national_marathon_city",
+    name: "London Marathon",
+    locationId: "national_marathon_city",
+    tier: "international",
+    description: "World Marathon Major. The world's biggest fundraising event.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 98, // Early April (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 120,
+      closesDaysBefore: 45,
+    },
+    entry: {
+      fee: 600,
+      prerequisites: {
+        minLevel: 20,
+        minRating: 2200,
+        requiresQualification: true,
+      },
+    },
+    maxEntrants: 42000,
+    icon: "🇬🇧",
+    color: "text-blue-700",
+    prizeInfo: `World Major purse: ${formatCurrency(25000, preferredCurrency)} to champion`,
+  },
+  {
+    id: "annual_berlin_marathon",
+    raceId: "national_marathon_city",
+    name: "Berlin Marathon",
+    locationId: "national_marathon_city",
+    tier: "international",
+    description: "World Marathon Major. Known for being one of the fastest courses.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 252, // Early September (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 120,
+      closesDaysBefore: 45,
+    },
+    entry: {
+      fee: 550,
+      prerequisites: {
+        minLevel: 18,
+        minRating: 2100,
+        requiresQualification: true,
+      },
+    },
+    maxEntrants: 45000,
+    icon: "🇩🇪",
+    color: "text-yellow-600",
+    prizeInfo: `World Major purse: ${formatCurrency(25000, preferredCurrency)} to champion`,
+  },
+  {
+    id: "annual_paris_marathon",
+    raceId: "national_marathon_city",
+    name: "Paris Marathon",
+    locationId: "national_marathon_city",
+    tier: "international",
+    description: "Run through the City of Light's iconic landmarks.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 91, // Early April (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 90,
+      closesDaysBefore: 30,
+    },
+    entry: {
+      fee: 500,
+      prerequisites: {
+        minLevel: 16,
+        minRating: 2000,
+      },
+    },
+    maxEntrants: 60000,
+    icon: "🇫🇷",
+    color: "text-indigo-600",
+    prizeInfo: `International purse: ${formatCurrency(15000, preferredCurrency)} to champion`,
+  },
+  {
+    id: "annual_rome_marathon",
+    raceId: "national_marathon_city",
+    name: "Rome Marathon",
+    locationId: "national_marathon_city",
+    tier: "international",
+    description: "Run through 2000 years of history in the Eternal City.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 56, // Late February (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 90,
+      closesDaysBefore: 30,
+    },
+    entry: {
+      fee: 480,
+      prerequisites: {
+        minLevel: 14,
+        minRating: 1900,
+      },
+    },
+    maxEntrants: 15000,
+    icon: "🇮🇹",
+    color: "text-red-600",
+    prizeInfo: `International purse: ${formatCurrency(12000, preferredCurrency)} to champion`,
+  },
+  {
+    id: "annual_amsterdam_marathon",
+    raceId: "national_marathon_city",
+    name: "Amsterdam Marathon",
+    locationId: "national_marathon_city",
+    tier: "international",
+    description: "A flat and fast course through the Dutch capital.",
+    schedule: {
+      frequency: "annual",
+      dayOfYear: 280, // Early October (Sunday)
+    },
+    registration: {
+      opensDaysBefore: 90,
+      closesDaysBefore: 30,
+    },
+    entry: {
+      fee: 450,
+      prerequisites: {
+        minLevel: 14,
+        minRating: 1900,
+      },
+    },
+    maxEntrants: 16000,
+    icon: "🇳🇱",
+    color: "text-orange-500",
+    prizeInfo: `International purse: ${formatCurrency(10000, preferredCurrency)} to champion`,
+  },
+
+  // ═══════════════════════════════════════════════════════
   // ANNUAL RACES - Asian Majors
   // ═══════════════════════════════════════════════════════
   {

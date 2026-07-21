@@ -66,6 +66,7 @@ function computeStop(
  * moves inside this loop — never on the real clock.
  * 
  * Sprint 29 Issue 1: Fixed "week" mode to complete full 7 days even with events
+ * Fix: Only halt on events AFTER advancing at least 1 day, so rest actions work
  */
 export function fastForward(
   state: GameState,
@@ -74,13 +75,15 @@ export function fastForward(
 ): { state: GameState; events: CalendarEvent[] } {
   const stop = computeStop(state, mode, eventsForDay);
   let current = state;
+  let hasAdvanced = false; // Track if we've advanced at least 1 day
 
   while (true) {
     if (isDead(current)) return { state: current, events: [] };
     
-    // Halt on any scheduled event at the current day first
+    // Halt on any scheduled event ONLY after we've advanced at least 1 day
+    // This ensures rest (1 week) completes full 7 days even with registered races
     const dayEvents = eventsForDay(current.dayIndex);
-    if (dayEvents.length > 0) {
+    if (hasAdvanced && dayEvents.length > 0) {
       return { state: current, events: dayEvents };
     }
     
@@ -89,5 +92,6 @@ export function fastForward(
     }
     
     current = executeRoutineDay(current);
+    hasAdvanced = true;
   }
 }

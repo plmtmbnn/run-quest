@@ -14,7 +14,27 @@ export function GameClock() {
   const settings = useSettingsStore((state) => state.settings);
   const { t } = useTranslation();
 
-  if (!gameState || !player) return null;
+  // Show loading skeleton while game state is initializing
+  if (!gameState || !player) {
+    return (
+      <div className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-3 md:p-4 lg:p-5 shadow-sm flex flex-col gap-3 md:gap-4 w-full animate-pulse">
+        <div className="flex flex-wrap items-center gap-2 md:gap-3">
+          <div className="bg-gradient-to-r from-orange-500 to-amber-500 text-white font-heading font-black text-[10px] md:text-[11px] px-3 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl uppercase tracking-wider shadow-sm flex items-center gap-1.5 md:gap-2 w-32 h-8">
+          </div>
+          <div className="bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] md:text-[11px] font-bold px-3 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl border border-[#E5E7EB] dark:border-slate-700 uppercase tracking-wider w-16 h-8">
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-2 md:gap-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/50 rounded-xl md:rounded-2xl p-2 md:p-3 text-center border border-slate-100 dark:border-slate-700/50 h-16">
+              <div className="h-3 w-12 bg-slate-200 dark:bg-slate-700 rounded mb-2"></div>
+              <div className="h-4 w-8 bg-slate-200 dark:bg-slate-700 rounded"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   const { age, yearOffset, month, week, dayOfWeek } = deriveDate(gameState);
 

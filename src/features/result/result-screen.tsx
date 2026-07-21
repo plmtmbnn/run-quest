@@ -23,6 +23,7 @@ import {
   calculateRankPointsChange,
   getTierAndDivision,
 } from "@/social/ranking-engine";
+import { setPBIfFaster } from "@/runner/personal-best";
 import { useSocialStore } from "@/social/social-store";
 import { useGameStore } from "@/store/game-store";
 import { usePlayerStore } from "@/store/player-store";
@@ -202,6 +203,13 @@ export function ResultScreen() {
           splits,
           dayIndex,
           challenge.race.distance,
+        );
+        
+        // Also save to the new PB tracking system
+        setPBIfFaster(
+          challenge.race.distance,
+          lastResult.finishTime,
+          challenge.id,
         );
       }
 
