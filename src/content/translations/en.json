@@ -1,83 +1,83 @@
 {
   "common": {
-    "start": "Start",
+    "start": "Begin Race",
     "cancel": "Cancel",
-    "save": "Save",
-    "loading": "Loading...",
-    "continue": "Continue"
+    "save": "Save Changes",
+    "loading": "Warming up...",
+    "continue": "Next"
   },
   "home": {
-    "player_profile": "Player Profile",
+    "player_profile": "Runner Profile",
     "title": "Today's Race Board",
-    "subtitle": "Choose today's race challenge. You only get one daily entry.",
-    "completed": "Race Completed",
-    "completed_subtitle": "You finished today's race! Come back tomorrow for a new challenge.",
+    "subtitle": "Select your challenge. One start line per day.",
+    "completed": "Race Complete",
+    "completed_subtitle": "Great effort out there! Recover well and return tomorrow.",
     "stats": {
-      "runs": "Runs",
-      "streak": "Streak",
+      "runs": "Races",
+      "streak": "Run Streak",
       "distance": "Distance",
-      "money": "Money"
+      "money": "Balance"
     },
-    "entry_tickets": "Daily Entry Tickets:",
+    "entry_tickets": "Race Entries:",
     "remaining": "Remaining",
     "recommended": "Recommended",
     "runner_profile": "Runner Profile",
     "daily_training": "Daily Training",
-    "choose_race": "Choose Race",
-    "resume_race": "Resume Race →",
-    "completed_badge": "✓ Completed",
+    "choose_race": "Select Race",
+    "resume_race": "Resume Run →",
+    "completed_badge": "✓ Race Complete",
     "locked": "🔒 Locked",
     "target_time": "Target Time",
     "next_race_in": "Next races in:",
-    "countdown_desc": "Come back tomorrow for a new set of race challenges!"
+    "countdown_desc": "Focus on recovery. New challenges arrive tomorrow."
   },
   "history": {
     "title": "Race History",
-    "subtitle": "Your past challenges and performance records.",
-    "empty": "No race records found. Start a daily challenge to build your history!",
+    "subtitle": "Your career results and personal bests.",
+    "empty": "No race records yet. Step up to the start line today!",
     "back_home": "Back to Home",
-    "score": "Score",
+    "score": "Race Score",
     "grade": "Grade",
-    "distance": "Distance",
-    "time": "Time",
-    "subtitle_desc": "View your past challenge outcomes, records, and training logs.",
+    "distance": "Race Distance",
+    "time": "Finish Time",
+    "subtitle_desc": "Review your past results, splits, and training logs.",
     "dnf": "DNF",
     "dns": "DNS",
-    "status": "Status",
-    "completed_status": "Completed",
+    "status": "Race Status",
+    "completed_status": "Race Complete",
     "dnf_status": "DNF",
     "dns_status": "DNS"
   },
   "language": {
-    "title": "Choose Your Language",
-    "subtitle": "You can change this later in settings.",
+    "title": "Choose Language",
+    "subtitle": "You can always change this in settings later.",
     "english": "English",
     "indonesian": "Bahasa Indonesia"
   },
   "onboarding": {
-    "header": "RunQuest Onboarding",
+    "header": "Welcome to RunQuest",
     "next": "Next",
-    "start": "Start Running",
-    "name_error": "Runner name cannot be empty",
+    "start": "Let's Go",
+    "name_error": "Please enter a runner name before proceeding.",
     "slide_1": {
       "title": "Welcome to RunQuest",
-      "subtitle": "Your daily offline-first running simulation game.",
-      "content": "Every day presents a brand new, procedurally generated running challenge. Step into the shoes of a runner preparing for the ultimate run."
+      "subtitle": "Your daily running simulation.",
+      "content": "Every day presents a new, procedurally generated race. Step into the shoes of a runner preparing for their next big event."
     },
     "slide_2": {
-      "title": "How to Play",
-      "subtitle": "Manage your assets, mindset, and physical thresholds.",
-      "content": "Choose the perfect shoes for the weather and road surfaces. Pack nutrition, pick your pacing strategy, and maintain focus to finish under target time."
+      "title": "Race Strategy",
+      "subtitle": "Manage your pacing, nutrition, and endurance.",
+      "content": "Select the right gear for the terrain and weather. Pack your hydration, plan your negative splits, and hold your pace to hit your target time."
     },
     "slide_3": {
-      "title": "What to Expect",
-      "subtitle": "Deterministic physics, story events, and results sharing.",
-      "content": "Watch the race unfold live. Read the dynamic story narrative generated from your decisions. Download your beautiful Share Card to show off your rank!"
+      "title": "Race Day Experience",
+      "subtitle": "Live tracking, dynamic events, and performance analysis.",
+      "content": "Watch the race unfold live. Adapt to course conditions and download your finisher card to share your personal bests!"
     },
     "slide_4": {
-      "title": "Your Runner Profile",
-      "subtitle": "Choose your runner name before you start.",
-      "content": "We've generated a runner name for you. Feel free to edit it below, or roll the dice to get a new one!"
+      "title": "Runner Profile",
+      "subtitle": "Create your identity.",
+      "content": "We've generated a starting name for you. Keep it, or roll for a new one before heading to the start line!"
     }
   },
   "race_calendar": {
@@ -87,21 +87,21 @@
       "upcoming": "Upcoming"
     },
     "empty": {
-      "today_title": "No races scheduled today",
-      "today_desc": "Take a rest day, hit the training screen to boost your runner stats, or apply for jobs.",
-      "registered_title": "No registered races",
-      "registered_desc": "Browse the Upcoming Calendar tab to find events and sign up before registration closes!",
-      "upcoming_title": "No upcoming races found",
-      "upcoming_desc": "Check back later for new events."
+      "today_title": "Rest Day",
+      "today_desc": "No races scheduled today. Focus on training, recovery, or earning extra income.",
+      "registered_title": "No Upcoming Races",
+      "registered_desc": "Browse the Upcoming tab to find your next event and register before the corral closes!",
+      "upcoming_title": "No Races Available",
+      "upcoming_desc": "Check back later as new events are announced."
     },
     "status": {
-      "completed": "Race completed",
-      "passed": "Race passed",
-      "race_day": "Race day - tap to enter",
+      "completed": "Race Complete",
+      "passed": "Registration Closed",
+      "race_day": "Race Day - Enter Corral",
       "in_days": "Race in {days} days",
-      "registered": "You are registered",
-      "full": "Entry full",
-      "registration_open": "Registration open",
+      "registered": "Registered",
+      "full": "Corral Full",
+      "registration_open": "Registration Open",
       "opens_in": "Opens in {days} days"
     },
     "labels": {
@@ -114,7 +114,7 @@
   },
   "settings": {
     "title": "Settings",
-    "subtitle": "Customize your preferences and app configurations",
+    "subtitle": "Customize your running experience",
     "sections": {
       "general": "General",
       "race_preferences": "Race Preferences",
@@ -122,42 +122,42 @@
     },
     "name": {
       "title": "Runner Name",
-      "desc": "Change your runner name",
-      "error": "Runner name cannot be empty"
+      "desc": "Update your profile name",
+      "error": "Runner name cannot be empty."
     },
     "sound": {
       "title": "Sound Effects",
-      "desc": "Play sound indicators during race simulation"
+      "desc": "Enable audio cues during the race simulation"
     },
     "language": {
       "title": "Language",
-      "desc": "System and game interface translation language"
+      "desc": "Set your preferred language"
     },
     "theme": {
       "title": "Color Theme",
-      "desc": "Choose how RunQuest looks on your device.",
+      "desc": "Adjust the visual appearance of the app.",
       "light": "Light",
       "dark": "Dark",
       "system": "System"
     },
     "preferences": {
-      "desc": "Races matching these preferences will sort to the top of your Daily Race Board.",
-      "surface": "Preferred Surface",
+      "desc": "Races matching your preferences will be prioritized on your Daily Race Board.",
+      "surface": "Preferred Terrain",
       "distance": "Preferred Distance"
     },
     "danger": {
-      "reset": "Reset All Data",
-      "desc": "Permanently delete your profile, stats, run history, and reset your daily board entries. This cannot be undone.",
-      "button": "Reset Data",
-      "modal_title": "Are you absolutely sure?",
-      "modal_desc": "This will wipe all records of your running journey. All stats, completion histories, and preferences will be permanently destroyed.",
+      "reset": "Reset Runner Data",
+      "desc": "Permanently delete your profile, stats, and race history. This cannot be undone.",
+      "button": "Wipe Data",
+      "modal_title": "Retire from Racing?",
+      "modal_desc": "This will permanently erase all your career stats, personal bests, and run history. Are you absolutely sure?",
       "cancel": "Cancel",
-      "confirm": "Yes, WIPE ALL"
+      "confirm": "Yes, Erase Everything"
     },
     "currency": {
       "title": "Display Currency",
-      "desc": "Choose how money amounts are displayed. This doesn't affect game balance.",
-      "trigger_label": "Preferred currency: {name}. Activate to change.",
+      "desc": "Choose how money is displayed. This doesn't affect game balance.",
+      "trigger_label": "Preferred currency: {name}.",
       "listbox_label": "Select preferred currency",
       "example": "Example: {amount}",
       "select": "Select currency",
@@ -168,10 +168,10 @@
   },
   "sponsors": {
     "title": "Sponsors",
-    "active_heading": "Active Sponsorship",
-    "progression_heading": "Sponsor Progression Map",
+    "active_heading": "Active Partnership",
+    "progression_heading": "Partnership Progression",
     "directory_heading": "Sponsor Directory",
-    "directory_desc": "Build your reputation and win races to unlock top-tier corporate partnerships.",
+    "directory_desc": "Build your running resume and win races to secure elite corporate partnerships.",
     "tiers": {
       "local": "Local",
       "regional": "Regional",
@@ -179,15 +179,15 @@
     },
     "status": {
       "active": "Active",
-      "offer": "Offer",
+      "offer": "Offer Pending",
       "locked": "Locked",
       "cooldown": "Cooldown: {days}d",
-      "next_upgrade": "Next Upgrade"
+      "next_upgrade": "Next Tier"
     },
     "benefits": {
       "training_bonus": "Training Bonus",
       "race_bonus": "Race Bonus",
-      "win_bonus": "Win Bonus",
+      "win_bonus": "Podium Bonus",
       "monthly_stipend": "Monthly Stipend",
       "per_session": "/session",
       "per_race": "/race",
@@ -202,54 +202,54 @@
     },
     "signed": "Signed: Day {day}",
     "earned": "{amount} earned",
-    "unlock_requirements": "Unlock Requirements",
+    "unlock_requirements": "Partnership Requirements",
     "req_wins": "{count} Wins",
     "req_rating": "{rating} Rating",
     "req_prev_sponsor": "Prev. Sponsor"
   },
   "race_entry": {
     "category_label": "Select Race Category",
-    "entry_summary": "Entry Summary",
+    "entry_summary": "Registration Summary",
     "entry_fee": "Entry Fee",
     "energy_required": "Energy Required",
     "your_balance": "Your Balance",
-    "prize_pool": "Prize Pool / Info",
-    "entrants": "Entrants",
-    "requirements_not_met": "Requirements Not Met",
+    "prize_pool": "Prize Pool",
+    "entrants": "Starting Field",
+    "requirements_not_met": "Not Race Ready",
     "prize_distribution": "Prize Distribution",
-    "full": "FULL",
+    "full": "CORRAL FULL",
     "need_more": "Need {amount} More",
     "button": {
       "cancel": "Cancel",
-      "completed": "Completed",
-      "start_race": "Start Race",
+      "completed": "Race Complete",
+      "start_race": "Head to Start Line",
       "already_registered": "Already Registered",
-      "race_full": "Race Full",
-      "requirements_not_met": "Requirements Not Met",
-      "enter_race": "Enter Race - {fee}"
+      "race_full": "Registration Closed",
+      "requirements_not_met": "Not Race Ready",
+      "enter_race": "Register - {fee}"
     }
   },
   "economy": {
-    "page_title": "Economy & Work",
-    "ledger_title": "Ledger & History",
+    "page_title": "Economy & Career",
+    "ledger_title": "Transaction History",
     "active_job": "Active Job",
-    "perform_work": "Perform Work",
-    "apply_job": "Apply Job",
+    "perform_work": "Clock In",
+    "apply_job": "Apply",
     "wait_days": "Wait {days}d",
     "pay_rate": "Pay Rate",
     "energy_cost": "Energy Cost",
     "current_energy": "Current Energy",
-    "already_worked_today": "Already worked today. Rest or wait until tomorrow to work again.",
-    "low_energy_warning": "Low energy! Rest to recover energy.",
+    "already_worked_today": "You've already worked today. Prioritize your recovery.",
+    "low_energy_warning": "Energy depleted! Focus on recovery.",
     "balance_label": "Current Balance",
     "net_change": "net change",
     "total_earned": "Total Earned",
     "total_spent": "Total Spent",
-    "race_entry_costs": "Race Entry Costs",
-    "prize_earnings": "Prize Earnings",
+    "race_entry_costs": "Race Fees",
+    "prize_earnings": "Podium Winnings",
     "earnings_breakdown": "Earnings Breakdown",
-    "race_prizes": "Race Prizes",
-    "work": "Work",
+    "race_prizes": "Race Winnings",
+    "work": "Career",
     "sponsors": "Sponsors",
     "other": "Other",
     "recent_transactions": "Recent Transactions",
@@ -261,11 +261,11 @@
     "no_results": "No currencies found"
   },
   "race_tiers": {
-    "local": "Local Race",
-    "regional": "Regional Event",
+    "local": "Local 5K",
+    "regional": "Regional Classic",
     "state": "State Championship",
-    "national": "National Championship",
-    "international": "International Elite Event",
+    "national": "National Major",
+    "international": "World Elite Marathon",
     "beginner": "Beginner",
     "intermediate": "Intermediate",
     "advanced": "Advanced",
@@ -273,180 +273,180 @@
     "legendary": "Legendary"
   },
   "work": {
-    "title": "Choose Work Type",
-    "subtitle": "Select a job to accept as your active job",
+    "title": "Career Path",
+    "subtitle": "Select a job to support your running career",
     "est_pay": "Est. Pay",
-    "current_energy": "Current energy",
-    "select_to_apply": "Select a work type to apply",
+    "current_energy": "Current Energy",
+    "select_to_apply": "Select a role to apply",
     "cooldown": "Cooldown: {days}d remaining",
     "effects": {
-      "health": "Health",
+      "health": "Endurance",
       "intellect": "Intellect",
       "charisma": "Charisma"
     },
     "cancel": "Cancel",
-    "apply_job": "Apply Job",
+    "apply_job": "Apply",
     "outcome": {
-      "accepted": "🎉 JOB APPLIED!",
-      "rejected": "❌ JOB REJECTED"
+      "accepted": "🎉 HIRED!",
+      "rejected": "❌ APPLICATION REJECTED"
     },
     "types": {
-      "part_time": { "name": "Part-time Job", "desc": "Low-stress work at a local shop. Always available, modest pay." },
-      "full_time": { "name": "Full-time Work", "desc": "Standard job with steady income. The baseline option." },
-      "freelance": { "name": "Freelance Gig", "desc": "Contract work with variable pay. Higher intellect earns more." },
-      "coaching": { "name": "Running Coach", "desc": "Train other runners. Pay scales with your running skill." },
-      "sponsor_event": { "name": "Sponsorship Event", "desc": "Paid appearance for your sponsor. Best pay/energy ratio." },
-      "corporate": { "name": "Corporate Work", "desc": "High-paying office job. Demanding but lucrative." },
-      "coach": { "name": "Fitness Coach", "desc": "Guide others on workouts. Small pay, high charisma boost." },
-      "brand_ambassador": { "name": "Brand Ambassador", "desc": "Promote brands, earn commissions. Requires social flair." },
-      "marathon_trainer": { "name": "Marathon Trainer", "desc": "Train runners for marathons. High stamina payoff." },
-      "content_creator": { "name": "Content Creator", "desc": "Create running content for social media. Build your brand while earning." },
-      "personal_trainer": { "name": "Personal Trainer", "desc": "Train clients one-on-one. Use your running expertise to help others." },
-      "sports_nutritionist": { "name": "Sports Nutritionist", "desc": "Advise athletes on nutrition and diet. Blend knowledge with running experience." },
-      "running_store_staff": { "name": "Running Store Staff", "desc": "Work at a specialty running store. Help customers find the right gear." },
-      "event_organizer": { "name": "Event Organizer", "desc": "Organize running events and races. Leadership and experience required." },
-      "warehouse_worker": { "name": "Warehouse Worker", "desc": "Physical labor loading and unloading packages. Low requirements, decent pay." },
-      "delivery_driver": { "name": "Delivery Driver", "desc": "Deliver packages around the city. Flexible hours, moderate pay." },
-      "social_media_manager": { "name": "Social Media Manager", "desc": "Manage social media for local businesses. Charisma and creativity focused." },
-      "physical_therapist": { "name": "Physical Therapist", "desc": "Help athletes recover from injuries. Running knowledge and intellect required." },
-      "race_official": { "name": "Race Official", "desc": "Officiate at running events. Requires race experience and professionalism." }
+      "part_time": { "name": "Part-time Job", "desc": "Low-stress work at a local shop. Leaves plenty of energy for training." },
+      "full_time": { "name": "Full-time Work", "desc": "Standard 9-to-5. Steady income but drains daily energy." },
+      "freelance": { "name": "Freelance Gig", "desc": "Contract work with variable pay based on your intellect." },
+      "coaching": { "name": "Running Coach", "desc": "Train other athletes. Pay scales with your running expertise." },
+      "sponsor_event": { "name": "Sponsor Appearance", "desc": "Represent your sponsor. Great pay with minimal physical toll." },
+      "corporate": { "name": "Corporate Career", "desc": "High-paying office job. Highly demanding on your daily energy." },
+      "coach": { "name": "Fitness Instructor", "desc": "Lead group fitness classes. Builds charisma." },
+      "brand_ambassador": { "name": "Brand Ambassador", "desc": "Promote running brands. Requires high charisma." },
+      "marathon_trainer": { "name": "Endurance Coach", "desc": "Pace others for their marathons. Builds your own endurance." },
+      "content_creator": { "name": "Running Vlogger", "desc": "Document your training online. Build a community while earning." },
+      "personal_trainer": { "name": "Personal Trainer", "desc": "1-on-1 coaching sessions. Apply your running knowledge." },
+      "sports_nutritionist": { "name": "Sports Nutritionist", "desc": "Plan race day fueling for athletes. Blends intellect and experience." },
+      "running_store_staff": { "name": "Run Specialty Staff", "desc": "Fit runners for shoes. Stay surrounded by the sport." },
+      "event_organizer": { "name": "Race Director", "desc": "Organize local 5Ks. Requires leadership and deep race experience." },
+      "warehouse_worker": { "name": "Warehouse Worker", "desc": "Physical labor. Keeps you on your feet all day." },
+      "delivery_driver": { "name": "Delivery Driver", "desc": "Flexible hours. Moderate pay and stress." },
+      "social_media_manager": { "name": "Social Media Manager", "desc": "Manage accounts for local running clubs." },
+      "physical_therapist": { "name": "Physical Therapist", "desc": "Help runners rehab injuries. High intellect required." },
+      "race_official": { "name": "Race Official", "desc": "Timekeeper and official. Demands professionalism and experience." }
     },
     "missing_req": {
       "age_min": "Age {min}+ required (currently {age})",
       "age_max": "Age {max} or younger required (currently {age})",
       "intellect": "Intellect {min}+ required (currently {val})",
       "charisma": "Charisma {min}+ required (currently {val})",
-      "running_skill": "Running skill {min}+ required (currently {val})",
-      "sponsor": "Active sponsor required",
-      "career_wins": "{count} career wins required (currently {val})"
+      "running_skill": "Running expertise {min}+ required (currently {val})",
+      "sponsor": "Active sponsor partnership required",
+      "career_wins": "{count} career podiums required (currently {val})"
     }
   },
   "preparation": {
-    "title": "Preparation",
-    "subtitle": "Choose your strategy and equipment",
-    "ready": "Ready to Race",
+    "title": "Race Strategy",
+    "subtitle": "Select your gear and pacing plan",
+    "ready": "Head to Start Line",
     "shoes": {
-      "title": "Shoes",
+      "title": "Footwear",
       "daily_trainer": {
         "name": "Daily Trainer",
         "desc": "Balanced and durable. Standard pace, normal fatigue."
       },
       "carbon_racer": {
-        "name": "Carbon Racer",
-        "desc": "Extremely fast but increases muscle fatigue."
+        "name": "Carbon Plated Racer",
+        "desc": "Maximum energy return. Extremely fast but increases late-stage muscle fatigue."
       },
       "lightweight": {
-        "name": "Lightweight Trainer",
-        "desc": "Lightweight for faster pacing, moderate comfort."
+        "name": "Tempo Shoe",
+        "desc": "Lightweight for faster turnover, sacrifices some cushioning."
       },
       "trail": {
-        "name": "Trail Shoes",
-        "desc": "Excellent grip on trails, slower on road."
+        "name": "Trail Lugs",
+        "desc": "Aggressive grip for technical terrain, sluggish on pavement."
       }
     },
     "nutrition": {
-      "title": "Nutrition",
+      "title": "Race Fuel",
       "water": {
         "name": "Water",
-        "desc": "Essential hydration. Provides hydration stability."
+        "desc": "Essential hydration for steady efforts."
       },
       "electrolyte": {
         "name": "Electrolytes",
-        "desc": "Reduces cramp risk and helps sustain hydration."
+        "desc": "Maintains fluid balance and prevents cramping."
       },
       "energy_gel": {
         "name": "Energy Gel",
-        "desc": "Provides a mid-race energy boost, but risks stomach stress."
+        "desc": "Quick carb release for a mid-race surge, slight risk of GI distress."
       },
       "caffeine": {
-        "name": "Caffeine",
-        "desc": "Boosts early focus and aggressive pace potential, but increases risk of a later energy crash."
+        "name": "Caffeinated Gel",
+        "desc": "Sharpens focus and drops perceived effort, but risks a hard crash."
       }
     },
     "gear": {
-      "title": "Gear (Optional)",
+      "title": "Apparel",
       "cap": {
-        "name": "Cap",
-        "desc": "Protects from heat and light rain."
+        "name": "Running Cap",
+        "desc": "Shields from sun glare and light rain."
       },
       "sunglasses": {
-        "name": "Sunglasses",
-        "desc": "Reduces glare under bright sun."
+        "name": "Performance Shades",
+        "desc": "Reduces eye strain in bright conditions."
       },
       "arm_sleeves": {
         "name": "Arm Sleeves",
-        "desc": "Provides warmth in cool conditions."
+        "desc": "Regulates temperature during brisk morning starts."
       },
       "hydration_vest": {
         "name": "Hydration Vest",
-        "desc": "Extra water capacity. Increases fatigue slightly."
+        "desc": "Carries extra fuel for long hauls. Adds slight weight penalty."
       }
     },
     "warmup": {
-      "title": "Warm-up",
+      "title": "Warm-up Routine",
       "none": {
-        "name": "None",
-        "desc": "Saves energy but increases early injury risk."
+        "name": "Cold Start",
+        "desc": "Saves energy but highly increases early injury risk."
       },
       "dynamic": {
-        "name": "Dynamic Warm-up",
-        "desc": "Prepares muscles, balanced approach."
+        "name": "Dynamic Drills",
+        "desc": "Activates muscles for a smooth start."
       },
       "full": {
-        "name": "Full Routine",
-        "desc": "Peak readiness, consumes a bit of initial energy."
+        "name": "Full Shakeout",
+        "desc": "Primes the aerobic system at the cost of slight early energy."
       }
     },
     "pacing": {
-      "title": "Pacing Plan",
+      "title": "Pacing Strategy",
       "negative_split": {
         "name": "Negative Split",
-        "desc": "Start slow, finish strong. Safe and efficient."
+        "desc": "Start conservative, finish fast. Highly efficient and safe."
       },
       "steady": {
-        "name": "Steady Pace",
-        "desc": "Maintain constant speed. Predictable outcome."
+        "name": "Even Pace",
+        "desc": "Lock in a constant rhythm. Predictable and steady."
       },
       "aggressive": {
-        "name": "Aggressive",
-        "desc": "Push hard from the start. High risk, high reward."
+        "name": "Aggressive Start",
+        "desc": "Bank time early. High risk of blowing up late in the race."
       },
       "conservative": {
         "name": "Conservative",
-        "desc": "Save energy, stay comfortable. Safe completion."
+        "desc": "Run well within your limits. Guarantees a strong finish."
       }
     },
     "mindset": {
       "title": "Mindset",
       "calm": {
-        "name": "Calm",
-        "desc": "Keeps heart rate low. Resists panic."
+        "name": "Relaxed",
+        "desc": "Keeps heart rate controlled. Ideal for long distances."
       },
       "confident": {
         "name": "Confident",
-        "desc": "Boosts performance when running well."
+        "desc": "Flow state. Enhances performance when hitting splits."
       },
       "fearless": {
-        "name": "Fearless",
-        "desc": "Ignores fatigue. May cause over-exertion."
+        "name": "Gritty",
+        "desc": "Pushes through pain. Risks over-exertion."
       }
     }
   },
   "challenge": {
     "weather": {
-      "sunny": "Sunny",
-      "cloudy": "Cloudy",
-      "rain": "Rainy",
-      "storm": "Stormy",
-      "hot": "Hot",
-      "cold": "Cold",
-      "fog": "Foggy"
+      "sunny": "Clear",
+      "cloudy": "Overcast",
+      "rain": "Rain",
+      "storm": "Heavy Storm",
+      "hot": "Extreme Heat",
+      "cold": "Freezing",
+      "fog": "Heavy Fog"
     },
     "surface": {
-      "road": "Road",
-      "track": "Track",
-      "trail": "Trail",
-      "any": "Any"
+      "road": "Asphalt",
+      "track": "Tartan Track",
+      "trail": "Technical Trail",
+      "any": "Mixed Terrain"
     },
     "distance_types": {
       "any": "Any",
@@ -457,97 +457,97 @@
     "elevation": {
       "flat": "Flat",
       "rolling": "Rolling Hills",
-      "hilly": "Hilly"
+      "hilly": "Steep Climbs"
     },
     "briefing": {
-      "title": "Daily Briefing",
-      "subtitle": "Analyze the conditions and plan your strategy",
-      "distance": "Distance",
-      "weather_temp": "Weather & Temp",
-      "surface_type": "Surface Type",
-      "elevation_profile": "Elevation Profile",
-      "target_time": "Target Time",
-      "wind_speed": "Wind Speed",
-      "start_prep": "Start Preparation"
+      "title": "Race Briefing",
+      "subtitle": "Analyze the course and finalize your strategy",
+      "distance": "Race Distance",
+      "weather_temp": "Race Weather",
+      "surface_type": "Terrain",
+      "elevation_profile": "Elevation Gain",
+      "target_time": "Target Finish Time",
+      "wind_speed": "Wind Conditions",
+      "start_prep": "Plan Strategy"
     },
     "race": {
-      "running": "Running the simulation...",
-      "finish": "Analyzing performance...",
-      "live_simulation": "Live Simulation",
-      "simulating": "Simulating",
+      "running": "Pounding the pavement...",
+      "finish": "Crossing the finish line...",
+      "live_simulation": "Live Tracker",
+      "simulating": "Tracking",
       "energy": "Energy",
       "hydration": "Hydration",
       "focus": "Focus",
       "of_distance": "of {{distance}} km",
       "feed": "// Race Feed",
-      "started_on": "> Race started on {{surface}} terrain...",
-      "finished_rendering": "> Finish line crossed! Rendering report...",
-      "engine_version": "RunQuest Simulation Engine v1.0.0",
-      "decision_title": "Critical Moment",
-      "remaining_seconds": "seconds remaining",
-      "strategic_choices": "What will you do?",
-      "timeout": "Time's Up!",
-      "timeout_instinct": "Timeout! Your runner acts on instinct..."
+      "started_on": "> Gun goes off! Racing on {{surface}} terrain...",
+      "finished_rendering": "> Finish line crossed! Analyzing splits...",
+      "engine_version": "RunQuest Engine v1.0.0",
+      "decision_title": "Race Event",
+      "remaining_seconds": "seconds to react",
+      "strategic_choices": "How do you respond?",
+      "timeout": "Pace Alert!",
+      "timeout_instinct": "Time's up! Your runner falls back on instinct..."
     },
     "result": {
-      "title": "Race Result",
-      "medal": "Medal",
+      "title": "Race Summary",
+      "medal": "Placement",
       "grade": "Grade",
       "time": "Finish Time",
-      "story_headline": "Highlights & Story",
-      "lessons_learned": "Coaching Lessons",
+      "story_headline": "Race Highlights",
+      "lessons_learned": "Coach's Notes",
       "share": "Share Result",
-      "back_home": "Back to Home",
-      "no_results_title": "No active results found",
-      "no_results_desc": "Please complete a challenge first.",
-      "go_home": "Go Home",
+      "back_home": "Return Home",
+      "no_results_title": "No recent splits found",
+      "no_results_desc": "You need to cross a finish line first.",
+      "go_home": "Return Home",
       "score_out_of": "out of 1000",
-      "share_card": "Share Card",
-      "download_png": "Download Result Card (PNG)",
-      "generating_image": "Generating Image...",
-      "copied": "Copied!",
-      "outcome_gold": "Gold Medal",
-      "outcome_silver": "Silver Medal",
-      "outcome_bronze": "Bronze Medal",
-      "outcome_finish": "Finisher",
-      "outcome_dnf": "Did Not Finish",
-      "outcome_dns": "Did Not Start"
+      "share_card": "Finisher Card",
+      "download_png": "Download Card (PNG)",
+      "generating_image": "Rendering Card...",
+      "copied": "Link Copied!",
+      "outcome_gold": "1st Place",
+      "outcome_silver": "2nd Place",
+      "outcome_bronze": "3rd Place",
+      "outcome_finish": "Race Complete",
+      "outcome_dnf": "Did Not Finish (DNF)",
+      "outcome_dns": "Did Not Start (DNS)"
     }
   },
   "share": {
     "card_title": {
-      "loadout": "RunQuest Race Loadout",
-      "result": "RunQuest Race Result"
+      "loadout": "RunQuest Race Strategy",
+      "result": "RunQuest Race Summary"
     },
     "card_subtitle": {
-      "loadout": "My Race Loadout",
-      "result": "Race Performance Report"
+      "loadout": "My Race Day Strategy",
+      "result": "Official Splits"
     },
     "card_footer": {
-      "loadout": "Think I'll survive? 😅",
+      "loadout": "Ready to toe the line. 👟",
       "dns": "Did Not Start ❌",
       "dnf": "Did Not Finish ❌",
-      "finished": "Proudly finished! 🏁"
+      "finished": "Crossed the finish line! 🏁"
     },
     "race_choice": {
-      "title": "Today I'm Running...",
-      "cta": "What race are YOU picking today?",
-      "button": "Share My Pick"
+      "title": "Today's Race Block...",
+      "cta": "What distance are you tackling today?",
+      "button": "Share Race Pick"
     },
     "loadout": {
-      "title": "My Race Loadout",
-      "cta": "Think I'll survive? 😅",
-      "button": "Share Loadout"
+      "title": "My Race Strategy",
+      "cta": "Ready to toe the line. 👟",
+      "button": "Share Strategy"
     },
     "coach": {
-      "title": "RunQuest Coach Says:"
+      "title": "Coach's Notes:"
     },
     "event": {
-      "title": "Race Moment"
+      "title": "Key Move"
     },
     "stats": {
-      "title": "My RunQuest Stats",
-      "cta": "Can you beat my streak?"
+      "title": "Career Stats",
+      "cta": "Can you beat my mileage?"
     },
     "button": {
       "copy_text": "Copy Text",
@@ -556,51 +556,51 @@
     },
     "copied": "Copied!",
     "downloading": "Saving...",
-    "native_title": "RunQuest Share",
+    "native_title": "Share RunQuest",
     "modal": {
-      "title": "Share Your Journey",
-      "subtitle": "Let others know about your choices and results!"
+      "title": "Share Your Run",
+      "subtitle": "Let your crew know how you raced today!"
     }
   },
   "analysis": {
-    "title": "Race Analysis",
-    "subtitle": "Study the course and prepare your strategy",
-    "key_recommendations": "Key Recommendations",
-    "tactical_warnings": "Tactical Warnings",
-    "course_segments": "Course Segment Breakdown",
-    "weather_forecast": "Dynamic Weather Forecast",
-    "hazards_detected": "Detected Hazard Warnings",
+    "title": "Course Analysis",
+    "subtitle": "Study the route and prepare your tactics",
+    "key_recommendations": "Coach's Strategy",
+    "tactical_warnings": "Course Hazards",
+    "course_segments": "Pacing Segments",
+    "weather_forecast": "Race Day Forecast",
+    "hazards_detected": "Critical Sectors",
     "distance": "Distance",
     "difficulty": "Difficulty",
-    "segment_climb": "Steep Climb Segment",
-    "segment_descent": "Technical Descent Segment",
-    "segment_sprint": "Final Sprint Segment",
-    "segment_flat": "Flat Section Segment"
+    "segment_climb": "Steep Climb",
+    "segment_descent": "Technical Descent",
+    "segment_sprint": "Final Kick",
+    "segment_flat": "Flat Straightaway"
   },
   "training": {
-    "coach_feedback": "Coach's Feedback",
-    "no_feedback": "No feedback yet. Keep training!",
-    "choose_activity": "Choose Activity",
-    "quick_templates": "Quick Plan Templates",
-    "recommended": "Recommended Plan",
+    "coach_feedback": "Coach's Notes",
+    "no_feedback": "Keep logging those miles!",
+    "choose_activity": "Select Workout",
+    "quick_templates": "Training Blocks",
+    "recommended": "Recommended Block",
     "selected": "Selected",
-    "create_custom_plan": "Create Custom Plan",
-    "weekly_planner": "Weekly Training Planner",
-    "plan_your_week": "Plan your weekly workouts to build fitness and manage fatigue.",
-    "this_weeks_plan": "This Week's Plan",
-    "adherence": "Weekly Adherence",
-    "weekly_stats": "Weekly Plan Stats",
-    "volume": "Estimated Volume",
-    "energy_cost": "Total Energy Cost",
-    "hard_days": "Hard Days Count",
-    "rest_days": "Rest Days Count",
-    "plan_adherence": "Plan Adherence",
+    "create_custom_plan": "Custom Schedule",
+    "weekly_planner": "Weekly Mileage Planner",
+    "plan_your_week": "Structure your training block to build endurance and shed fatigue.",
+    "this_weeks_plan": "This Week's Block",
+    "adherence": "Training Adherence",
+    "weekly_stats": "Block Stats",
+    "volume": "Est. Weekly Mileage",
+    "energy_cost": "Total Effort",
+    "hard_days": "Quality Sessions",
+    "rest_days": "Rest Days",
+    "plan_adherence": "Adherence",
     "complete": "Completed",
     "missed": "Missed",
-    "regenerate_plan": "Regenerate New Weekly Plan",
-    "start_workout": "Start Workout",
-    "need_energy": "Need Energy",
-    "no_workout_today": "No Workout Planned Today",
+    "regenerate_plan": "Recalculate Schedule",
+    "start_workout": "Lace Up",
+    "need_energy": "Energy Depleted",
+    "no_workout_today": "Rest Day Scheduled",
     "days": {
       "mon": "Mon",
       "tue": "Tue",
@@ -614,26 +614,26 @@
       "recovery_run": "Recovery Run",
       "easy_run": "Easy Run",
       "tempo_run": "Tempo Run",
-      "interval_training": "Interval Training",
+      "interval_training": "Track Intervals",
       "long_run": "Long Run",
       "hill_repeats": "Hill Repeats",
       "strength_training": "Strength Training",
-      "mobility_session": "Mobility Session",
-      "full_rest": "Full Rest"
+      "mobility_session": "Mobility Flow",
+      "full_rest": "Rest Day"
     },
     "feedback": {
-      "overtraining_risk": "{count} hard days scheduled - high injury risk. Consider replacing one with an easy run.",
-      "no_rest_days": "No rest days scheduled - overtraining risk. Add at least one full rest day.",
-      "back_to_back_hard_days": "Hard days are back-to-back. Allow 48+ hours between intense sessions.",
-      "high_fatigue": "Your fatigue is high. Consider a recovery week instead.",
-      "good_spacing": "Great plan! Your hard days are well-spaced for optimal recovery.",
-      "good_balance": "Good balance of training and recovery.",
-      "add_second_session": "Tip: Consider adding a second quality session for faster improvement.",
-      "more_volume": "You could handle more volume - consider adding another easy run.",
-      "great_race_recovery": "Great race! This week is for recovery - easy efforts only.",
-      "taper_week": "Race coming up! This is your taper week. Focus on rest and light runs.",
-      "solid_plan": "This is a solid, balanced training plan. Stay consistent!",
-      "decent_plan": "Decent plan, but consider the suggestions above for optimization."
+      "overtraining_risk": "{count} hard sessions booked. You're deep in the red zone. Swap one for a Recovery Run.",
+      "no_rest_days": "Zero rest days scheduled. You build fitness while recovering—add a Rest Day.",
+      "back_to_back_hard_days": "Back-to-back quality sessions detected. Spread them out to ensure adequate recovery.",
+      "high_fatigue": "Your fatigue is redlining. We need to treat this as a down-week.",
+      "good_spacing": "Textbook schedule. Your hard efforts are spaced perfectly for proper adaptation.",
+      "good_balance": "Great mix of aerobic volume and recovery.",
+      "add_second_session": "You're handling the load well. Consider adding another quality session.",
+      "more_volume": "Your aerobic base is strong. We can safely bump up the easy mileage.",
+      "great_race_recovery": "Solid race effort! We're focusing strictly on active recovery this week.",
+      "taper_week": "Race week! We are officially tapering. Keep the legs fresh and efforts light.",
+      "solid_plan": "Strong, balanced training block. Trust the process.",
+      "decent_plan": "It's a workable plan, but tweaking the volume might yield better adaptations."
     }
   }
 }

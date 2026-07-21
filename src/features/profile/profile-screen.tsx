@@ -22,6 +22,7 @@ import {
 } from "@/runner/runner-selectors";
 import { useRunnerStore } from "@/runner/runner-store";
 import { usePlayerStore } from "@/store/player-store";
+import { PBTracker } from "@/components/runner/pb-tracker";
 
 interface AttributeUpgradeCardProps {
   name: string;
@@ -610,6 +611,9 @@ export function ProfileScreen() {
             })}
           </div>
         </div>
+
+        {/* Personal Best Tracker */}
+        <PBTracker showPredictions={true} />
 
         {/* Career Statistics & Lifetime Metrics */}
         <div className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-6 shadow-sm flex flex-col gap-6">

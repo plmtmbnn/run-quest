@@ -488,7 +488,7 @@ export function RaceScreen() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-gray-950 text-slate-900 dark:text-white flex flex-col justify-between overflow-hidden relative">
+    <div className="min-h-screen bg-[#fffdf8] dark:bg-[#090d16] text-slate-900 dark:text-white flex flex-col justify-between overflow-hidden relative">
       {/* Header */}
       <header className="px-4 md:px-6 py-4 md:py-6 border-b border-slate-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/50 backdrop-blur-md">
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0">

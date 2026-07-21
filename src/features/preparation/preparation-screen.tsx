@@ -167,10 +167,10 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.25, ease: "easeInOut" }}
-      className="min-h-screen bg-background pb-24 text-gray-900 dark:text-white"
+      className="min-h-screen bg-[#fffdf8] dark:bg-[#090d16] pb-24 text-gray-900 dark:text-white"
     >
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-[#E5E7EB] bg-surface/90 px-6 py-4 backdrop-blur-md">
+      <header className="sticky top-0 z-10 border-b border-gray-200 dark:border-slate-800 bg-[#ffffff]/90 dark:bg-[#111827]/90 px-6 py-4 backdrop-blur-md">
         <div className="mx-auto flex max-w-5xl items-center gap-4">
           <button
             id="back-to-home"
@@ -179,7 +179,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
               playSound("click");
               router.back();
             }}
-            className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#E5E7EB] dark:border-slate-800 bg-white dark:bg-slate-900 transition-all duration-200 hover:border-blue-500 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 transition-all duration-200 hover:border-blue-500 dark:hover:border-blue-400 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             aria-label="Go back"
           >
             <ArrowLeft className="h-4 w-4 text-gray-600 dark:text-gray-300" />
@@ -200,7 +200,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
         <div className="flex flex-col gap-10">
           {/* Category: Shoes */}
           <section className="flex flex-col gap-4">
-            <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-2">
+            <div className="flex items-center gap-2 border-b border-gray-200 dark:border-slate-800 pb-2">
               <span className="text-xl">👟</span>
               <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
                 {t("preparation.shoes.title" as TranslationKey)}
@@ -293,7 +293,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
 
           {/* Category: Nutrition */}
           <section className="flex flex-col gap-4">
-            <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-2">
+            <div className="flex items-center gap-2 border-b border-gray-200 dark:border-slate-800 pb-2">
               <span className="text-xl">🥤</span>
               <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
                 {t("preparation.nutrition.title" as TranslationKey)}
@@ -383,7 +383,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
 
           {/* Category: Gear */}
           <section className="flex flex-col gap-4">
-            <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-2">
+            <div className="flex items-center gap-2 border-b border-gray-200 dark:border-slate-800 pb-2">
               <span className="text-xl">🎒</span>
               <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
                 {t("preparation.gear.title" as TranslationKey)}
@@ -464,7 +464,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
 
           {/* Category: Warmup */}
           <section className="flex flex-col gap-4">
-            <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-2">
+            <div className="flex items-center gap-2 border-b border-gray-200 dark:border-slate-800 pb-2">
               <span className="text-xl">🧘</span>
               <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
                 {t("preparation.warmup.title" as TranslationKey)}
@@ -481,7 +481,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                   {
                     text: "🛌 Cold Start",
                     color:
-                      "bg-gray-100 dark:bg-slate-805 text-gray-700 dark:text-gray-200",
+                      "bg-gray-800 dark:bg-slate-805 text-gray-200 dark:text-gray-200",
                   },
                 ]}
               />
@@ -523,7 +523,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
 
           {/* Category: Pacing */}
           <section className="flex flex-col gap-4">
-            <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-2">
+            <div className="flex items-center gap-2 border-b border-gray-200 dark:border-slate-800 pb-2">
               <span className="text-xl">📉</span>
               <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
                 {t("preparation.pacing.title" as TranslationKey)}
@@ -606,7 +606,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
 
           {/* Category: Mindset */}
           <section className="flex flex-col gap-4">
-            <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-2">
+            <div className="flex items-center gap-2 border-b border-gray-200 dark:border-slate-800 pb-2">
               <span className="text-xl">🧠</span>
               <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
                 {t("preparation.mindset.title" as TranslationKey)}
@@ -669,7 +669,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
         {/* Right Side: Sticky Race briefing and CTA */}
         <div className="flex flex-col gap-6 lg:sticky lg:top-24 lg:h-[fit-content]">
           {/* Race Conditions Summary */}
-          <div className="rounded-3xl border-2 border-[#E5E7EB] bg-white dark:bg-slate-900 p-6 shadow-sm">
+          <div className="rounded-3xl border-2 border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm">
             <h3 className="font-heading font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <Info className="h-4 w-4 text-blue-500" />
               Conditions
@@ -742,7 +742,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
           </div>
 
           {/* Sticky ready CTA */}
-          <div className="rounded-[2rem] border-2 border-[#E5E7EB] dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-[0_8px_24px_rgba(0,0,0,0.05)] flex flex-col gap-3">
+          <div className="rounded-[2rem] border-2 border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-[0_8px_24px_rgba(0,0,0,0.05)] flex flex-col gap-3">
             <button
               id="ready-race-cta"
               type="button"

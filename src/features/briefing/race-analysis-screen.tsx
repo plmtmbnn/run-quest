@@ -89,10 +89,10 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.25, ease: "easeInOut" }}
-      className="min-h-screen bg-background pb-24 text-gray-900 dark:text-white"
+      className="min-h-screen bg-[#fffdf8] dark:bg-[#090d16] pb-24 text-gray-900 dark:text-white"
     >
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-[#E5E7EB] bg-white/95 px-6 py-4 backdrop-blur-md">
+      <header className="sticky top-0 z-10 border-b border-gray-200 dark:border-slate-800 bg-[#ffffff]/90 dark:bg-[#111827]/90 px-6 py-4 backdrop-blur-md">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <button
@@ -101,16 +101,16 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
                 playSound("click");
                 router.back();
               }}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white transition hover:bg-gray-50 active:scale-95"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 transition hover:bg-gray-50 dark:hover:bg-slate-800 active:scale-95"
               aria-label="Back"
             >
-              <ArrowLeft className="h-4.5 w-4.5 text-gray-600" />
+              <ArrowLeft className="h-4.5 w-4.5 text-gray-600 dark:text-gray-300" />
             </button>
             <div>
               <h1 className="font-heading text-xl font-bold text-gray-900 dark:text-white">
                 {t("analysis.title" as TranslationKey)}
               </h1>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 {t("analysis.subtitle" as TranslationKey)}
               </p>
             </div>
@@ -123,10 +123,10 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
                 playSound("click");
                 setIsShareOpen(true);
               }}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white transition hover:bg-gray-50 active:scale-95"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 transition hover:bg-gray-50 dark:hover:bg-slate-800 active:scale-95"
               aria-label="Share"
             >
-              <Share2 className="h-4 w-4 text-gray-600" />
+              <Share2 className="h-4 w-4 text-gray-600 dark:text-gray-300" />
             </button>
           </div>
         </div>
@@ -134,10 +134,10 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
 
       <main className="mx-auto max-w-3xl px-6 py-8 flex flex-col gap-8">
         {/* Race Overview Card */}
-        <section className="rounded-3xl border-2 border-[#E5E7EB] bg-white p-6 shadow-sm">
+        <section className="rounded-3xl border-2 border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm">
           <div className="flex justify-between items-start mb-4">
             <div>
-              <span className="text-xs font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+              <span className="text-xs font-black uppercase tracking-widest text-blue-600 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full">
                 {t(
                   `challenge.surface.${currentChallenge.race.surface}` as TranslationKey,
                 ).toUpperCase()}
@@ -146,16 +146,16 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
                 {currentChallenge.race.title[lang]}
               </h2>
             </div>
-            <div className="bg-orange-50 rounded-2xl px-4 py-2 flex flex-col items-center">
-              <span className="text-[10px] text-orange-600 uppercase font-black">
+            <div className="bg-orange-50 dark:bg-[#431407]/40 rounded-2xl px-4 py-2 flex flex-col items-center">
+              <span className="text-[10px] text-orange-600 dark:text-[#fdba74] uppercase font-black">
                 {t("challenge.briefing.target_time" as TranslationKey)}
               </span>
-              <span className="font-bold text-orange-700 text-sm mt-0.5">
+              <span className="font-bold text-orange-700 dark:text-[#fed7aa] text-sm mt-0.5">
                 Under {formatTargetTime(currentChallenge.objective.targetTime)}
               </span>
             </div>
           </div>
-          <p className="text-sm leading-relaxed text-gray-600">
+          <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
             {currentChallenge.race.description[lang]}
           </p>
         </section>

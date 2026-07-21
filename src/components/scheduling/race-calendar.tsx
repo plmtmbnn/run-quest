@@ -309,7 +309,7 @@ function RaceCard({
   const isRaceDay = race.dayIndex === currentDayIndex;
   const isSoon =
     race.dayIndex > currentDayIndex && race.dayIndex - currentDayIndex <= 3;
-  const isClickable = isRaceDay;
+  const isClickable = isRaceDay && !isCompleted;
   const isDisabled = isCompleted || isPast;
   const daysUntil = race.dayIndex - currentDayIndex;
 

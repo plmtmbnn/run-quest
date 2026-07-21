@@ -268,7 +268,7 @@ export function ResultScreen() {
   // Safely fallback if result is missing (navigated directly)
   if (!lastResult) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6 text-center text-gray-900 dark:text-white">
+      <div className="min-h-screen bg-[#fffdf8] dark:bg-[#090d16] flex flex-col items-center justify-center p-6 text-center text-gray-900 dark:text-white">
         <h2 className="text-xl font-bold mb-2">
           {t("challenge.result.no_results_title" as TranslationKey)}
         </h2>
@@ -452,10 +452,10 @@ export function ResultScreen() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.25, ease: "easeInOut" }}
-      className="min-h-screen bg-background pb-24 text-gray-900 dark:text-white"
+      className="min-h-screen bg-[#fffdf8] dark:bg-[#090d16] pb-24 text-gray-900 dark:text-white"
     >
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-[#E5E7EB] bg-surface/90 px-6 py-4 backdrop-blur-md">
+      <header className="sticky top-0 z-10 border-b border-gray-200 dark:border-slate-800 bg-[#ffffff]/90 dark:bg-[#111827]/90 px-6 py-4 backdrop-blur-md">
         <div className="mx-auto flex max-w-3xl items-center justify-between">
           <h1 className="font-heading text-xl font-bold text-gray-900 dark:text-white">
             {t("challenge.result.title" as TranslationKey)}
@@ -463,7 +463,7 @@ export function ResultScreen() {
           <button
             type="button"
             onClick={handleBackHome}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white dark:bg-slate-900 transition hover:bg-gray-50 active:scale-95"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 transition hover:bg-gray-50 dark:hover:bg-slate-800 active:scale-95"
             aria-label="Go Home"
           >
             <Home className="h-4.5 w-4.5 text-gray-600 dark:text-gray-300" />
@@ -473,7 +473,7 @@ export function ResultScreen() {
 
       <main className="mx-auto max-w-3xl px-6 py-8 flex flex-col gap-8">
         {/* Core Stats Overview */}
-        <div className="rounded-[2rem] border border-[#E5E7EB] bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col md:flex-row items-center gap-8 justify-around">
+        <div className="rounded-[2rem] border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col md:flex-row items-center gap-8 justify-around">
           {/* Medal / DNF Icon */}
           <div
             className={`flex flex-col items-center p-6 rounded-2xl border ${getOutcomeColor()}`}
@@ -617,8 +617,8 @@ export function ResultScreen() {
 
         {/* Rival Leaderboard */}
         {getLeaderboard().length > 0 && (
-          <section className="rounded-[2rem] border border-[#E5E7EB] bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-4">
-            <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-3">
+          <section className="rounded-[2rem] border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-4">
+            <div className="flex items-center gap-2 border-b border-gray-200 dark:border-slate-800 pb-3">
               <span className="text-lg">🏆</span>
               <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
                 Rival Leaderboard
@@ -672,8 +672,8 @@ export function ResultScreen() {
         )}
 
         {/* Narrative & Highlights Section */}
-        <section className="rounded-[2rem] border border-[#E5E7EB] bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-6">
-          <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-3">
+        <section className="rounded-[2rem] border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-6">
+          <div className="flex items-center gap-2 border-b border-gray-200 dark:border-slate-800 pb-3">
             <Sparkles className="h-5 w-5 text-amber-500 dark:text-amber-300" />
             <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
               {story.headline[lang]}
@@ -723,8 +723,8 @@ export function ResultScreen() {
         </section>
 
         {/* Coaching Lessons learned */}
-        <section className="rounded-[2rem] border border-[#E5E7EB] bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-4">
-          <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-3">
+        <section className="rounded-[2rem] border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-4">
+          <div className="flex items-center gap-2 border-b border-gray-200 dark:border-slate-800 pb-3">
             <BookOpen className="h-5 w-5 text-blue-500" />
             <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
               {t("challenge.result.lessons_learned" as TranslationKey)}
@@ -755,8 +755,8 @@ export function ResultScreen() {
 
         {/* Interactive Splits Analysis */}
         {splits.length > 0 && (
-          <section className="rounded-[2rem] border border-[#E5E7EB] bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-4">
-            <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-3">
+          <section className="rounded-[2rem] border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-4">
+            <div className="flex items-center gap-2 border-b border-gray-200 dark:border-slate-800 pb-3">
               <Clock className="h-5 w-5 text-orange-500" />
               <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
                 Interactive Splits Analysis
@@ -832,8 +832,8 @@ export function ResultScreen() {
         )}
 
         {/* Strava-style Mock Comments Feed */}
-        <section className="rounded-[2rem] border border-[#E5E7EB] bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-4">
-          <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-3">
+        <section className="rounded-[2rem] border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-4">
+          <div className="flex items-center gap-2 border-b border-gray-200 dark:border-slate-800 pb-3">
             <span className="text-lg">💬</span>
             <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
               Social Comments Feed

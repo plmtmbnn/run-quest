@@ -96,18 +96,25 @@ export function ShareModal({
         </div>
 
         {/* Card Preview Container */}
-        <div className="relative group bg-slate-100/80 dark:bg-slate-950/80 rounded-2xl p-6 overflow-hidden border border-[#E5E7EB] dark:border-slate-800/80 shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_2px_4px_rgba(0,0,0,0.8)] flex justify-center">
-          {/* Subtle Grid overlay */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:16px_16px] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_70%)] opacity-60 dark:opacity-30 pointer-events-none" />
+        <div className="flex flex-col gap-2 w-full">
+          <div className="flex items-center gap-2 justify-center text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-1">
+            <span className="h-px bg-slate-200 dark:bg-slate-800 flex-1"></span>
+            <span>Card Preview</span>
+            <span className="h-px bg-slate-200 dark:bg-slate-800 flex-1"></span>
+          </div>
+          <div className="relative group bg-slate-50/80 dark:bg-slate-950/80 rounded-3xl p-6 overflow-hidden border border-slate-200/50 dark:border-slate-800/80 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] dark:shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)] flex justify-center w-full">
+            {/* Subtle Grid overlay */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:16px_16px] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_70%)] opacity-60 dark:opacity-30 pointer-events-none" />
 
-          {/* Interactive Card scaler */}
-          <div className="origin-center scale-[0.45] sm:scale-[0.55] md:scale-[0.6] my-[-115px] sm:my-[-90px] md:my-[-75px] transition-transform duration-300 hover:scale-[0.48] sm:hover:scale-[0.58] md:hover:scale-[0.63]">
-            {/* The actual high-res card that will be screenshotted */}
-            <div
-              ref={cardRef}
-              className="shadow-[0_0_50px_rgba(0,0,0,0.6)] rounded-2xl overflow-hidden border border-slate-800"
-            >
-              {children}
+            {/* Interactive Card scaler */}
+            <div className="origin-center scale-[0.45] sm:scale-[0.55] md:scale-[0.6] my-[-115px] sm:my-[-90px] md:my-[-75px] transition-transform duration-300 hover:scale-[0.48] sm:hover:scale-[0.58] md:hover:scale-[0.63] z-10">
+              {/* The actual high-res card that will be screenshotted */}
+              <div
+                ref={cardRef}
+                className="shadow-[0_20px_50px_rgba(0,0,0,0.25)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.6)] rounded-2xl overflow-hidden border-2 border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900 transition-shadow duration-300 group-hover:shadow-[0_30px_60px_rgba(0,0,0,0.3)] dark:group-hover:shadow-[0_30px_60px_rgba(0,0,0,0.8)]"
+              >
+                {children}
+              </div>
             </div>
           </div>
         </div>

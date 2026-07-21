@@ -10,6 +10,18 @@ interface AppProviderProps {
 }
 
 /**
+ * Eagerly initialize stores before first React render on the client.
+ * This prevents GameClock and other components from showing skeleton states
+ * when localStorage data is already available.
+ */
+if (typeof window !== "undefined") {
+  // Synchronously hydrate all stores from localStorage on module load
+  useSettingsStore.getState().initializeSettings();
+  usePlayerStore.getState().initializePlayer();
+  useTimelineStore.getState().initialize();
+}
+
+/**
  * AppProvider bootstraps the application on mount.
  * It initializes player identity and settings from LocalStorage.
  * Must wrap the entire application inside the root layout.
@@ -22,6 +34,7 @@ export function AppProvider({ children }: AppProviderProps) {
   const theme = useSettingsStore((state) => state.settings.theme);
 
   useEffect(() => {
+    // Re-run initialization to catch any edge cases or updates
     initializeSettings();
     initializePlayer();
     useTimelineStore.getState().initialize();
@@ -53,3 +66,4 @@ export function AppProvider({ children }: AppProviderProps) {
 
   return <>{children}</>;
 }
+

@@ -64,9 +64,10 @@ function computeStop(
  * Fast-forward the calendar. Returns the resulting state plus any events that
  * halted the run (empty if it stopped at a boundary or death). The world only
  * moves inside this loop — never on the real clock.
- * 
- * Sprint 29 Issue 1: Fixed "week" mode to complete full 7 days even with events
- * Fix: Only halt on events AFTER advancing at least 1 day, so rest actions work
+ *
+ * Sprint 29 Fix: "week" mode runs all 7 days without stopping on scheduled
+ * race events. Events are collected and returned but do not halt the loop.
+ * Only "event" mode stops at the next event day.
  */
 export function fastForward(
   state: GameState,
@@ -75,23 +76,37 @@ export function fastForward(
 ): { state: GameState; events: CalendarEvent[] } {
   const stop = computeStop(state, mode, eventsForDay);
   let current = state;
-  let hasAdvanced = false; // Track if we've advanced at least 1 day
+  const collectedEvents: CalendarEvent[] = [];
 
   while (true) {
-    if (isDead(current)) return { state: current, events: [] };
-    
-    // Halt on any scheduled event ONLY after we've advanced at least 1 day
-    // This ensures rest (1 week) completes full 7 days even with registered races
-    const dayEvents = eventsForDay(current.dayIndex);
-    if (hasAdvanced && dayEvents.length > 0) {
-      return { state: current, events: dayEvents };
-    }
-    
+    if (isDead(current)) return { state: current, events: collectedEvents };
+
     if (current.dayIndex >= stop) {
-      return { state: current, events: [] };
+      return { state: current, events: collectedEvents };
     }
-    
+
+    // For "event" mode: halt as soon as we hit a day with events
+    if (mode === "event") {
+      const dayEvents = eventsForDay(current.dayIndex);
+      if (current.dayIndex > state.dayIndex && dayEvents.length > 0) {
+        return { state: current, events: dayEvents };
+      }
+    }
+
+    // For "week" and "month" modes: collect events but don't halt
+    if (mode === "week" || mode === "month" || mode === "day") {
+      const dayEvents = eventsForDay(current.dayIndex);
+      if (current.dayIndex > state.dayIndex && dayEvents.length > 0) {
+        // Collect but continue running
+        for (const e of dayEvents) {
+          if (!collectedEvents.find((ce) => ce.id === e.id)) {
+            collectedEvents.push(e);
+          }
+        }
+      }
+    }
+
     current = executeRoutineDay(current);
-    hasAdvanced = true;
   }
 }
+

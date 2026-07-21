@@ -351,22 +351,22 @@ function SponsorCard({
           </p>
 
           {/* Benefits Grid */}
-          <div className="grid grid-cols-2 gap-x-6 gap-y-2 mt-4 pt-3 border-t border-slate-100/50 dark:border-slate-800/50">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 mt-4 pt-3 border-t border-slate-100/50 dark:border-slate-800/50">
             <BenefitItem
               label={t("sponsors.benefits.training_bonus" as TranslationKey)}
-              value={`+${formatCurrency(sponsor.benefits.trainingBonus, preferredCurrency)}${t("sponsors.benefits.per_session" as TranslationKey)}`}
+              value={`+${formatCurrency(sponsor.benefits.trainingBonus, preferredCurrency, { compact: true })} ${t("sponsors.benefits.per_session" as TranslationKey)}`}
             />
             <BenefitItem
               label={t("sponsors.benefits.race_bonus" as TranslationKey)}
-              value={`+${formatCurrency(sponsor.benefits.raceCompletionBonus, preferredCurrency)}${t("sponsors.benefits.per_race" as TranslationKey)}`}
+              value={`+${formatCurrency(sponsor.benefits.raceCompletionBonus, preferredCurrency, { compact: true })} ${t("sponsors.benefits.per_race" as TranslationKey)}`}
             />
             <BenefitItem
               label={t("sponsors.benefits.win_bonus" as TranslationKey)}
-              value={`+${formatCurrency(sponsor.benefits.winBonus, preferredCurrency)}${t("sponsors.benefits.per_win" as TranslationKey)}`}
+              value={`+${formatCurrency(sponsor.benefits.winBonus, preferredCurrency, { compact: true })} ${t("sponsors.benefits.per_win" as TranslationKey)}`}
             />
             <BenefitItem
               label={t("sponsors.benefits.monthly_stipend" as TranslationKey)}
-              value={`${formatCurrency(sponsor.benefits.monthlyStipend, preferredCurrency)}${t("sponsors.benefits.per_month" as TranslationKey)}`}
+              value={`${formatCurrency(sponsor.benefits.monthlyStipend, preferredCurrency, { compact: true })} ${t("sponsors.benefits.per_month" as TranslationKey)}`}
             />
           </div>
         </div>
@@ -482,11 +482,11 @@ function SponsorCard({
 
 function BenefitItem({ label, value }: { label: string; value: string }) {
   return (
-    <div className="text-xs flex items-center justify-between gap-2 border-b border-slate-100/50 dark:border-slate-800/50 pb-1 md:pb-0 md:border-0 md:justify-start">
+    <div className="text-xs flex items-center justify-between gap-2 border-b border-slate-100/50 dark:border-slate-800/50 py-1.5 last:border-0 sm:border-0 sm:py-0 sm:justify-start">
       <span className="text-slate-500 dark:text-slate-400 font-medium">
-        {label}:{" "}
+        {label}:
       </span>
-      <span className="text-green-600 dark:text-green-400 font-bold ml-1">
+      <span className="text-green-600 dark:text-green-400 font-bold">
         {value}
       </span>
     </div>

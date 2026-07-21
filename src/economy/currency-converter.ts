@@ -7,6 +7,7 @@
 
 import type { CurrencyCode, CurrencyConfig } from "./currency-config";
 import { getCurrencyConfig } from "./currency-config";
+import { formatCompact } from "@/utils/format-compact";
 
 /**
  * Convert base units to display currency.
@@ -91,14 +92,14 @@ export function formatCurrency(
   // Convert to display currency
   const displayAmount = convertToDisplayCurrency(baseAmount, currencyCode);
 
-  // Handle compact notation for very large numbers
-  if (compact && displayAmount >= 1_000_000) {
-    const millions = displayAmount / 1_000_000;
-    const formatted = millions.toFixed(1);
+  // Handle compact notation for large numbers using K/M/B/T suffixes
+  if (compact && displayAmount >= 1_000) {
+    const compactStr = formatCompact(displayAmount);
     const symbol = showSymbol ? config.symbol : "";
+    const space = config.symbol.length > 1 ? " " : "";
     return config.symbolPosition === "before"
-      ? `${symbol}${formatted}M`
-      : `${formatted}M${symbol}`;
+      ? `${symbol}${space}${compactStr}`
+      : `${compactStr}${space}${symbol}`;
   }
 
   // Format the number

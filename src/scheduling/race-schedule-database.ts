@@ -51,7 +51,7 @@ export function getRaceSchedules(): RaceSchedule[] {
   //   maxEntrants: 50,
   //   icon: "🏃",
   //   color: "text-green-500",
-  //   prizeInfo: `Winner takes ${formatCurrency(100, preferredCurrency)}`,
+  //   prizeInfo: `Winner takes ${formatCurrency(100, preferredCurrency, { compact: true })}`,
   // },
 
   // ═══════════════════════════════════════════════════════
@@ -76,13 +76,13 @@ export function getRaceSchedules(): RaceSchedule[] {
       fee: 25,
     },
     categories: [
-      { id: "5k", name: "5K Challenge", distance: 5, fee: 15, prizeInfo: `Champion gets ${formatCurrency(150, preferredCurrency)}`, maxEntrants: 100 },
-      { id: "10k", name: "10K Main Race", distance: 10, fee: 25, prizeInfo: `Champion gets ${formatCurrency(300, preferredCurrency)}`, maxEntrants: 100 },
+      { id: "5k", name: "5K Challenge", distance: 5, fee: 15, prizeInfo: `Champion gets ${formatCurrency(150, preferredCurrency, { compact: true })}`, maxEntrants: 100 },
+      { id: "10k", name: "10K Main Race", distance: 10, fee: 25, prizeInfo: `Champion gets ${formatCurrency(300, preferredCurrency, { compact: true })}`, maxEntrants: 100 },
     ],
     maxEntrants: 100,
     icon: "🏅",
     color: "text-blue-500",
-    prizeInfo: `Champion gets ${formatCurrency(300, preferredCurrency)}`,
+    prizeInfo: `Champion gets ${formatCurrency(300, preferredCurrency, { compact: true })}`,
   },
 
   // ═══════════════════════════════════════════════════════
@@ -111,14 +111,14 @@ export function getRaceSchedules(): RaceSchedule[] {
       },
     },
     categories: [
-      { id: "5k", name: "5K Fun Run", distance: 5, fee: 30, prizeInfo: `Champion gets ${formatCurrency(400, preferredCurrency)}`, maxEntrants: 1000 },
-      { id: "10k", name: "10K Race", distance: 10, fee: 50, prizeInfo: `Champion gets ${formatCurrency(800, preferredCurrency)}`, maxEntrants: 1500 },
-      { id: "hm", name: "Half Marathon", distance: 21.1, fee: 100, prizeInfo: `Champion gets ${formatCurrency(2000, preferredCurrency)}`, maxEntrants: 2000 },
+      { id: "5k", name: "5K Fun Run", distance: 5, fee: 30, prizeInfo: `Champion gets ${formatCurrency(400, preferredCurrency, { compact: true })}`, maxEntrants: 1000 },
+      { id: "10k", name: "10K Race", distance: 10, fee: 50, prizeInfo: `Champion gets ${formatCurrency(800, preferredCurrency, { compact: true })}`, maxEntrants: 1500 },
+      { id: "hm", name: "Half Marathon", distance: 21.1, fee: 100, prizeInfo: `Champion gets ${formatCurrency(2000, preferredCurrency, { compact: true })}`, maxEntrants: 2000 },
     ],
     maxEntrants: 2000,
     icon: "💧",
     color: "text-blue-400",
-    prizeInfo: `Champion gets ${formatCurrency(2000, preferredCurrency)}`,
+    prizeInfo: `Champion gets ${formatCurrency(2000, preferredCurrency, { compact: true })}`,
   },
   {
     id: "annual_maybank_bali",
@@ -143,14 +143,14 @@ export function getRaceSchedules(): RaceSchedule[] {
       },
     },
     categories: [
-      { id: "10k", name: "10K Sprint", distance: 10, fee: 60, prizeInfo: `Champion gets ${formatCurrency(1000, preferredCurrency)}`, maxEntrants: 1000 },
-      { id: "hm", name: "Half Marathon", distance: 21.1, fee: 120, prizeInfo: `Champion gets ${formatCurrency(2200, preferredCurrency)}`, maxEntrants: 2000 },
-      { id: "fm", name: "Full Marathon", distance: 42.2, fee: 250, prizeInfo: `Champion gets ${formatCurrency(4500, preferredCurrency)}`, maxEntrants: 3000 },
+      { id: "10k", name: "10K Sprint", distance: 10, fee: 60, prizeInfo: `Champion gets ${formatCurrency(1000, preferredCurrency, { compact: true })}`, maxEntrants: 1000 },
+      { id: "hm", name: "Half Marathon", distance: 21.1, fee: 120, prizeInfo: `Champion gets ${formatCurrency(2200, preferredCurrency, { compact: true })}`, maxEntrants: 2000 },
+      { id: "fm", name: "Full Marathon", distance: 42.2, fee: 250, prizeInfo: `Champion gets ${formatCurrency(4500, preferredCurrency, { compact: true })}`, maxEntrants: 3000 },
     ],
     maxEntrants: 3000,
     icon: "🌴",
     color: "text-yellow-500",
-    prizeInfo: `Champion gets ${formatCurrency(4500, preferredCurrency)}`,
+    prizeInfo: `Champion gets ${formatCurrency(4500, preferredCurrency, { compact: true })}`,
   },
   {
     id: "annual_jakarta_marathon",
@@ -175,15 +175,15 @@ export function getRaceSchedules(): RaceSchedule[] {
       },
     },
     categories: [
-      { id: "5k", name: "5K Dash", distance: 5, fee: 35, prizeInfo: `Champion gets ${formatCurrency(500, preferredCurrency)}`, maxEntrants: 1500 },
-      { id: "10k", name: "10K Challenge", distance: 10, fee: 65, prizeInfo: `Champion gets ${formatCurrency(1200, preferredCurrency)}`, maxEntrants: 2000 },
-      { id: "hm", name: "Half Marathon", distance: 21.1, fee: 140, prizeInfo: `Champion gets ${formatCurrency(2800, preferredCurrency)}`, maxEntrants: 3000 },
-      { id: "fm", name: "Full Marathon", distance: 42.2, fee: 300, prizeInfo: `Champion gets ${formatCurrency(6000, preferredCurrency)}`, maxEntrants: 5000 },
+      { id: "5k", name: "5K Dash", distance: 5, fee: 35, prizeInfo: `Champion gets ${formatCurrency(500, preferredCurrency, { compact: true })}`, maxEntrants: 1500 },
+      { id: "10k", name: "10K Challenge", distance: 10, fee: 65, prizeInfo: `Champion gets ${formatCurrency(1200, preferredCurrency, { compact: true })}`, maxEntrants: 2000 },
+      { id: "hm", name: "Half Marathon", distance: 21.1, fee: 140, prizeInfo: `Champion gets ${formatCurrency(2800, preferredCurrency, { compact: true })}`, maxEntrants: 3000 },
+      { id: "fm", name: "Full Marathon", distance: 42.2, fee: 300, prizeInfo: `Champion gets ${formatCurrency(6000, preferredCurrency, { compact: true })}`, maxEntrants: 5000 },
     ],
     maxEntrants: 5000,
     icon: "🏙️",
     color: "text-red-500",
-    prizeInfo: `Champion gets ${formatCurrency(6000, preferredCurrency)}`,
+    prizeInfo: `Champion gets ${formatCurrency(6000, preferredCurrency, { compact: true })}`,
   },
   {
     id: "annual_borobudur_marathon",
@@ -210,7 +210,7 @@ export function getRaceSchedules(): RaceSchedule[] {
     maxEntrants: 2500,
     icon: "🛕",
     color: "text-orange-500",
-    prizeInfo: `Champion gets ${formatCurrency(3000, preferredCurrency)}`,
+    prizeInfo: `Champion gets ${formatCurrency(3000, preferredCurrency, { compact: true })}`,
   },
   {
     id: "annual_bfi_run",
@@ -237,7 +237,7 @@ export function getRaceSchedules(): RaceSchedule[] {
     maxEntrants: 2500,
     icon: "🏃",
     color: "text-blue-500",
-    prizeInfo: `Champion gets ${formatCurrency(2500, preferredCurrency)}`,
+    prizeInfo: `Champion gets ${formatCurrency(2500, preferredCurrency, { compact: true })}`,
   },
   {
     id: "annual_2xu_compression_run",
@@ -264,7 +264,7 @@ export function getRaceSchedules(): RaceSchedule[] {
     maxEntrants: 3000,
     icon: "👕",
     color: "text-slate-800",
-    prizeInfo: `Champion gets ${formatCurrency(2500, preferredCurrency)}`,
+    prizeInfo: `Champion gets ${formatCurrency(2500, preferredCurrency, { compact: true })}`,
   },
 
   // ═══════════════════════════════════════════════════════
@@ -295,7 +295,7 @@ export function getRaceSchedules(): RaceSchedule[] {
     maxEntrants: 700,
     icon: "🌋",
     color: "text-orange-600",
-    prizeInfo: `50K Champion gets ${formatCurrency(8000, preferredCurrency)}`,
+    prizeInfo: `50K Champion gets ${formatCurrency(8000, preferredCurrency, { compact: true })}`,
   },
   {
     id: "annual_lombok_marathon",
@@ -320,13 +320,13 @@ export function getRaceSchedules(): RaceSchedule[] {
       },
     },
     categories: [
-      { id: "hm", name: "Half Marathon", distance: 21.1, fee: 80, prizeInfo: `Champion gets ${formatCurrency(2000, preferredCurrency)}`, maxEntrants: 1500 },
-      { id: "fm", name: "Full Marathon", distance: 42.2, fee: 200, prizeInfo: `Champion gets ${formatCurrency(4000, preferredCurrency)}`, maxEntrants: 1000 },
+      { id: "hm", name: "Half Marathon", distance: 21.1, fee: 80, prizeInfo: `Champion gets ${formatCurrency(2000, preferredCurrency, { compact: true })}`, maxEntrants: 1500 },
+      { id: "fm", name: "Full Marathon", distance: 42.2, fee: 200, prizeInfo: `Champion gets ${formatCurrency(4000, preferredCurrency, { compact: true })}`, maxEntrants: 1000 },
     ],
     maxEntrants: 2500,
     icon: "🏝️",
     color: "text-teal-500",
-    prizeInfo: `Champion gets ${formatCurrency(4000, preferredCurrency)}`,
+    prizeInfo: `Champion gets ${formatCurrency(4000, preferredCurrency, { compact: true })}`,
   },
   {
     id: "annual_merapi_ultramarathon",
@@ -353,7 +353,7 @@ export function getRaceSchedules(): RaceSchedule[] {
     maxEntrants: 1200,
     icon: "⛰️",
     color: "text-red-600",
-    prizeInfo: `50K Champion gets ${formatCurrency(6000, preferredCurrency)}`,
+    prizeInfo: `50K Champion gets ${formatCurrency(6000, preferredCurrency, { compact: true })}`,
   },
 
   // ═══════════════════════════════════════════════════════
@@ -382,14 +382,14 @@ export function getRaceSchedules(): RaceSchedule[] {
       },
     },
     categories: [
-      { id: "10k", name: "10K", distance: 10, fee: 100, prizeInfo: `Champion gets ${formatCurrency(1500, preferredCurrency)}`, maxEntrants: 5000 },
-      { id: "hm", name: "Half Marathon", distance: 21.1, fee: 180, prizeInfo: `Champion gets ${formatCurrency(3500, preferredCurrency)}`, maxEntrants: 10000 },
-      { id: "fm", name: "Full Marathon", distance: 42.2, fee: 450, prizeInfo: `Champion gets ${formatCurrency(10000, preferredCurrency)}`, maxEntrants: 15000 },
+      { id: "10k", name: "10K", distance: 10, fee: 100, prizeInfo: `Champion gets ${formatCurrency(1500, preferredCurrency, { compact: true })}`, maxEntrants: 5000 },
+      { id: "hm", name: "Half Marathon", distance: 21.1, fee: 180, prizeInfo: `Champion gets ${formatCurrency(3500, preferredCurrency, { compact: true })}`, maxEntrants: 10000 },
+      { id: "fm", name: "Full Marathon", distance: 42.2, fee: 450, prizeInfo: `Champion gets ${formatCurrency(10000, preferredCurrency, { compact: true })}`, maxEntrants: 15000 },
     ],
     maxEntrants: 30000,
     icon: "🦁",
     color: "text-red-500",
-    prizeInfo: `World Major purse: ${formatCurrency(15000, preferredCurrency)} to champion`,
+    prizeInfo: `World Major purse: ${formatCurrency(15000, preferredCurrency, { compact: true })} to champion`,
   },
   {
     id: "annual_kuala_lumpur_marathon",
@@ -416,7 +416,7 @@ export function getRaceSchedules(): RaceSchedule[] {
     maxEntrants: 25000,
     icon: "🏛️",
     color: "text-blue-600",
-    prizeInfo: `Champion gets ${formatCurrency(8000, preferredCurrency)}`,
+    prizeInfo: `Champion gets ${formatCurrency(8000, preferredCurrency, { compact: true })}`,
   },
   {
     id: "annual_chiang_mai_marathon",
@@ -441,14 +441,14 @@ export function getRaceSchedules(): RaceSchedule[] {
       },
     },
     categories: [
-      { id: "10k", name: "10K", distance: 10, fee: 60, prizeInfo: `Champion gets ${formatCurrency(800, preferredCurrency)}`, maxEntrants: 3000 },
-      { id: "hm", name: "Half Marathon", distance: 21.1, fee: 120, prizeInfo: `Champion gets ${formatCurrency(1800, preferredCurrency)}`, maxEntrants: 4000 },
-      { id: "fm", name: "Full Marathon", distance: 42.2, fee: 250, prizeInfo: `Champion gets ${formatCurrency(4000, preferredCurrency)}`, maxEntrants: 3000 },
+      { id: "10k", name: "10K", distance: 10, fee: 60, prizeInfo: `Champion gets ${formatCurrency(800, preferredCurrency, { compact: true })}`, maxEntrants: 3000 },
+      { id: "hm", name: "Half Marathon", distance: 21.1, fee: 120, prizeInfo: `Champion gets ${formatCurrency(1800, preferredCurrency, { compact: true })}`, maxEntrants: 4000 },
+      { id: "fm", name: "Full Marathon", distance: 42.2, fee: 250, prizeInfo: `Champion gets ${formatCurrency(4000, preferredCurrency, { compact: true })}`, maxEntrants: 3000 },
     ],
     maxEntrants: 10000,
     icon: "🛕",
     color: "text-purple-500",
-    prizeInfo: `Champion gets ${formatCurrency(4000, preferredCurrency)}`,
+    prizeInfo: `Champion gets ${formatCurrency(4000, preferredCurrency, { compact: true })}`,
   },
 
   // ═══════════════════════════════════════════════════════
@@ -480,7 +480,7 @@ export function getRaceSchedules(): RaceSchedule[] {
     maxEntrants: 800,
     icon: "🥾",
     color: "text-green-600",
-    prizeInfo: `100 Mile Champion gets ${formatCurrency(50000, preferredCurrency)}`,
+    prizeInfo: `100 Mile Champion gets ${formatCurrency(50000, preferredCurrency, { compact: true })}`,
   },
   {
     id: "annual_bali_trail_marathon",
@@ -505,13 +505,13 @@ export function getRaceSchedules(): RaceSchedule[] {
       },
     },
     categories: [
-      { id: "hm", name: "21K Trail", distance: 21.1, fee: 120, prizeInfo: `Champion gets ${formatCurrency(2500, preferredCurrency)}`, maxEntrants: 1000 },
-      { id: "fm", name: "42K Trail", distance: 42.2, fee: 300, prizeInfo: `Champion gets ${formatCurrency(6000, preferredCurrency)}`, maxEntrants: 500 },
+      { id: "hm", name: "21K Trail", distance: 21.1, fee: 120, prizeInfo: `Champion gets ${formatCurrency(2500, preferredCurrency, { compact: true })}`, maxEntrants: 1000 },
+      { id: "fm", name: "42K Trail", distance: 42.2, fee: 300, prizeInfo: `Champion gets ${formatCurrency(6000, preferredCurrency, { compact: true })}`, maxEntrants: 500 },
     ],
     maxEntrants: 1500,
     icon: "🌾",
     color: "text-emerald-500",
-    prizeInfo: `Champion gets ${formatCurrency(6000, preferredCurrency)}`,
+    prizeInfo: `Champion gets ${formatCurrency(6000, preferredCurrency, { compact: true })}`,
   },
 
   // ═══════════════════════════════════════════════════════
@@ -543,7 +543,7 @@ export function getRaceSchedules(): RaceSchedule[] {
     maxEntrants: 42000,
     icon: "🇬🇧",
     color: "text-blue-700",
-    prizeInfo: `World Major purse: ${formatCurrency(25000, preferredCurrency)} to champion`,
+    prizeInfo: `World Major purse: ${formatCurrency(25000, preferredCurrency, { compact: true })} to champion`,
   },
   {
     id: "annual_berlin_marathon",
@@ -571,7 +571,7 @@ export function getRaceSchedules(): RaceSchedule[] {
     maxEntrants: 45000,
     icon: "🇩🇪",
     color: "text-yellow-600",
-    prizeInfo: `World Major purse: ${formatCurrency(25000, preferredCurrency)} to champion`,
+    prizeInfo: `World Major purse: ${formatCurrency(25000, preferredCurrency, { compact: true })} to champion`,
   },
   {
     id: "annual_paris_marathon",
@@ -598,7 +598,7 @@ export function getRaceSchedules(): RaceSchedule[] {
     maxEntrants: 60000,
     icon: "🇫🇷",
     color: "text-indigo-600",
-    prizeInfo: `International purse: ${formatCurrency(15000, preferredCurrency)} to champion`,
+    prizeInfo: `International purse: ${formatCurrency(15000, preferredCurrency, { compact: true })} to champion`,
   },
   {
     id: "annual_rome_marathon",
@@ -625,7 +625,7 @@ export function getRaceSchedules(): RaceSchedule[] {
     maxEntrants: 15000,
     icon: "🇮🇹",
     color: "text-red-600",
-    prizeInfo: `International purse: ${formatCurrency(12000, preferredCurrency)} to champion`,
+    prizeInfo: `International purse: ${formatCurrency(12000, preferredCurrency, { compact: true })} to champion`,
   },
   {
     id: "annual_amsterdam_marathon",
@@ -652,7 +652,7 @@ export function getRaceSchedules(): RaceSchedule[] {
     maxEntrants: 16000,
     icon: "🇳🇱",
     color: "text-orange-500",
-    prizeInfo: `International purse: ${formatCurrency(10000, preferredCurrency)} to champion`,
+    prizeInfo: `International purse: ${formatCurrency(10000, preferredCurrency, { compact: true })} to champion`,
   },
 
   // ═══════════════════════════════════════════════════════
@@ -684,7 +684,7 @@ export function getRaceSchedules(): RaceSchedule[] {
     maxEntrants: 30000,
     icon: "🌸",
     color: "text-pink-500",
-    prizeInfo: `World Major purse: ${formatCurrency(15000, preferredCurrency)} to champion`,
+    prizeInfo: `World Major purse: ${formatCurrency(15000, preferredCurrency, { compact: true })} to champion`,
   },
   {
     id: "annual_seoul_marathon",
@@ -712,7 +712,7 @@ export function getRaceSchedules(): RaceSchedule[] {
     maxEntrants: 25000,
     icon: "🐯",
     color: "text-red-500",
-    prizeInfo: `International purse: ${formatCurrency(12000, preferredCurrency)} to champion`,
+    prizeInfo: `International purse: ${formatCurrency(12000, preferredCurrency, { compact: true })} to champion`,
   },
   {
     id: "annual_osaka_marathon",
@@ -739,7 +739,7 @@ export function getRaceSchedules(): RaceSchedule[] {
     maxEntrants: 20000,
     icon: "🏯",
     color: "text-blue-500",
-    prizeInfo: `International purse: ${formatCurrency(10000, preferredCurrency)} to champion`,
+    prizeInfo: `International purse: ${formatCurrency(10000, preferredCurrency, { compact: true })} to champion`,
   },
 
   // ═══════════════════════════════════════════════════════
@@ -771,64 +771,10 @@ export function getRaceSchedules(): RaceSchedule[] {
     maxEntrants: 30000,
     icon: "🦄",
     color: "text-blue-600",
-    prizeInfo: `World Major purse: ${formatCurrency(15000, preferredCurrency)} to champion`,
+    prizeInfo: `World Major purse: ${formatCurrency(15000, preferredCurrency, { compact: true })} to champion`,
   },
-  {
-    id: "annual_london_marathon",
-    raceId: "national_marathon_city",
-    name: "London Marathon",
-    locationId: "national_marathon_city",
-    tier: "international",
-    description: "World Marathon Major. Run through the historic streets of London.",
-    schedule: {
-      frequency: "annual",
-      dayOfYear: 105, // Late April (Sunday)
-    },
-    registration: {
-      opensDaysBefore: 90,
-      closesDaysBefore: 21,
-    },
-    entry: {
-      fee: 600,
-      prerequisites: {
-        minLevel: 20,
-        minRating: 2150,
-        requiresQualification: true,
-      },
-    },
-    maxEntrants: 40000,
-    icon: "💂",
-    color: "text-red-600",
-    prizeInfo: `World Major purse: ${formatCurrency(15000, preferredCurrency)} to champion`,
-  },
-  {
-    id: "annual_berlin_marathon",
-    raceId: "national_marathon_city",
-    name: "Berlin Marathon",
-    locationId: "national_marathon_city",
-    tier: "international",
-    description: "World Marathon Major. The fastest flat course where world records are broken.",
-    schedule: {
-      frequency: "annual",
-      dayOfYear: 245, // September
-    },
-    registration: {
-      opensDaysBefore: 90,
-      closesDaysBefore: 21,
-    },
-    entry: {
-      fee: 550,
-      prerequisites: {
-        minLevel: 20,
-        minRating: 2150,
-        requiresQualification: true,
-      },
-    },
-    maxEntrants: 40000,
-    icon: "🐻",
-    color: "text-amber-600",
-    prizeInfo: `World Major purse: ${formatCurrency(15000, preferredCurrency)} to champion`,
-  },
+
+
   {
     id: "annual_chicago_marathon",
     raceId: "national_marathon_city",
@@ -855,7 +801,7 @@ export function getRaceSchedules(): RaceSchedule[] {
     maxEntrants: 45000,
     icon: "🏙️",
     color: "text-sky-500",
-    prizeInfo: `World Major purse: ${formatCurrency(15000, preferredCurrency)} to champion`,
+    prizeInfo: `World Major purse: ${formatCurrency(15000, preferredCurrency, { compact: true })} to champion`,
   },
   {
     id: "annual_nyc_marathon",
@@ -883,35 +829,9 @@ export function getRaceSchedules(): RaceSchedule[] {
     maxEntrants: 50000,
     icon: "🗽",
     color: "text-emerald-500",
-    prizeInfo: `World Major purse: ${formatCurrency(15000, preferredCurrency)} to champion`,
+    prizeInfo: `World Major purse: ${formatCurrency(15000, preferredCurrency, { compact: true })} to champion`,
   },
-  {
-    id: "annual_paris_marathon",
-    raceId: "national_marathon_city",
-    name: "Paris Marathon",
-    locationId: "national_marathon_city",
-    tier: "international",
-    description: "Run through the beautiful city of love, starting at the Champs-Élysées.",
-    schedule: {
-      frequency: "annual",
-      dayOfYear: 91, // April (Sunday)
-    },
-    registration: {
-      opensDaysBefore: 90,
-      closesDaysBefore: 21,
-    },
-    entry: {
-      fee: 550,
-      prerequisites: {
-        minLevel: 18,
-        minRating: 2100,
-      },
-    },
-    maxEntrants: 45000,
-    icon: "🥐",
-    color: "text-blue-700",
-    prizeInfo: `International purse: ${formatCurrency(12000, preferredCurrency)} to champion`,
-  },
+
   {
     id: "annual_sydney_marathon",
     raceId: "national_marathon_city",
@@ -937,7 +857,7 @@ export function getRaceSchedules(): RaceSchedule[] {
     maxEntrants: 30000,
     icon: "🦘",
     color: "text-amber-500",
-    prizeInfo: `International purse: ${formatCurrency(12000, preferredCurrency)} to champion`,
+    prizeInfo: `International purse: ${formatCurrency(12000, preferredCurrency, { compact: true })} to champion`,
   },
 
   // ═══════════════════════════════════════════════════════

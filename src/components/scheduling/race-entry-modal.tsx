@@ -72,7 +72,7 @@ export function RaceEntryModal({
 
   const activeEntryFee = activeCategory ? activeCategory.fee : race.entryFee;
   const activeMaxEntrants = activeCategory?.maxEntrants ?? race.maxEntrants;
-  const activePrizeInfo = activeCategory ? activeCategory.prizeInfo : `Est. Pool: ${formatCurrency(race.prizePool, preferredCurrency)}`;
+  const activePrizeInfo = activeCategory ? activeCategory.prizeInfo : `Est. Pool: ${formatCurrency(race.prizePool, preferredCurrency, { compact: true })}`;
   const activeDistance = activeCategory ? activeCategory.distance : 5;
   const activeEnergyCost = getEnergyCostForDistance(activeDistance);
 
@@ -90,12 +90,12 @@ export function RaceEntryModal({
       }
     }
     if (race.isFull) return { disabled: true, text: t("race_entry.button.race_full" as TranslationKey), color: "" };
-    if (!canAfford) return { disabled: true, text: interpolate(t("race_entry.need_more" as TranslationKey), { amount: formatCurrency(activeEntryFee - currentBalance, preferredCurrency) }), color: "" };
+    if (!canAfford) return { disabled: true, text: interpolate(t("race_entry.need_more" as TranslationKey), { amount: formatCurrency(activeEntryFee - currentBalance, preferredCurrency, { compact: true }) }), color: "" };
     if (!hasAllPrereqs) return { disabled: true, text: t("race_entry.button.requirements_not_met" as TranslationKey), color: "" };
 
     return {
       disabled: false,
-      text: interpolate(t("race_entry.button.enter_race" as TranslationKey), { fee: formatCurrency(activeEntryFee, preferredCurrency) }),
+      text: interpolate(t("race_entry.button.enter_race" as TranslationKey), { fee: formatCurrency(activeEntryFee, preferredCurrency, { compact: true }) }),
       color: "bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-lg shadow-emerald-500/20"
     };
   };
@@ -146,7 +146,7 @@ export function RaceEntryModal({
                     >
                       <span className="text-xs font-black uppercase tracking-wider">{cat.name}</span>
                       <span className={`text-[10px] mt-0.5 font-semibold ${isSelected ? "text-indigo-100" : "text-slate-400 dark:text-slate-500"}`}>
-                        {formatCurrency(cat.fee, preferredCurrency)}
+                        {formatCurrency(cat.fee, preferredCurrency, { compact: true })}
                       </span>
                     </button>
                   );
@@ -171,7 +171,7 @@ export function RaceEntryModal({
               <span
                 className={`font-bold ${canAfford ? "text-yellow-600 dark:text-yellow-400" : "text-red-500 dark:text-red-400"}`}
               >
-                {formatCurrency(activeEntryFee, preferredCurrency)}
+                {formatCurrency(activeEntryFee, preferredCurrency, { compact: true })}
               </span>
             </div>
 
@@ -189,7 +189,7 @@ export function RaceEntryModal({
               <span
                 className={`font-bold ${canAfford ? "text-green-600 dark:text-green-400" : "text-red-500 dark:text-red-400"}`}
               >
-                {formatCurrency(currentBalance, preferredCurrency)}
+                {formatCurrency(currentBalance, preferredCurrency, { compact: true })}
               </span>
             </div>
 

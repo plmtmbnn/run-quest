@@ -6,6 +6,7 @@ import { useTimelineStore } from "@/store/timeline-store";
 import { usePlayerStore } from "@/store/player-store";
 import { useSettingsStore } from "@/store/settings-store";
 import { formatCurrency } from "@/economy/currency-converter";
+import { formatCompact } from "@/utils/format-compact";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 
 export function GameClock() {
@@ -73,6 +74,7 @@ export function GameClock() {
             💰 {formatCurrency(
               currentBalance,
               settings.preferredCurrency || "USD",
+              { compact: true },
             )}
           </span>
         </div>
@@ -81,7 +83,7 @@ export function GameClock() {
             {t("home.stats.runs" as TranslationKey)}
           </span>
           <span className="text-xs md:text-sm font-black mt-0.5 md:mt-1 text-slate-800 dark:text-white">
-            {player.statistics.totalRuns}
+            {formatCompact(player.statistics.totalRuns)}
           </span>
         </div>
         <div className="flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/50 rounded-xl md:rounded-2xl p-2 md:p-3 text-center border border-slate-100 dark:border-slate-700/50">
@@ -89,7 +91,7 @@ export function GameClock() {
             {t("home.stats.distance" as TranslationKey)}
           </span>
           <span className="text-xs md:text-sm font-black mt-0.5 md:mt-1 truncate text-slate-800 dark:text-white">
-            {player.statistics.totalDistance} km
+            {formatCompact(player.statistics.totalDistance)} km
           </span>
         </div>
       </div>

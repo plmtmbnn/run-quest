@@ -1,177 +1,177 @@
 {
   "common": {
-    "start": "Mulai",
+    "start": "Mulai Race",
     "cancel": "Batal",
     "save": "Simpan",
-    "loading": "Memuat...",
-    "continue": "Lanjutkan"
+    "loading": "Warming up...",
+    "continue": "Lanjut"
   },
   "home": {
     "player_profile": "Profil Pelari",
     "title": "Papan Balap Hari Ini",
-    "subtitle": "Pilih tantangan balapan hari ini. Kamu hanya mendapat satu entri harian.",
-    "completed": "Perlombaan Selesai",
-    "completed_subtitle": "Kamu telah menyelesaikan perlombaan hari ini! Kembali lagi besok untuk tantangan baru.",
+    "subtitle": "Pilih tantangan hari ini. Satu kali start per hari.",
+    "completed": "Race Selesai",
+    "completed_subtitle": "Kerja bagus hari ini! Recovery yang cukup dan kembali besok.",
     "stats": {
-      "runs": "Sesi Lari",
+      "runs": "Total Race",
       "streak": "Streak",
-      "distance": "Jarak",
-      "money": "Uang"
+      "distance": "Jarak Tempuh",
+      "money": "Saldo"
     },
     "entry_tickets": "Tiket Masuk Harian:",
     "remaining": "Tersisa",
-    "recommended": "Direkomendasikan",
+    "recommended": "Rekomendasi",
     "runner_profile": "Profil Pelari",
     "daily_training": "Latihan Harian",
-    "choose_race": "Pilih Balapan",
-    "resume_race": "Lanjutkan Balapan →",
-    "completed_badge": "✓ Selesai",
+    "choose_race": "Pilih Race",
+    "resume_race": "Lanjutkan Lari →",
+    "completed_badge": "✓ Race Selesai",
     "locked": "🔒 Terkunci",
     "target_time": "Target Waktu",
-    "next_race_in": "Balapan berikutnya dalam:",
-    "countdown_desc": "Kembali lagi besok untuk rangkaian tantangan balapan baru!"
+    "next_race_in": "Race berikutnya dalam:",
+    "countdown_desc": "Fokus pada recovery. Tantangan baru hadir besok."
   },
   "history": {
-    "title": "Riwayat Balapan",
-    "subtitle": "Tantangan masa lalu dan catatan performa kamu.",
-    "empty": "Belum ada catatan lari. Mulai tantangan harian untuk membuat riwayat!",
-    "back_home": "Kembali ke Menu Utama",
-    "score": "Skor",
+    "title": "Riwayat Race",
+    "subtitle": "Hasil balapan dan personal best kamu.",
+    "empty": "Belum ada catatan lari. Bersiaplah di garis start hari ini!",
+    "back_home": "Kembali ke Menu",
+    "score": "Skor Race",
     "grade": "Grade",
-    "distance": "Jarak",
-    "time": "Waktu",
-    "subtitle_desc": "Lihat hasil tantangan sebelumnya, rekor, dan catatan latihan.",
+    "distance": "Jarak Race",
+    "time": "Waktu Finish",
+    "subtitle_desc": "Lihat hasil lari sebelumnya, split, dan catatan latihan.",
     "dnf": "DNF",
     "dns": "DNS",
-    "status": "Status",
-    "completed_status": "Selesai",
+    "status": "Status Race",
+    "completed_status": "Race Selesai",
     "dnf_status": "DNF",
     "dns_status": "DNS"
   },
   "language": {
     "title": "Pilih Bahasa",
-    "subtitle": "Kamu bisa mengubah ini nanti di pengaturan.",
+    "subtitle": "Bisa diubah kapan saja di pengaturan.",
     "english": "English",
     "indonesian": "Bahasa Indonesia"
   },
   "onboarding": {
-    "header": "Pengenalan RunQuest",
+    "header": "Selamat Datang di RunQuest",
     "next": "Lanjut",
-    "start": "Mulai Berlari",
-    "name_error": "Nama pelari tidak boleh kosong",
+    "start": "Let's Go",
+    "name_error": "Jangan lupa masukkan nama pelari kamu.",
     "slide_1": {
       "title": "Selamat Datang di RunQuest",
-      "subtitle": "Game simulasi lari harian offline-first Anda.",
-      "content": "Setiap hari menyajikan tantangan lari baru yang dihasilkan secara prosedural. Masuklah ke posisi pelari yang bersiap untuk lari pamungkas."
+      "subtitle": "Simulasi lari harianmu.",
+      "content": "Setiap hari ada rute baru. Persiapkan dirimu seperti pelari yang bersiap menghadapi event besar."
     },
     "slide_2": {
-      "title": "Cara Bermain",
-      "subtitle": "Kelola aset, pola pikir, dan ambang batas fisik Anda.",
-      "content": "Pilih sepatu yang sempurna untuk cuaca dan permukaan jalan. Kemas nutrisi, pilih strategi kecepatan Anda, dan pertahankan fokus untuk menyelesaikan di bawah target waktu."
+      "title": "Race Strategy",
+      "subtitle": "Atur pace, nutrisi, dan daya tahan tubuh.",
+      "content": "Pilih gear yang tepat sesuai medan dan cuaca. Siapkan hydration, atur negative split, dan pertahankan pace untuk mencapai target."
     },
     "slide_3": {
-      "title": "Apa yang Diharapkan",
-      "subtitle": "Fisika deterministik, peristiwa cerita, dan berbagi hasil.",
-      "content": "Tonton balapan berlangsung secara langsung. Baca narasi cerita dinamis yang dihasilkan dari keputusan Anda. Unduh Kartu Hasil indah Anda untuk memamerkan peringkat Anda!"
+      "title": "Pengalaman Hari H",
+      "subtitle": "Live tracking, event dinamis, dan analisis performa.",
+      "content": "Saksikan balapan secara live. Sesuaikan dengan kondisi lintasan dan unduh finisher card untuk pamer personal best-mu!"
     },
     "slide_4": {
-      "title": "Profil Pelari Anda",
-      "subtitle": "Pilih nama pelari Anda sebelum memulai.",
-      "content": "Kami telah membuat nama pelari untuk Anda. Jangan ragu untuk mengubahnya di bawah ini, atau acak ulang untuk mendapatkan nama baru!"
+      "title": "Profil Pelari",
+      "subtitle": "Buat identitasmu.",
+      "content": "Kami telah menyiapkan nama untukmu. Gunakan yang ada atau acak lagi sebelum menuju garis start!"
     }
   },
   "race_calendar": {
     "tabs": {
-      "today": "Hari Balapan",
+      "today": "Hari Race",
       "registered": "Terdaftar",
-      "upcoming": "Akan Datang"
+      "upcoming": "Jadwal"
     },
     "empty": {
-      "today_title": "Tidak ada balapan hari ini",
-      "today_desc": "Ambil hari istirahat, buka layar latihan untuk meningkatkan stat pelari Anda, atau lamar pekerjaan.",
-      "registered_title": "Tidak ada balapan terdaftar",
-      "registered_desc": "Telusuri tab Kalender Akan Datang untuk menemukan acara dan daftar sebelum pendaftaran ditutup!",
-      "upcoming_title": "Tidak ada balapan akan datang",
-      "upcoming_desc": "Cek kembali nanti untuk acara baru."
+      "today_title": "Rest Day",
+      "today_desc": "Tidak ada jadwal hari ini. Fokus pada latihan, recovery, atau cari pendapatan tambahan.",
+      "registered_title": "Tidak Ada Race Terdaftar",
+      "registered_desc": "Cek jadwal dan daftarkan diri sebelum kuota penuh!",
+      "upcoming_title": "Belum Ada Jadwal Race",
+      "upcoming_desc": "Cek kembali nanti untuk event terbaru."
     },
     "status": {
-      "completed": "Balapan selesai",
-      "passed": "Balapan lewat",
-      "race_day": "Hari balapan - ketuk untuk masuk",
-      "in_days": "Balapan dalam {days} hari",
-      "registered": "Anda terdaftar",
-      "full": "Kuota penuh",
-      "registration_open": "Pendaftaran dibuka",
-      "opens_in": "Dibuka dalam {days} hari"
+      "completed": "Race Selesai",
+      "passed": "Pendaftaran Ditutup",
+      "race_day": "Hari Race - Masuk Start",
+      "in_days": "Race dalam {days} hari",
+      "registered": "Terdaftar",
+      "full": "Kuota Penuh",
+      "registration_open": "Pendaftaran Dibuka",
+      "opens_in": "Buka dalam {days} hari"
     },
     "labels": {
-      "entry_fee": "Biaya Masuk",
-      "prize_pool": "Hadiah",
+      "entry_fee": "Biaya Registrasi",
+      "prize_pool": "Prize Pool",
       "entry_fee_value": "Biaya masuk: {fee}",
-      "tier_race_on": "Balapan {tier} pada {date}",
+      "tier_race_on": "Race {tier} pada {date}",
       "days_until": "{days}h"
     }
   },
   "settings": {
     "title": "Pengaturan",
-    "subtitle": "Sesuaikan preferensi dan konfigurasi aplikasi Anda",
+    "subtitle": "Sesuaikan pengalaman larimu",
     "sections": {
       "general": "Umum",
-      "race_preferences": "Preferensi Balapan",
+      "race_preferences": "Preferensi Race",
       "danger_zone": "Zona Bahaya"
     },
     "name": {
       "title": "Nama Pelari",
-      "desc": "Ubah nama profil pelari Anda",
-      "error": "Nama pelari tidak boleh kosong"
+      "desc": "Ubah nama profil pelarimu",
+      "error": "Nama pelari tidak boleh kosong."
     },
     "sound": {
       "title": "Efek Suara",
-      "desc": "Putar indikator suara selama simulasi balapan"
+      "desc": "Aktifkan panduan audio selama simulasi lari"
     },
     "language": {
       "title": "Bahasa",
-      "desc": "Bahasa terjemahan antarmuka sistem dan game"
+      "desc": "Pilih bahasa favoritmu"
     },
     "theme": {
       "title": "Tema Warna",
-      "desc": "Pilih tampilan RunQuest di perangkat Anda.",
+      "desc": "Sesuaikan tampilan aplikasi.",
       "light": "Terang",
       "dark": "Gelap",
       "system": "Sistem"
     },
     "preferences": {
-      "desc": "Balapan yang cocok dengan preferensi ini akan diurutkan di bagian atas Papan Balap Harian Anda.",
-      "surface": "Permukaan Pilihan",
-      "distance": "Jarak Pilihan"
+      "desc": "Race yang cocok dengan preferensi ini akan diprioritaskan di Papan Balap Harianmu.",
+      "surface": "Medan Favorit",
+      "distance": "Jarak Favorit"
     },
     "danger": {
-      "reset": "Hapus Semua Data",
-      "desc": "Hapus profil, statistik, riwayat lari Anda secara permanen, dan atur ulang entri papan harian Anda. Tindakan ini tidak dapat dibatalkan.",
+      "reset": "Hapus Data Pelari",
+      "desc": "Hapus profil, statistik, dan riwayat race secara permanen. Tidak bisa dibatalkan.",
       "button": "Hapus Data",
-      "modal_title": "Apakah Anda benar-benar yakin?",
-      "modal_desc": "Tindakan ini akan menghapus semua catatan perjalanan lari Anda. Semua statistik, riwayat penyelesaian, dan preferensi akan dihancurkan secara permanen.",
+      "modal_title": "Pensiun dari Lari?",
+      "modal_desc": "Semua statistik karir, personal best, dan riwayat lari akan dihapus. Yakin?",
       "cancel": "Batal",
-      "confirm": "Ya, HAPUS SEMUA"
+      "confirm": "Ya, Hapus Semua"
     },
     "currency": {
-      "title": "Mata Uang Tampilan",
-      "desc": "Pilih cara menampilkan jumlah uang. Ini tidak memengaruhi keseimbangan game.",
-      "trigger_label": "Mata uang pilihan: {name}. Aktifkan untuk mengubah.",
-      "listbox_label": "Pilih mata uang pilihan",
+      "title": "Mata Uang",
+      "desc": "Pilih format mata uang. Tidak memengaruhi saldo game.",
+      "trigger_label": "Mata uang terpilih: {name}.",
+      "listbox_label": "Pilih mata uang",
       "example": "Contoh: {amount}",
       "select": "Pilih mata uang",
-      "backdrop": "Tutup pemilih mata uang",
+      "backdrop": "Tutup pilihan",
       "search": "Cari mata uang…",
-      "no_results": "Mata uang tidak ditemukan"
+      "no_results": "Tidak ditemukan"
     }
   },
   "sponsors": {
     "title": "Sponsor",
     "active_heading": "Sponsorship Aktif",
-    "progression_heading": "Peta Progresi Sponsor",
-    "directory_heading": "Direktori Sponsor",
-    "directory_desc": "Bangun reputasi dan menangkan balapan untuk membuka kemitraan perusahaan tingkat atas.",
+    "progression_heading": "Progres Sponsorship",
+    "directory_heading": "Daftar Sponsor",
+    "directory_desc": "Bangun reputasi dan menangkan race untuk mendapatkan kontrak elit.",
     "tiers": {
       "local": "Lokal",
       "regional": "Regional",
@@ -179,76 +179,76 @@
     },
     "status": {
       "active": "Aktif",
-      "offer": "Penawaran",
+      "offer": "Penawaran Masuk",
       "locked": "Terkunci",
       "cooldown": "Cooldown: {days}h",
-      "next_upgrade": "Upgrade Berikutnya"
+      "next_upgrade": "Tier Berikutnya"
     },
     "benefits": {
       "training_bonus": "Bonus Latihan",
-      "race_bonus": "Bonus Balapan",
-      "win_bonus": "Bonus Menang",
+      "race_bonus": "Bonus Race",
+      "win_bonus": "Bonus Podium",
       "monthly_stipend": "Uang Bulanan",
       "per_session": "/sesi",
-      "per_race": "/balapan",
-      "per_win": "/menang",
+      "per_race": "/race",
+      "per_win": "/win",
       "per_month": "/bulan"
     },
     "actions": {
       "claim_stipend": "Klaim Uang",
       "decline": "Tolak",
       "accept_offer": "Terima Penawaran",
-      "sign_contract": "Tanda Kontrak"
+      "sign_contract": "Tanda Tangan Kontrak"
     },
-    "signed": "Tertanda: Hari {day}",
-    "earned": "{amount} diperoleh",
-    "unlock_requirements": "Persyaratan Pembukaan",
-    "req_wins": "{count} Kemenangan",
+    "signed": "Deal: Hari {day}",
+    "earned": "{amount} masuk",
+    "unlock_requirements": "Syarat Buka",
+    "req_wins": "{count} Menang",
     "req_rating": "{rating} Rating",
-    "req_prev_sponsor": "Sponsor Sebelumnya"
+    "req_prev_sponsor": "Sponsor Sblm."
   },
   "race_entry": {
-    "category_label": "Pilih Kategori Balapan",
-    "entry_summary": "Ringkasan Entri",
-    "entry_fee": "Biaya Masuk",
-    "energy_required": "Energi Diperlukan",
-    "your_balance": "Saldo Anda",
-    "prize_pool": "Hadiah / Info",
-    "entrants": "Peserta",
-    "requirements_not_met": "Persyaratan Belum Terpenuhi",
+    "category_label": "Pilih Kategori Race",
+    "entry_summary": "Ringkasan Registrasi",
+    "entry_fee": "Biaya Registrasi",
+    "energy_required": "Energi Dibutuhkan",
+    "your_balance": "Saldomu",
+    "prize_pool": "Prize Pool",
+    "entrants": "Jumlah Peserta",
+    "requirements_not_met": "Belum Siap Race",
     "prize_distribution": "Distribusi Hadiah",
-    "full": "PENUH",
-    "need_more": "Perlu {amount} Lagi",
+    "full": "KUOTA PENUH",
+    "need_more": "Kurang {amount}",
     "button": {
       "cancel": "Batal",
-      "completed": "Selesai",
-      "start_race": "Mulai Balapan",
+      "completed": "Race Selesai",
+      "start_race": "Menuju Garis Start",
       "already_registered": "Sudah Terdaftar",
-      "race_full": "Balapan Penuh",
-      "requirements_not_met": "Persyaratan Belum Terpenuhi",
-      "enter_race": "Ikut Balapan - {fee}"
+      "race_full": "Pendaftaran Ditutup",
+      "requirements_not_met": "Belum Siap Race",
+      "enter_race": "Daftar - {fee}"
     }
   },
   "economy": {
-    "page_title": "Ekonomi & Pekerjaan",
-    "ledger_title": "Buku Besar & Riwayat",
-    "active_job": "Pekerjaan Aktif",
-    "perform_work": "Kerja",
+    "page_title": "Ekonomi & Karir",
+    "ledger_title": "Riwayat Transaksi",
+    "active_job": "Pekerjaan Saat Ini",
+    "perform_work": "Mulai Kerja",
     "apply_job": "Lamar Pekerjaan",
     "wait_days": "Tunggu {days}h",
-    "pay_rate": "Tarif Bayaran",
+    "pay_rate": "Bayaran",
     "energy_cost": "Biaya Energi",
     "current_energy": "Energi Saat Ini",
-    "already_worked_today": "Sudah kerja hari ini. Istirahat atau tunggu besok untuk bekerja lagi.",
-    "low_energy_warning": "Energi rendah! Istirahat untuk memulihkan energi.",
+    "already_worked_today": "Kamu sudah bekerja hari ini. Utamakan recovery.",
+    "low_energy_warning": "Energi menipis! Fokus pada recovery.",
     "balance_label": "Saldo Saat Ini",
     "net_change": "perubahan bersih",
-    "total_earned": "Total Pendapatan",
+    "total_earned": "Total Pemasukan",
     "total_spent": "Total Pengeluaran",
-    "race_entry_costs": "Biaya Masuk Balapan",
-    "prize_earnings": "Pendapatan Hadiah",
-    "earnings_breakdown": "Rincian Pendapatan",
-    "race_prizes": "Hadiah Balapan",
+    "race_entry_costs": "Biaya Pendaftaran",
+    "prize_earnings": "Hadiah Podium",
+    "earnings_breakdown": "Rincian Pemasukan",
+    "race_prizes": "Hadiah Race",
     "work": "Pekerjaan",
     "sponsors": "Sponsor",
     "other": "Lainnya",
@@ -256,179 +256,179 @@
     "no_transactions": "Belum ada transaksi",
     "category_label": "kategori",
     "select_currency": "Pilih mata uang",
-    "currency_backdrop": "Tutup pemilih mata uang",
+    "currency_backdrop": "Tutup pilihan",
     "search_placeholder": "Cari mata uang…",
-    "no_results": "Mata uang tidak ditemukan"
+    "no_results": "Tidak ditemukan"
   },
   "race_tiers": {
-    "local": "Balapan Lokal",
-    "regional": "Acara Regional",
-    "state": "Kejuaraan Negara Bagian",
-    "national": "Kejuaraan Nasional",
-    "international": "Acara Elit Internasional",
-    "beginner": "Pemula",
-    "intermediate": "Menengah",
-    "advanced": "Lanjutan",
-    "elite": "Elit",
-    "legendary": "Legendaris"
+    "local": "Lokal 5K",
+    "regional": "Regional Classic",
+    "state": "Kejuaraan Provinsi",
+    "national": "Nasional Major",
+    "international": "World Elite Marathon",
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "elite": "Elite",
+    "legendary": "Legendary"
   },
   "work": {
-    "title": "Pilih Jenis Pekerjaan",
-    "subtitle": "Pilih pekerjaan untuk dijadikan pekerjaan aktif Anda",
-    "est_pay": "Perkiraan Bayaran",
-    "current_energy": "Energi saat ini",
-    "select_to_apply": "Pilih jenis pekerjaan untuk melamar",
+    "title": "Karir Pelari",
+    "subtitle": "Pilih pekerjaan untuk mendukung karir larimu",
+    "est_pay": "Est. Bayaran",
+    "current_energy": "Energi Saat Ini",
+    "select_to_apply": "Pilih peran untuk melamar",
     "cooldown": "Cooldown: {days}h tersisa",
     "effects": {
-      "health": "Kesehatan",
+      "health": "Endurance",
       "intellect": "Intelektual",
-      "charisma": "Kharisma"
+      "charisma": "Karisma"
     },
     "cancel": "Batal",
-    "apply_job": "Ajukan Pekerjaan",
+    "apply_job": "Lamar",
     "outcome": {
-      "accepted": "🎉 PEKERJAAN DILAMAR!",
-      "rejected": "❌ PEKERJAAN DITOLAK"
+      "accepted": "🎉 DITERIMA KERJA!",
+      "rejected": "❌ LAMARAN DITOLAK"
     },
     "types": {
-      "part_time": { "name": "Pekerjaan Paruh Waktu", "desc": "Pekerjaan ringan di toko lokal. Selalu tersedia, bayaran sederhana." },
-      "full_time": { "name": "Pekerjaan Penuh Waktu", "desc": "Pekerjaan standar dengan pendapatan stabil. Opsi dasar." },
-      "freelance": { "name": "Gig Freelance", "desc": "Pekerjaan kontrak dengan bayaran variatif. Intelektual lebih tinggi menghasilkan lebih banyak." },
-      "coaching": { "name": "Pelari Pelatih", "desc": "Latih pelari lain. Bayaran skala dengan keahlian berlari Anda." },
-      "sponsor_event": { "name": "Acara Sponsor", "desc": "Penampilan berbayar untuk sponsor Anda. Rasio bayaran/energi terbaik." },
-      "corporate": { "name": "Pekerjaan Korporat", "desc": "Pekerjaan kantor berbayar tinggi. Menuntut tapi menguntungkan." },
-      "coach": { "name": "Pelatih Kebugaran", "desc": "Bimbing orang lain dalam olahraga. Bayaran kecil, peningkatan kharisma tinggi." },
-      "brand_ambassador": { "name": "Duta Merek", "desc": "Promosikan merek, dapatkan komisi. Membutuhkan bakat sosial." },
-      "marathon_trainer": { "name": "Pelatih Marathon", "desc": "Latih pelari untuk marathon. Imbalan stamina tinggi." },
-      "content_creator": { "name": "Pembuat Konten", "desc": "Buat konten lari untuk media sosial. Bangun merek Anda sambil menghasilkan." },
-      "personal_trainer": { "name": "Pelatih Pribadi", "desc": "Latih klien satu per satu. Gunakan keahlian berlari Anda untuk membantu orang lain." },
-      "sports_nutritionist": { "name": "Ahli Gizi Olahraga", "desc": "Kasih saran atlet tentang nutrisi dan diet. Gabungkan pengetahuan dengan pengalaman berlari." },
-      "running_store_staff": { "name": "Karyawan Toko Lari", "desc": "Bekerja di toko khusus lari. Bantu pelanggan menemukan perlengkapan yang tepat." },
-      "event_organizer": { "name": "Penyelenggara Acara", "desc": "Selenggarakan acara dan balapan lari. Kepemimpinan dan pengalaman diperlukan." },
-      "warehouse_worker": { "name": "Pekerja Gudang", "desc": "Kerja fisik bongkar muat paket. Persyaratan rendah, bayaran layak." },
-      "delivery_driver": { "name": "Pengantar Paket", "desc": "Antar paket di sekitar kota. Jam kerja fleksibel, bayaran sedang." },
-      "social_media_manager": { "name": "Manajer Media Sosial", "desc": "Kelola media sosial untuk bisnis lokal. Fokus pada kharisma dan kreativitas." },
-      "physical_therapist": { "name": "Fisioterapis", "desc": "Bantu atlet pulih dari cedera. Memerlukan pengetahuan lari dan intelektual." },
-      "race_official": { "name": "Pejabat Balapan", "desc": "Menjadi petugas di acara lari. Memerlukan pengalaman balapan dan profesionalisme." }
+      "part_time": { "name": "Pekerjaan Part-time", "desc": "Kerja ringan di toko lokal. Menyisakan banyak energi untuk latihan." },
+      "full_time": { "name": "Pekerja Kantoran", "desc": "Standar 9-ke-5. Pemasukan stabil namun menguras energi." },
+      "freelance": { "name": "Freelancer", "desc": "Kerja kontrak dengan bayaran bervariasi tergantung level intelektualmu." },
+      "coaching": { "name": "Pelatih Lari", "desc": "Latih atlet lain. Bayaran bergantung pada pengalaman larimu." },
+      "sponsor_event": { "name": "Event Sponsor", "desc": "Hadir sebagai perwakilan sponsor. Bayaran besar tanpa banyak tenaga." },
+      "corporate": { "name": "Karir Korporat", "desc": "Posisi tinggi di kantor. Sangat menuntut energi harianmu." },
+      "coach": { "name": "Instruktur Fitness", "desc": "Pimpin kelas fitness. Meningkatkan karisma." },
+      "brand_ambassador": { "name": "Brand Ambassador", "desc": "Promosikan brand lari. Butuh karisma tinggi." },
+      "marathon_trainer": { "name": "Pacer Marathon", "desc": "Bantu pacer pelari lain. Meningkatkan daya tahanmu sendiri." },
+      "content_creator": { "name": "Vlogger Lari", "desc": "Dokumentasikan latihanmu online. Bangun komunitas dan dapat cuan." },
+      "personal_trainer": { "name": "Personal Trainer", "desc": "Sesi coaching 1-on-1. Gunakan ilmu lari kamu." },
+      "sports_nutritionist": { "name": "Ahli Gizi Olahraga", "desc": "Atur fuel plan atlet. Menggabungkan intelektual dan pengalaman." },
+      "running_store_staff": { "name": "Staf Toko Lari", "desc": "Bantu pelari memilih sepatu. Dekat dengan dunia olahraga." },
+      "event_organizer": { "name": "Race Director", "desc": "Organisir 5K lokal. Butuh kepemimpinan dan pengalaman race." },
+      "warehouse_worker": { "name": "Pekerja Gudang", "desc": "Kerja fisik. Membuatmu terus berdiri seharian." },
+      "delivery_driver": { "name": "Kurir Delivery", "desc": "Jam kerja fleksibel. Bayaran dan stres sedang." },
+      "social_media_manager": { "name": "Social Media Manager", "desc": "Kelola akun komunitas lari lokal." },
+      "physical_therapist": { "name": "Fisioterapis", "desc": "Bantu pelari pulih dari cedera. Butuh intelektual tinggi." },
+      "race_official": { "name": "Race Official", "desc": "Petugas timing dan ofisial. Butuh profesionalisme dan pengalaman." }
     },
     "missing_req": {
-      "age_min": "Usia {min}+ diperlukan (saat ini {age})",
-      "age_max": "Usia {max} atau kurang diperlukan (saat ini {age})",
-      "intellect": "Intelektual {min}+ diperlukan (saat ini {val})",
-      "charisma": "Kharisma {min}+ diperlukan (saat ini {val})",
-      "running_skill": "Keahlian lari {min}+ diperlukan (saat ini {val})",
-      "sponsor": "Sponsor aktif diperlukan",
-      "career_wins": "{count} kemenangan karier diperlukan (saat ini {val})"
+      "age_min": "Usia minimal {min} (saat ini {age})",
+      "age_max": "Usia maksimal {max} (saat ini {age})",
+      "intellect": "Intelektual {min}+ (saat ini {val})",
+      "charisma": "Karisma {min}+ (saat ini {val})",
+      "running_skill": "Pengalaman lari {min}+ (saat ini {val})",
+      "sponsor": "Butuh kontrak sponsor aktif",
+      "career_wins": "{count} podium karir (saat ini {val})"
     }
   },
   "preparation": {
-    "title": "Persiapan",
-    "subtitle": "Pilih strategi dan peralatanmu",
-    "ready": "Siap Berlomba",
+    "title": "Race Strategy",
+    "subtitle": "Pilih gear dan rencana pacemu",
+    "ready": "Menuju Start",
     "shoes": {
-      "title": "Sepatu",
+      "title": "Sepatu Lari",
       "daily_trainer": {
         "name": "Daily Trainer",
-        "desc": "Seimbang dan tahan lama. Kecepatan standar, kelelahan normal."
+        "desc": "Seimbang dan awet. Pace standar, tingkat kelelahan normal."
       },
       "carbon_racer": {
-        "name": "Carbon Racer",
-        "desc": "Sangat cepat tetapi meningkatkan kelelahan otot."
+        "name": "Carbon Plated Racer",
+        "desc": "Maximum energy return. Sangat cepat namun otot lebih cepat lelah di akhir."
       },
       "lightweight": {
-        "name": "Lightweight Trainer",
-        "desc": "Ringan untuk kecepatan lebih cepat, kenyamanan sedang."
+        "name": "Tempo Shoe",
+        "desc": "Ringan untuk cadence cepat, mengorbankan sedikit bantalan."
       },
       "trail": {
-        "name": "Trail Shoes",
-        "desc": "Cengkeraman luar biasa di medan trail, lebih lambat di jalan raya."
+        "name": "Trail Lugs",
+        "desc": "Grip agresif untuk medan teknikal, terasa berat di jalan aspal."
       }
     },
     "nutrition": {
-      "title": "Nutrisi",
+      "title": "Race Fuel",
       "water": {
         "name": "Air Putih",
-        "desc": "Hidrasi esensial. Memberikan stabilitas hidrasi."
+        "desc": "Hydration esensial untuk menjaga stamina."
       },
       "electrolyte": {
         "name": "Elektrolit",
-        "desc": "Mengurangi risiko kram dan membantu hidrasi tetap stabil."
+        "desc": "Menjaga keseimbangan cairan dan mencegah kram."
       },
       "energy_gel": {
-        "name": "Gel Energi",
-        "desc": "Memberikan dorongan energi di tengah balapan, tetapi berisiko stres lambung."
+        "name": "Energy Gel",
+        "desc": "Suntikan karbohidrat cepat, sedikit berisiko pada pencernaan."
       },
       "caffeine": {
-        "name": "Kafein",
-        "desc": "Meningkatkan fokus awal dan potensi kecepatan agresif, tetapi meningkatkan risiko crash energi kemudian."
+        "name": "Caffeinated Gel",
+        "desc": "Meningkatkan fokus dan menekan rasa lelah, namun berisiko crash di akhir."
       }
     },
     "gear": {
-      "title": "Perlengkapan (Opsional)",
+      "title": "Apparel",
       "cap": {
-        "name": "Topi",
-        "desc": "Melindungi dari panas dan hujan ringan."
+        "name": "Running Cap",
+        "desc": "Melindungi dari silau matahari dan hujan rintik."
       },
       "sunglasses": {
-        "name": "Kacamata Hitam",
-        "desc": "Mengurangi silau di bawah terik matahari."
+        "name": "Performance Shades",
+        "desc": "Mengurangi ketegangan mata di cuaca terik."
       },
       "arm_sleeves": {
         "name": "Arm Sleeves",
-        "desc": "Memberikan kehangatan dalam kondisi dingin."
+        "desc": "Menjaga suhu tubuh saat start di pagi yang dingin."
       },
       "hydration_vest": {
         "name": "Hydration Vest",
-        "desc": "Kapasitas air ekstra. Sedikit meningkatkan kelelahan."
+        "desc": "Kapasitas fuel ekstra untuk rute panjang. Sedikit menambah beban tubuh."
       }
     },
     "warmup": {
-      "title": "Pemanasan",
+      "title": "Warm-up Routine",
       "none": {
-        "name": "Tidak Ada",
-        "desc": "Menghemat energi tetapi meningkatkan risiko cedera dini."
+        "name": "Cold Start",
+        "desc": "Hemat energi tapi sangat berisiko cedera di awal."
       },
       "dynamic": {
-        "name": "Pemanasan Dinamis",
-        "desc": "Mempersiapkan otot, pendekatan seimbang."
+        "name": "Dynamic Drills",
+        "desc": "Mengaktifkan otot untuk langkah awal yang mulus."
       },
       "full": {
-        "name": "Rutinitas Lengkap",
-        "desc": "Kesiapan puncak, memakan sedikit energi awal."
+        "name": "Full Shakeout",
+        "desc": "Mempersiapkan sistem aerobik sepenuhnya, meski sedikit menguras energi di awal."
       }
     },
     "pacing": {
-      "title": "Rencana Kecepatan",
+      "title": "Pacing Strategy",
       "negative_split": {
         "name": "Negative Split",
-        "desc": "Mulai lambat, selesai kuat. Aman dan efisien."
+        "desc": "Mulai dengan tenang, finish dengan kuat. Sangat efisien dan aman."
       },
       "steady": {
-        "name": "Kecepatan Konstan",
-        "desc": "Pertahankan kecepatan konstan. Hasil yang dapat diprediksi."
+        "name": "Even Pace",
+        "desc": "Kunci di ritme konstan. Stabil dan mudah diprediksi."
       },
       "aggressive": {
-        "name": "Agresif",
-        "desc": "Dorong keras sejak awal. Risiko tinggi, imbalan tinggi."
+        "name": "Aggressive Start",
+        "desc": "Simpan waktu di awal. Berisiko kehabisan bensin di kilometer akhir."
       },
       "conservative": {
         "name": "Konservatif",
-        "desc": "Hemat energi, tetap nyaman. Selesai dengan aman."
+        "desc": "Lari dengan nyaman di bawah batas kemampuan. Dijamin finish dengan aman."
       }
     },
     "mindset": {
-      "title": "Pola Pikir",
+      "title": "Mindset",
       "calm": {
-        "name": "Tenang",
-        "desc": "Menjaga detak jantung tetap rendah. Menahan panik."
+        "name": "Rileks",
+        "desc": "Menjaga detak jantung tetap rendah. Cocok untuk lari jarak jauh."
       },
       "confident": {
         "name": "Percaya Diri",
-        "desc": "Meningkatkan performa saat berlari dengan baik."
+        "desc": "Mencapai flow state. Performa meningkat saat pace on target."
       },
       "fearless": {
-        "name": "Tanpa Rasa Takut",
-        "desc": "Mengabaikan rasa lelah. Dapat menyebabkan pemaksaan berlebih."
+        "name": "Gritty",
+        "desc": "Menembus batas rasa sakit. Berisiko overtraining."
       }
     }
   },
@@ -437,170 +437,170 @@
       "sunny": "Cerah",
       "cloudy": "Berawan",
       "rain": "Hujan",
-      "storm": "Badai",
-      "hot": "Panas",
-      "cold": "Dingin",
-      "fog": "Berkabut"
+      "storm": "Hujan Badai",
+      "hot": "Sangat Panas",
+      "cold": "Udara Dingin",
+      "fog": "Kabut Tebal"
     },
     "surface": {
-      "road": "Jalan Raya",
-      "track": "Lintasan Lari",
-      "trail": "Jalan Setapak (Trail)",
-      "any": "Semua"
+      "road": "Jalan Aspal",
+      "track": "Tartan Track",
+      "trail": "Technical Trail",
+      "any": "Mixed Terrain"
     },
     "distance_types": {
-      "any": "Semua",
+      "any": "Bebas",
       "short": "5K",
       "medium": "10K",
       "long": "15K+"
     },
     "elevation": {
       "flat": "Datar",
-      "rolling": "Bukit Landai",
-      "hilly": "Berbukit"
+      "rolling": "Bukit Bergelombang",
+      "hilly": "Tanjakan Terjal"
     },
     "briefing": {
-      "title": "Taklimat Harian",
-      "subtitle": "Analisis kondisi lintasan dan rencanakan strategimu",
-      "distance": "Jarak",
-      "weather_temp": "Cuaca & Suhu",
-      "surface_type": "Tipe Permukaan",
-      "elevation_profile": "Profil Ketinggian",
-      "target_time": "Target Waktu",
-      "wind_speed": "Kecepatan Angin",
-      "start_prep": "Mulai Persiapan"
+      "title": "Race Briefing",
+      "subtitle": "Analisis rute dan matangkan strategimu",
+      "distance": "Jarak Race",
+      "weather_temp": "Cuaca Race",
+      "surface_type": "Medan",
+      "elevation_profile": "Elevasi",
+      "target_time": "Target Finish",
+      "wind_speed": "Kondisi Angin",
+      "start_prep": "Rancang Strategi"
     },
     "race": {
-      "running": "Menjalankan simulasi...",
-      "finish": "Menganalisis performa...",
-      "live_simulation": "Simulasi Langsung",
-      "simulating": "Mensimulasikan",
+      "running": "Menyusuri lintasan...",
+      "finish": "Mendekati garis finish...",
+      "live_simulation": "Live Tracker",
+      "simulating": "Tracking",
       "energy": "Energi",
-      "hydration": "Hidrasi",
+      "hydration": "Hydration",
       "focus": "Fokus",
       "of_distance": "dari {{distance}} km",
-      "feed": "// Laporan Balapan",
-      "started_on": "> Balapan dimulai di medan {{surface}}...",
-      "finished_rendering": "> Garis finis dilewati! Membuat laporan...",
-      "engine_version": "Mesin Simulasi RunQuest v1.0.0",
-      "decision_title": "Momen Kritis",
-      "remaining_seconds": "detik tersisa",
-      "strategic_choices": "Apa yang akan kamu lakukan?",
-      "timeout": "Waktu Habis!",
+      "feed": "// Race Feed",
+      "started_on": "> Pistol start dibunyikan! Berlari di medan {{surface}}...",
+      "finished_rendering": "> Garis finish terlewati! Menganalisis hasil...",
+      "engine_version": "RunQuest Engine v1.0.0",
+      "decision_title": "Race Event",
+      "remaining_seconds": "detik untuk merespon",
+      "strategic_choices": "Apa tindakanmu?",
+      "timeout": "Pace Alert!",
       "timeout_instinct": "Waktu habis! Pelarimu bertindak berdasarkan insting..."
     },
     "result": {
-      "title": "Hasil Perlombaan",
-      "medal": "Medali",
-      "grade": "Nilai",
+      "title": "Race Summary",
+      "medal": "Posisi",
+      "grade": "Grade",
       "time": "Waktu Finish",
-      "story_headline": "Sorotan & Kisah",
-      "lessons_learned": "Pelajaran Pelatih",
+      "story_headline": "Highlights Race",
+      "lessons_learned": "Catatan Pelatih",
       "share": "Bagikan Hasil",
       "back_home": "Kembali ke Menu",
-      "no_results_title": "Hasil aktif tidak ditemukan",
-      "no_results_desc": "Silakan selesaikan tantangan terlebih dahulu.",
-      "go_home": "Kembali ke Beranda",
+      "no_results_title": "Belum ada catatan split",
+      "no_results_desc": "Kamu harus menyentuh garis finish terlebih dahulu.",
+      "go_home": "Kembali",
       "score_out_of": "dari 1000",
-      "share_card": "Kartu Hasil",
-      "download_png": "Unduh Kartu Hasil (PNG)",
-      "generating_image": "Membuat Gambar...",
+      "share_card": "Finisher Card",
+      "download_png": "Unduh Kartu (PNG)",
+      "generating_image": "Menyiapkan Kartu...",
       "copied": "Tersalin!",
-      "outcome_gold": "Medali Emas",
-      "outcome_silver": "Medali Perak",
-      "outcome_bronze": "Medali Perunggu",
-      "outcome_finish": "Finisher",
-      "outcome_dnf": "Gagal Menyelesaikan (DNF)",
-      "outcome_dns": "Tidak Start (DNS)"
+      "outcome_gold": "Juara 1",
+      "outcome_silver": "Juara 2",
+      "outcome_bronze": "Juara 3",
+      "outcome_finish": "Race Selesai",
+      "outcome_dnf": "Did Not Finish (DNF)",
+      "outcome_dns": "Did Not Start (DNS)"
     }
   },
   "share": {
     "card_title": {
-      "loadout": "RunQuest Strategi Balap",
-      "result": "RunQuest Hasil Balapan"
+      "loadout": "RunQuest Race Strategy",
+      "result": "RunQuest Race Summary"
     },
     "card_subtitle": {
-      "loadout": "Strategi Balap Saya",
-      "result": "Laporan Hasil Balapan"
+      "loadout": "Strategi Race Hari Ini",
+      "result": "Catatan Waktu Resmi"
     },
     "card_footer": {
-      "loadout": "Kira-kira saya bakal selamat? 😅",
-      "dns": "Tidak Memulai ❌",
+      "loadout": "Siap menaklukkan rute. 👟",
+      "dns": "Tidak Start ❌",
       "dnf": "Gagal Finish ❌",
-      "finished": "Selesai Balapan! 🏁"
+      "finished": "Berhasil melewati garis finish! 🏁"
     },
     "race_choice": {
-      "title": "Hari Ini Saya Berlari...",
-      "cta": "Balapan apa yang KAMU pilih hari ini?",
-      "button": "Bagikan Pilihan Saya"
+      "title": "Race Plan Hari Ini...",
+      "cta": "Jarak berapa yang kamu hajar hari ini?",
+      "button": "Bagikan Pilihan Race"
     },
     "loadout": {
-      "title": "Strategi Balap Saya",
-      "cta": "Kira-kira saya bakal selamat? 😅",
+      "title": "Strategi Race",
+      "cta": "Siap menaklukkan rute. 👟",
       "button": "Bagikan Strategi"
     },
     "coach": {
-      "title": "Kata Pelatih RunQuest:"
+      "title": "Catatan Pelatih:"
     },
     "event": {
-      "title": "Momen Balapan"
+      "title": "Momen Penting"
     },
     "stats": {
-      "title": "Statistik RunQuest Saya",
-      "cta": "Bisa kalahkan streak saya?"
+      "title": "Statistik Karir",
+      "cta": "Bisa kejar jarak tempuhku?"
     },
     "button": {
       "copy_text": "Salin Teks",
       "download": "Unduh",
-      "share": "Bagikan"
+      "share": "Share"
     },
     "copied": "Tersalin!",
     "downloading": "Menyimpan...",
-    "native_title": "Bagikan RunQuest",
+    "native_title": "Share RunQuest",
     "modal": {
-      "title": "Bagikan Perjalananmu",
-      "subtitle": "Biarkan orang lain tahu pilihan dan hasilmu!"
+      "title": "Bagikan Larimu",
+      "subtitle": "Beritahu teman-temanmu hasil larimu hari ini!"
     }
   },
   "analysis": {
-    "title": "Analisis Balapan",
-    "subtitle": "Pelajari rute dan persiapkan taktik Anda",
-    "key_recommendations": "Rekomendasi Utama",
-    "tactical_warnings": "Peringatan Taktis",
-    "course_segments": "Analisis Segmen Rute",
-    "weather_forecast": "Prakiraan Cuaca Dinamis",
-    "hazards_detected": "Peringatan Bahaya Terdeteksi",
+    "title": "Analisis Rute",
+    "subtitle": "Pelajari rute dan matangkan taktikmu",
+    "key_recommendations": "Strategi Pelatih",
+    "tactical_warnings": "Potensi Bahaya Rute",
+    "course_segments": "Segmen Pacing",
+    "weather_forecast": "Prakiraan Cuaca Race",
+    "hazards_detected": "Sektor Kritis",
     "distance": "Jarak",
-    "difficulty": "Kesulitan",
-    "segment_climb": "Segmen Tanjakan Terjal",
-    "segment_descent": "Segmen Turunan Teknis",
-    "segment_sprint": "Segmen Sprint Akhir",
-    "segment_flat": "Segmen Jalan Datar"
+    "difficulty": "Tingkat Kesulitan",
+    "segment_climb": "Tanjakan Tajam",
+    "segment_descent": "Turunan Teknikal",
+    "segment_sprint": "Final Kick",
+    "segment_flat": "Jalanan Datar"
   },
   "training": {
-    "coach_feedback": "Umpan Balik Pelatih",
-    "no_feedback": "Belum ada umpan balik. Teruslah berlatih!",
-    "choose_activity": "Pilih Aktivitas",
-    "quick_templates": "Templat Rencana Cepat",
-    "recommended": "Rencana yang Direkomendasikan",
+    "coach_feedback": "Catatan Pelatih",
+    "no_feedback": "Terus tambah jarak tempuhmu!",
+    "choose_activity": "Pilih Workout",
+    "quick_templates": "Program Latihan",
+    "recommended": "Program Rekomendasi",
     "selected": "Terpilih",
-    "create_custom_plan": "Buat Rencana Khusus",
-    "weekly_planner": "Perencana Latihan Mingguan",
-    "plan_your_week": "Rencanakan latihan mingguan Anda untuk membangun kebugaran dan mengelola kelelahan.",
-    "this_weeks_plan": "Rencana Minggu Ini",
-    "adherence": "Kepatuhan Mingguan",
-    "weekly_stats": "Statistik Rencana Mingguan",
-    "volume": "Perkiraan Volume",
-    "energy_cost": "Total Biaya Energi",
-    "hard_days": "Jumlah Hari Berat",
-    "rest_days": "Jumlah Hari Istirahat",
-    "plan_adherence": "Kepatuhan Rencana",
+    "create_custom_plan": "Buat Jadwal Sendiri",
+    "weekly_planner": "Jadwal Latihan Mingguan",
+    "plan_your_week": "Atur program latihanmu untuk membangun endurance dan menjaga stamina.",
+    "this_weeks_plan": "Program Minggu Ini",
+    "adherence": "Kepatuhan Latihan",
+    "weekly_stats": "Statistik Program",
+    "volume": "Est. Jarak Tempuh",
+    "energy_cost": "Total Usaha",
+    "hard_days": "Sesi Kualitas",
+    "rest_days": "Rest Day",
+    "plan_adherence": "Kepatuhan",
     "complete": "Selesai",
     "missed": "Terlewat",
-    "regenerate_plan": "Buat Ulang Rencana Mingguan Baru",
+    "regenerate_plan": "Hitung Ulang Jadwal",
     "start_workout": "Mulai Latihan",
-    "need_energy": "Butuh Energi",
-    "no_workout_today": "Tidak Ada Latihan yang Direncanakan Hari Ini",
+    "need_energy": "Energi Tidak Cukup",
+    "no_workout_today": "Jadwal Rest Day",
     "days": {
       "mon": "Sen",
       "tue": "Sel",
@@ -611,29 +611,29 @@
       "sun": "Min"
     },
     "activities": {
-      "recovery_run": "Lari Pemulihan",
-      "easy_run": "Lari Santai",
-      "tempo_run": "Lari Tempo",
-      "interval_training": "Latihan Interval",
-      "long_run": "Lari Jauh",
-      "hill_repeats": "Ulangan Tanjakan",
-      "strength_training": "Latihan Kekuatan",
+      "recovery_run": "Recovery Run",
+      "easy_run": "Easy Run",
+      "tempo_run": "Tempo Run",
+      "interval_training": "Interval Track",
+      "long_run": "Long Run",
+      "hill_repeats": "Hill Repeats",
+      "strength_training": "Strength Training",
       "mobility_session": "Sesi Mobilitas",
-      "full_rest": "Istirahat Penuh"
+      "full_rest": "Rest Day"
     },
     "feedback": {
-      "overtraining_risk": "{count} hari berat dijadwalkan - risiko cedera tinggi. Pertimbangkan mengganti satu dengan lari santai.",
-      "no_rest_days": "Tidak ada hari istirahat - risiko overtraining. Tambahkan setidaknya satu hari istirahat penuh.",
-      "back_to_back_hard_days": "Hari berturut-turut tanpa istirahat. Beri jarak 48+ jam antara sesi intens.",
-      "high_fatigue": "Kelelahan Anda tinggi. Pertimbangkan minggu pemulihan.",
-      "good_spacing": "Rencana bagus! Hari-hari berat Anda terdistribusi optimal untuk pemulihan.",
-      "good_balance": "Keseimbangan latihan dan pemulihan yang baik.",
-      "add_second_session": "Tips: Pertimbangkan menambahkan sesi berkualitas kedua untuk perbaikan lebih cepat.",
-      "more_volume": "Anda bisa menangani lebih banyak volume - pertimbangkan menambah lari ringan lainnya.",
-      "great_race_recovery": "Balapan hebat! Minggu ini untuk pemulihan - usaha ringan saja.",
-      "taper_week": "Balapan mendekati! Ini minggu taper. Fokus pada istirahat dan lari ringan.",
-      "solid_plan": "Ini rencana latihan yang solid dan seimbang. Tetap konsisten!",
-      "decent_plan": "Rencana lumayan, pertimbangkan saran di atas untuk optimasi."
+      "overtraining_risk": "Ada {count} sesi berat. Risiko cedera tinggi, ganti satu dengan Recovery Run.",
+      "no_rest_days": "Tidak ada rest day. Tubuh butuh recovery untuk berkembang—tambahkan satu Rest Day.",
+      "back_to_back_hard_days": "Ada sesi berat berturut-turut. Beri jeda antar sesi agar recovery maksimal.",
+      "high_fatigue": "Tingkat lelahmu maksimal. Minggu ini kita jadikan down-week.",
+      "good_spacing": "Jadwal sempurna. Sesi beratmu punya jarak yang pas untuk recovery.",
+      "good_balance": "Kombinasi yang pas antara volume aerobik dan recovery.",
+      "add_second_session": "Kondisimu bagus. Bisa dipertimbangkan untuk tambah sesi kualitas lagi.",
+      "more_volume": "Aerobic base kamu sudah kuat. Kita bisa aman menambah mileage lari santai.",
+      "great_race_recovery": "Kerja bagus di race! Minggu ini fokus murni pada active recovery.",
+      "taper_week": "Race week! Kita masuk fase tapering. Jaga kaki tetap fresh dengan lari ringan.",
+      "solid_plan": "Program latihan yang solid. Percaya pada prosesnya.",
+      "decent_plan": "Programnya lumayan, tapi penyesuaian volume mungkin bisa beri hasil lebih baik."
     }
   }
 }
