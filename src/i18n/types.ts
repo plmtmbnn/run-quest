@@ -54,6 +54,10 @@ export interface Dictionary {
       carbon_racer: ChoiceText;
       lightweight: ChoiceText;
       trail: ChoiceText;
+      stability?: ChoiceText;
+      max_cushion?: ChoiceText;
+      aggressive_trail?: ChoiceText;
+      minimalist_trail?: ChoiceText;
     };
     nutrition: {
       title: string;
@@ -61,6 +65,10 @@ export interface Dictionary {
       electrolyte: ChoiceText;
       energy_gel: ChoiceText;
       caffeine: ChoiceText;
+      energy_bar?: ChoiceText;
+      hydration_mix?: ChoiceText;
+      salt_tablets?: ChoiceText;
+      caffeine_gum?: ChoiceText;
     };
     gear: {
       title: string;
@@ -68,6 +76,10 @@ export interface Dictionary {
       sunglasses: ChoiceText;
       arm_sleeves: ChoiceText;
       hydration_vest: ChoiceText;
+      lightweight_jacket?: ChoiceText;
+      compression_socks?: ChoiceText;
+      trail_gaiters?: ChoiceText;
+      moisture_wicking_shirt?: ChoiceText;
     };
     warmup: {
       title: string;

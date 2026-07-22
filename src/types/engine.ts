@@ -6,11 +6,11 @@ import type { RunnerProfile } from "@/runner/runner-types";
 
 export type { ActiveBreakingPoint, DesperationMode };
 
-export type Shoe = "daily_trainer" | "carbon_racer" | "lightweight" | "trail";
+export type Shoe = "daily_trainer" | "carbon_racer" | "lightweight" | "trail" | "stability" | "max_cushion" | "aggressive_trail" | "minimalist_trail";
 
-export type Nutrition = "water" | "electrolyte" | "energy_gel" | "caffeine";
+export type Nutrition = "water" | "electrolyte" | "energy_gel" | "caffeine" | "energy_bar" | "hydration_mix" | "salt_tablets" | "caffeine_gum";
 
-export type Gear = "cap" | "sunglasses" | "arm_sleeves" | "hydration_vest";
+export type Gear = "cap" | "sunglasses" | "arm_sleeves" | "hydration_vest" | "lightweight_jacket" | "compression_socks" | "trail_gaiters" | "moisture_wicking_shirt";
 
 export type Warmup = "none" | "dynamic" | "full";
 

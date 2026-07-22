@@ -2,13 +2,14 @@
 
 import { motion } from "framer-motion";
 import { Calendar, Clock, DollarSign, Trophy, Users } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import type { RaceOccurrence } from "../../scheduling/race-calendar-types";
 import { useSettingsStore } from "@/store/settings-store";
 import { useTimelineStore } from "@/store/timeline-store";
 import { formatCurrency } from "@/economy/currency-converter";
 import { formatGameDate } from "@/engine/timeline/calendar";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+import { useSound } from "@/hooks/use-sound";
 
 // Interpolate {placeholder} tokens in translation strings.
 function interpolate(template: string, vars: Record<string, string | number>): string {
@@ -114,18 +115,40 @@ export function RaceCalendar({
   onRaceClick,
 }: RaceCalendarProps) {
   const { t } = useTranslation();
+  const { playSound } = useSound();
   const [activeTab, setActiveTab] = useState<TabType>("today");
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const currentDayIndex = useTimelineStore.getState().gameState?.dayIndex ?? 0;
 
-  const tabs = TAB_CONFIG.map((tab) => ({
-    ...tab,
-    count:
-      tab.id === "today"
-        ? todayRaces.length
-        : tab.id === "registered"
-          ? registeredRaces.length
-          : upcomingRaces.length,
-  }));
+  const handleRaceClick = (race: RaceOccurrence) => {
+    // Check reasons why race entry modal cannot open
+    if (race.isCompleted || race.dayIndex < currentDayIndex) {
+      playSound("alert");
+      const reason = race.isCompleted
+        ? `Cannot open race entry: "${race.name}" has already been completed.`
+        : `Cannot open race entry: "${race.name}" took place on Day ${race.dayIndex + 1} and has passed.`;
+      setAlertMessage(reason);
+      return;
+    }
+
+    // Race is upcoming or today: open modal entry
+    setAlertMessage(null);
+    onRaceClick?.(race);
+  };
+
+  const tabs = useMemo(
+    () =>
+      TAB_CONFIG.map((tab) => ({
+        ...tab,
+        count:
+          tab.id === "today"
+            ? todayRaces.length
+            : tab.id === "registered"
+              ? registeredRaces.length
+              : upcomingRaces.length,
+      })),
+    [todayRaces.length, registeredRaces.length, upcomingRaces.length]
+  );
 
   const tabPanelId = `race-calendar-panel-${activeTab}`;
 
@@ -137,6 +160,32 @@ export function RaceCalendar({
       transition={{ duration: 0.25, ease: "easeInOut" }}
       className="w-full max-w-3xl mx-auto flex flex-col"
     >
+      {/* Alert Banner for unavailable race entries */}
+      {alertMessage && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="w-full px-4 sm:px-6 pt-4"
+        >
+          <div
+            role="alert"
+            className="w-full p-3.5 sm:p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200 flex items-center justify-between gap-3 shadow-sm"
+          >
+            <div className="flex items-center gap-2.5 text-xs sm:text-sm font-bold min-w-0">
+              <span className="text-base shrink-0">⚠️</span>
+              <span className="truncate">{alertMessage}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setAlertMessage(null)}
+              className="text-[10px] sm:text-xs font-black uppercase px-2.5 py-1 rounded-xl bg-amber-200/60 dark:bg-amber-900/60 hover:bg-amber-300 dark:hover:bg-amber-800 transition cursor-pointer shrink-0 text-amber-950 dark:text-amber-100"
+            >
+              Dismiss
+            </button>
+          </div>
+        </motion.div>
+      )}
       {/* Tabs - matching social-screen pill style */}
       <div className="w-full px-4 sm:px-6 pt-4 sm:pt-6">
         <div
@@ -218,7 +267,7 @@ export function RaceCalendar({
                   <RaceCard
                     key={race.scheduleId}
                     race={race}
-                    onClick={() => onRaceClick?.(race)}
+                    onClick={() => handleRaceClick(race)}
                     currentDayIndex={currentDayIndex}
                     variants={itemVariants}
                   />
@@ -250,7 +299,7 @@ export function RaceCalendar({
                     <RaceCard
                       key={`${race.scheduleId}_reg`}
                       race={race}
-                      onClick={() => onRaceClick?.(race)}
+                      onClick={() => handleRaceClick(race)}
                       currentDayIndex={currentDayIndex}
                       variants={itemVariants}
                     />
@@ -282,7 +331,7 @@ export function RaceCalendar({
                   <UpcomingRaceCard
                     key={`${race.scheduleId}_${race.dayIndex}`}
                     race={race}
-                    onClick={() => onRaceClick?.(race)}
+                    onClick={() => handleRaceClick(race)}
                     variants={itemVariants}
                   />
                 ))}
@@ -310,9 +359,9 @@ function RaceCard({
   const preferredCurrency =
     useSettingsStore((state) => state.settings.preferredCurrency) || "USD";
 
-  const isCompleted = race.isCompleted;
-  const isPast = race.dayIndex < currentDayIndex && !isCompleted;
+  const isCompleted = race.isCompleted && currentDayIndex > race.dayIndex;
   const isRaceDay = race.dayIndex === currentDayIndex;
+  const isPast = race.dayIndex < currentDayIndex && !isCompleted && !isRaceDay;
   const isSoon =
     race.dayIndex > currentDayIndex && race.dayIndex - currentDayIndex <= 3;
   const isClickable = isRaceDay && !isCompleted;
@@ -356,7 +405,7 @@ function RaceCard({
     },
   };
 
-  const tier = tierConfig[race.tier] || tierConfig.local;
+  const tier = tierConfig[race.tier] || tierConfig.local; // Fallback to 'local' for unknown tiers
 
   const statusLabel = isCompleted
     ? t("race_calendar.status.completed" as TranslationKey)
@@ -371,18 +420,17 @@ function RaceCard({
   return (
     <motion.button
       type="button"
-      onClick={isClickable ? onClick : undefined}
-      disabled={!isClickable}
-      whileHover={!isDisabled ? { scale: 1.01, y: -2 } : {}}
-      whileTap={!isDisabled ? { scale: 0.99 } : {}}
+      onClick={onClick}
+      whileHover={{ scale: 1.01, y: -2 }}
+      whileTap={{ scale: 0.99 }}
       variants={variants}
       title={statusLabel}
       aria-label={`${race.name} - ${statusLabel}`}
-      aria-disabled={!isClickable}
+      role="button"
       className={`
-        w-full text-left rounded-[2rem] border border-[#E5E7EB] dark:border-slate-800 p-4 sm:p-5 transition-all duration-200 shadow-sm flex flex-col gap-4
+        w-full text-left rounded-[2rem] border border-[#E5E7EB] dark:border-slate-800 p-4 sm:p-5 transition-all duration-200 shadow-sm flex flex-col gap-4 cursor-pointer
         ${isDisabled
-          ? "bg-slate-50/70 dark:bg-slate-950/40 opacity-60 cursor-not-allowed"
+          ? "bg-slate-50/70 dark:bg-slate-950/40 opacity-60"
           : race.isFull
             ? `bg-amber-50/40 dark:bg-amber-950/10 ${tier.border} ${tier.glow}`
             : `${tier.bg} ${tier.border} hover:${tier.glow} hover:shadow-md`
@@ -548,7 +596,7 @@ function UpcomingRaceCard({
     },
   };
 
-  const tier = tierConfig[race.tier] || tierConfig.local;
+  const tier = tierConfig[race.tier] || tierConfig.local; // Fallback to 'local' for unknown tiers
 
   const ariaLabel = `${race.name} - ${interpolate(
     t("race_calendar.labels.tier_race_on" as TranslationKey),
@@ -570,6 +618,7 @@ function UpcomingRaceCard({
         focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40
       `}
       aria-label={ariaLabel}
+      role="button"
     >
       <div className="flex items-center gap-4 min-w-0 flex-1">
         <span
@@ -628,13 +677,22 @@ function UpcomingRaceCard({
           </div>
         </div>
       </div>
-      <div className="text-right shrink-0 ml-4">
+      <div className="text-right shrink-0 ml-4 flex flex-col items-end gap-1">
         <div
-          className={`text-xs font-extrabold flex items-center justify-end gap-1 ${isOpen ? "text-emerald-600 dark:text-emerald-400 animate-pulse" : "text-blue-600 dark:text-blue-400"}`}
+          className={`text-xs font-extbold flex items-center justify-end gap-1 ${isOpen ? "text-emerald-600 dark:text-emerald-400 animate-pulse" : "text-blue-600 dark:text-blue-400"}`}
         >
           {isOpen && <Calendar className="w-3 h-3" />}
           {status}
         </div>
+        {isOpen && !isRegistered && (
+          <button
+            onClick={onClick}
+            className="text-[10px] font-bold uppercase px-2 py-1 rounded-xl bg-indigo-500 text-white hover:bg-indigo-600 transition-colors"
+            aria-label={t("race_calendar.actions.register" as TranslationKey)}
+          >
+            {t("race_calendar.actions.register" as TranslationKey)}
+          </button>
+        )}
         <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
           {formatCurrency(race.entryFee, preferredCurrency)}
         </div>

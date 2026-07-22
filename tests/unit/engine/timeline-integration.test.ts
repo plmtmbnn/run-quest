@@ -70,10 +70,15 @@ describe("Timeline Engine Integration", () => {
     // So fastForward should halt immediately on Day 0 and return the event.
     store.ff("week");
 
-    const updated = useTimelineStore.getState();
+    let updated = useTimelineStore.getState();
     expect(updated.gameState?.dayIndex).toBe(0); // halted at day 0
     expect(updated.pendingEvents).toHaveLength(1);
     expect(updated.pendingEvents[0].id).toBe("story_beat:ch1_start");
+
+    // Subsequent ff("week") should advance the timeline and not remain stuck on Day 0!
+    useTimelineStore.getState().ff("week");
+    updated = useTimelineStore.getState();
+    expect(updated.gameState?.dayIndex).toBe(7); // advanced to day 7
   });
 
   it("advances competitor/rival progression and updates relative timestamps on in-game day changes", () => {

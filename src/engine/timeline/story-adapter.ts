@@ -69,11 +69,15 @@ export function getScheduledStoryEvents(
     });
   }
 
-  // Handle championship availability event if not already won
+  // Handle championship availability event if not already won or notified
   const championshipId = chapter.finalRace.id;
   const championshipWon =
     storyProgress.championshipResults[championshipId]?.won ?? false;
-  if (!championshipWon) {
+  const championshipNotified =
+    storyProgress.viewedStoryBeats.includes(`championship_available:${championshipId}`) ||
+    storyProgress.viewedStoryBeats.includes(`championship_available_${chapter.number}`);
+
+  if (!championshipWon && !championshipNotified) {
     const championshipDay =
       chapterStartDay + Math.ceil(chapter.estimatedRaces * 6);
 
@@ -85,7 +89,7 @@ export function getScheduledStoryEvents(
 
     events.push({
       id: `championship_available:${championshipId}`,
-      type: "competition",
+      type: "story",
       dayIndex: championshipDay,
       payload: storyEvent,
     });

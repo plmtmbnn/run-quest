@@ -354,6 +354,22 @@
       "trail": {
         "name": "Trail Lugs",
         "desc": "Grip agresif untuk medan teknikal, terasa berat di jalan aspal."
+      },
+      "stability": {
+        "name": "Sepatu Stabilitas",
+        "desc": "Menjaga kontrol pronasi dan dorongan stabil, sedikit lebih berat."
+      },
+      "max_cushion": {
+        "name": "Sepatu Max Cushion",
+        "desc": "Busa tebal empuk melindungi sendi saat lari jauh, meredam sensasi jalan."
+      },
+      "aggressive_trail": {
+        "name": "Trail Lugs Agresif",
+        "desc": "Lug karet dalam untuk medan berlumpur dan jalur gunung teknikal."
+      },
+      "minimalist_trail": {
+        "name": "Sepatu Trail Minimalis",
+        "desc": "Tapak tipis untuk sensasi tanah dan kelincahan di jalur trail."
       }
     },
     "nutrition": {
@@ -373,6 +389,22 @@
       "caffeine": {
         "name": "Caffeinated Gel",
         "desc": "Meningkatkan fokus dan menekan rasa lelah, namun berisiko crash di akhir."
+      },
+      "energy_bar": {
+        "name": "Energy Bar",
+        "desc": "Nutrisi padat untuk energi berkelanjutan di jarak jauh."
+      },
+      "hydration_mix": {
+        "name": "Hydration Mix",
+        "desc": "Minuman kombinasi karbohidrat dan elektrolit."
+      },
+      "salt_tablets": {
+        "name": "Tablet Garam",
+        "desc": "Natrium konsentrat tinggi untuk mencegah kram akibat keringat deras."
+      },
+      "caffeine_gum": {
+        "name": "Permen Kafein",
+        "desc": "Dongkrak energi mental cepat untuk mempertajam fokus."
       }
     },
     "gear": {
@@ -392,6 +424,22 @@
       "hydration_vest": {
         "name": "Hydration Vest",
         "desc": "Kapasitas fuel ekstra untuk rute panjang. Sedikit menambah beban tubuh."
+      },
+      "lightweight_jacket": {
+        "name": "Jaket Windbreaker",
+        "desc": "Melindungi dari angin dingin dan gerimis."
+      },
+      "compression_socks": {
+        "name": "Kaos Kaki Kompresi",
+        "desc": "Melancarkan sirkulasi darah dan menopang otot betis."
+      },
+      "trail_gaiters": {
+        "name": "Trail Gaiters",
+        "desc": "Mencegah kerikil, tanah, dan kotoran masuk ke sepatu."
+      },
+      "moisture_wicking_shirt": {
+        "name": "Baju Lari Tech",
+        "desc": "Bahan cepat kering dan bersirkulasi udara untuk mencegah lecet."
       }
     },
     "warmup": {

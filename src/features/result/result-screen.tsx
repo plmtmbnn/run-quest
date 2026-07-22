@@ -688,7 +688,7 @@ export function ResultScreen() {
               {t("challenge.result.story_headline" as TranslationKey)}
             </h3>
             <ul className="flex flex-col gap-2.5">
-              {story.highlights.map((h) => {
+              {story.highlights.map((h, idx) => {
                 const event = lastResult.events.find(
                   (e) =>
                     h.en.includes(`At km ${e.km}:`) ||
@@ -697,7 +697,7 @@ export function ResultScreen() {
 
                 return (
                   <li
-                    key={h.en}
+                    key={`highlight-${idx}-${h.en}`}
                     className="text-xs text-gray-700 dark:text-gray-200 dark:text-gray-300 bg-gray-50 dark:bg-slate-900 border border-gray-100 dark:border-slate-800/40 rounded-xl p-3 flex items-center justify-between gap-4"
                   >
                     <span className="flex-grow leading-relaxed">{h[lang]}</span>
@@ -731,9 +731,9 @@ export function ResultScreen() {
             </h2>
           </div>
           <ul className="flex flex-col gap-3">
-            {story.lessons.map((lesson) => (
+            {story.lessons.map((lesson, idx) => (
               <li
-                key={lesson.en}
+                key={`lesson-${idx}-${lesson.en}`}
                 className="text-xs leading-relaxed text-gray-600 dark:text-gray-300 flex items-center justify-between gap-4 bg-gray-50 dark:bg-slate-900 border border-gray-100 dark:border-slate-800/40 p-3 rounded-xl"
               >
                 <div className="flex items-start gap-2 flex-grow">

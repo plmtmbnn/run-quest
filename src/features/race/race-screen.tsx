@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Activity, Flame, Gauge, TrendingUp, FastForward, Play } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { analyzeRace } from "@/coach/coach-analysis";
 import { BreakingPointOverlay } from "@/components/race/breaking-point";
 import { DesperationOverlay } from "@/components/race/desperation-mode";
@@ -58,7 +58,17 @@ export function RaceScreen() {
   const [targetKm, setTargetKm] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   const [runningEvents, setRunningEvents] = useState<RaceEvent[]>([]);
-  const [stats, setStats] = useState({
+  // Define the stats reducer
+  const statsReducer = (state: typeof initialStats, action: { type: string; payload: Partial<typeof initialStats> }) => {
+    switch (action.type) {
+      case 'UPDATE':
+        return { ...state, ...action.payload };
+      default:
+        return state;
+    }
+  };
+  
+  const initialStats = {
     energy: 100,
     hydration: 100,
     focus: 100,
@@ -69,7 +79,9 @@ export function RaceScreen() {
     paceStability: 80,
     riskLevel: 20,
     pace: 0,
-  });
+  };
+  
+  const [stats, dispatchStats] = useReducer(statsReducer, initialStats);
 
   // State elements for decision moments
   const [simState, setSimState] = useState<SimulationState | null>(null);
@@ -100,6 +112,13 @@ export function RaceScreen() {
   // Trigger to advance simulation chunk
   const handleAdvance = useCallback(
     (choiceId?: string) => {
+      // Validate challenge and preparation objects
+      if (!challenge || !preparation) {
+        console.error("Missing challenge or preparation data");
+        router.push("/preparation");
+        return;
+      }
+      
       const seed = Number.parseInt(challenge.date.replace(/-/g, ""), 10) || 42;
       const input = {
         player: { id: "player_local" },
@@ -125,50 +144,42 @@ export function RaceScreen() {
         return;
       }
 
-      if (nextStep.type === "decision") {
-        simStateRef.current = nextStep.state;
-        setSimState(nextStep.state);
-        const newLog = nextStep.state.accumulatedStateLog || [];
+      // Helper function to update the state log
+      const updateStateLog = (newLog: Omit<SimulationState, "accumulatedStateLog">[]) => {
         if (newLog.length >= fullStateLogRef.current.length) {
           fullStateLogRef.current = newLog;
         }
+      };
+
+      if (nextStep.type === "decision") {
+        simStateRef.current = nextStep.state;
+        setSimState(nextStep.state);
+        updateStateLog(nextStep.state.accumulatedStateLog || []);
         setTargetKm(nextStep.state.distanceCovered);
         setPendingPrompt(nextStep.prompt);
       } else if (nextStep.type === "breaking_point") {
         simStateRef.current = nextStep.state;
         setSimState(nextStep.state);
-        const newLog = nextStep.state.accumulatedStateLog || [];
-        if (newLog.length >= fullStateLogRef.current.length) {
-          fullStateLogRef.current = newLog;
-        }
+        updateStateLog(nextStep.state.accumulatedStateLog || []);
         setTargetKm(nextStep.state.distanceCovered);
         setPendingPrompt(null);
       } else if (nextStep.type === "desperation") {
         simStateRef.current = nextStep.state;
         setSimState(nextStep.state);
-        const newLog = nextStep.state.accumulatedStateLog || [];
-        if (newLog.length >= fullStateLogRef.current.length) {
-          fullStateLogRef.current = newLog;
-        }
+        updateStateLog(nextStep.state.accumulatedStateLog || []);
         setTargetKm(nextStep.state.distanceCovered);
         setPendingPrompt(null);
       } else if (nextStep.type === "step") {
         simStateRef.current = nextStep.state;
         setSimState(nextStep.state);
-        const newLog = nextStep.state.accumulatedStateLog || [];
-        if (newLog.length >= fullStateLogRef.current.length) {
-          fullStateLogRef.current = newLog;
-        }
+        updateStateLog(nextStep.state.accumulatedStateLog || []);
         setTargetKm(nextStep.state.distanceCovered);
         setPendingPrompt(null);
       } else {
         simStateRef.current = null;
         setSimState(null);
         setSimResult(nextStep.result);
-        const newLog = nextStep.result.stateLog || [];
-        if (newLog.length >= fullStateLogRef.current.length) {
-          fullStateLogRef.current = newLog;
-        }
+        updateStateLog(nextStep.result.stateLog || []);
         setTargetKm(nextStep.result.stateLog.length - 1);
         setPendingPrompt(null);
       }
@@ -268,17 +279,20 @@ export function RaceScreen() {
           ? snapshot.accumulatedTime - prevSnapshot.accumulatedTime
           : snapshot.accumulatedTime;
 
-        setStats({
-          energy: Math.round(snapshot.energy),
-          hydration: Math.round(snapshot.hydration),
-          focus: Math.round(snapshot.focus),
-          confidence: Math.round(snapshot.confidence),
-          muscleFatigue: Math.round(snapshot.muscleFatigue ?? 0),
-          mentalFatigue: Math.round(snapshot.mentalFatigue ?? 0),
-          momentum: Math.round(snapshot.momentum ?? 50),
-          paceStability: Math.round(snapshot.paceStability ?? 80),
-          riskLevel: Math.round(snapshot.riskLevel ?? 20),
-          pace: elapsedSeconds,
+        dispatchStats({
+          type: 'UPDATE',
+          payload: {
+            energy: Math.max(0, Math.round(snapshot.energy)),
+            hydration: Math.max(0, Math.round(snapshot.hydration)),
+            focus: Math.max(0, Math.round(snapshot.focus)),
+            confidence: Math.max(0, Math.round(snapshot.confidence)),
+            muscleFatigue: Math.round(snapshot.muscleFatigue ?? 0),
+            mentalFatigue: Math.round(snapshot.mentalFatigue ?? 0),
+            momentum: Math.round(snapshot.momentum ?? 50),
+            paceStability: Math.round(snapshot.paceStability ?? 80),
+            riskLevel: Math.round(snapshot.riskLevel ?? 20),
+            pace: elapsedSeconds,
+          }
         });
       }
     }, intervalMs);
@@ -337,12 +351,14 @@ export function RaceScreen() {
   };
 
   const handleBreakingPointRecovery = (optionId: string) => {
+    if (!activeBreakingPoint) return;
     playSound("click");
     setActiveBreakingPoint(null);
     handleAdvance(optionId);
   };
 
   const handleDesperationChoice = (choiceId: string) => {
+    if (!activeDesperation) return;
     playSound("click");
     setActiveDesperation(null);
     handleAdvance(choiceId);
@@ -425,17 +441,19 @@ export function RaceScreen() {
     }
 
     // 4. Update local screen stats directly
-    setStats((prev) => {
-      const next = { ...prev };
-      if (item === "energy_gel") {
-        const isIronStomach =
-          runnerState.profile.activePerks?.includes("iron_stomach");
-        next.energy = Math.min(100, prev.energy + (isIronStomach ? 50 : 25));
-      }
-      if (item === "electrolytes")
-        next.hydration = Math.min(100, prev.hydration + 20);
-      if (item === "caffeine_gum") next.focus = Math.min(100, prev.focus + 20);
-      return next;
+    dispatchStats({
+      type: 'UPDATE',
+      payload: (() => {
+        const next = { ...stats };
+        if (item === "energy_gel") {
+          const isIronStomach = runnerState.profile.activePerks?.includes("iron_stomach");
+          next.energy = Math.min(100, stats.energy + (isIronStomach ? 50 : 25));
+        }
+        if (item === "electrolytes")
+          next.hydration = Math.min(100, stats.hydration + 20);
+        if (item === "caffeine_gum") next.focus = Math.min(100, stats.focus + 20);
+        return next;
+      })()
     });
 
     // 5. Append to runningEvents log
@@ -1185,6 +1203,7 @@ export function RaceScreen() {
         <BreakingPointOverlay
           breakingPoint={activeBreakingPoint}
           onRecovery={handleBreakingPointRecovery}
+          onEndorphinTrigger={() => setActiveBreakingPoint(null)}
         />
       )}
 

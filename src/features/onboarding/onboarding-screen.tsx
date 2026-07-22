@@ -125,12 +125,12 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       setHasNameError(true);
       return;
     }
-    setPlayerName(nameInput.trim());
+setPlayerName(nameInput.trim());
     setNationality(selectedNationality);
     setPreferredCurrency(selectedCurrency);
     storageRepository.saveSettings({
       version: 1,
-      theme: "light", // Forced light theme globally
+      theme: "system", // Use system preference by default instead of forcing light
       language,
       reducedMotion: false,
       sound: true,

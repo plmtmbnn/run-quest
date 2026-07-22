@@ -4,7 +4,7 @@ import { AtmosphereEngine } from "@/engine/atmosphere/atmosphere-engine";
 import { CrowdEngine } from "@/engine/atmosphere/crowd-engine";
 import { BreakingPointEngine } from "@/engine/breaking-points/breaking-engine";
 import {
-  DESERATION_OPTIONS,
+  DESPERATION_OPTIONS,
   DesperationEngine,
 } from "@/engine/desperation/desperation-engine";
 import { calculateEnvironmentModifiers } from "@/engine/environment/environment-modifier";
@@ -432,11 +432,11 @@ export function advanceSimulation(
             );
           }
 
-          const option = DESERATION_OPTIONS.find(
-            (
-              o: import("@/engine/desperation/desperation-types").DesperationOption,
-            ) => o.id === choiceId,
-          );
+    const option = DESPERATION_OPTIONS.find(
+      (
+        o: import("@/engine/desperation/desperation-types").DesperationOption,
+      ) => o.id === choiceId,
+    );
           state.eventsResolved.push({
             km: state.distanceCovered,
             title: {

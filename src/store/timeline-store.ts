@@ -24,6 +24,7 @@ import { getScheduleById } from "@/scheduling/race-calendar-engine";
 import { useSocialStore } from "@/social/social-store";
 import { storageRepository } from "@/storage/storage-repository";
 import type { StoredGameState } from "@/storage/types";
+import { markStoryBeatViewed } from "@/story/story-engine";
 import { useStoryStore } from "@/story/story-store";
 
 interface TimelineState {
@@ -184,10 +185,43 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
 
     set({ gameState: stateAfterSalary, pendingEvents: events });
     storageRepository.saveGameState(stateAfterSalary);
+
+    // Mark any triggered story beats as viewed so subsequent fast-forwards don't get stuck on the same beat
+    if (events.length > 0) {
+      const storyStore = useStoryStore.getState();
+      let currentProgress = storyStore.storyProgress;
+      let progressUpdated = false;
+
+      for (const ev of events) {
+        if (ev.type === "story") {
+          const beatId = (ev.payload as any)?.storyBeat?.id || ev.id;
+          if (beatId && !currentProgress.viewedStoryBeats.includes(beatId)) {
+            currentProgress = markStoryBeatViewed(currentProgress, beatId);
+            progressUpdated = true;
+          }
+        }
+      }
+
+      if (progressUpdated) {
+        storyStore.setStoryProgress(currentProgress);
+      }
+    }
   },
 
   acknowledgeEvent(eventId: string) {
     const { pendingEvents } = get();
+    const eventToAck = pendingEvents.find((e) => e.id === eventId);
+    if (eventToAck && eventToAck.type === "story") {
+      const beatId = (eventToAck.payload as any)?.storyBeat?.id || eventToAck.id;
+      if (beatId) {
+        const storyStore = useStoryStore.getState();
+        if (!storyStore.storyProgress.viewedStoryBeats.includes(beatId)) {
+          storyStore.setStoryProgress(
+            markStoryBeatViewed(storyStore.storyProgress, beatId)
+          );
+        }
+      }
+    }
     set({ pendingEvents: pendingEvents.filter((e) => e.id !== eventId) });
   },
 

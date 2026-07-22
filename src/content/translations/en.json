@@ -354,6 +354,22 @@
       "trail": {
         "name": "Trail Lugs",
         "desc": "Aggressive grip for technical terrain, sluggish on pavement."
+      },
+      "stability": {
+        "name": "Stability Shoe",
+        "desc": "Provides pronation control and support for heavy impact, slightly heavier."
+      },
+      "max_cushion": {
+        "name": "Max Cushion Shoe",
+        "desc": "Plush maximalist foam to protect joints on long runs, reduces road feel."
+      },
+      "aggressive_trail": {
+        "name": "Aggressive Trail Lugs",
+        "desc": "Deep rubber lugs for mud and technical mountain terrain."
+      },
+      "minimalist_trail": {
+        "name": "Minimalist Trail Shoe",
+        "desc": "Low stack height for ground feel and nimble footwork on trails."
       }
     },
     "nutrition": {
@@ -373,6 +389,22 @@
       "caffeine": {
         "name": "Caffeinated Gel",
         "desc": "Sharpens focus and drops perceived effort, but risks a hard crash."
+      },
+      "energy_bar": {
+        "name": "Energy Bar",
+        "desc": "Solid fuel for sustained energy on longer efforts."
+      },
+      "hydration_mix": {
+        "name": "Hydration Mix",
+        "desc": "Carb and electrolyte drink mix for easy sipping."
+      },
+      "salt_tablets": {
+        "name": "Salt Tablets",
+        "desc": "Concentrated sodium to prevent heavy sweating cramping."
+      },
+      "caffeine_gum": {
+        "name": "Caffeine Chews",
+        "desc": "Fast-acting mental boost to sharpen focus."
       }
     },
     "gear": {
@@ -392,6 +424,22 @@
       "hydration_vest": {
         "name": "Hydration Vest",
         "desc": "Carries extra fuel for long hauls. Adds slight weight penalty."
+      },
+      "lightweight_jacket": {
+        "name": "Windbreaker Jacket",
+        "desc": "Protects against cold wind and light rain."
+      },
+      "compression_socks": {
+        "name": "Compression Socks",
+        "desc": "Promotes circulation and calf muscle support."
+      },
+      "trail_gaiters": {
+        "name": "Trail Gaiters",
+        "desc": "Keeps debris, rocks, and dirt out of your shoes."
+      },
+      "moisture_wicking_shirt": {
+        "name": "Tech Tee",
+        "desc": "Breathable moisture-wicking fabric to stay dry and chafe-free."
       }
     },
     "warmup": {

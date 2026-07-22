@@ -131,9 +131,13 @@ function getRaceOccurrence(
     return null;
   }
 
-  // Check if already completed (on this day or earlier)
-  const lastCompleted = schedulingState.completedRaces[schedule.raceId];
-  const isCompleted = lastCompleted !== undefined && lastCompleted <= dayIndex;
+  // Check if this specific race occurrence on this dayIndex was completed
+  const completedDay =
+    schedulingState.completedRaces[`${schedule.id}_${dayIndex}`] ??
+    (schedulingState.completedRaces[schedule.id] === dayIndex
+      ? dayIndex
+      : undefined);
+  const isCompleted = completedDay !== undefined;
 
   // Calculate dates
   const registrationOpensAt = dayIndex - schedule.registration.opensDaysBefore;
@@ -291,6 +295,8 @@ export function completeRace(
     ...schedulingState,
     completedRaces: {
       ...schedulingState.completedRaces,
+      [scheduleId]: dayIndex,
+      [`${scheduleId}_${dayIndex}`]: dayIndex,
       [raceId]: dayIndex,
     },
     registered: Object.fromEntries(
@@ -454,8 +460,12 @@ export function getRegisteredRaces(
     if (!occurrence) continue;
 
     // Determine completion status
-    const completedDay = schedulingState.completedRaces[occurrence.raceId];
-    occurrence.isCompleted = completedDay !== undefined && completedDay <= occurrence.dayIndex;
+    const completedDay =
+      schedulingState.completedRaces[`${occurrence.scheduleId}_${occurrence.dayIndex}`] ??
+      (schedulingState.completedRaces[occurrence.scheduleId] === occurrence.dayIndex
+        ? occurrence.dayIndex
+        : undefined);
+    occurrence.isCompleted = completedDay !== undefined;
 
     registered.push(occurrence);
   }

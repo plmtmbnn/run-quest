@@ -14,7 +14,7 @@ import { RaceCalendar } from "@/components/scheduling/race-calendar";
 import { RaceEntryModal } from "@/components/scheduling/race-entry-modal";
 import { DailyStatsCard } from "@/components/share/daily-stats-card";
 import { ShareModal } from "@/components/share/share-modal";
-import { GameClock } from "@/components/ui/game-clock";
+import { GameStats } from "@/components/ui/game-clock";
 import { RestControls } from "@/components/ui/rest-controls";
 import { formatCurrency } from "@/economy/currency-converter";
 import {
@@ -221,12 +221,6 @@ export function HomeScreen() {
     const onlyRegister = race.dayIndex > currentDayIndex;
     const isRegistered = race.isRegistered;
     
-    // Sprint 29 Task 3: Prevent re-registering for already registered races
-    if (isRegistered && onlyRegister) {
-      console.warn("Already registered for this race");
-      return;
-    }
-    
     const validation = validateRaceEntry(
       gameState.economy,
       gameState,
@@ -379,7 +373,7 @@ export function HomeScreen() {
 
       {/* Main Container */}
       <main className="flex-1 px-4 md:px-6 py-3 md:py-4 flex flex-col gap-4 md:gap-6">
-        <GameClock />
+        <GameStats />
 
         {/* Player Stats Panel (Updated to show Money) */}
         {player && gameState && (

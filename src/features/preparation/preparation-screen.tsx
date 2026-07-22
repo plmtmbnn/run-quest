@@ -57,16 +57,52 @@ export function PreparationScreen() {
   } = usePreparationStore();
   const { playSound } = useSound();
 
+  const isTrailRace = challenge.race.surface === "trail";
+  const isHotWeather = challenge.environment.temperature >= 25;
+  const isColdWeather = challenge.environment.temperature <= 10;
+  const isRainyWeather = challenge.environment.weather === "rain";
+
   const setShoes = (val: Parameters<typeof _setShoes>[0]) => {
+    // Prevent selecting trail shoes for road races and vice versa
+    if (!isTrailRace && (val === "trail" || val === "aggressive_trail" || val === "minimalist_trail")) {
+      return;
+    }
+    if (isTrailRace && (val === "stability" || val === "max_cushion")) {
+      return;
+    }
     playSound("click");
     _setShoes(val);
   };
+
+  const getShoeOptions = () => {
+    const roadShoes: { id: import("@/types/engine").Shoe; disabled: boolean }[] = [
+      { id: "daily_trainer", disabled: false },
+      { id: "carbon_racer", disabled: false },
+      { id: "lightweight", disabled: false },
+      { id: "stability", disabled: false },
+      { id: "max_cushion", disabled: false },
+    ];
+    
+    const trailShoes: { id: import("@/types/engine").Shoe; disabled: boolean }[] = [
+      { id: "trail", disabled: false },
+      { id: "aggressive_trail", disabled: false },
+      { id: "minimalist_trail", disabled: false },
+    ];
+    
+    return isTrailRace ? [...roadShoes, ...trailShoes] : roadShoes;
+  };
   const toggleNutrition = (val: Parameters<typeof _toggleNutrition>[0]) => {
     playSound("click");
+    if (preparation.nutrition.length >= 3 && !preparation.nutrition.includes(val)) {
+      return; // Prevent adding more than 3 nutrition items
+    }
     _toggleNutrition(val);
   };
   const toggleGear = (val: Parameters<typeof _toggleGear>[0]) => {
     playSound("click");
+    if (preparation.gear.length >= 2 && !preparation.gear.includes(val)) {
+      return; // Prevent adding more than 2 gear items
+    }
     _toggleGear(val);
   };
   const setWarmup = (val: Parameters<typeof _setWarmup>[0]) => {
@@ -205,89 +241,125 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
               <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
                 {t("preparation.shoes.title" as TranslationKey)}
               </h2>
+              <span className="text-xs text-gray-500 dark:text-gray-400 ml-auto capitalize">
+                {challenge.race.surface}
+              </span>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-              <OptionCard
-                id="shoe-daily"
-                selected={preparation.shoes === "daily_trainer"}
-                onClick={() => setShoes("daily_trainer")}
-                title={t(
-                  "preparation.shoes.daily_trainer.name" as TranslationKey,
-                )}
-                desc={t(
-                  "preparation.shoes.daily_trainer.desc" as TranslationKey,
-                )}
-                badges={[
-                  {
-                    text: "⚖️ Balanced",
-                    color:
-                      "bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-200",
-                  },
-                ]}
-              />
-              <OptionCard
-                id="shoe-carbon"
-                selected={preparation.shoes === "carbon_racer"}
-                onClick={() => setShoes("carbon_racer")}
-                title={t(
-                  "preparation.shoes.carbon_racer.name" as TranslationKey,
-                )}
-                desc={t(
-                  "preparation.shoes.carbon_racer.desc" as TranslationKey,
-                )}
-                badges={[
-                  {
-                    text: "⚡ + Pace",
-                    color:
-                      "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300",
-                  },
-                  {
-                    text: "⚠️ + Fatigue",
-                    color:
-                      "bg-red-100 dark:bg-red-950/40 text-red-800 dark:text-red-300",
-                  },
-                ]}
-              />
-              <OptionCard
-                id="shoe-lightweight"
-                selected={preparation.shoes === "lightweight"}
-                onClick={() => setShoes("lightweight")}
-                title={t(
-                  "preparation.shoes.lightweight.name" as TranslationKey,
-                )}
-                desc={t("preparation.shoes.lightweight.desc" as TranslationKey)}
-                badges={[
-                  {
-                    text: "🏃 Lightweight",
-                    color:
-                      "bg-sky-100 dark:bg-sky-950/40 text-sky-800 dark:text-sky-300",
-                  },
-                  {
-                    text: "📉 Comfort",
-                    color:
-                      "bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300",
-                  },
-                ]}
-              />
-              <OptionCard
-                id="shoe-trail"
-                selected={preparation.shoes === "trail"}
-                onClick={() => setShoes("trail")}
-                title={t("preparation.shoes.trail.name" as TranslationKey)}
-                desc={t("preparation.shoes.trail.desc" as TranslationKey)}
-                badges={[
-                  {
-                    text: "🥾 + Trail Grip",
-                    color:
-                      "bg-orange-100 dark:bg-orange-950/40 text-orange-800 dark:text-orange-300",
-                  },
-                  {
-                    text: "🐢 - Road Speed",
-                    color:
-                      "bg-amber-100 dark:bg-amber-950/40 text-amber-750 dark:text-amber-300",
-                  },
-                ]}
-              />
+              {getShoeOptions().map((shoe) => {
+                const isDisabled = 
+                  (!isTrailRace && (shoe.id === "trail" || shoe.id === "aggressive_trail" || shoe.id === "minimalist_trail")) ||
+                  (isTrailRace && (shoe.id === "stability" || shoe.id === "max_cushion"));
+                
+                return (
+                  <OptionCard
+                    key={shoe.id}
+                    id={`shoe-${shoe.id}`}
+                    selected={preparation.shoes === shoe.id}
+                    onClick={() => setShoes(shoe.id)}
+                    title={t(`preparation.shoes.${shoe.id}.name` as TranslationKey)}
+                    desc={t(`preparation.shoes.${shoe.id}.desc` as TranslationKey)}
+                    badges={[ 
+                      ...(() => {
+                        const badges = [];
+                        if (shoe.id === "daily_trainer") {
+                          badges.push({
+                            text: "⚖️ Balanced",
+                            color: "bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-200",
+                          });
+                        } else if (shoe.id === "carbon_racer") {
+                          badges.push(
+                            {
+                              text: "⚡ + Pace",
+                              color: "bg-emerald-100 dark:bg-emerald-955/40 text-emerald-800 dark:text-emerald-300",
+                            },
+                            {
+                              text: "⚠️ + Fatigue",
+                              color: "bg-red-100 dark:bg-red-955/40 text-red-800 dark:text-red-300",
+                            }
+                          );
+                        } else if (shoe.id === "lightweight") {
+                          badges.push(
+                            {
+                              text: "🏃 Lightweight",
+                              color: "bg-sky-100 dark:bg-sky-955/40 text-sky-800 dark:text-sky-300",
+                            },
+                            {
+                              text: "📉 Comfort",
+                              color: "bg-amber-100 dark:bg-amber-955/40 text-amber-800 dark:text-amber-300",
+                            }
+                          );
+                        } else if (shoe.id === "trail") {
+                          badges.push(
+                            {
+                              text: "🥾 + Trail Grip",
+                              color: "bg-orange-100 dark:bg-orange-955/40 text-orange-800 dark:text-orange-300",
+                            },
+                            {
+                              text: "🐢 - Road Speed",
+                              color: "bg-amber-100 dark:bg-amber-955/40 text-amber-750 dark:text-amber-300",
+                            }
+                          );
+                        } else if (shoe.id === "stability") {
+                          badges.push(
+                            {
+                              text: "⚖️ Stability",
+                              color: "bg-blue-100 dark:bg-blue-955/40 text-blue-800 dark:text-blue-300",
+                            },
+                            {
+                              text: "⚠️ Heavy",
+                              color: "bg-red-100 dark:bg-red-955/40 text-red-800 dark:text-red-300",
+                            }
+                          );
+                        } else if (shoe.id === "max_cushion") {
+                          badges.push(
+                            {
+                              text: "🛡️ Comfort",
+                              color: "bg-emerald-100 dark:bg-emerald-955/40 text-emerald-800 dark:text-emerald-300",
+                            },
+                            {
+                              text: "🐢 Slow",
+                              color: "bg-amber-100 dark:bg-amber-955/40 text-amber-750 dark:text-amber-300",
+                            }
+                          );
+                        } else if (shoe.id === "aggressive_trail") {
+                          badges.push(
+                            {
+                              text: "🥾 Grip",
+                              color: "bg-orange-100 dark:bg-orange-955/40 text-orange-800 dark:text-orange-300",
+                            },
+                            {
+                              text: "🏔️ Trail Only",
+                              color: "bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-200",
+                            }
+                          );
+                        } else if (shoe.id === "minimalist_trail") {
+                          badges.push(
+                            {
+                              text: "🏃 Lightweight",
+                              color: "bg-sky-100 dark:bg-sky-955/40 text-sky-800 dark:text-sky-300",
+                            },
+                            {
+                              text: "📉 Comfort",
+                              color: "bg-amber-100 dark:bg-amber-955/40 text-amber-800 dark:text-amber-300",
+                            }
+                          );
+                        }
+                        
+                        if (isDisabled) {
+                          badges.push({
+                            text: isTrailRace ? "🚫 Road Only" : "🚫 Trail Only",
+                            color: "bg-red-100 dark:bg-red-955/40 text-red-800 dark:text-red-300",
+                          });
+                        }
+                        
+                        return badges;
+                      })()
+                    ]}
+                    disabled={isDisabled}
+                  />
+                );
+              })}
             </div>
           </section>
 
@@ -298,7 +370,20 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
               <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
                 {t("preparation.nutrition.title" as TranslationKey)}
               </h2>
+              <span className="text-xs text-gray-500 dark:text-gray-400 ml-auto">
+                {preparation.nutrition.length}/3
+              </span>
             </div>
+            {isHotWeather && (
+              <div className="text-xs text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/20 p-2 rounded-lg">
+                {t("preparation.nutrition.hot_weather_tip" as TranslationKey)}
+              </div>
+            )}
+            {isColdWeather && (
+              <div className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/20 p-2 rounded-lg">
+                {t("preparation.nutrition.cold_weather_tip" as TranslationKey)}
+              </div>
+            )}
             <div className="grid gap-4 sm:grid-cols-2">
               <OptionCard
                 id="nutr-water"
@@ -369,14 +454,94 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                   {
                     text: "🧠 Early Focus",
                     color:
-                      "bg-purple-100 dark:bg-purple-950/40 text-purple-800 dark:text-purple-300",
+                      "bg-purple-100 dark:bg-purple-955/40 text-purple-800 dark:text-purple-300",
                   },
                   {
                     text: "📉 Energy Crash Risk",
                     color:
-                      "bg-rose-100 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300",
+                      "bg-rose-100 dark:bg-rose-955/40 text-rose-800 dark:text-rose-300",
                   },
                 ]}
+              />
+              <OptionCard
+                id="nutr-energy-bar"
+                selected={preparation.nutrition.includes("energy_bar")}
+                onClick={() => toggleNutrition("energy_bar")}
+                title={t("preparation.nutrition.energy_bar.name" as TranslationKey)}
+                desc={t("preparation.nutrition.energy_bar.desc" as TranslationKey)}
+                badges={[
+                  {
+                    text: "⚡ Energy",
+                    color:
+                      "bg-yellow-100 dark:bg-yellow-955/40 text-yellow-800 dark:text-yellow-300",
+                  },
+                  {
+                    text: "🐢 Slow Absorption",
+                    color:
+                      "bg-orange-100 dark:bg-orange-955/40 text-orange-800 dark:text-orange-300",
+                  },
+                ]}
+              />
+              <OptionCard
+                id="nutr-hydration-mix"
+                selected={preparation.nutrition.includes("hydration_mix")}
+                onClick={() => toggleNutrition("hydration_mix")}
+                title={t("preparation.nutrition.hydration_mix.name" as TranslationKey)}
+                desc={t("preparation.nutrition.hydration_mix.desc" as TranslationKey)}
+                badges={[
+                  {
+                    text: "💧 Hydration",
+                    color:
+                      "bg-blue-100 dark:bg-blue-955/40 text-blue-800 dark:text-blue-300",
+                  },
+                  {
+                    text: "⚡ Energy",
+                    color:
+                      "bg-yellow-100 dark:bg-yellow-955/40 text-yellow-800 dark:text-yellow-300",
+                  },
+                ]}
+              />
+              <OptionCard
+                id="nutr-salt-tablets"
+                selected={preparation.nutrition.includes("salt_tablets")}
+                onClick={() => toggleNutrition("salt_tablets")}
+                title={t("preparation.nutrition.salt_tablets.name" as TranslationKey)}
+                desc={t("preparation.nutrition.salt_tablets.desc" as TranslationKey)}
+                badges={[
+                  {
+                    text: "🧂 Cramp Prevention",
+                    color:
+                      "bg-teal-100 dark:bg-teal-955/40 text-teal-800 dark:text-teal-300",
+                  },
+                  {
+                    text: "🌡️ Hot Weather",
+                    color: isHotWeather
+                      ? "bg-red-200 dark:bg-red-900/60 text-red-900 dark:text-red-100"
+                      : "bg-red-100 dark:bg-red-955/40 text-red-800 dark:text-red-300",
+                  },
+                ]}
+                className={isHotWeather ? "ring-2 ring-red-500" : ""}
+              />
+              <OptionCard
+                id="nutr-caffeine-gum"
+                selected={preparation.nutrition.includes("caffeine_gum")}
+                onClick={() => toggleNutrition("caffeine_gum")}
+                title={t("preparation.nutrition.caffeine_gum.name" as TranslationKey)}
+                desc={t("preparation.nutrition.caffeine_gum.desc" as TranslationKey)}
+                badges={[
+                  {
+                    text: "🧠 Focus",
+                    color: isColdWeather
+                      ? "bg-purple-200 dark:bg-purple-900/60 text-purple-900 dark:text-purple-100"
+                      : "bg-purple-100 dark:bg-purple-955/40 text-purple-800 dark:text-purple-300",
+                  },
+                  {
+                    text: "⚠️ Jitters",
+                    color:
+                      "bg-rose-100 dark:bg-rose-955/40 text-rose-800 dark:text-rose-300",
+                  },
+                ]}
+                className={isColdWeather ? "ring-2 ring-purple-500" : ""}
               />
             </div>
           </section>
@@ -388,7 +553,25 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
               <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
                 {t("preparation.gear.title" as TranslationKey)}
               </h2>
+              <span className="text-xs text-gray-500 dark:text-gray-400 ml-auto">
+                {preparation.gear.length}/2
+              </span>
             </div>
+            {isHotWeather && (
+              <div className="text-xs text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/20 p-2 rounded-lg">
+                {t("preparation.gear.hot_weather_tip" as TranslationKey)}
+              </div>
+            )}
+            {isColdWeather && (
+              <div className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/20 p-2 rounded-lg">
+                {t("preparation.gear.cold_weather_tip" as TranslationKey)}
+              </div>
+            )}
+            {isRainyWeather && (
+              <div className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/20 p-2 rounded-lg">
+                {t("preparation.gear.rainy_weather_tip" as TranslationKey)}
+              </div>
+            )}
             <div className="grid gap-4 sm:grid-cols-2">
               <OptionCard
                 id="gear-cap"
@@ -449,7 +632,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                   {
                     text: "🎒 Capacity",
                     color:
-                      "bg-cyan-100 dark:bg-cyan-950/40 text-cyan-800 dark:text-cyan-300",
+                      "bg-cyan-100 dark:bg-cyan-955/40 text-cyan-800 dark:text-cyan-300",
                   },
                   {
                     text: "⚖️ Heavy",
@@ -458,6 +641,92 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                   },
                 ]}
                 isMultiSelect
+              />
+              <OptionCard
+                id="gear-jacket"
+                selected={preparation.gear.includes("lightweight_jacket")}
+                onClick={() => toggleGear("lightweight_jacket")}
+                title={t("preparation.gear.lightweight_jacket.name" as TranslationKey)}
+                desc={t("preparation.gear.lightweight_jacket.desc" as TranslationKey)}
+                badges={[
+                  {
+                    text: "🌬️ Windproof",
+                    color: isColdWeather || isRainyWeather
+                      ? "bg-indigo-200 dark:bg-indigo-900/60 text-indigo-900 dark:text-indigo-100"
+                      : "bg-indigo-100 dark:bg-indigo-955/40 text-indigo-800 dark:text-indigo-300",
+                  },
+                  {
+                    text: "💧 Water-Resistant",
+                    color: isRainyWeather
+                      ? "bg-blue-200 dark:bg-blue-900/60 text-blue-900 dark:text-blue-100"
+                      : "bg-blue-100 dark:bg-blue-955/40 text-blue-800 dark:text-blue-300",
+                  },
+                ]}
+                isMultiSelect
+                className={(isColdWeather || isRainyWeather) ? "ring-2 ring-indigo-500" : ""}
+              />
+              <OptionCard
+                id="gear-socks"
+                selected={preparation.gear.includes("compression_socks")}
+                onClick={() => toggleGear("compression_socks")}
+                title={t("preparation.gear.compression_socks.name" as TranslationKey)}
+                desc={t("preparation.gear.compression_socks.desc" as TranslationKey)}
+                badges={[
+                  {
+                    text: "🩸 Recovery",
+                    color:
+                      "bg-pink-100 dark:bg-pink-955/40 text-pink-800 dark:text-pink-300",
+                  },
+                  {
+                    text: "🏃 Comfort",
+                    color:
+                      "bg-emerald-100 dark:bg-emerald-955/40 text-emerald-800 dark:text-emerald-300",
+                  },
+                ]}
+                isMultiSelect
+              />
+              <OptionCard
+                id="gear-gaiters"
+                selected={preparation.gear.includes("trail_gaiters")}
+                onClick={() => toggleGear("trail_gaiters")}
+                title={t("preparation.gear.trail_gaiters.name" as TranslationKey)}
+                desc={t("preparation.gear.trail_gaiters.desc" as TranslationKey)}
+                badges={[
+                  {
+                    text: "🥾 Debris Protection",
+                    color:
+                      "bg-orange-100 dark:bg-orange-955/40 text-orange-800 dark:text-orange-300",
+                  },
+                  {
+                    text: "🏔️ Trail Only",
+                    color:
+                      "bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-200",
+                  },
+                ]}
+                isMultiSelect
+              />
+              <OptionCard
+                id="gear-shirt"
+                selected={preparation.gear.includes("moisture_wicking_shirt")}
+                onClick={() => toggleGear("moisture_wicking_shirt")}
+                title={t("preparation.gear.moisture_wicking_shirt.name" as TranslationKey)}
+                desc={t("preparation.gear.moisture_wicking_shirt.desc" as TranslationKey)}
+                badges={[
+                  {
+                    text: "💨 Breathable",
+                    color: isHotWeather
+                      ? "bg-sky-200 dark:bg-sky-900/60 text-sky-900 dark:text-sky-100"
+                      : "bg-sky-100 dark:bg-sky-955/40 text-sky-800 dark:text-sky-300",
+                  },
+                  {
+                    text: "🌡️ Hot Weather",
+                    color: isHotWeather
+                      ? "bg-red-200 dark:bg-red-900/60 text-red-900 dark:text-red-100"
+                      : "bg-red-100 dark:bg-red-955/40 text-red-800 dark:text-red-300",
+                  },
+                ]}
+                isMultiSelect
+                className={isHotWeather ? "ring-2 ring-red-500" : ""}
               />
             </div>
           </section>
@@ -856,6 +1125,8 @@ interface OptionCardProps {
   desc: string;
   badges?: BadgeProp[];
   isMultiSelect?: boolean;
+  disabled?: boolean;
+  className?: string;
 }
 
 function OptionCard({
@@ -866,17 +1137,24 @@ function OptionCard({
   desc,
   badges = [],
   isMultiSelect = false,
+  disabled = false,
+  className = "",
 }: OptionCardProps) {
   return (
     <button
       id={id}
       type="button"
       onClick={onClick}
-      className={`group relative flex w-full flex-col text-left bg-white dark:bg-slate-900 rounded-[2rem] border-2 p-5 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 active:scale-[0.99] ${
+      disabled={disabled}
+      className={`group relative flex w-full flex-col text-left bg-white dark:bg-slate-900 rounded-[2rem] border-2 p-5 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 active:scale-[0.99] $
         selected
           ? "border-orange-500 shadow-md ring-1 ring-orange-500"
           : "border-[#E5E7EB] hover:border-orange-350 hover:shadow-sm"
-      }`}
+        disabled
+          ? "opacity-60 cursor-not-allowed border-gray-200 dark:border-slate-700"
+          : ""
+        ${className}
+      `}
     >
       <div className="flex w-full items-start justify-between mb-2">
         <h3 className="font-heading font-semibold text-gray-900 dark:text-white leading-snug group-hover:text-orange-600 transition-colors duration-150">

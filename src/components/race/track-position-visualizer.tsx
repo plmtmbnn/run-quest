@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Flame, Zap, Compass, Maximize2, Minimize2 } from "lucide-react";
 import type { Surface, PacingPlan } from "@/types/engine";
@@ -45,24 +45,32 @@ export function TrackPositionVisualizer({
   const prevRanksRef = useRef<Map<string, number>>(new Map());
 
   // Rank sorting for badges & overtake detection
-  const sortedRunners = [...runners].sort((a, b) => {
-    if (a.isDNF && !b.isDNF) return 1;
-    if (!a.isDNF && b.isDNF) return -1;
-    if (a.isDNF && b.isDNF) return 0;
-    if (b.distance !== a.distance) return b.distance - a.distance;
-    return a.accumulatedTime - b.accumulatedTime;
-  });
+  const sortedRunners = useMemo(() =>
+    [...runners].sort((a, b) => {
+      if (a.isDNF && !b.isDNF) return 1;
+      if (!a.isDNF && b.isDNF) return -1;
+      if (a.isDNF && b.isDNF) return 0;
+      if (b.distance !== a.distance) return b.distance - a.distance;
+      return a.accumulatedTime - b.accumulatedTime;
+    }),
+    [runners]
+  );
 
   const playerRunner = runners.find((r) => r.isPlayer);
   const playerDistance = playerRunner ? playerRunner.distance : currentKm;
-  const playerRank = sortedRunners.findIndex((r) => r.isPlayer) + 1;
+  const playerRank = useMemo(() =>
+    sortedRunners.findIndex((r) => r.isPlayer) + 1,
+    [sortedRunners]
+  );
 
   // Detect overtakes
   useEffect(() => {
+    if (!playerRunner) return; // Skip if playerRunner is missing
+
     const currentRanks = new Map<string, number>();
     sortedRunners.forEach((r, idx) => currentRanks.set(r.id, idx + 1));
 
-    const playerId = playerRunner ? playerRunner.id : "player_local";
+    const playerId = playerRunner.id;
     const prevPlayerRank = prevRanksRef.current.get(playerId);
     if (prevPlayerRank !== undefined && playerRank < prevPlayerRank) {
       // Player gained rank!
@@ -89,32 +97,71 @@ export function TrackPositionVisualizer({
     if (maxDist === raceDistance) {
       minDist = Math.max(0, raceDistance - span);
     }
+    // Ensure minDist and maxDist are not equal to avoid division by zero
+    if (minDist === maxDist) {
+      maxDist = Math.min(raceDistance, minDist + 1);
+    }
   }
 
   // Calculate kilometer tick markers
   const markerStep = raceDistance > 20 ? 5 : raceDistance > 10 ? 2 : 1;
-  const trackMarkers: number[] = [];
-  for (let i = 0; i <= raceDistance; i += markerStep) {
-    if (i >= minDist && i <= maxDist) {
-      trackMarkers.push(i);
+  const trackMarkers = useMemo(() => {
+    const markers: number[] = [];
+    for (let i = 0; i <= raceDistance; i += markerStep) {
+      if (i >= minDist && i <= maxDist) {
+        markers.push(i);
+      }
     }
-  }
-  if (trackMarkers.length === 0 || trackMarkers[trackMarkers.length - 1] < Math.min(raceDistance, maxDist)) {
-    if (raceDistance >= minDist && raceDistance <= maxDist) {
-      trackMarkers.push(raceDistance);
+    if (markers.length === 0 || markers[markers.length - 1] < Math.min(raceDistance, maxDist)) {
+      if (raceDistance >= minDist && raceDistance <= maxDist) {
+        markers.push(raceDistance);
+      }
     }
-  }
+    return markers;
+  }, [raceDistance, minDist, maxDist, markerStep]);
 
   // Multi-lane staggering using deterministic hashing to prevent vertical lane jumping during overtakes
   const getStableLane = (id: string, isPlayer: boolean, isGhost?: boolean): number => {
     if (isPlayer) return 1; // Player stays in center lane (lane 1)
     if (isGhost) return 0;  // Ghost stays in top lane (lane 0)
+    
+    // Fallback mechanism to distribute runners more evenly
+    const usedLanes = new Set<number>();
+    runners.forEach(r => {
+      if (!r.isPlayer && !r.isGhost) {
+        const lane = Math.abs(idHash(r.id)) % 3;
+        usedLanes.add(lane);
+      }
+    });
+    
     let hash = 0;
     for (let i = 0; i < id.length; i++) {
       hash = (hash << 5) - hash + id.charCodeAt(i);
       hash |= 0;
     }
-    return Math.abs(hash) % 3;
+    let lane = Math.abs(hash) % 3;
+    
+    // If the lane is already used, find the next available lane
+    if (usedLanes.has(lane)) {
+      for (let i = 0; i < 3; i++) {
+        if (!usedLanes.has(i)) {
+          lane = i;
+          break;
+        }
+      }
+    }
+    
+    return lane;
+  };
+  
+  // Helper function to generate a deterministic hash for a runner ID
+  const idHash = (id: string): number => {
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+      hash = (hash << 5) - hash + id.charCodeAt(i);
+      hash |= 0;
+    }
+    return hash;
   };
 
   // Surface background styling
@@ -194,12 +241,12 @@ export function TrackPositionVisualizer({
         }`}
       >
         {/* Track Lane Decorative Lines */}
-        <div className="absolute inset-x-0 top-1/3 border-b border-dashed border-white/10 pointer-events-none" />
-        <div className="absolute inset-x-0 top-2/3 border-b border-dashed border-white/10 pointer-events-none" />
+        <div aria-hidden="true" className="absolute inset-x-0 top-1/3 border-b border-dashed border-white/10 pointer-events-none" />
+        <div aria-hidden="true" className="absolute inset-x-0 top-2/3 border-b border-dashed border-white/10 pointer-events-none" />
 
         {/* Start / Water / Finish Line Markers */}
         {minDist === 0 && (
-          <div className="absolute left-3 top-0 bottom-0 flex flex-col items-center justify-center opacity-40 pointer-events-none z-0">
+          <div aria-hidden="true" className="absolute left-3 top-0 bottom-0 flex flex-col items-center justify-center opacity-40 pointer-events-none z-0">
             <div className="h-full w-1 border-r-2 border-dashed border-emerald-400" />
             <span className="absolute top-1 text-[8px] font-black tracking-tighter uppercase text-emerald-400">
               START
@@ -208,7 +255,7 @@ export function TrackPositionVisualizer({
         )}
 
         {maxDist === raceDistance && (
-          <div className="absolute right-3 top-0 bottom-0 flex flex-col items-center justify-center pointer-events-none z-0">
+          <div aria-hidden="true" className="absolute right-3 top-0 bottom-0 flex flex-col items-center justify-center pointer-events-none z-0">
             <div className="h-full w-1.5 bg-gradient-to-b from-white via-black to-white opacity-60" />
             <span className="absolute top-1 text-[8px] font-black tracking-tighter uppercase text-amber-400">
               FINISH 🏁
@@ -217,7 +264,7 @@ export function TrackPositionVisualizer({
         )}
 
         {/* Kilometer Track Markers */}
-        <div className="absolute inset-0 px-6 pointer-events-none">
+        <div aria-hidden="true" className="absolute inset-0 px-6 pointer-events-none">
           {trackMarkers.map((markerKm) => {
             const range = maxDist - minDist || 1;
             const pct = ((markerKm - minDist) / range) * 100;

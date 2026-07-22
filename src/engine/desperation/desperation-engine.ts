@@ -2,7 +2,7 @@ import type { SimulationState } from "@/types/engine";
 import type { SeededRandom } from "@/utils/random/seeded-random";
 import type { DesperationMode, DesperationOption } from "./desperation-types";
 
-export const DESERATION_OPTIONS: DesperationOption[] = [
+export const DESPERATION_OPTIONS: DesperationOption[] = [
   {
     id: "desperation_sprint",
     action: {
@@ -165,7 +165,7 @@ export class DesperationEngine {
       confidence?: number;
     };
   } | null {
-    const option = DESERATION_OPTIONS.find((o) => o.id === optionId);
+    const option = DESPERATION_OPTIONS.find((o) => o.id === optionId);
     if (!option) return null;
 
     // Scale success chance based on willpower

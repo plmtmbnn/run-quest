@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { DESERATION_OPTIONS } from "@/engine/desperation/desperation-engine";
+import { DESPERATION_OPTIONS } from "@/engine/desperation/desperation-engine";
 import type { DesperationMode } from "@/engine/desperation/desperation-types";
 import { useTranslation } from "@/i18n/use-translation";
 
@@ -100,7 +100,7 @@ export function DesperationOverlay({
 
           {/* Strategic Choices */}
           <div className="space-y-3">
-            {DESERATION_OPTIONS.map((option, index) => {
+            {DESPERATION_OPTIONS.map((option, index) => {
               const borderStyles =
                 option.risk === "high"
                   ? "border-red-600 bg-red-950/20 hover:bg-red-950/45 text-red-100"
