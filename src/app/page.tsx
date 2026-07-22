@@ -28,11 +28,19 @@ export default function Page() {
   const [screen, setScreen] = useState<AppScreen>("loading");
 
   useEffect(() => {
-    // After hydration, check whether the player has completed onboarding (has saved settings).
-    const hasSavedSettings =
-      globalThis.localStorage?.getItem("runquest.settings") !== null;
+    // After hydration, check whether the player has completed onboarding.
+    const stored = globalThis.localStorage?.getItem("runquest.settings");
+    let hasCompleted = false;
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        hasCompleted = parsed.hasCompletedOnboarding === true;
+      } catch {
+        hasCompleted = false;
+      }
+    }
 
-    setScreen(hasSavedSettings ? "home" : "onboarding");
+    setScreen(hasCompleted ? "home" : "onboarding");
   }, []);
 
   if (screen === "loading") {

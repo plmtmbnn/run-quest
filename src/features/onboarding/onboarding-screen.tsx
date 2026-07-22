@@ -18,22 +18,37 @@ import { usePlayerStore } from "@/store/player-store";
 import { useSettingsStore } from "@/store/settings-store";
 import { generateRunnerName } from "@/utils/name-generator";
 
+import { detectDeviceCountry } from "@/utils/device-location";
+import { SearchableCountrySelect } from "@/components/ui/searchable-country-select";
+import { type CountryData, getCountryByCode } from "@/config/countries-data";
+import type { CurrencyCode } from "@/economy/currency-config";
+
 interface OnboardingScreenProps {
   onComplete: () => void;
 }
 
 export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
   const { t, language } = useTranslation();
-  const { setLanguage } = useSettingsStore();
+  const { setLanguage, setPreferredCurrency } = useSettingsStore();
   const { playSound } = useSound();
   const player = usePlayerStore((state) => state.player);
   const setPlayerName = usePlayerStore((state) => state.setPlayerName);
+  const setNationality = usePlayerStore((state) => state.setNationality);
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState(0); // -1 for prev, 1 for next
   const [nameInput, setNameInput] = useState("");
   const [hasInitializedName, setHasInitializedName] = useState(false);
   const [hasNameError, setHasNameError] = useState(false);
+
+  // Dynamic device locale detection
+  const [selectedNationality, setSelectedNationality] = useState(() =>
+    player?.nationality ? player.nationality : detectDeviceCountry()
+  );
+  const [selectedCurrency, setSelectedCurrency] = useState<CurrencyCode>(() => {
+    const initialCountry = getCountryByCode(player?.nationality || detectDeviceCountry());
+    return initialCountry.defaultCurrency;
+  });
 
   useEffect(() => {
     if (player?.name && !hasInitializedName) {
@@ -111,13 +126,16 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       return;
     }
     setPlayerName(nameInput.trim());
+    setNationality(selectedNationality);
+    setPreferredCurrency(selectedCurrency);
     storageRepository.saveSettings({
       version: 1,
       theme: "light", // Forced light theme globally
       language,
       reducedMotion: false,
       sound: true,
-      preferredCurrency: "USD",
+      hasCompletedOnboarding: true,
+      preferredCurrency: selectedCurrency,
       hapticFeedback: true,
       preferences: {
         preferredSurface: "any",
@@ -280,6 +298,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                         {t(activeSlide.contentKey as TranslationKey)}
                       </p>
                       <div className="flex flex-col gap-2 w-full">
+                        {/* Runner Name Input */}
                         <div className="flex gap-2.5 items-center">
                           <input
                             type="text"
@@ -322,6 +341,53 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                             ⚠️ {t("onboarding.name_error" as TranslationKey)}
                           </p>
                         )}
+
+                        {/* Searchable Country Selector */}
+                        <div className="mt-1">
+                          <SearchableCountrySelect
+                            selectedCode={selectedNationality}
+                            label={t("onboarding.nationality.title" as TranslationKey) || "Nationality"}
+                            onSelect={(country) => {
+                              setSelectedNationality(country.code);
+                              setSelectedCurrency(country.defaultCurrency);
+                            }}
+                          />
+                        </div>
+
+                        {/* Preferred Currency Pill Selector */}
+                        <div className="flex flex-col gap-1.5 mt-1">
+                          <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                            💳 {t("onboarding.currency.title" as TranslationKey) || "Default Currency"}
+                          </span>
+                          <div className="grid grid-cols-4 gap-1.5">
+                            {(["USD", "EUR", "JPY", "IDR"] as CurrencyCode[]).map((curr) => {
+                              const symbols: Record<CurrencyCode, string> = {
+                                USD: "$",
+                                EUR: "€",
+                                JPY: "¥",
+                                IDR: "Rp",
+                              };
+                              const isActive = selectedCurrency === curr;
+                              return (
+                                <button
+                                  key={curr}
+                                  type="button"
+                                  onClick={() => {
+                                    playSound("click");
+                                    setSelectedCurrency(curr);
+                                  }}
+                                  className={`py-2 px-1 rounded-xl text-xs font-extrabold transition-all border text-center ${
+                                    isActive
+                                      ? "bg-indigo-500 text-white border-indigo-500 shadow-sm shadow-indigo-500/30"
+                                      : "bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900"
+                                  }`}
+                                >
+                                  {curr} <span className="opacity-75">{symbols[curr]}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   ) : (

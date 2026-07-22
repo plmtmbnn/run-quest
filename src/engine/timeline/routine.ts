@@ -81,29 +81,14 @@ export function fastForward(
   while (true) {
     if (isDead(current)) return { state: current, events: collectedEvents };
 
+    // Check if there are scheduled events on the current day Index
+    const dayEvents = eventsForDay(current.dayIndex);
+    if (dayEvents.length > 0) {
+      return { state: current, events: dayEvents };
+    }
+
     if (current.dayIndex >= stop) {
       return { state: current, events: collectedEvents };
-    }
-
-    // For "event" mode: halt as soon as we hit a day with events
-    if (mode === "event") {
-      const dayEvents = eventsForDay(current.dayIndex);
-      if (current.dayIndex > state.dayIndex && dayEvents.length > 0) {
-        return { state: current, events: dayEvents };
-      }
-    }
-
-    // For "week" and "month" modes: collect events but don't halt
-    if (mode === "week" || mode === "month" || mode === "day") {
-      const dayEvents = eventsForDay(current.dayIndex);
-      if (current.dayIndex > state.dayIndex && dayEvents.length > 0) {
-        // Collect but continue running
-        for (const e of dayEvents) {
-          if (!collectedEvents.find((ce) => ce.id === e.id)) {
-            collectedEvents.push(e);
-          }
-        }
-      }
     }
 
     current = executeRoutineDay(current);

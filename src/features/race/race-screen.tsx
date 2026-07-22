@@ -43,6 +43,11 @@ export function RaceScreen() {
   >(preparation.pacing);
   const [simSpeed, setSimSpeed] = useState<1 | 2 | 5>(1);
 
+  const selectedPacingRef = useRef(selectedPacing);
+  useEffect(() => {
+    selectedPacingRef.current = selectedPacing;
+  }, [selectedPacing]);
+
   // Load/Generate today's challenge once on mount
   const [challenge] = useState(() => {
     const dayIndex = useTimelineStore.getState().gameState?.dayIndex ?? 0;
@@ -82,10 +87,15 @@ export function RaceScreen() {
   const [activeDesperation, setActiveDesperation] =
     useState<DesperationMode | null>(null);
 
+  const isPaused = Boolean(
+    activeDecision || activeBreakingPoint || activeDesperation,
+  );
+
   const simStateRef = useRef<SimulationState | null>(null);
   const fullStateLogRef = useRef<
     Omit<SimulationState, "accumulatedStateLog">[]
   >([]);
+  const maxDistanceMapRef = useRef<Map<string, number>>(new Map());
 
   // Trigger to advance simulation chunk
   const handleAdvance = useCallback(
@@ -106,7 +116,7 @@ export function RaceScreen() {
           input,
           simStateRef.current || undefined,
           choiceId,
-          selectedPacing,
+          selectedPacingRef.current,
           true,
         );
       } catch (error) {
@@ -118,37 +128,52 @@ export function RaceScreen() {
       if (nextStep.type === "decision") {
         simStateRef.current = nextStep.state;
         setSimState(nextStep.state);
-        fullStateLogRef.current = nextStep.state.accumulatedStateLog || [];
+        const newLog = nextStep.state.accumulatedStateLog || [];
+        if (newLog.length >= fullStateLogRef.current.length) {
+          fullStateLogRef.current = newLog;
+        }
         setTargetKm(nextStep.state.distanceCovered);
         setPendingPrompt(nextStep.prompt);
       } else if (nextStep.type === "breaking_point") {
         simStateRef.current = nextStep.state;
         setSimState(nextStep.state);
-        fullStateLogRef.current = nextStep.state.accumulatedStateLog || [];
+        const newLog = nextStep.state.accumulatedStateLog || [];
+        if (newLog.length >= fullStateLogRef.current.length) {
+          fullStateLogRef.current = newLog;
+        }
         setTargetKm(nextStep.state.distanceCovered);
         setPendingPrompt(null);
       } else if (nextStep.type === "desperation") {
         simStateRef.current = nextStep.state;
         setSimState(nextStep.state);
-        fullStateLogRef.current = nextStep.state.accumulatedStateLog || [];
+        const newLog = nextStep.state.accumulatedStateLog || [];
+        if (newLog.length >= fullStateLogRef.current.length) {
+          fullStateLogRef.current = newLog;
+        }
         setTargetKm(nextStep.state.distanceCovered);
         setPendingPrompt(null);
       } else if (nextStep.type === "step") {
         simStateRef.current = nextStep.state;
         setSimState(nextStep.state);
-        fullStateLogRef.current = nextStep.state.accumulatedStateLog || [];
+        const newLog = nextStep.state.accumulatedStateLog || [];
+        if (newLog.length >= fullStateLogRef.current.length) {
+          fullStateLogRef.current = newLog;
+        }
         setTargetKm(nextStep.state.distanceCovered);
         setPendingPrompt(null);
       } else {
         simStateRef.current = null;
         setSimState(null);
         setSimResult(nextStep.result);
-        fullStateLogRef.current = nextStep.result.stateLog || [];
+        const newLog = nextStep.result.stateLog || [];
+        if (newLog.length >= fullStateLogRef.current.length) {
+          fullStateLogRef.current = newLog;
+        }
         setTargetKm(nextStep.result.stateLog.length - 1);
         setPendingPrompt(null);
       }
     },
-    [challenge, preparation, router, runnerState, selectedPacing],
+    [challenge, preparation, router, runnerState, activeGhost],
   );
 
   // Initial simulation load on mount
@@ -162,29 +187,39 @@ export function RaceScreen() {
 
   // Ticker animation that catches up to targetKm one by one
   useEffect(() => {
-    if (fullStateLogRef.current.length === 0) return;
+    if (fullStateLogRef.current.length === 0 || isFinished || isPaused) return;
 
     if (currentKm >= targetKm) {
+      // STOP! Never auto-advance while a decision / breaking point / desperation modal is active
+      if (activeDecision || activeBreakingPoint || activeDesperation) {
+        return;
+      }
+
       // Ticker has caught up to the simulated chunk
       if (
         simState?.activeBreakingPoint &&
         !simState.activeBreakingPoint.resolved
       ) {
         setActiveBreakingPoint(simState.activeBreakingPoint);
+        return;
       } else if (
         simState?.desperationMode &&
         !simState.hasTriggeredDesperation
       ) {
         setActiveDesperation(simState.desperationMode);
+        return;
       } else if (pendingPrompt) {
         setActiveDecision(pendingPrompt.decisionCard);
         setCountdown(30);
+        setPendingPrompt(null); // Clear prompt to avoid trigger loop
+        return;
       } else if (
         simState &&
         simState.distanceCovered < challenge.race.distance
       ) {
         // Ticker caught up, but simulation yielded at a step. Proactively advance for the next km!
         handleAdvance();
+        return;
       } else if (simResult) {
         setIsFinished(true);
         playSound("success");
@@ -201,12 +236,13 @@ export function RaceScreen() {
         setTimeout(() => {
           router.push("/result");
         }, 1500);
+        return;
       }
       return;
     }
 
     // Ticker needs to advance
-    const intervalMs = 10000 / simSpeed; // 10 seconds per km scaled by speed multiplier
+    const intervalMs = 1500 / simSpeed; // 1.5 seconds per km scaled by speed multiplier
     const timer = setTimeout(() => {
       const nextKmValue = currentKm + 1;
       playSound("tick");
@@ -252,6 +288,9 @@ export function RaceScreen() {
     currentKm,
     targetKm,
     pendingPrompt,
+    activeDecision,
+    activeBreakingPoint,
+    activeDesperation,
     simResult,
     simState,
     challenge,
@@ -263,6 +302,7 @@ export function RaceScreen() {
     preparation,
     handleAdvance,
     simSpeed,
+    isFinished,
   ]);
 
   // Countdown timer decrement
@@ -454,11 +494,16 @@ export function RaceScreen() {
   }[] = [];
 
   if (currentSnapshot) {
+    const rawPlayerDist = currentSnapshot.distanceCovered;
+    const prevPlayerMax = maxDistanceMapRef.current.get("player_local") || 0;
+    const playerDist = Math.max(prevPlayerMax, rawPlayerDist);
+    maxDistanceMapRef.current.set("player_local", playerDist);
+
     runners.push({
       id: "player_local",
       name: "You",
       isPlayer: true,
-      distance: currentSnapshot.distanceCovered,
+      distance: playerDist,
       accumulatedTime: currentSnapshot.accumulatedTime,
       isDNF: stats.energy <= 0 || stats.hydration <= 0,
       isGhost: false,
@@ -466,11 +511,16 @@ export function RaceScreen() {
 
     if (currentSnapshot.opponents) {
       for (const opp of currentSnapshot.opponents) {
+        const rawOppDist = opp.distanceCovered;
+        const prevOppMax = maxDistanceMapRef.current.get(opp.id) || 0;
+        const oppDist = Math.max(prevOppMax, rawOppDist);
+        maxDistanceMapRef.current.set(opp.id, oppDist);
+
         runners.push({
           id: opp.id,
           name: opp.name,
           isPlayer: false,
-          distance: opp.distanceCovered,
+          distance: oppDist,
           accumulatedTime: opp.accumulatedTime,
           isDNF: opp.isDNF,
           isGhost: opp.id === "ghost_runner" || opp.isGhost,
@@ -592,11 +642,11 @@ export function RaceScreen() {
                 animate={{
                   strokeDashoffset: 276 - (276 * progressPercentage) / 100,
                 }}
-                transition={{ duration: 10 / simSpeed, ease: "linear" }}
+                transition={{ duration: (isPaused ? 0 : 1.5) / simSpeed, ease: "linear" }}
                 strokeLinecap="round"
               />
             </svg>
- 
+
             {/* Inner Content */}
             <div className="absolute flex flex-col items-center justify-center text-center">
               <span className="text-[10px] md:text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-0.5 flex items-center gap-1">
@@ -633,6 +683,7 @@ export function RaceScreen() {
               surface={challenge.race.surface}
               playerEnergy={stats.energy}
               playSound={playSound}
+              isPaused={isPaused}
             />
           </div>
         </div>

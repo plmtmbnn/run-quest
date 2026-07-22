@@ -77,7 +77,15 @@
     "slide_4": {
       "title": "Profil Pelari",
       "subtitle": "Buat identitasmu.",
-      "content": "Kami telah menyiapkan nama untukmu. Gunakan yang ada atau acak lagi sebelum menuju garis start!"
+      "content": "Lokasimu terdeteksi! Pilih nama pelari, kewarganegaraan, dan mata uang default balapan."
+    },
+    "nationality": {
+      "title": "Kewarganegaraan",
+      "desc": "Menentukan bendera dan mata uang default."
+    },
+    "currency": {
+      "title": "Mata Uang Default",
+      "desc": "Digunakan untuk semua biaya pendaftaran & hadiah lomba."
     }
   },
   "race_calendar": {
@@ -124,6 +132,10 @@
       "title": "Nama Pelari",
       "desc": "Ubah nama profil pelarimu",
       "error": "Nama pelari tidak boleh kosong."
+    },
+    "nationality": {
+      "title": "Kewarganegaraan",
+      "desc": "Bendera negara asal dan asosiasi mata uang utama"
     },
     "sound": {
       "title": "Efek Suara",

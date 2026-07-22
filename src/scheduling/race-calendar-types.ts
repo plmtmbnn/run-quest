@@ -15,7 +15,17 @@ export type ScheduleFrequency =
   | "annual"
   | "one_time";
 
-export type CategoryId = "5k" | "10k" | "hm" | "fm" | "ultra";
+export type CategoryId =
+  | "5k"
+  | "8k"
+  | "10k"
+  | "20k"
+  | "hm"
+  | "fm"
+  | "50k"
+  | "100k"
+  | "100m"
+  | "ultra";
 
 export interface RaceCategory {
   id: CategoryId;

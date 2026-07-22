@@ -26,6 +26,7 @@ export const StoredPlayerSchema = z.object({
   version: z.number(),
   id: z.string(),
   name: z.string().optional(),
+  nationality: z.string().optional().default("ID"),
   language: z.enum(["en", "id"]),
   createdAt: z.string(),
   lastPlayedAt: z.string().nullable(),
@@ -42,6 +43,7 @@ export const StoredSettingsSchema = z.object({
   reducedMotion: z.boolean(),
   sound: z.boolean(),
   hapticFeedback: z.boolean().optional().default(true),
+  hasCompletedOnboarding: z.boolean().optional().default(false),
   preferredCurrency: z.enum(["USD", "EUR", "JPY", "IDR"]).default("USD"),
   preferences: z
     .object({

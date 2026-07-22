@@ -18,11 +18,14 @@ import { usePlayerStore } from "@/store/player-store";
 import { useSettingsStore } from "@/store/settings-store";
 import { generateRunnerName } from "@/utils/name-generator";
 
+import { SearchableCountrySelect } from "@/components/ui/searchable-country-select";
+
 export function SettingsScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const player = usePlayerStore((state) => state.player);
   const setPlayerName = usePlayerStore((state) => state.setPlayerName);
+  const setNationality = usePlayerStore((state) => state.setNationality);
   const {
     settings,
     setSound,
@@ -168,6 +171,30 @@ export function SettingsScreen() {
                   {t("settings.name.error" as TranslationKey)}
                 </p>
               )}
+            </div>
+          </div>
+
+          <hr className="border-[#E5E7EB] dark:border-slate-800" />
+
+          {/* Nationality */}
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-gray-900 dark:text-white">
+                🌐 {t("settings.nationality.title" as TranslationKey)}
+              </span>
+              <span className="text-xs text-gray-400 dark:text-gray-500">
+                {t("settings.nationality.desc" as TranslationKey)}
+              </span>
+            </div>
+            <div className="mt-1">
+              <SearchableCountrySelect
+                selectedCode={player?.nationality || "ID"}
+                onSelect={(country) => {
+                  playSound("click");
+                  setNationality(country.code);
+                  setPreferredCurrency(country.defaultCurrency);
+                }}
+              />
             </div>
           </div>
 

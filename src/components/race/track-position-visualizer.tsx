@@ -24,6 +24,7 @@ interface TrackPositionVisualizerProps {
   surface: Surface;
   playerEnergy: number;
   playSound?: (sound: "click" | "tick" | "success" | "alert") => void;
+  isPaused?: boolean;
 }
 
 export function TrackPositionVisualizer({
@@ -35,6 +36,7 @@ export function TrackPositionVisualizer({
   surface,
   playerEnergy,
   playSound,
+  isPaused = false,
 }: TrackPositionVisualizerProps) {
   const [viewMode, setViewMode] = useState<"full" | "proximity">("full");
   const [overtakeMessage, setOvertakeMessage] = useState<string | null>(null);
@@ -60,7 +62,8 @@ export function TrackPositionVisualizer({
     const currentRanks = new Map<string, number>();
     sortedRunners.forEach((r, idx) => currentRanks.set(r.id, idx + 1));
 
-    const prevPlayerRank = prevRanksRef.current.get("player_local");
+    const playerId = playerRunner ? playerRunner.id : "player_local";
+    const prevPlayerRank = prevRanksRef.current.get(playerId);
     if (prevPlayerRank !== undefined && playerRank < prevPlayerRank) {
       // Player gained rank!
       const passedRunner = sortedRunners[playerRank]; // runner right behind player now
@@ -73,7 +76,7 @@ export function TrackPositionVisualizer({
     }
 
     prevRanksRef.current = currentRanks;
-  }, [playerRank, sortedRunners, playSound]);
+  }, [playerRank, sortedRunners, playSound, playerRunner]);
 
   // Calculate view bounds for full vs proximity mode
   let minDist = 0;
@@ -102,14 +105,17 @@ export function TrackPositionVisualizer({
     }
   }
 
-  // Multi-lane staggering calculation to prevent overlapping avatars
-  // We divide the runners into 3 vertical lanes (0, 1, 2) based on proximity
-  const runnerLaneMap = new Map<string, number>();
-  sortedRunners.forEach((r, index) => {
-    // Alternate lanes for close runners
-    const lane = index % 3;
-    runnerLaneMap.set(r.id, lane);
-  });
+  // Multi-lane staggering using deterministic hashing to prevent vertical lane jumping during overtakes
+  const getStableLane = (id: string, isPlayer: boolean, isGhost?: boolean): number => {
+    if (isPlayer) return 1; // Player stays in center lane (lane 1)
+    if (isGhost) return 0;  // Ghost stays in top lane (lane 0)
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+      hash = (hash << 5) - hash + id.charCodeAt(i);
+      hash |= 0;
+    }
+    return Math.abs(hash) % 3;
+  };
 
   // Surface background styling
   const surfaceStyles: Partial<Record<Surface, string>> = {
@@ -230,13 +236,22 @@ export function TrackPositionVisualizer({
           })}
         </div>
 
+        {/* Paused Overlay Banner */}
+        {isPaused && (
+          <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-[2px] z-20 flex items-center justify-center pointer-events-none">
+            <span className="px-3.5 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[11px] font-extrabold rounded-full shadow-lg border border-amber-300/40 flex items-center gap-1.5 animate-pulse uppercase tracking-wider">
+              <span>⏸️</span> Race Paused — Decision Required
+            </span>
+          </div>
+        )}
+
         {/* Runners on the track with Multi-Lane Staggering & Smooth Motion */}
         {runners.map((r) => {
           const range = maxDist - minDist || 1;
           const rawPct = ((r.distance - minDist) / range) * 100;
           const clampedPct = Math.min(94, Math.max(4, rawPct));
 
-          const lane = runnerLaneMap.get(r.id) ?? 1;
+          const lane = getStableLane(r.id, r.isPlayer, r.isGhost);
           // Calculate top percentage position for 3 distinct lanes: 18%, 48%, 75%
           const topPercent = lane === 0 ? "18%" : lane === 1 ? "48%" : "75%";
           const isExhausted = r.isPlayer && playerEnergy <= 25;
@@ -251,8 +266,8 @@ export function TrackPositionVisualizer({
                 top: topPercent,
               }}
               transition={{
-                left: { duration: 10 / simSpeed, ease: "linear" },
-                top: { duration: 0.4, ease: "easeInOut" },
+                left: { duration: isPaused ? 0 : 1.5 / simSpeed, ease: "linear" },
+                top: { duration: isPaused ? 0 : 0.4, ease: "easeInOut" },
               }}
               className={`absolute transform -translate-x-1/2 -translate-y-1/2 z-10`}
               style={{ pointerEvents: "auto" }}
@@ -281,11 +296,11 @@ export function TrackPositionVisualizer({
                 {/* Stride Oscillation Avatar Box */}
                 <motion.div
                   animate={
-                    !r.isDNF
+                    !r.isDNF && !isPaused
                       ? {
                           y: [0, -3, 0],
                         }
-                      : {}
+                      : { y: 0 }
                   }
                   transition={{
                     repeat: Infinity,

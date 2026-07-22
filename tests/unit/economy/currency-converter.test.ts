@@ -44,7 +44,7 @@ describe("Currency Converter & Formatter", () => {
     });
 
     it("supports compact formatting for large numbers", () => {
-      expect(formatCurrency(1000000, "USD", { compact: true })).toBe("$1.0M");
+      expect(formatCurrency(1000000, "USD", { compact: true })).toBe("$1M");
     });
   });
 

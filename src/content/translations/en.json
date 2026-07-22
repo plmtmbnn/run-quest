@@ -77,7 +77,15 @@
     "slide_4": {
       "title": "Runner Profile",
       "subtitle": "Create your identity.",
-      "content": "We've generated a starting name for you. Keep it, or roll for a new one before heading to the start line!"
+      "content": "We've detected your location! Pick your runner name, nationality, and default race currency."
+    },
+    "nationality": {
+      "title": "Nationality",
+      "desc": "Sets your country flag and home currency."
+    },
+    "currency": {
+      "title": "Default Currency",
+      "desc": "Used for all race fees and prizes."
     }
   },
   "race_calendar": {
@@ -124,6 +132,10 @@
       "title": "Runner Name",
       "desc": "Update your profile name",
       "error": "Runner name cannot be empty."
+    },
+    "nationality": {
+      "title": "Nationality",
+      "desc": "Your home country flag and default currency association"
     },
     "sound": {
       "title": "Sound Effects",

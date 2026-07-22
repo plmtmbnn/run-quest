@@ -37,6 +37,7 @@ function createNewPlayer(): StoredPlayer {
     version: 1,
     id: uuidv4(),
     name: generateRunnerName(),
+    nationality: "ID",
     language: "en",
     createdAt: new Date().toISOString(),
     lastPlayedAt: null,
@@ -50,6 +51,8 @@ export interface PlayerState {
   initializePlayer: () => void;
   /** Update runner name. */
   setPlayerName: (name: string) => void;
+  /** Update runner nationality (ISO 3166-1 alpha-2). */
+  setNationality: (nationality: string) => void;
   /** Persist language preference on the player record. */
   setLanguage: (language: "en" | "id") => void;
   /** Complete today's run and update all statistics and daily lockout markers. */
@@ -83,6 +86,14 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     const { player } = get();
     if (!player) return;
     const updated: StoredPlayer = { ...player, name };
+    storageRepository.savePlayer(updated);
+    set({ player: updated });
+  },
+
+  setNationality(nationality) {
+    const { player } = get();
+    if (!player) return;
+    const updated: StoredPlayer = { ...player, nationality };
     storageRepository.savePlayer(updated);
     set({ player: updated });
   },

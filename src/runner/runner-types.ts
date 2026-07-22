@@ -42,6 +42,7 @@ export interface RunnerProfile {
   preferredSurface?: string; // e.g., "road", "trail"
   preferredDistance?: string; // e.g., "5K", "10K"
   preferredStrategy?: string; // e.g., "negative split", "even pace"
+  nationality?: string; // ISO 3166-1 alpha-2 code e.g., "ID", "US", "JP"
   runningIdentity?: string; // Locked initially
   coachRelationship?: number; // Future feature
   knowledgeProgress?: number; // Future feature
