@@ -41,6 +41,7 @@ export const StoredSettingsSchema = z.object({
   language: z.enum(["en", "id"]),
   reducedMotion: z.boolean(),
   sound: z.boolean(),
+  hapticFeedback: z.boolean().optional().default(true),
   preferredCurrency: z.enum(["USD", "EUR", "JPY", "IDR"]).default("USD"),
   preferences: z
     .object({

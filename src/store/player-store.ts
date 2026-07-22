@@ -7,6 +7,7 @@ import {
   getWinBonus,
 } from "@/economy/sponsorship-engine";
 import { completeRace } from "@/runner/runner-engine";
+import { completeRace as completeSchedulingRace, getScheduleById } from "@/scheduling/race-calendar-engine";
 import { storageRepository } from "@/storage/storage-repository";
 import type {
   PlayerStatistics,
@@ -254,9 +255,24 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       });
       updatedSponsorship = offerCheck.sponsorshipState;
 
+      // Update scheduling state to mark race as completed
+      let updatedScheduling = gameState.scheduling;
+      const currentChallengeForScheduling = useGameStore.getState().currentChallenge;
+      if (currentChallengeForScheduling && gameState.scheduling) {
+        const schedule = getScheduleById(currentChallengeForScheduling.scheduleId);
+        const raceId = schedule ? schedule.raceId : currentChallengeForScheduling.id;
+        updatedScheduling = completeSchedulingRace(
+          gameState.scheduling,
+          raceId,
+          currentChallengeForScheduling.scheduleId,
+          gameState.dayIndex,
+        );
+      }
+
       // 5. Update timeline store game state
       useTimelineStore.getState().setGameState((prev) => ({
         ...prev!,
+        scheduling: updatedScheduling,
         economy: updatedEconomy,
         sponsorship: updatedSponsorship,
         resources: {
@@ -264,9 +280,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
           money: updatedEconomy.currentBalance,
         },
       }));
-    }
 
-    // 1. Create or load history
     const history = storageRepository.loadHistory() || {
       version: 1,
       entries: [],
@@ -361,6 +375,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     if (boardStatus) {
       boardStatus.completedEntryId = challengeId;
       storageRepository.saveDailyBoard(boardStatus);
-    }
+  }
+  }
   },
 }));

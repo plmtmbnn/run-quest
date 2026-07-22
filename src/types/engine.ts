@@ -254,6 +254,10 @@ export interface SimulationState {
   shownBreakingPoints?: string[];
   hasTriggeredDesperation?: boolean;
   desperationMode?: DesperationMode | null;
+  // Endorphin system properties
+  endorphinState?: import("@/engine/endorphins/endorphin-types").EndorphinState;
+  hasUsedEndorphins?: boolean;
+  activeEndorphinRush?: import("@/engine/endorphins/endorphin-types").ActiveEndorphinRush | null;
 }
 
 export interface OpponentState {

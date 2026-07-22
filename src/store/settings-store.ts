@@ -10,6 +10,7 @@ const DEFAULT_SETTINGS: StoredSettings = {
   language: "en",
   reducedMotion: false,
   sound: true,
+  hapticFeedback: true,
   preferredCurrency: "USD",
   preferences: {
     preferredSurface: "any",
@@ -25,6 +26,7 @@ export interface SettingsState {
   setTheme: (theme: "light" | "dark" | "system") => void;
   setReducedMotion: (value: boolean) => void;
   setSound: (value: boolean) => void;
+  setHapticFeedback: (value: boolean) => void;
   setPreferredCurrency: (currency: CurrencyCode) => void;
   setPreferences: (prefs: StoredSettings["preferences"]) => void;
   resetAllData: () => void;
@@ -66,6 +68,12 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     set({ settings: updated });
   },
 
+  setHapticFeedback(hapticFeedback) {
+    const updated = { ...get().settings, hapticFeedback };
+    storageRepository.saveSettings(updated);
+    set({ settings: updated });
+  },
+
   setPreferredCurrency(preferredCurrency) {
     const updated = { ...get().settings, preferredCurrency };
     storageRepository.saveSettings(updated);
@@ -86,6 +94,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     const preservedPreferences = {
       language: currentSettings.language,
       sound: currentSettings.sound,
+      hapticFeedback: currentSettings.hapticFeedback,
       theme: currentSettings.theme,
       preferredCurrency: currentSettings.preferredCurrency,
     };

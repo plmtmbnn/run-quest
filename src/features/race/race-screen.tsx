@@ -1,12 +1,13 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Activity, Flame, Gauge, TrendingUp } from "lucide-react";
+import { Activity, Flame, Gauge, TrendingUp, FastForward, Play } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { analyzeRace } from "@/coach/coach-analysis";
 import { BreakingPointOverlay } from "@/components/race/breaking-point";
 import { DesperationOverlay } from "@/components/race/desperation-mode";
+import { TrackPositionVisualizer } from "@/components/race/track-position-visualizer";
 import { advanceSimulation } from "@/engine/simulation/engine";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
@@ -40,6 +41,7 @@ export function RaceScreen() {
   const [selectedPacing, setSelectedPacing] = useState<
     import("@/types/engine").PacingPlan
   >(preparation.pacing);
+  const [simSpeed, setSimSpeed] = useState<1 | 2 | 5>(1);
 
   // Load/Generate today's challenge once on mount
   const [challenge] = useState(() => {
@@ -204,7 +206,7 @@ export function RaceScreen() {
     }
 
     // Ticker needs to advance
-    const intervalMs = Math.max(150, 1500 / challenge.race.distance); // scaled ticker delay
+    const intervalMs = 10000 / simSpeed; // 10 seconds per km scaled by speed multiplier
     const timer = setTimeout(() => {
       const nextKmValue = currentKm + 1;
       playSound("tick");
@@ -260,6 +262,7 @@ export function RaceScreen() {
     router,
     preparation,
     handleAdvance,
+    simSpeed,
   ]);
 
   // Countdown timer decrement
@@ -428,7 +431,18 @@ export function RaceScreen() {
   };
 
   // Compute live runners list for leaderboard and progress visualizer
-  const currentSnapshot = fullStateLogRef.current[currentKm];
+  // Use current snapshot, or fall back to the most recent available snapshot
+  let currentSnapshot = fullStateLogRef.current[currentKm];
+  
+  // If current km doesn't have data yet, use the last available snapshot
+  if (!currentSnapshot && fullStateLogRef.current.length > 0) {
+    const lastAvailableIndex = Math.min(
+      currentKm,
+      fullStateLogRef.current.length - 1
+    );
+    currentSnapshot = fullStateLogRef.current[lastAvailableIndex];
+  }
+
   const runners: {
     id: string;
     name: string;
@@ -465,6 +479,7 @@ export function RaceScreen() {
     }
   }
 
+  // Only use 0 distance fallback if we have no state at all
   if (runners.length === 0) {
     runners.push({
       id: "player_local",
@@ -486,6 +501,8 @@ export function RaceScreen() {
     }
     return a.accumulatedTime - b.accumulatedTime;
   });
+
+
 
   return (
     <div className="min-h-screen bg-[#fffdf8] dark:bg-[#090d16] text-slate-900 dark:text-white flex flex-col justify-between overflow-hidden relative">
@@ -515,10 +532,31 @@ export function RaceScreen() {
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1 md:py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-600 dark:text-orange-400 text-[10px] md:text-xs font-semibold shrink-0">
-            <Activity className="h-3.5 md:h-4.5 w-3.5 md:w-4.5 animate-pulse" />
-            <span className="hidden sm:inline">{t("challenge.race.simulating" as TranslationKey)}</span>
-            <span className="sm:hidden">Live</span>
+          <div className="flex items-center gap-2 md:gap-3 shrink-0">
+            {/* Speed Controls */}
+            <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-full p-0.5 border border-slate-200 dark:border-slate-700">
+              {([1, 2, 5] as const).map((speed) => (
+                <button
+                  key={speed}
+                  onClick={() => {
+                    setSimSpeed(speed);
+                    playSound("click");
+                  }}
+                  className={`flex items-center justify-center w-6 h-6 md:w-7 md:h-7 rounded-full text-[10px] md:text-xs font-bold transition-all ${
+                    simSpeed === speed 
+                      ? "bg-white dark:bg-slate-600 text-slate-800 dark:text-white shadow-sm" 
+                      : "text-slate-400 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                  }`}
+                >
+                  {speed}x
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1 md:py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-600 dark:text-orange-400 text-[10px] md:text-xs font-semibold">
+              <Activity className="h-3.5 md:h-4.5 w-3.5 md:w-4.5 animate-pulse" />
+              <span className="hidden sm:inline">{t("challenge.race.simulating" as TranslationKey)}</span>
+              <span className="sm:hidden">Live</span>
+            </div>
           </div>
         </div>
       </header>
@@ -528,100 +566,74 @@ export function RaceScreen() {
         {/* Distance Tracker & Visual Track Progress */}
         <div className="flex flex-col gap-4 md:gap-5 items-center justify-center bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[2rem] p-4 md:p-6 shadow-sm">
           {/* Distance Circular Tracker */}
-          <div className="relative w-32 h-32 md:w-40 md:h-40 flex items-center justify-center">
+          <div className="relative w-40 h-40 md:w-48 md:h-48 flex items-center justify-center group">
+            <div className="absolute inset-0 rounded-full border-[6px] border-orange-500/5 dark:border-orange-500/10 scale-105" />
             <svg
-              className="w-full h-full transform -rotate-90"
+              className="w-full h-full transform -rotate-90 drop-shadow-sm"
               role="img"
               aria-label="Race progress circle"
             >
               <title>Race progress circle</title>
               <circle
-                cx="80"
-                cy="80"
-                r="72"
-                className="stroke-slate-200 dark:stroke-gray-850 fill-none"
-                strokeWidth="6"
+                cx="50%"
+                cy="50%"
+                r="44%"
+                className="stroke-slate-100 dark:stroke-slate-800/80 fill-none"
+                strokeWidth="8"
               />
               <motion.circle
-                cx="80"
-                cy="80"
-                r="72"
+                cx="50%"
+                cy="50%"
+                r="44%"
                 className="stroke-orange-500 fill-none"
-                strokeWidth="6"
-                strokeDasharray="452"
-                initial={{ strokeDashoffset: 452 }}
+                strokeWidth="8"
+                strokeDasharray="276"
+                initial={{ strokeDashoffset: 276 }}
                 animate={{
-                  strokeDashoffset: 452 - (452 * progressPercentage) / 100,
+                  strokeDashoffset: 276 - (276 * progressPercentage) / 100,
                 }}
-                transition={{ duration: 0.1 }}
+                transition={{ duration: 10 / simSpeed, ease: "linear" }}
+                strokeLinecap="round"
               />
             </svg>
  
             {/* Inner Content */}
-            <div className="absolute flex flex-col items-center">
-              <span className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight font-heading">
-                {currentKm}
+            <div className="absolute flex flex-col items-center justify-center text-center">
+              <span className="text-[10px] md:text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-0.5 flex items-center gap-1">
+                <Flame className="w-3 h-3 text-orange-500" />
+                Distance
               </span>
-              <span className="text-[9px] md:text-[10px] text-slate-400 dark:text-gray-400 uppercase tracking-widest">
-                {t("challenge.race.of_distance" as TranslationKey).replace(
-                  "{{distance}}",
-                  challenge.race.distance.toString(),
-                )}
-              </span>
+              <div className="flex items-baseline gap-0.5">
+                <span className="text-4xl md:text-5xl font-extrabold tracking-tight font-heading text-slate-800 dark:text-white">
+                  {currentKm}
+                </span>
+                <span className="text-sm md:text-base font-bold text-slate-300 dark:text-slate-600">
+                  /{challenge.race.distance}
+                </span>
+              </div>
+              <div className="mt-1 flex items-center gap-1 bg-slate-50 dark:bg-slate-800/50 px-2 py-0.5 rounded-full border border-slate-150 dark:border-slate-700">
+                <span className="text-[10px] md:text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                  PACE
+                </span>
+                <span className="text-[10px] md:text-[11px] font-black text-orange-600 dark:text-orange-400 font-mono">
+                  {formatPace(stats.pace)}
+                </span>
+              </div>
             </div>
           </div>
- 
+
           {/* Visual Race Track Progress */}
-          <div className="w-full flex flex-col gap-2 mt-2 border-t border-slate-100 dark:border-gray-800 pt-3 md:pt-4">
-            <h4 className="text-[9px] md:text-[10px] uppercase font-extrabold tracking-wider text-slate-400 dark:text-gray-500 dark:text-gray-400">
-              Track Progress
-            </h4>
-            <div className="relative bg-slate-50 dark:bg-slate-950 h-8 md:h-10 rounded-[1.5rem] border border-slate-200 dark:border-slate-850 p-1.5 md:p-2 flex items-center overflow-hidden">
-              {/* Kilometer markers */}
-              <div className="absolute inset-0 flex justify-between px-4 pointer-events-none">
-                {Array.from({
-                  length: Math.ceil(challenge.race.distance) + 1,
-                }).map((_, i) => (
-                  <div
-                    // biome-ignore lint/suspicious/noArrayIndexKey: Static array mapping that does not change order
-                    key={i}
-                    className="flex flex-col items-center justify-center h-full"
-                  >
-                    <div className="h-2.5 w-0.5 bg-slate-200 dark:bg-slate-800 mb-0.5" />
-                    <span className="text-[8px] font-bold text-slate-400 dark:text-slate-500 font-mono">
-                      {i}k
-                    </span>
-                  </div>
-                ))}
-              </div>
- 
-              {/* Runners on the track */}
-              {runners.map((r) => {
-                const pct = (r.distance / challenge.race.distance) * 100;
-                return (
-                  <motion.div
-                    key={r.id}
-                    initial={{ left: 0 }}
-                    animate={{ left: `${Math.min(94, Math.max(2, pct))}%` }}
-                    transition={{ duration: 0.3 }}
-                    className={`absolute h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-black text-white shadow-md border-2 transition-colors
-                      ${
-                        r.isPlayer
-                          ? "bg-orange-500 border-white z-10 scale-110 shadow-sm"
-                          : r.isGhost
-                            ? "bg-indigo-500 border-indigo-200 z-10 text-[9px]"
-                            : r.isDNF
-                              ? "bg-slate-400 border-slate-500 opacity-40"
-                              : "bg-slate-700 border-slate-600"
-                      }
-                    `}
-                    title={`${r.name} (${r.distance} km)`}
-                  >
-                    {r.isPlayer ? "You" : r.isGhost ? "👻" : r.name[0]}
-                  </motion.div>
-                );
-              })}
-            </div>
+          <div className="w-full flex flex-col gap-2 mt-4 md:mt-6 border-t border-slate-100 dark:border-gray-800 pt-4 md:pt-6">
+            <TrackPositionVisualizer
+              runners={runners}
+              currentKm={currentKm}
+              raceDistance={challenge.race.distance}
+              simSpeed={simSpeed}
+              selectedPacing={selectedPacing}
+              surface={challenge.race.surface}
+              playerEnergy={stats.energy}
+              playSound={playSound}
+            />
           </div>
         </div>
 

@@ -7,6 +7,7 @@ import { useTranslation } from "@/i18n/use-translation";
 interface BreakingPointOverlayProps {
   breakingPoint: ActiveBreakingPoint | null;
   onRecovery: (optionId: string) => void;
+  onEndorphinTrigger?: (optionId: string) => void;
 }
 
 /**
@@ -16,9 +17,22 @@ interface BreakingPointOverlayProps {
 export function BreakingPointOverlay({
   breakingPoint,
   onRecovery,
+  onEndorphinTrigger,
 }: BreakingPointOverlayProps) {
   const { language } = useTranslation();
   const lang = (language === "id" ? "id" : "en") as "en" | "id";
+
+  const handleOptionClick = (optionId: string) => {
+    const option = breakingPoint?.breakingPoint.recoveryOptions.find(
+      (opt) => opt.id === optionId,
+    );
+
+    if (option?.triggersEndorphins && onEndorphinTrigger) {
+      onEndorphinTrigger(optionId);
+    } else {
+      onRecovery(optionId);
+    }
+  };
 
   if (!breakingPoint || breakingPoint.resolved) return null;
 
@@ -42,7 +56,7 @@ export function BreakingPointOverlay({
           initial={{ scale: 0.9, y: 30, opacity: 0 }}
           animate={{ scale: 1, y: 0, opacity: 1 }}
           transition={{ type: "spring", duration: 0.6 }}
-          className="relative max-w-2xl w-full mx-4"
+          className="relative max-w-2xl w-full mx-4 px-4 sm:px-0"
         >
           {/* Warning Badge */}
           <motion.div
@@ -52,7 +66,7 @@ export function BreakingPointOverlay({
             className="text-center mb-6"
           >
             <div
-              className={`inline-block px-6 py-3 rounded-full text-sm font-black uppercase ${severityStyles.badge}`}
+              className={`inline-block px-6 py-3 rounded-full text-xs sm:text-sm font-black uppercase ${severityStyles.badge}`}
             >
               ⚠️ {bp.severity} - {bp.type.replace("_", " ")}
             </div>
@@ -91,13 +105,16 @@ export function BreakingPointOverlay({
             transition={{ delay: 0.6 }}
             className="space-y-3"
           >
-            <p className="text-center text-white/80 font-semibold mb-4">
+            <p className="text-center text-white/80 font-semibold mb-4 text-sm sm:text-base">
               How do you respond?
             </p>
 
             {bp.recoveryOptions.map((option, index) => {
-              const riskColor =
-                option.risk === "high"
+              const isEndorphinOption = option.triggersEndorphins;
+              
+              const riskColor = isEndorphinOption
+                ? "border-pink-500 bg-gradient-to-br from-pink-900/40 via-purple-900/40 to-blue-900/40 hover:from-pink-900/60 hover:via-purple-900/60 hover:to-blue-900/60 shadow-lg shadow-pink-500/20"
+                : option.risk === "high"
                   ? "border-red-500 bg-red-900/30 hover:bg-red-900/50"
                   : option.risk === "medium"
                     ? "border-yellow-500 bg-yellow-900/30 hover:bg-yellow-900/50"
@@ -109,24 +126,26 @@ export function BreakingPointOverlay({
                   initial={{ x: -30, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: 0.7 + index * 0.1 }}
-                  onClick={() => onRecovery(option.id)}
-                  className={`w-full p-4 rounded-xl border-2 ${riskColor} transition-all duration-200 hover:scale-105 active:scale-95`}
+                  onClick={() => handleOptionClick(option.id)}
+                  className={`w-full p-5 sm:p-4 min-h-[56px] sm:min-h-[48px] rounded-xl border-2 ${riskColor} transition-all duration-200 hover:scale-105 active:scale-95`}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-white font-semibold text-left flex-1">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className={`font-semibold text-left flex-1 text-sm sm:text-base ${isEndorphinOption ? 'text-pink-200' : 'text-white'}`}>
                       {option.action[lang]}
                     </span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-white/70">
-                        {Math.round(option.recoveryChance * 100)}% success
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <span className={`text-xs ${isEndorphinOption ? 'text-pink-300/80' : 'text-white/70'}`}>
+                        {Math.round(option.recoveryChance * 100)}%
                       </span>
                       <span
-                        className={`text-xs px-2 py-1 rounded-full ${
-                          option.risk === "high"
-                            ? "bg-red-500"
-                            : option.risk === "medium"
-                              ? "bg-yellow-500 text-black dark:bg-yellow-400 dark:text-black"
-                              : "bg-green-500"
+                        className={`text-[10px] sm:text-xs px-2 py-1 rounded-full ${
+                          isEndorphinOption
+                            ? "bg-pink-500 animate-pulse"
+                            : option.risk === "high"
+                              ? "bg-red-500"
+                              : option.risk === "medium"
+                                ? "bg-yellow-500 text-black dark:bg-yellow-400 dark:text-black"
+                                : "bg-green-500"
                         } text-white font-bold uppercase`}
                       >
                         {option.risk}

@@ -70,6 +70,8 @@ export interface RunnerProfile {
     paceBonus: number;
   } | null;
   activePerks?: string[];
+  // Endorphin addiction tracking
+  addictionProfile?: import("@/engine/endorphins/endorphin-types").AddictionProfile;
   // Rival relationships tracking (Sprint 20)
   rivalRelationships?: Record<
     string,

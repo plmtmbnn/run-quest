@@ -24,6 +24,8 @@ export interface RecoveryOption {
   effects: BreakingPointEffects;
   recoveryChance: number; // 0-1
   risk: "low" | "medium" | "high";
+  triggersEndorphins?: boolean; // If true, triggers endorphin rush
+  endorphinIntensity?: import("@/engine/endorphins/endorphin-types").EndorphinIntensity;
 }
 
 /**

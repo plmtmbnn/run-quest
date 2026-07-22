@@ -131,9 +131,9 @@ function getRaceOccurrence(
     return null;
   }
 
-  // Check if already completed today
+  // Check if already completed (on this day or earlier)
   const lastCompleted = schedulingState.completedRaces[schedule.raceId];
-  const isToday = lastCompleted === dayIndex;
+  const isCompleted = lastCompleted !== undefined && lastCompleted <= dayIndex;
 
   // Calculate dates
   const registrationOpensAt = dayIndex - schedule.registration.opensDaysBefore;
@@ -185,7 +185,7 @@ function getRaceOccurrence(
     icon: schedule.icon,
     color: schedule.color,
     isRegistered,
-    isCompleted: isToday,
+    isCompleted,
     isFull,
   };
 }

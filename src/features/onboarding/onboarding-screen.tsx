@@ -118,6 +118,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       reducedMotion: false,
       sound: true,
       preferredCurrency: "USD",
+      hapticFeedback: true,
       preferences: {
         preferredSurface: "any",
         preferredDistance: "any",
