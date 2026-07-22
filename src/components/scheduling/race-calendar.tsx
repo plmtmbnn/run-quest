@@ -156,7 +156,7 @@ export function RaceCalendar({
                 onClick={() => setActiveTab(tab.id)}
                 aria-selected={isActive}
                 aria-controls={tabPanelId}
-                className={`flex-1 min-h-[44px] py-3 text-xs font-black uppercase tracking-wider rounded-[1.25rem] transition-all flex items-center justify-center gap-1
+                className={`flex-1 min-h-[44px] py-2.5 sm:py-3 px-2 sm:px-3 text-[10px] sm:text-xs font-black uppercase tracking-wider rounded-[1.25rem] transition-all flex items-center justify-center gap-1 sm:gap-1.5
                   ${
                     isActive
                       ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/20"
@@ -165,13 +165,19 @@ export function RaceCalendar({
                   focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40
                 `}
               >
-                <span aria-hidden="true" className="mr-1">
+                <span aria-hidden="true" className="text-xs sm:text-sm shrink-0">
                   {tab.icon}
                 </span>
-                <span>{t(tab.labelKey)}</span>
+                <span className={`${isActive ? "block" : "hidden sm:block"} truncate`}>
+                  {t(tab.labelKey)}
+                </span>
                 {tab.count > 0 && (
                   <span
-                    className="ml-1.5 px-1.5 py-0.5 bg-white/20 dark:bg-white/10 rounded-full text-[10px] font-mono font-bold"
+                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold shrink-0 ${
+                      isActive
+                        ? "bg-white/20 text-white"
+                        : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                    }`}
                     aria-label={`${tab.count} ${tab.count === 1 ? "race" : "races"}`}
                   >
                     {tab.count}
