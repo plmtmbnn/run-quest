@@ -29,7 +29,13 @@
     "locked": "🔒 Terkunci",
     "target_time": "Target Waktu",
     "next_race_in": "Race berikutnya dalam:",
-    "countdown_desc": "Fokus pada recovery. Tantangan baru hadir besok."
+    "countdown_desc": "Fokus pada recovery. Tantangan baru hadir besok.",
+    "todays_training": "Latihan Hari Ini",
+    "training_completed": "Selesai hari ini ✅",
+    "training_scheduled": "Terjadwal",
+    "view_training_plan": "Lihat Jadwal",
+    "coach_tip": "Tips Pelatih",
+    "player_id": "ID"
   },
   "history": {
     "title": "Riwayat Race",
@@ -762,7 +768,9 @@
   "nav": {
     "shop": "Toko",
     "home": "Beranda",
-    "profile": "Profil"
+    "profile": "Profil",
+    "social": "Sosial",
+    "economy": "Ekonomi"
   },
   "shop": {
     "title": "Toko",
@@ -780,5 +788,15 @@
       "nutrition": "Nutrisi",
       "gear": "Perlengkapan"
     }
+  },
+  "rest": {
+    "day_label": "Istirahat (1 Hari)",
+    "week_label": "Istirahat (1 Minggu)",
+    "halted_race": "Istirahat dihentikan: Ada race besok!"
+  },
+  "game": {
+    "date_full_format": "Tahun {year}, Bulan {month}, Minggu {week}, Hari {day}",
+    "age_label": "Usia {age}",
+    "energy_level": "Level energi: {current}/{max}"
   }
 }

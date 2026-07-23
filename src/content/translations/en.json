@@ -29,7 +29,13 @@
     "locked": "🔒 Locked",
     "target_time": "Target Time",
     "next_race_in": "Next races in:",
-    "countdown_desc": "Focus on recovery. New challenges arrive tomorrow."
+    "countdown_desc": "Focus on recovery. New challenges arrive tomorrow.",
+    "todays_training": "Today's Training",
+    "training_completed": "Completed for today ✅",
+    "training_scheduled": "Scheduled",
+    "view_training_plan": "View Plan",
+    "coach_tip": "Coach Tip",
+    "player_id": "ID"
   },
   "history": {
     "title": "Race History",
@@ -762,7 +768,9 @@
   "nav": {
     "shop": "Shop",
     "home": "Home",
-    "profile": "Profile"
+    "profile": "Profile",
+    "social": "Social Hub",
+    "economy": "Economy"
   },
   "shop": {
     "title": "Shop",
@@ -780,5 +788,15 @@
       "nutrition": "Nutrition",
       "gear": "Gear"
     }
+  },
+  "rest": {
+    "day_label": "Rest (1 Day)",
+    "week_label": "Rest (1 Week)",
+    "halted_race": "Rest halted: Registered race tomorrow!"
+  },
+  "game": {
+    "date_full_format": "Year {year}, Month {month}, Week {week}, Day {day}",
+    "age_label": "Age {age}",
+    "energy_level": "Energy level: {current}/{max}"
   }
 }

@@ -392,10 +392,10 @@ export function HomeScreen() {
                 </div>
                 <div>
                   <h3 className="font-heading font-black text-sm text-slate-800 dark:text-white">
-                    Today's Training
+                    {t("home.todays_training" as TranslationKey)}
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {todaysActivity.isCompleted ? "Completed for today ✅" : "Scheduled"}
+                    {todaysActivity.isCompleted ? t("home.training_completed" as TranslationKey) : t("home.training_scheduled" as TranslationKey)}
                   </p>
                 </div>
               </div>
@@ -416,7 +416,7 @@ export function HomeScreen() {
                 }}
                 className="px-3.5 py-1.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-indigo-500/20 active:scale-95"
               >
-                {todaysActivity.isCompleted ? "View Plan" : "Lace Up →"}
+                {todaysActivity.isCompleted ? t("home.view_training_plan" as TranslationKey) : `${t("training.start_workout" as TranslationKey)} →`}
               </button>
             </div>
 
@@ -424,7 +424,7 @@ export function HomeScreen() {
               <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl text-xs text-slate-600 dark:text-slate-300 flex items-start gap-2 border border-slate-100 dark:border-slate-800">
                 <span className="text-base shrink-0">💡</span>
                 <div>
-                  <span className="font-bold text-slate-800 dark:text-white block">Coach Tip:</span>
+                  <span className="font-bold text-slate-800 dark:text-white block">{t("home.coach_tip" as TranslationKey)}:</span>
                   <span>{coachTip.message}</span>
                 </div>
               </div>
@@ -491,10 +491,10 @@ export function HomeScreen() {
                     playSound("click");
                     router.push("/social");
                   }}
-                  aria-label="Social Hub"
+                  aria-label={t("nav.social" as TranslationKey)}
                   className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-2 md:py-1.5 rounded-full transition-all border border-white/10 relative min-h-[36px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                 >
-                  Social Hub →
+                  {t("nav.social" as TranslationKey)} →
                   {recentRivalActivities > 0 && (
                     <span className="absolute -top-1.5 -right-1.5 h-4 min-w-[16px] px-1 bg-rose-500 text-white text-[8px] font-black rounded-full flex items-center justify-center shadow-md shadow-rose-500/30 animate-pulse">
                       {recentRivalActivities}
@@ -529,10 +529,10 @@ export function HomeScreen() {
                     playSound("click");
                     router.push("/economy");
                   }}
-                  aria-label="Economy"
+                  aria-label={t("nav.economy" as TranslationKey)}
                   className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-2 md:py-1.5 rounded-full transition-all border border-white/10 min-h-[36px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                 >
-                  💰 Economy →
+                  💰 {t("nav.economy" as TranslationKey)} →
                 </button>
                 <button
                   type="button"
@@ -540,10 +540,10 @@ export function HomeScreen() {
                     playSound("click");
                     router.push("/sponsors");
                   }}
-                  aria-label="Sponsors"
+                  aria-label={t("sponsors.title" as TranslationKey)}
                   className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-2 md:py-1.5 rounded-full transition-all border border-white/10 relative min-h-[36px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                 >
-                  🤝 Sponsors →
+                  🤝 {t("sponsors.title" as TranslationKey)} →
                   {(gameState?.sponsorship?.pendingOffers?.length ?? 0) > 0 && (
                     <span className="absolute -top-1.5 -right-1.5 h-4 min-w-[16px] px-1 bg-purple-500 text-white text-[8px] font-black rounded-full flex items-center justify-center shadow-md shadow-purple-500/30 animate-pulse">
                       {gameState?.sponsorship?.pendingOffers?.length ?? 0}
@@ -579,7 +579,7 @@ export function HomeScreen() {
         {/* Player ID (dev helper) */}
         {player && (
           <p className="text-xs text-center text-gray-300 dark:text-gray-500 select-all">
-            ID: {player.id.slice(0, 8)}
+            {t("home.player_id" as TranslationKey)}: {player.id.slice(0, 8)}
           </p>
         )}
       </main>

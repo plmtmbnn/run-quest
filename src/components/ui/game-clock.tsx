@@ -93,10 +93,20 @@ export function GameStats() {
       {currentDate && (
         <div
           className="flex justify-center items-center bg-slate-50 dark:bg-slate-800/50 rounded-xl md:rounded-2xl p-2 md:p-3 text-center border border-slate-100 dark:border-slate-700/50"
-          aria-label={`Game date: Year ${currentDate.yearOffset + 1}, Month ${currentDate.month + 1}, Week ${currentDate.week + 1}, Day ${currentDate.dayOfWeek + 1}`}
+          aria-label={t("game.date_full_format" as TranslationKey, {
+            year: currentDate.yearOffset + 1,
+            month: currentDate.month + 1,
+            week: currentDate.week + 1,
+            day: currentDate.dayOfWeek + 1,
+          })}
         >
           <span className="text-xs md:text-sm font-black text-slate-800 dark:text-white">
-            Year {currentDate.yearOffset + 1}, Month {currentDate.month + 1}, Week {currentDate.week + 1}, Day {currentDate.dayOfWeek + 1}
+            {t("game.date_full_format" as TranslationKey, {
+              year: currentDate.yearOffset + 1,
+              month: currentDate.month + 1,
+              week: currentDate.week + 1,
+              day: currentDate.dayOfWeek + 1,
+            })}
           </span>
         </div>
       )}

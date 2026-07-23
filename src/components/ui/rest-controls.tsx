@@ -5,6 +5,7 @@ import { AlertCircle, Calendar, Coffee, Moon } from "lucide-react";
 import { useCallback, useMemo } from "react";
 import { deriveDate } from "@/engine/timeline/calendar";
 import { useSound } from "@/hooks/use-sound";
+import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { useTimelineStore } from "@/store/timeline-store";
 
 interface RestButtonProps {
@@ -40,6 +41,7 @@ function RestButton({
 }
 
 export function RestControls() {
+  const { t } = useTranslation();
   const doAction = useTimelineStore((state) => state.doAction);
   const ff = useTimelineStore((state) => state.ff);
   const gameState = useTimelineStore((state) => state.gameState);
@@ -91,13 +93,13 @@ export function RestControls() {
           <RestButton
             onClick={handleRestDay}
             icon={<Moon className="h-4 w-4 md:h-4.5 md:w-4.5 shrink-0" />}
-            label="Rest (1 Day)"
+            label={t("rest.day_label" as TranslationKey)}
             primary
           />
           <RestButton
             onClick={handleRestWeek}
             icon={<Calendar className="h-4 w-4 md:h-4.5 md:w-4.5 shrink-0" />}
-            label="Rest (1 Week)"
+            label={t("rest.week_label" as TranslationKey)}
           />
         </div>
 
@@ -114,7 +116,7 @@ export function RestControls() {
               <div className="w-full bg-amber-500/10 dark:bg-amber-500/15 border border-amber-300/80 dark:border-amber-700/60 rounded-xl px-3 py-2 flex items-center gap-2 text-amber-800 dark:text-amber-200 shadow-xs">
                 <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 animate-pulse" />
                 <span className="text-xs md:text-xs font-bold truncate">
-                  Rest halted: Registered race tomorrow!
+                  {t("rest.halted_race" as TranslationKey)}
                 </span>
               </div>
             </motion.div>
@@ -129,7 +131,7 @@ export function RestControls() {
               Y{currentYear} M{currentMonth} W{currentWeek} D{currentDay}
             </span>
             <span className="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded-lg border border-indigo-200/80 dark:border-indigo-800/50 font-semibold shadow-2xs">
-              Age {age}
+              {t("game.age_label" as TranslationKey, { age })}
             </span>
           </div>
 
@@ -151,7 +153,10 @@ export function RestControls() {
               aria-valuenow={Math.round(gameState.energy)}
               aria-valuemin={0}
               aria-valuemax={gameState.energyMax}
-              aria-label={`Energy level: ${Math.round(energy)}/${energyMax}`}
+              aria-label={t("game.energy_level" as TranslationKey, {
+                current: Math.round(gameState.energy),
+                max: gameState.energyMax,
+              })}
             >
               <div
                 className={`h-full rounded-full transition-all duration-500 ease-out ${

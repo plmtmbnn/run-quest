@@ -37,6 +37,12 @@ export interface Dictionary {
     target_time: string;
     next_race_in: string;
     countdown_desc: string;
+    todays_training: string;
+    training_completed: string;
+    training_scheduled: string;
+    view_training_plan: string;
+    coach_tip: string;
+    player_id: string;
   };
   language: {
     title: string;
@@ -448,5 +454,22 @@ export interface Dictionary {
       sponsor: string;
       career_wins: string;
     };
+  };
+  rest: {
+    day_label: string;
+    week_label: string;
+    halted_race: string;
+  };
+  game: {
+    date_full_format: string;
+    age_label: string;
+    energy_level: string;
+  };
+  nav: {
+    shop: string;
+    home: string;
+    profile: string;
+    social: string;
+    economy: string;
   };
 }

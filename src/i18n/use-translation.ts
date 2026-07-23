@@ -31,7 +31,7 @@ export function useTranslation() {
   const dictionary = dictionaries[language];
 
   const t = useCallback(
-    (key: TranslationKey): string => {
+    (key: TranslationKey, vars?: Record<string, string | number>): string => {
       const keys = key.split(".");
       let current: unknown = dictionary;
 
@@ -44,7 +44,13 @@ export function useTranslation() {
         }
       }
 
-      return typeof current === "string" ? current : key;
+      let result = typeof current === "string" ? current : key;
+      if (vars) {
+        for (const [varName, value] of Object.entries(vars)) {
+          result = result.replace(new RegExp(`{${varName}}`, "g"), String(value));
+        }
+      }
+      return result;
     },
     [dictionary],
   );
