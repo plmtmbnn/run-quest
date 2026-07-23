@@ -8,6 +8,7 @@ import {
   Info,
   MapPin,
   Share2,
+  ShoppingBag,
   Sparkles,
   Wind,
 } from "lucide-react";
@@ -22,6 +23,7 @@ import { generateDailyChallenge } from "@/services/challenge/generator";
 import { storageRepository } from "@/storage/storage-repository";
 import { useGameStore } from "@/store/game-store";
 import { usePreparationStore } from "@/store/preparation-store";
+import { useShopStore } from "@/shop/shop-store";
 import { useTimelineStore } from "@/store/timeline-store";
 
 export function PreparationScreen() {
@@ -30,6 +32,7 @@ export function PreparationScreen() {
   const lang = (language === "id" ? "id" : "en") as "en" | "id";
   const { currentChallenge } = useGameStore();
   const dayIndex = useTimelineStore((state) => state.gameState?.dayIndex ?? 0);
+  const { hasItem, getItemQuantity } = useShopStore();
 
   const challenge =
     currentChallenge || generateDailyChallenge(dayIndex.toString());
@@ -49,6 +52,7 @@ export function PreparationScreen() {
     preparation,
     setShoes: _setShoes,
     toggleNutrition: _toggleNutrition,
+    setNutritionQuantity: _setNutritionQuantity,
     toggleGear: _toggleGear,
     setWarmup: _setWarmup,
     setPacing: _setPacing,
@@ -63,6 +67,7 @@ export function PreparationScreen() {
   const isRainyWeather = challenge.environment.weather === "rain";
 
   const setShoes = (val: Parameters<typeof _setShoes>[0]) => {
+    if (!hasItem("shoes", val)) return;
     // Prevent selecting trail shoes for road races and vice versa
     if (!isTrailRace && (val === "trail" || val === "aggressive_trail" || val === "minimalist_trail")) {
       return;
@@ -89,9 +94,11 @@ export function PreparationScreen() {
       { id: "minimalist_trail", disabled: false },
     ];
     
-    return isTrailRace ? [...roadShoes, ...trailShoes] : roadShoes;
+    const allOptions = isTrailRace ? [...roadShoes, ...trailShoes] : roadShoes;
+    return allOptions.filter((shoe) => hasItem("shoes", shoe.id));
   };
   const toggleNutrition = (val: Parameters<typeof _toggleNutrition>[0]) => {
+    if (!hasItem("nutrition", val) || getItemQuantity("nutrition", val) <= 0) return;
     playSound("click");
     if (preparation.nutrition.length >= 3 && !preparation.nutrition.includes(val)) {
       return; // Prevent adding more than 3 nutrition items
@@ -99,6 +106,7 @@ export function PreparationScreen() {
     _toggleNutrition(val);
   };
   const toggleGear = (val: Parameters<typeof _toggleGear>[0]) => {
+    if (!hasItem("gear", val)) return;
     playSound("click");
     if (preparation.gear.length >= 2 && !preparation.gear.includes(val)) {
       return; // Prevent adding more than 2 gear items
@@ -264,83 +272,83 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                         const badges = [];
                         if (shoe.id === "daily_trainer") {
                           badges.push({
-                            text: "⚖️ Balanced",
+                            text: t("preparation.badges.balanced" as TranslationKey),
                             color: "bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-200",
                           });
                         } else if (shoe.id === "carbon_racer") {
                           badges.push(
                             {
-                              text: "⚡ + Pace",
+                              text: t("preparation.badges.pace_up" as TranslationKey),
                               color: "bg-emerald-100 dark:bg-emerald-955/40 text-emerald-800 dark:text-emerald-300",
                             },
                             {
-                              text: "⚠️ + Fatigue",
+                              text: t("preparation.badges.fatigue_up" as TranslationKey),
                               color: "bg-red-100 dark:bg-red-955/40 text-red-800 dark:text-red-300",
                             }
                           );
                         } else if (shoe.id === "lightweight") {
                           badges.push(
                             {
-                              text: "🏃 Lightweight",
+                              text: t("preparation.badges.lightweight" as TranslationKey),
                               color: "bg-sky-100 dark:bg-sky-955/40 text-sky-800 dark:text-sky-300",
                             },
                             {
-                              text: "📉 Comfort",
+                              text: t("preparation.badges.comfort_down" as TranslationKey),
                               color: "bg-amber-100 dark:bg-amber-955/40 text-amber-800 dark:text-amber-300",
                             }
                           );
                         } else if (shoe.id === "trail") {
                           badges.push(
                             {
-                              text: "🥾 + Trail Grip",
+                              text: t("preparation.badges.trail_grip" as TranslationKey),
                               color: "bg-orange-100 dark:bg-orange-955/40 text-orange-800 dark:text-orange-300",
                             },
                             {
-                              text: "🐢 - Road Speed",
+                              text: t("preparation.badges.road_speed_down" as TranslationKey),
                               color: "bg-amber-100 dark:bg-amber-955/40 text-amber-750 dark:text-amber-300",
                             }
                           );
                         } else if (shoe.id === "stability") {
                           badges.push(
                             {
-                              text: "⚖️ Stability",
+                              text: t("preparation.badges.stability" as TranslationKey),
                               color: "bg-blue-100 dark:bg-blue-955/40 text-blue-800 dark:text-blue-300",
                             },
                             {
-                              text: "⚠️ Heavy",
+                              text: t("preparation.badges.heavy" as TranslationKey),
                               color: "bg-red-100 dark:bg-red-955/40 text-red-800 dark:text-red-300",
                             }
                           );
                         } else if (shoe.id === "max_cushion") {
                           badges.push(
                             {
-                              text: "🛡️ Comfort",
+                              text: t("preparation.badges.comfort" as TranslationKey),
                               color: "bg-emerald-100 dark:bg-emerald-955/40 text-emerald-800 dark:text-emerald-300",
                             },
                             {
-                              text: "🐢 Slow",
+                              text: t("preparation.badges.slow" as TranslationKey),
                               color: "bg-amber-100 dark:bg-amber-955/40 text-amber-750 dark:text-amber-300",
                             }
                           );
                         } else if (shoe.id === "aggressive_trail") {
                           badges.push(
                             {
-                              text: "🥾 Grip",
+                              text: t("preparation.badges.grip" as TranslationKey),
                               color: "bg-orange-100 dark:bg-orange-955/40 text-orange-800 dark:text-orange-300",
                             },
                             {
-                              text: "🏔️ Trail Only",
+                              text: t("preparation.badges.trail_only" as TranslationKey),
                               color: "bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-200",
                             }
                           );
                         } else if (shoe.id === "minimalist_trail") {
                           badges.push(
                             {
-                              text: "🏃 Lightweight",
+                              text: t("preparation.badges.lightweight" as TranslationKey),
                               color: "bg-sky-100 dark:bg-sky-955/40 text-sky-800 dark:text-sky-300",
                             },
                             {
-                              text: "📉 Comfort",
+                              text: t("preparation.badges.comfort_down" as TranslationKey),
                               color: "bg-amber-100 dark:bg-amber-955/40 text-amber-800 dark:text-amber-300",
                             }
                           );
@@ -348,7 +356,9 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                         
                         if (isDisabled) {
                           badges.push({
-                            text: isTrailRace ? "🚫 Road Only" : "🚫 Trail Only",
+                            text: isTrailRace
+                              ? t("preparation.badges.road_only" as TranslationKey)
+                              : t("preparation.badges.trail_only_prohibited" as TranslationKey),
                             color: "bg-red-100 dark:bg-red-955/40 text-red-800 dark:text-red-300",
                           });
                         }
@@ -361,6 +371,14 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 );
               })}
             </div>
+            <button
+              type="button"
+              onClick={() => router.push("/shop")}
+              className="w-full py-3 border-2 border-dashed border-blue-400 dark:border-blue-600 rounded-2xl text-blue-600 dark:text-blue-400 font-semibold flex items-center justify-center gap-2 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              {t("preparation.get_more_shoes" as TranslationKey)}
+            </button>
           </section>
 
           {/* Category: Nutrition */}
@@ -385,165 +403,55 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
               </div>
             )}
             <div className="grid gap-4 sm:grid-cols-2">
-              <OptionCard
-                id="nutr-water"
-                selected={preparation.nutrition.includes("water")}
-                onClick={() => toggleNutrition("water")}
-                title={t("preparation.nutrition.water.name" as TranslationKey)}
-                desc={t("preparation.nutrition.water.desc" as TranslationKey)}
-                badges={[
-                  {
-                    text: "💧 Hydration Stability",
-                    color:
-                      "bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300",
-                  },
-                ]}
-              />
-              <OptionCard
-                id="nutr-elect"
-                selected={preparation.nutrition.includes("electrolyte")}
-                onClick={() => toggleNutrition("electrolyte")}
-                title={t(
-                  "preparation.nutrition.electrolyte.name" as TranslationKey,
-                )}
-                desc={t(
-                  "preparation.nutrition.electrolyte.desc" as TranslationKey,
-                )}
-                badges={[
-                  {
-                    text: "🧪 Reduced Cramp Risk",
-                    color:
-                      "bg-teal-100 dark:bg-teal-950/40 text-teal-800 dark:text-teal-300",
-                  },
-                ]}
-              />
-              <OptionCard
-                id="nutr-gel"
-                selected={preparation.nutrition.includes("energy_gel")}
-                onClick={() => toggleNutrition("energy_gel")}
-                title={t(
-                  "preparation.nutrition.energy_gel.name" as TranslationKey,
-                )}
-                desc={t(
-                  "preparation.nutrition.energy_gel.desc" as TranslationKey,
-                )}
-                badges={[
-                  {
-                    text: "⚡ Mid-Race Energy Boost",
-                    color:
-                      "bg-yellow-100 dark:bg-yellow-950/40 text-yellow-800 dark:text-yellow-300",
-                  },
-                  {
-                    text: "🤢 Stomach Stress Risk",
-                    color:
-                      "bg-orange-100 dark:bg-orange-950/40 text-orange-800 dark:text-orange-350",
-                  },
-                ]}
-              />
-              <OptionCard
-                id="nutr-caff"
-                selected={preparation.nutrition.includes("caffeine")}
-                onClick={() => toggleNutrition("caffeine")}
-                title={t(
-                  "preparation.nutrition.caffeine.name" as TranslationKey,
-                )}
-                desc={t(
-                  "preparation.nutrition.caffeine.desc" as TranslationKey,
-                )}
-                badges={[
-                  {
-                    text: "🧠 Early Focus",
-                    color:
-                      "bg-purple-100 dark:bg-purple-955/40 text-purple-800 dark:text-purple-300",
-                  },
-                  {
-                    text: "📉 Energy Crash Risk",
-                    color:
-                      "bg-rose-100 dark:bg-rose-955/40 text-rose-800 dark:text-rose-300",
-                  },
-                ]}
-              />
-              <OptionCard
-                id="nutr-energy-bar"
-                selected={preparation.nutrition.includes("energy_bar")}
-                onClick={() => toggleNutrition("energy_bar")}
-                title={t("preparation.nutrition.energy_bar.name" as TranslationKey)}
-                desc={t("preparation.nutrition.energy_bar.desc" as TranslationKey)}
-                badges={[
-                  {
-                    text: "⚡ Energy",
-                    color:
-                      "bg-yellow-100 dark:bg-yellow-955/40 text-yellow-800 dark:text-yellow-300",
-                  },
-                  {
-                    text: "🐢 Slow Absorption",
-                    color:
-                      "bg-orange-100 dark:bg-orange-955/40 text-orange-800 dark:text-orange-300",
-                  },
-                ]}
-              />
-              <OptionCard
-                id="nutr-hydration-mix"
-                selected={preparation.nutrition.includes("hydration_mix")}
-                onClick={() => toggleNutrition("hydration_mix")}
-                title={t("preparation.nutrition.hydration_mix.name" as TranslationKey)}
-                desc={t("preparation.nutrition.hydration_mix.desc" as TranslationKey)}
-                badges={[
-                  {
-                    text: "💧 Hydration",
-                    color:
-                      "bg-blue-100 dark:bg-blue-955/40 text-blue-800 dark:text-blue-300",
-                  },
-                  {
-                    text: "⚡ Energy",
-                    color:
-                      "bg-yellow-100 dark:bg-yellow-955/40 text-yellow-800 dark:text-yellow-300",
-                  },
-                ]}
-              />
-              <OptionCard
-                id="nutr-salt-tablets"
-                selected={preparation.nutrition.includes("salt_tablets")}
-                onClick={() => toggleNutrition("salt_tablets")}
-                title={t("preparation.nutrition.salt_tablets.name" as TranslationKey)}
-                desc={t("preparation.nutrition.salt_tablets.desc" as TranslationKey)}
-                badges={[
-                  {
-                    text: "🧂 Cramp Prevention",
-                    color:
-                      "bg-teal-100 dark:bg-teal-955/40 text-teal-800 dark:text-teal-300",
-                  },
-                  {
-                    text: "🌡️ Hot Weather",
-                    color: isHotWeather
-                      ? "bg-red-200 dark:bg-red-900/60 text-red-900 dark:text-red-100"
-                      : "bg-red-100 dark:bg-red-955/40 text-red-800 dark:text-red-300",
-                  },
-                ]}
-                className={isHotWeather ? "ring-2 ring-red-500" : ""}
-              />
-              <OptionCard
-                id="nutr-caffeine-gum"
-                selected={preparation.nutrition.includes("caffeine_gum")}
-                onClick={() => toggleNutrition("caffeine_gum")}
-                title={t("preparation.nutrition.caffeine_gum.name" as TranslationKey)}
-                desc={t("preparation.nutrition.caffeine_gum.desc" as TranslationKey)}
-                badges={[
-                  {
-                    text: "🧠 Focus",
-                    color: isColdWeather
-                      ? "bg-purple-200 dark:bg-purple-900/60 text-purple-900 dark:text-purple-100"
-                      : "bg-purple-100 dark:bg-purple-955/40 text-purple-800 dark:text-purple-300",
-                  },
-                  {
-                    text: "⚠️ Jitters",
-                    color:
-                      "bg-rose-100 dark:bg-rose-955/40 text-rose-800 dark:text-rose-300",
-                  },
-                ]}
-                className={isColdWeather ? "ring-2 ring-purple-500" : ""}
-              />
+              {[
+                { id: "water" as const, nameKey: "preparation.nutrition.water.name", descKey: "preparation.nutrition.water.desc", badges: [{ text: t("preparation.badges.hydration_stability" as TranslationKey), color: "bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300" }] },
+                { id: "electrolyte" as const, nameKey: "preparation.nutrition.electrolyte.name", descKey: "preparation.nutrition.electrolyte.desc", badges: [{ text: t("preparation.badges.reduced_cramp_risk" as TranslationKey), color: "bg-teal-100 dark:bg-teal-950/40 text-teal-800 dark:text-teal-300" }] },
+                { id: "energy_gel" as const, nameKey: "preparation.nutrition.energy_gel.name", descKey: "preparation.nutrition.energy_gel.desc", badges: [{ text: t("preparation.badges.energy_boost" as TranslationKey), color: "bg-yellow-100 dark:bg-yellow-950/40 text-yellow-800 dark:text-yellow-300" }, { text: t("preparation.badges.stomach_stress_risk" as TranslationKey), color: "bg-orange-100 dark:bg-orange-950/40 text-orange-800 dark:text-orange-350" }] },
+                { id: "caffeine" as const, nameKey: "preparation.nutrition.caffeine.name", descKey: "preparation.nutrition.caffeine.desc", badges: [{ text: t("preparation.badges.early_focus" as TranslationKey), color: "bg-purple-100 dark:bg-purple-955/40 text-purple-800 dark:text-purple-300" }, { text: t("preparation.badges.energy_crash_risk" as TranslationKey), color: "bg-rose-100 dark:bg-rose-955/40 text-rose-800 dark:text-rose-300" }] },
+                { id: "energy_bar" as const, nameKey: "preparation.nutrition.energy_bar.name", descKey: "preparation.nutrition.energy_bar.desc", badges: [{ text: t("preparation.badges.energy" as TranslationKey), color: "bg-yellow-100 dark:bg-yellow-955/40 text-yellow-800 dark:text-yellow-300" }, { text: t("preparation.badges.slow_absorption" as TranslationKey), color: "bg-orange-100 dark:bg-orange-955/40 text-orange-800 dark:text-orange-300" }] },
+                { id: "hydration_mix" as const, nameKey: "preparation.nutrition.hydration_mix.name", descKey: "preparation.nutrition.hydration_mix.desc", badges: [{ text: t("preparation.badges.hydration" as TranslationKey), color: "bg-blue-100 dark:bg-blue-955/40 text-blue-800 dark:text-blue-300" }, { text: t("preparation.badges.energy" as TranslationKey), color: "bg-yellow-100 dark:bg-yellow-955/40 text-yellow-800 dark:text-yellow-300" }] },
+                { id: "salt_tablets" as const, nameKey: "preparation.nutrition.salt_tablets.name", descKey: "preparation.nutrition.salt_tablets.desc", badges: [{ text: t("preparation.badges.cramp_prevention" as TranslationKey), color: "bg-teal-100 dark:bg-teal-955/40 text-teal-800 dark:text-teal-300" }] },
+                { id: "caffeine_gum" as const, nameKey: "preparation.nutrition.caffeine_gum.name", descKey: "preparation.nutrition.caffeine_gum.desc", badges: [{ text: t("preparation.badges.focus" as TranslationKey), color: "bg-purple-100 dark:bg-purple-955/40 text-purple-800 dark:text-purple-300" }] },
+              ].filter((nut) => hasItem("nutrition", nut.id) && getItemQuantity("nutrition", nut.id) > 0)
+              .map((nut) => {
+                const ownedQty = getItemQuantity("nutrition", nut.id);
+                const isSelected = preparation.nutrition.includes(nut.id);
+                const currentQty = preparation.nutritionQuantities?.[nut.id] ?? 1;
+                const isDisabled = !hasItem("nutrition", nut.id) || ownedQty <= 0;
+
+                return (
+                  <OptionCard
+                    key={nut.id}
+                    id={`nutr-${nut.id}`}
+                    selected={isSelected}
+                    isMultiSelect={true}
+                    onClick={() => toggleNutrition(nut.id)}
+                    title={`${t(nut.nameKey as TranslationKey)} ${ownedQty > 0 ? (t("preparation.owned_count" as TranslationKey) || "").replace("{count}", String(ownedQty)) : ""}`}
+                    desc={t(nut.descKey as TranslationKey)}
+                    badges={nut.badges}
+                    disabled={isDisabled}
+                    quantityControl={
+                      isSelected
+                        ? {
+                            count: currentQty,
+                            maxCount: Math.min(4, Math.max(1, ownedQty)),
+                            onIncrease: () => _setNutritionQuantity(nut.id, currentQty + 1),
+                            onDecrease: () => _setNutritionQuantity(nut.id, currentQty - 1),
+                          }
+                        : undefined
+                    }
+                  />
+                );
+              })}
             </div>
+            <button
+              type="button"
+              onClick={() => router.push("/shop")}
+              className="w-full py-3 border-2 border-dashed border-green-400 dark:border-green-600 rounded-2xl text-green-600 dark:text-green-400 font-semibold flex items-center justify-center gap-2 hover:bg-green-50 dark:hover:bg-green-950/30 transition-colors"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              {t("preparation.get_more_nutrition" as TranslationKey)}
+            </button>
           </section>
 
           {/* Category: Gear */}
@@ -573,162 +481,38 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
               </div>
             )}
             <div className="grid gap-4 sm:grid-cols-2">
-              <OptionCard
-                id="gear-cap"
-                selected={preparation.gear.includes("cap")}
-                onClick={() => toggleGear("cap")}
-                title={t("preparation.gear.cap.name" as TranslationKey)}
-                desc={t("preparation.gear.cap.desc" as TranslationKey)}
-                badges={[
-                  {
-                    text: "🧢 Sun/Rain",
-                    color:
-                      "bg-indigo-100 dark:bg-indigo-950/40 text-indigo-800 dark:text-indigo-300",
-                  },
-                ]}
-                isMultiSelect
-              />
-              <OptionCard
-                id="gear-glasses"
-                selected={preparation.gear.includes("sunglasses")}
-                onClick={() => toggleGear("sunglasses")}
-                title={t("preparation.gear.sunglasses.name" as TranslationKey)}
-                desc={t("preparation.gear.sunglasses.desc" as TranslationKey)}
-                badges={[
-                  {
-                    text: "🕶️ Glare Block",
-                    color:
-                      "bg-purple-100 dark:bg-purple-950/40 text-purple-800 dark:text-purple-300",
-                  },
-                ]}
-                isMultiSelect
-              />
-              <OptionCard
-                id="gear-sleeves"
-                selected={preparation.gear.includes("arm_sleeves")}
-                onClick={() => toggleGear("arm_sleeves")}
-                title={t("preparation.gear.arm_sleeves.name" as TranslationKey)}
-                desc={t("preparation.gear.arm_sleeves.desc" as TranslationKey)}
-                badges={[
-                  {
-                    text: "🧣 Warmth",
-                    color:
-                      "bg-pink-100 dark:bg-pink-950/40 text-pink-800 dark:text-pink-300",
-                  },
-                ]}
-                isMultiSelect
-              />
-              <OptionCard
-                id="gear-vest"
-                selected={preparation.gear.includes("hydration_vest")}
-                onClick={() => toggleGear("hydration_vest")}
-                title={t(
-                  "preparation.gear.hydration_vest.name" as TranslationKey,
-                )}
-                desc={t(
-                  "preparation.gear.hydration_vest.desc" as TranslationKey,
-                )}
-                badges={[
-                  {
-                    text: "🎒 Capacity",
-                    color:
-                      "bg-cyan-100 dark:bg-cyan-955/40 text-cyan-800 dark:text-cyan-300",
-                  },
-                  {
-                    text: "⚖️ Heavy",
-                    color:
-                      "bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-200",
-                  },
-                ]}
-                isMultiSelect
-              />
-              <OptionCard
-                id="gear-jacket"
-                selected={preparation.gear.includes("lightweight_jacket")}
-                onClick={() => toggleGear("lightweight_jacket")}
-                title={t("preparation.gear.lightweight_jacket.name" as TranslationKey)}
-                desc={t("preparation.gear.lightweight_jacket.desc" as TranslationKey)}
-                badges={[
-                  {
-                    text: "🌬️ Windproof",
-                    color: isColdWeather || isRainyWeather
-                      ? "bg-indigo-200 dark:bg-indigo-900/60 text-indigo-900 dark:text-indigo-100"
-                      : "bg-indigo-100 dark:bg-indigo-955/40 text-indigo-800 dark:text-indigo-300",
-                  },
-                  {
-                    text: "💧 Water-Resistant",
-                    color: isRainyWeather
-                      ? "bg-blue-200 dark:bg-blue-900/60 text-blue-900 dark:text-blue-100"
-                      : "bg-blue-100 dark:bg-blue-955/40 text-blue-800 dark:text-blue-300",
-                  },
-                ]}
-                isMultiSelect
-                className={(isColdWeather || isRainyWeather) ? "ring-2 ring-indigo-500" : ""}
-              />
-              <OptionCard
-                id="gear-socks"
-                selected={preparation.gear.includes("compression_socks")}
-                onClick={() => toggleGear("compression_socks")}
-                title={t("preparation.gear.compression_socks.name" as TranslationKey)}
-                desc={t("preparation.gear.compression_socks.desc" as TranslationKey)}
-                badges={[
-                  {
-                    text: "🩸 Recovery",
-                    color:
-                      "bg-pink-100 dark:bg-pink-955/40 text-pink-800 dark:text-pink-300",
-                  },
-                  {
-                    text: "🏃 Comfort",
-                    color:
-                      "bg-emerald-100 dark:bg-emerald-955/40 text-emerald-800 dark:text-emerald-300",
-                  },
-                ]}
-                isMultiSelect
-              />
-              <OptionCard
-                id="gear-gaiters"
-                selected={preparation.gear.includes("trail_gaiters")}
-                onClick={() => toggleGear("trail_gaiters")}
-                title={t("preparation.gear.trail_gaiters.name" as TranslationKey)}
-                desc={t("preparation.gear.trail_gaiters.desc" as TranslationKey)}
-                badges={[
-                  {
-                    text: "🥾 Debris Protection",
-                    color:
-                      "bg-orange-100 dark:bg-orange-955/40 text-orange-800 dark:text-orange-300",
-                  },
-                  {
-                    text: "🏔️ Trail Only",
-                    color:
-                      "bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-200",
-                  },
-                ]}
-                isMultiSelect
-              />
-              <OptionCard
-                id="gear-shirt"
-                selected={preparation.gear.includes("moisture_wicking_shirt")}
-                onClick={() => toggleGear("moisture_wicking_shirt")}
-                title={t("preparation.gear.moisture_wicking_shirt.name" as TranslationKey)}
-                desc={t("preparation.gear.moisture_wicking_shirt.desc" as TranslationKey)}
-                badges={[
-                  {
-                    text: "💨 Breathable",
-                    color: isHotWeather
-                      ? "bg-sky-200 dark:bg-sky-900/60 text-sky-900 dark:text-sky-100"
-                      : "bg-sky-100 dark:bg-sky-955/40 text-sky-800 dark:text-sky-300",
-                  },
-                  {
-                    text: "🌡️ Hot Weather",
-                    color: isHotWeather
-                      ? "bg-red-200 dark:bg-red-900/60 text-red-900 dark:text-red-100"
-                      : "bg-red-100 dark:bg-red-955/40 text-red-800 dark:text-red-300",
-                  },
-                ]}
-                isMultiSelect
-                className={isHotWeather ? "ring-2 ring-red-500" : ""}
-              />
+              {[
+                { id: "cap" as const, nameKey: "preparation.gear.cap.name", descKey: "preparation.gear.cap.desc", badges: [{ text: t("preparation.badges.sun_rain" as TranslationKey), color: "bg-indigo-100 dark:bg-indigo-950/40 text-indigo-800 dark:text-indigo-300" }] },
+                { id: "sunglasses" as const, nameKey: "preparation.gear.sunglasses.name", descKey: "preparation.gear.sunglasses.desc", badges: [{ text: t("preparation.badges.glare_block" as TranslationKey), color: "bg-purple-100 dark:bg-purple-950/40 text-purple-800 dark:text-purple-300" }] },
+                { id: "arm_sleeves" as const, nameKey: "preparation.gear.arm_sleeves.name", descKey: "preparation.gear.arm_sleeves.desc", badges: [{ text: t("preparation.badges.warmth" as TranslationKey), color: "bg-pink-100 dark:bg-pink-950/40 text-pink-800 dark:text-pink-300" }] },
+                { id: "hydration_vest" as const, nameKey: "preparation.gear.hydration_vest.name", descKey: "preparation.gear.hydration_vest.desc", badges: [{ text: t("preparation.badges.capacity" as TranslationKey), color: "bg-cyan-100 dark:bg-cyan-955/40 text-cyan-800 dark:text-cyan-300" }, { text: t("preparation.badges.heavy" as TranslationKey), color: "bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-200" }] },
+                { id: "lightweight_jacket" as const, nameKey: "preparation.gear.lightweight_jacket.name", descKey: "preparation.gear.lightweight_jacket.desc", badges: [{ text: t("preparation.badges.windproof" as TranslationKey), color: isColdWeather || isRainyWeather ? "bg-indigo-200 dark:bg-indigo-900/60 text-indigo-900 dark:text-indigo-100" : "bg-indigo-100 dark:bg-indigo-955/40 text-indigo-800 dark:text-indigo-300" }, { text: t("preparation.badges.water_resistant" as TranslationKey), color: isRainyWeather ? "bg-blue-200 dark:bg-blue-900/60 text-blue-900 dark:text-blue-100" : "bg-blue-100 dark:bg-blue-955/40 text-blue-800 dark:text-blue-300" }], className: (isColdWeather || isRainyWeather) ? "ring-2 ring-indigo-500" : "" },
+                { id: "compression_socks" as const, nameKey: "preparation.gear.compression_socks.name", descKey: "preparation.gear.compression_socks.desc", badges: [{ text: t("preparation.badges.recovery" as TranslationKey), color: "bg-pink-100 dark:bg-pink-955/40 text-pink-800 dark:text-pink-300" }, { text: t("preparation.badges.comfort" as TranslationKey), color: "bg-emerald-100 dark:bg-emerald-955/40 text-emerald-800 dark:text-emerald-300" }] },
+                { id: "trail_gaiters" as const, nameKey: "preparation.gear.trail_gaiters.name", descKey: "preparation.gear.trail_gaiters.desc", badges: [{ text: t("preparation.badges.debris_protection" as TranslationKey), color: "bg-orange-100 dark:bg-orange-955/40 text-orange-800 dark:text-orange-300" }, { text: t("preparation.badges.trail_only" as TranslationKey), color: "bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-200" }] },
+                { id: "moisture_wicking_shirt" as const, nameKey: "preparation.gear.moisture_wicking_shirt.name", descKey: "preparation.gear.moisture_wicking_shirt.desc", badges: [{ text: t("preparation.badges.breathable" as TranslationKey), color: isHotWeather ? "bg-sky-200 dark:bg-sky-900/60 text-sky-900 dark:text-sky-100" : "bg-sky-100 dark:bg-sky-955/40 text-sky-800 dark:text-sky-300" }, { text: t("preparation.badges.hot_weather" as TranslationKey), color: isHotWeather ? "bg-red-200 dark:bg-red-900/60 text-red-900 dark:text-red-100" : "bg-red-100 dark:bg-red-955/40 text-red-800 dark:text-red-300" }], className: isHotWeather ? "ring-2 ring-red-500" : "" },
+              ].filter((g) => hasItem("gear", g.id))
+              .map((gear) => (
+                <OptionCard
+                  key={gear.id}
+                  id={`gear-${gear.id}`}
+                  selected={preparation.gear.includes(gear.id)}
+                  onClick={() => toggleGear(gear.id)}
+                  title={t(gear.nameKey as TranslationKey)}
+                  desc={t(gear.descKey as TranslationKey)}
+                  badges={gear.badges}
+                  isMultiSelect
+                  className={gear.className}
+                />
+              ))}
             </div>
+            <button
+              type="button"
+              onClick={() => router.push("/shop")}
+              className="w-full py-3 border-2 border-dashed border-purple-400 dark:border-purple-600 rounded-2xl text-purple-600 dark:text-purple-400 font-semibold flex items-center justify-center gap-2 hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-colors"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              {t("preparation.get_more_gear" as TranslationKey)}
+            </button>
           </section>
 
           {/* Category: Warmup */}
@@ -748,7 +532,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 desc={t("preparation.warmup.none.desc" as TranslationKey)}
                 badges={[
                   {
-                    text: "🛌 Cold Start",
+                    text: t("preparation.warmup.none.name" as TranslationKey),
                     color:
                       "bg-gray-800 dark:bg-slate-805 text-gray-200 dark:text-gray-200",
                   },
@@ -762,7 +546,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 desc={t("preparation.warmup.dynamic.desc" as TranslationKey)}
                 badges={[
                   {
-                    text: "⚖️ Optimal",
+                    text: t("preparation.badges.balanced" as TranslationKey),
                     color:
                       "bg-green-100 dark:bg-green-950/40 text-green-800 dark:text-green-300",
                   },
@@ -776,12 +560,12 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 desc={t("preparation.warmup.full.desc" as TranslationKey)}
                 badges={[
                   {
-                    text: "🔥 High Readiness",
+                    text: t("preparation.badges.ignore_pain" as TranslationKey),
                     color:
                       "bg-orange-100 dark:bg-orange-950/40 text-orange-800 dark:text-orange-300",
                   },
                   {
-                    text: "🔋 Energy Cost",
+                    text: t("preparation.badges.fatigue_up" as TranslationKey),
                     color:
                       "bg-red-100 dark:bg-red-950/40 text-red-800 dark:text-red-300",
                   },
@@ -811,7 +595,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 )}
                 badges={[
                   {
-                    text: "🧠 Strategic",
+                    text: t("preparation.badges.early_focus" as TranslationKey),
                     color:
                       "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300",
                   },
@@ -825,7 +609,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 desc={t("preparation.pacing.steady.desc" as TranslationKey)}
                 badges={[
                   {
-                    text: "⏱️ Rhythm",
+                    text: t("preparation.badges.rhythm" as TranslationKey),
                     color:
                       "bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300",
                   },
@@ -841,12 +625,12 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 desc={t("preparation.pacing.aggressive.desc" as TranslationKey)}
                 badges={[
                   {
-                    text: "🚀 Fast Start",
+                    text: t("preparation.badges.fast_start" as TranslationKey),
                     color:
                       "bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300",
                   },
                   {
-                    text: "💀 High DNF Risk",
+                    text: t("preparation.badges.high_dnf_risk" as TranslationKey),
                     color:
                       "bg-rose-100 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300",
                   },
@@ -864,7 +648,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 )}
                 badges={[
                   {
-                    text: "🛡️ Ultra Safe",
+                    text: t("preparation.badges.ultra_safe" as TranslationKey),
                     color:
                       "bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-200",
                   },
@@ -890,7 +674,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 desc={t("preparation.mindset.calm.desc" as TranslationKey)}
                 badges={[
                   {
-                    text: "🧘 Low Stress",
+                    text: t("preparation.badges.low_stress" as TranslationKey),
                     color:
                       "bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300",
                   },
@@ -906,7 +690,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 desc={t("preparation.mindset.confident.desc" as TranslationKey)}
                 badges={[
                   {
-                    text: "⭐ Morale Up",
+                    text: t("preparation.badges.morale_up" as TranslationKey),
                     color:
                       "bg-yellow-100 dark:bg-yellow-950/40 text-yellow-800 dark:text-yellow-300",
                   },
@@ -920,12 +704,12 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 desc={t("preparation.mindset.fearless.desc" as TranslationKey)}
                 badges={[
                   {
-                    text: "🔥 Ignore Pain",
+                    text: t("preparation.badges.ignore_pain" as TranslationKey),
                     color:
                       "bg-red-100 dark:bg-red-950/40 text-red-800 dark:text-red-300",
                   },
                   {
-                    text: "⚠️ Crash Risk",
+                    text: t("preparation.badges.crash_risk" as TranslationKey),
                     color:
                       "bg-orange-100 dark:bg-orange-950/40 text-orange-800 dark:text-orange-350",
                   },
@@ -941,7 +725,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
           <div className="rounded-3xl border-2 border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm">
             <h3 className="font-heading font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <Info className="h-4 w-4 text-blue-500" />
-              Conditions
+              {t("preparation.conditions" as TranslationKey)}
             </h3>
             <div className="flex flex-col gap-4 text-sm">
               <div>
@@ -1055,14 +839,13 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
           <div className="bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[2rem] p-6 max-w-md w-full shadow-2xl flex flex-col gap-6 text-center">
             <div>
               <span className="text-[10px] uppercase tracking-widest text-orange-500 dark:text-orange-400 font-extrabold">
-                Warm-up Timing Challenge
+                {t("preparation.warmup_challenge.badge" as TranslationKey)}
               </span>
               <h3 className="font-heading text-lg font-black text-slate-800 dark:text-white mt-1">
-                Prime Your Muscle Memory!
+                {t("preparation.warmup_challenge.title" as TranslationKey)}
               </h3>
               <p className="text-xs text-slate-500 dark:text-gray-400 mt-2">
-                Tap when the slider is exactly in the center green zone to boost
-                your starting stamina!
+                {t("preparation.warmup_challenge.desc" as TranslationKey)}
               </p>
             </div>
 
@@ -1071,7 +854,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
 
               <div className="absolute left-[45%] right-[45%] h-full bg-emerald-500/30 dark:bg-emerald-500/20 border-l border-r border-emerald-500/50 flex items-center justify-center">
                 <span className="text-[8px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest pointer-events-none">
-                  Target
+                  {t("preparation.warmup_challenge.target" as TranslationKey)}
                 </span>
               </div>
 
@@ -1091,9 +874,9 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                   `}
                 >
                   {gameResult === "perfect" &&
-                    "⭐ PERFECT WARM-UP (+15% Stamina) ⭐"}
-                  {gameResult === "good" && "👍 GOOD WARM-UP (+5% Stamina)"}
-                  {gameResult === "normal" && "Ready! (Normal Starting Stats)"}
+                    t("preparation.warmup_challenge.perfect" as TranslationKey)}
+                  {gameResult === "good" && t("preparation.warmup_challenge.good" as TranslationKey)}
+                  {gameResult === "normal" && t("preparation.warmup_challenge.normal" as TranslationKey)}
                 </div>
               ) : (
                 <button
@@ -1101,7 +884,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                   onClick={handleTapWarmup}
                   className="w-full py-4 px-6 rounded-[1.5rem] text-xs font-black text-white bg-orange-500 hover:bg-orange-600 shadow-lg shadow-orange-500/20 active:scale-95 transition-all transform uppercase tracking-widest cursor-pointer"
                 >
-                  TAP WARM-UP!
+                  {t("preparation.warmup_challenge.tap_button" as TranslationKey)}
                 </button>
               )}
             </div>
@@ -1127,6 +910,12 @@ interface OptionCardProps {
   isMultiSelect?: boolean;
   disabled?: boolean;
   className?: string;
+  quantityControl?: {
+    count: number;
+    maxCount: number;
+    onIncrease: () => void;
+    onDecrease: () => void;
+  };
 }
 
 function OptionCard({
@@ -1139,22 +928,30 @@ function OptionCard({
   isMultiSelect = false,
   disabled = false,
   className = "",
+  quantityControl,
 }: OptionCardProps) {
+  const { t } = useTranslation();
   return (
-    <button
+    <div
       id={id}
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className={`group relative flex w-full flex-col text-left bg-white dark:bg-slate-900 rounded-[2rem] border-2 p-5 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 active:scale-[0.99] $
+      role="button"
+      tabIndex={disabled ? -1 : 0}
+      onClick={disabled ? undefined : onClick}
+      onKeyDown={(e) => {
+        if (!disabled && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      className={`group relative flex w-full flex-col text-left bg-white dark:bg-slate-900 rounded-[2rem] border-2 p-5 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 active:scale-[0.99] ${
         selected
           ? "border-orange-500 shadow-md ring-1 ring-orange-500"
           : "border-[#E5E7EB] hover:border-orange-350 hover:shadow-sm"
+      } ${
         disabled
           ? "opacity-60 cursor-not-allowed border-gray-200 dark:border-slate-700"
-          : ""
-        ${className}
-      `}
+          : "cursor-pointer"
+      } ${className}`}
     >
       <div className="flex w-full items-start justify-between mb-2">
         <h3 className="font-heading font-semibold text-gray-900 dark:text-white leading-snug group-hover:text-orange-600 transition-colors duration-150">
@@ -1205,6 +1002,46 @@ function OptionCard({
           ))}
         </div>
       )}
-    </button>
+
+      {selected && quantityControl && (
+        <div
+          className="mt-3 flex items-center justify-between border-t border-gray-100 dark:border-slate-800 pt-2 w-full"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+            {(t("preparation.qty_format" as TranslationKey) || "")
+              .replace("{count}", String(quantityControl.count))
+              .replace("{max}", String(quantityControl.maxCount))}
+          </span>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                quantityControl.onDecrease();
+              }}
+              disabled={quantityControl.count <= 1}
+              className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-200 hover:bg-orange-100 dark:hover:bg-orange-950/40 disabled:opacity-40 font-bold"
+            >
+              -
+            </button>
+            <span className="w-6 text-center font-mono font-bold text-sm text-gray-800 dark:text-gray-200">
+              {quantityControl.count}
+            </span>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                quantityControl.onIncrease();
+              }}
+              disabled={quantityControl.count >= quantityControl.maxCount || quantityControl.count >= 4}
+              className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-200 hover:bg-orange-100 dark:hover:bg-orange-950/40 disabled:opacity-40 font-bold"
+            >
+              +
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

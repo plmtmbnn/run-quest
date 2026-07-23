@@ -136,3 +136,14 @@ export const StoredGameStateSchema = z.object({
   sponsorship: z.any(),
   scheduling: z.any(),
 });
+
+/**
+ * Schema for player inventory storage (Sprint 31).
+ */
+export const StoredInventorySchema = z.object({
+  version: z.literal(1),
+  shoes: z.record(z.string(), z.boolean()),
+  nutrition: z.record(z.string(), z.number()),
+  gear: z.record(z.string(), z.boolean()),
+});
+

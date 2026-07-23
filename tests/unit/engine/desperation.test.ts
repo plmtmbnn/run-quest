@@ -29,6 +29,7 @@ const mockChallenge: DailyChallenge = {
   objective: {
     targetTime: 1200,
   },
+  storySeed: { mood: "optimistic" },
 };
 
 const mockInput: SimulationInput = {
@@ -45,14 +46,25 @@ const mockInput: SimulationInput = {
   seed: 42,
   runnerProfile: {
     id: "p_1",
-    name: "Runner",
+    displayName: "Runner",
+    createdAt: new Date().toISOString(),
+    totalRuns: 0,
+    totalDistance: 0,
+    totalRaceTime: 0,
+    totalTrainingDays: 0,
+    currentWeek: 1,
+    currentSeason: 1,
+    currentFitness: 50,
+    currentFatigue: 0,
+    currentReadiness: 100,
+    consistency: 0,
     level: 1,
     xp: 0,
+    skillPoints: 0,
     speedAttr: 10,
     staminaAttr: 10,
     hydrationAttr: 10,
-    willpowerAttr: 50, // 50 willpower
-    gear: [],
+    willpowerAttr: 50,
     inventory: {},
   },
 };
@@ -62,7 +74,7 @@ describe("DesperationEngine", () => {
 
   describe("calculateCondition", () => {
     it("should return winning when player has lowest time (leading)", () => {
-      const state: SimulationState = {
+      const state = {
         distanceCovered: 2,
         totalDistance: 5,
         energy: 80,
@@ -78,16 +90,18 @@ describe("DesperationEngine", () => {
             archetype: "steady",
             distanceCovered: 2,
             accumulatedTime: 550,
+            energy: 80,
+            hydration: 80,
             isDNF: false,
             paceSeconds: 275,
           },
         ],
-      };
+      } as SimulationState;
       expect(engine.calculateCondition(state)).toBe("winning");
     });
 
     it("should return losing when player is far behind", () => {
-      const state: SimulationState = {
+      const state = {
         distanceCovered: 2,
         totalDistance: 5,
         energy: 80,
@@ -103,16 +117,18 @@ describe("DesperationEngine", () => {
             archetype: "steady",
             distanceCovered: 2,
             accumulatedTime: 550,
+            energy: 80,
+            hydration: 80,
             isDNF: false,
             paceSeconds: 275,
           },
         ],
-      };
+      } as SimulationState;
       expect(engine.calculateCondition(state)).toBe("losing");
     });
 
     it("should return close when player is within 5 seconds", () => {
-      const state: SimulationState = {
+      const state = {
         distanceCovered: 2,
         totalDistance: 5,
         energy: 80,
@@ -128,18 +144,20 @@ describe("DesperationEngine", () => {
             archetype: "steady",
             distanceCovered: 2,
             accumulatedTime: 550,
+            energy: 80,
+            hydration: 80,
             isDNF: false,
             paceSeconds: 275,
           },
         ],
-      };
+      } as SimulationState;
       expect(engine.calculateCondition(state)).toBe("close");
     });
   });
 
   describe("calculateMentalState", () => {
     it("should return resigned when very low energy and confidence", () => {
-      const state: SimulationState = {
+      const state = {
         distanceCovered: 2,
         totalDistance: 5,
         energy: 10,
@@ -148,12 +166,12 @@ describe("DesperationEngine", () => {
         fatigue: 90,
         confidence: 20,
         accumulatedTime: 500,
-      };
+      } as SimulationState;
       expect(engine.calculateMentalState(state)).toBe("resigned");
     });
 
     it("should return desperate when energy or confidence is low", () => {
-      const state: SimulationState = {
+      const state = {
         distanceCovered: 2,
         totalDistance: 5,
         energy: 35,
@@ -162,12 +180,12 @@ describe("DesperationEngine", () => {
         fatigue: 65,
         confidence: 70,
         accumulatedTime: 500,
-      };
+      } as SimulationState;
       expect(engine.calculateMentalState(state)).toBe("desperate");
     });
 
     it("should return determined under normal circumstances", () => {
-      const state: SimulationState = {
+      const state = {
         distanceCovered: 2,
         totalDistance: 5,
         energy: 80,
@@ -176,14 +194,14 @@ describe("DesperationEngine", () => {
         fatigue: 20,
         confidence: 80,
         accumulatedTime: 500,
-      };
+      } as SimulationState;
       expect(engine.calculateMentalState(state)).toBe("determined");
     });
   });
 
   describe("checkDesperationTrigger", () => {
     it("should trigger when entering final kilometer", () => {
-      const state: SimulationState = {
+      const state = {
         distanceCovered: 4, // final km for distance 5
         totalDistance: 5,
         energy: 80,
@@ -192,14 +210,14 @@ describe("DesperationEngine", () => {
         fatigue: 20,
         confidence: 80,
         accumulatedTime: 500,
-      };
+      } as SimulationState;
       const trigger = engine.checkDesperationTrigger(state, 50);
       expect(trigger).toBeDefined();
       expect(trigger?.trigger).toBe("final_km");
     });
 
     it("should not trigger before final kilometer", () => {
-      const state: SimulationState = {
+      const state = {
         distanceCovered: 2,
         totalDistance: 5,
         energy: 80,
@@ -208,7 +226,7 @@ describe("DesperationEngine", () => {
         fatigue: 20,
         confidence: 80,
         accumulatedTime: 500,
-      };
+      } as SimulationState;
       const trigger = engine.checkDesperationTrigger(state, 50);
       expect(trigger).toBeNull();
     });
@@ -237,6 +255,11 @@ describe("DesperationEngine", () => {
         confidence: 85,
         accumulatedTime: 900,
         eventsResolved: [],
+        muscleFatigue: 0,
+        mentalFatigue: 0,
+        momentum: 50,
+        paceStability: 50,
+        riskLevel: 0,
         shownBreakingPoints: [],
         hasTriggeredDesperation: false,
         desperationMode: null,
@@ -250,7 +273,9 @@ describe("DesperationEngine", () => {
         true,
       );
       expect(step.type).toBe("desperation");
-      expect(step.state.desperationMode).toBeDefined();
+      if (step.type === "desperation") {
+        expect(step.state.desperationMode).toBeDefined();
+      }
     });
 
     it("should apply results when desperation option choiceId is resolved", () => {
@@ -264,6 +289,11 @@ describe("DesperationEngine", () => {
         confidence: 85,
         accumulatedTime: 900,
         eventsResolved: [],
+        muscleFatigue: 0,
+        mentalFatigue: 0,
+        momentum: 50,
+        paceStability: 50,
+        riskLevel: 0,
         shownBreakingPoints: [],
         hasTriggeredDesperation: false,
         desperationMode: {

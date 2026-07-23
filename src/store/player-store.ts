@@ -16,6 +16,7 @@ import type {
 } from "@/storage/types";
 import { useGameStore } from "@/store/game-store";
 import { usePreparationStore } from "@/store/preparation-store";
+import { useShopStore } from "@/shop/shop-store";
 import { useTimelineStore } from "@/store/timeline-store";
 import type { SimulationResult } from "@/types/engine";
 import { generateRunnerName } from "@/utils/name-generator";
@@ -135,6 +136,15 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     const prep = usePreparationStore.getState().preparation;
     if (prep.pacing === "aggressive") intensity = 1.0;
     else if (prep.pacing === "conservative") intensity = 0.4;
+
+    // Consume nutrition items used during race
+    if (prep.nutrition && prep.nutrition.length > 0) {
+      const { consumeNutrition } = useShopStore.getState();
+      prep.nutrition.forEach((nutItem) => {
+        const qty = prep.nutritionQuantities?.[nutItem] ?? 1;
+        consumeNutrition(nutItem, qty);
+      });
+    }
 
     const finalState =
       result.stateLog && result.stateLog.length > 0
@@ -269,7 +279,11 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       // Update scheduling state to mark race as completed
       let updatedScheduling = gameState.scheduling;
       const currentChallengeForScheduling = useGameStore.getState().currentChallenge;
-      if (currentChallengeForScheduling && gameState.scheduling) {
+      if (
+        currentChallengeForScheduling &&
+        currentChallengeForScheduling.scheduleId &&
+        gameState.scheduling
+      ) {
         const schedule = getScheduleById(currentChallengeForScheduling.scheduleId);
         const raceId = schedule ? schedule.raceId : currentChallengeForScheduling.id;
         updatedScheduling = completeSchedulingRace(

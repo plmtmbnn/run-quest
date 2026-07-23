@@ -5,6 +5,7 @@ import {
   StoredDailySchema,
   StoredGameStateSchema,
   StoredHistorySchema,
+  StoredInventorySchema,
   StoredPlayerSchema,
   StoredSettingsSchema,
 } from "./schemas";
@@ -15,6 +16,7 @@ import type {
   StoredDailyBoard,
   StoredGameState,
   StoredHistory,
+  StoredInventory,
   StoredPlayer,
   StoredSettings,
 } from "./types";
@@ -123,6 +125,16 @@ export const storageRepository = {
       version: TIMELINE_VERSION,
       ...state,
     } as StoredGameState);
+  },
+
+  // ── Inventory (Sprint 31) ──────────────────────────────────
+
+  loadInventory(): StoredInventory | null {
+    return loadAndValidate("runquest.inventory", StoredInventorySchema);
+  },
+
+  saveInventory(inventory: StoredInventory): void {
+    save("runquest.inventory", inventory);
   },
 
   // ── Utilities ─────────────────────────────────────────────

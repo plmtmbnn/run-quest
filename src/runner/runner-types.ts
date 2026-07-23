@@ -53,8 +53,8 @@ export interface RunnerProfile {
   staminaAttr: number;
   hydrationAttr: number;
   willpowerAttr: number;
-  coins: number;
-  inventory: Record<string, number>;
+  coins?: number;
+  inventory?: Record<string, number>;
   questClaims?: Record<string, string>;
   // Soul update extensions
   currentNemesis?: {
@@ -122,7 +122,6 @@ export const DEFAULT_RUNNER_PROFILE: RunnerProfile = {
   staminaAttr: 10,
   hydrationAttr: 10,
   willpowerAttr: 10,
-  coins: 100,
   inventory: { energy_gel: 1, electrolytes: 1, caffeine_gum: 0 },
   questClaims: {},
   currentNemesis: null,

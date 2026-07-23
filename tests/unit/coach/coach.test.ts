@@ -45,6 +45,7 @@ const makeStateLog = (
 ): SimulationState[] => {
   const base: SimulationState = {
     distanceCovered: 0,
+    totalDistance: 10,
     energy: 80,
     hydration: 90,
     focus: 80,

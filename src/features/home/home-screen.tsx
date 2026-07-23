@@ -459,6 +459,17 @@ export function HomeScreen() {
                   type="button"
                   onClick={() => {
                     playSound("click");
+                    router.push("/shop");
+                  }}
+                  aria-label={t("nav.shop" as TranslationKey)}
+                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-blue-500/20 hover:bg-blue-500/30 active:scale-95 px-3 py-2 md:py-1.5 rounded-full transition-all border border-blue-400/30 min-h-[36px] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/60"
+                >
+                  🏪 {t("nav.shop" as TranslationKey)} →
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playSound("click");
                     router.push("/economy");
                   }}
                   aria-label="Economy"

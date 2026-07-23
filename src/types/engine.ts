@@ -34,6 +34,7 @@ export interface Preparation {
   pacing: PacingPlan;
   mindset: Mindset;
   warmupBonus?: "perfect" | "good" | "normal";
+  nutritionQuantities?: Record<string, number>;
 }
 
 export type Weather =
@@ -45,7 +46,7 @@ export type Weather =
   | "cold"
   | "fog";
 
-export type TimeOfDay = "morning" | "afternoon" | "evening";
+export type TimeOfDay = "morning" | "afternoon" | "evening" | "night";
 
 export type Surface = "road" | "track" | "trail";
 
@@ -110,9 +111,9 @@ export interface Scenario {
   analysis?: RaceAnalysis;
 
   // New Sprint 26 properties (from RaceOccurrence/RaceSchedule)
-  tier: RaceTier;
-  entryFee: number;
-  scheduleId: string;
+  tier?: RaceTier;
+  entryFee?: number;
+  scheduleId?: string;
   isChampionship?: boolean;
   totalEntrants?: number;
   prerequisites?: RacePrerequisites;

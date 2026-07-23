@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import { usePlayerStore } from "@/store/player-store";
 import { useSettingsStore } from "@/store/settings-store";
+import { migrateToShopSystem } from "@/shop/shop-migration";
+import { useShopStore } from "@/shop/shop-store";
 import { useTimelineStore } from "@/store/timeline-store";
 
 interface AppProviderProps {
@@ -19,6 +21,8 @@ if (typeof window !== "undefined") {
   useSettingsStore.getState().initializeSettings();
   usePlayerStore.getState().initializePlayer();
   useTimelineStore.getState().initialize();
+  migrateToShopSystem();
+  useShopStore.getState().initializeInventory();
 }
 
 /**
@@ -38,6 +42,8 @@ export function AppProvider({ children }: AppProviderProps) {
     initializeSettings();
     initializePlayer();
     useTimelineStore.getState().initialize();
+    migrateToShopSystem();
+    useShopStore.getState().initializeInventory();
   }, [initializeSettings, initializePlayer]);
 
   useEffect(() => {

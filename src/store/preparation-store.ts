@@ -13,6 +13,7 @@ export interface PreparationState {
   preparation: Preparation;
   setShoes: (shoes: Shoe) => void;
   toggleNutrition: (nutrition: Nutrition) => void;
+  setNutritionQuantity: (nutrition: Nutrition, quantity: number) => void;
   toggleGear: (gear: Gear) => void;
   setWarmup: (warmup: Warmup) => void;
   setPacing: (pacing: PacingPlan) => void;
@@ -23,7 +24,7 @@ export interface PreparationState {
 
 const DEFAULT_PREPARATION: Preparation = {
   shoes: "daily_trainer",
-  nutrition: ["water"],
+  nutrition: [],
   gear: [],
   warmup: "none",
   pacing: "steady",
@@ -46,8 +47,34 @@ export const usePreparationStore = create<PreparationState>((set) => ({
         ? currentNutrition.filter((n) => n !== nutritionItem)
         : [...currentNutrition, nutritionItem];
 
+      const currentQuantities = state.preparation.nutritionQuantities ?? {};
+      const updatedQuantities = { ...currentQuantities };
+      if (exists) {
+        delete updatedQuantities[nutritionItem];
+      } else {
+        updatedQuantities[nutritionItem] = 1;
+      }
+
       return {
-        preparation: { ...state.preparation, nutrition: updatedNutrition },
+        preparation: {
+          ...state.preparation,
+          nutrition: updatedNutrition,
+          nutritionQuantities: updatedQuantities,
+        },
+      };
+    }),
+
+  setNutritionQuantity: (nutritionItem, quantity) =>
+    set((state) => {
+      const currentQuantities = state.preparation.nutritionQuantities ?? { water: 1 };
+      return {
+        preparation: {
+          ...state.preparation,
+          nutritionQuantities: {
+            ...currentQuantities,
+            [nutritionItem]: Math.max(1, Math.min(4, quantity)),
+          },
+        },
       };
     }),
 

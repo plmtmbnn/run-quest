@@ -244,20 +244,19 @@ describe("Breaking Point System", () => {
       true,
     );
 
-    // It should resolve the breaking point, apply slow_breathe effects (energy: 10, confidence: 10, pace: 8)
-    // and proceed to simulate step or finish
-    expect(nextStep.state.activeBreakingPoint?.resolved).toBe(true);
-    expect(nextStep.state.activeBreakingPoint?.recoveryAttempted).toBe(
-      "slow_breathe",
-    );
-    // Since stitch option "slow_breathe" has 90% recoveryChance and seed 42, it recovered
-    expect(nextStep.state.activeBreakingPoint?.recovered).toBe(true);
+    expect(nextStep.type).not.toBe("finished");
+    if ("state" in nextStep) {
+      expect(nextStep.state.activeBreakingPoint?.resolved).toBe(true);
+      expect(nextStep.state.activeBreakingPoint?.recoveryAttempted).toBe(
+        "slow_breathe",
+      );
+      expect(nextStep.state.activeBreakingPoint?.recovered).toBe(true);
 
-    // Assert that the recovery event was logged in eventsResolved
-    expect(
-      nextStep.state.eventsResolved.some(
-        (e) => e.title.en === "Sharp side stitch!",
-      ),
-    ).toBe(true);
+      expect(
+        nextStep.state.eventsResolved.some(
+          (e: { title: { en: string } }) => e.title.en === "Sharp side stitch!",
+        ),
+      ).toBe(true);
+    }
   });
 });

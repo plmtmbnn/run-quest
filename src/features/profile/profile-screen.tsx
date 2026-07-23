@@ -129,67 +129,6 @@ export function ProfileScreen() {
     playSound("success");
   };
 
-  const handleBuyConsumable = (
-    item: "energy_gel" | "electrolytes" | "caffeine_gum",
-    cost: number,
-  ) => {
-    if ((profile.coins || 0) < cost) return;
-
-    const currentInventory = profile.inventory || {
-      energy_gel: 0,
-      electrolytes: 0,
-      caffeine_gum: 0,
-    };
-    const updatedInventory = {
-      ...currentInventory,
-      [item]: (currentInventory[item] || 0) + 1,
-    };
-
-    const updatedProfile = {
-      ...profile,
-      coins: (profile.coins || 0) - cost,
-      inventory: updatedInventory,
-    };
-
-    setRunnerState({
-      ...runnerState,
-      profile: updatedProfile,
-      lastUpdated: new Date().toISOString(),
-    });
-
-    playSound("success");
-  };
-
-  const handleBuyShoes = (
-    shoeId: "carbon_racer" | "lightweight",
-    name: string,
-    cost: number,
-    paceBonus: number,
-    maxDurability: number,
-  ) => {
-    if ((profile.coins || 0) < cost) return;
-
-    const updatedProfile = {
-      ...profile,
-      coins: (profile.coins || 0) - cost,
-      equippedShoes: {
-        id: shoeId,
-        name,
-        durability: maxDurability,
-        maxDurability,
-        paceBonus,
-      },
-    };
-
-    setRunnerState({
-      ...runnerState,
-      profile: updatedProfile,
-      lastUpdated: new Date().toISOString(),
-    });
-
-    playSound("success");
-  };
-
   const handleUnlockPerk = (perkId: string, cost: number = 1) => {
     if ((profile.skillPoints || 0) < cost) return;
     const activePerks = profile.activePerks || [];
@@ -242,12 +181,14 @@ export function ProfileScreen() {
               </p>
             </div>
           </div>
-          {profile.coins !== undefined && (
-            <div className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-950 border border-indigo-200/50 px-3.5 py-1.5 rounded-full text-xs font-black text-indigo-650 dark:text-indigo-400 font-mono shadow-sm">
-              <span>🪙</span>
-              <span>{(profile.coins || 0).toLocaleString()} RC</span>
-            </div>
-          )}
+          <button
+            type="button"
+            onClick={() => router.push("/shop")}
+            className="flex items-center gap-2 bg-blue-50 dark:bg-blue-950 border border-blue-200/50 px-3.5 py-1.5 rounded-full text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-100 transition active:scale-95 shadow-sm"
+          >
+            <span>🏪</span>
+            <span>{t("nav.shop" as TranslationKey)}</span>
+          </button>
         </div>
       </header>
 
@@ -417,199 +358,28 @@ export function ProfileScreen() {
           </div>
         </div>
 
-        {/* Consumables Shop */}
-        <div className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-6 shadow-sm flex flex-col gap-4">
-          <div className="flex justify-between items-center mb-2 border-b border-[#E5E7EB] dark:border-slate-800 pb-2">
-            <h2 className="font-heading text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
-              <span>🛒</span> Gear & Nutrition Shop
-            </h2>
-            <span className="text-xs text-gray-400 dark:text-gray-500 font-medium">
-              Equip consumables to use mid-race
-            </span>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-3">
-            {[
-              {
-                id: "energy_gel" as const,
-                name: "Energy Gel",
-                icon: "🔋",
-                desc: "Restores +25% Stamina / Energy mid-race.",
-                cost: 30,
-                bgClass:
-                  "bg-amber-50/40 dark:bg-amber-950/10 border border-amber-100/30 dark:border-amber-900/30 rounded-2xl",
-              },
-              {
-                id: "electrolytes" as const,
-                name: "Electrolyte Chews",
-                icon: "💧",
-                desc: "Restores +20% Hydration mid-race.",
-                cost: 25,
-                bgClass:
-                  "bg-sky-50/40 dark:bg-sky-950/10 border border-sky-100/30 dark:border-sky-900/30 rounded-2xl",
-              },
-              {
-                id: "caffeine_gum" as const,
-                name: "Caffeine Gum",
-                icon: "🧠",
-                desc: "Restores +20% Focus / Willpower mid-race.",
-                cost: 40,
-                bgClass:
-                  "bg-purple-50/40 dark:bg-purple-950/10 border border-purple-100/30 dark:border-purple-900/30 rounded-2xl",
-              },
-            ].map((item) => {
-              const qty = profile.inventory?.[item.id] || 0;
-              const canAfford = (profile.coins || 0) >= item.cost;
-              return (
-                <div
-                  key={item.id}
-                  className={`p-4 flex flex-col justify-between gap-3 text-center sm:text-left ${item.bgClass}`}
-                >
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-3xl text-center sm:text-left">
-                      {item.icon}
-                    </span>
-                    <div className="flex justify-between items-baseline w-full gap-1">
-                      <h3 className="font-bold text-xs text-slate-800 dark:text-white truncate">
-                        {item.name}
-                      </h3>
-                      <span className="text-[10px] bg-white/70 dark:bg-slate-800 px-1.5 py-0.5 rounded font-mono font-bold text-slate-600 dark:text-slate-300 dark:text-slate-400 flex-shrink-0">
-                        Qty: {qty}
-                      </span>
-                    </div>
-                    <p className="text-[10px] text-gray-500 dark:text-gray-450 leading-snug">
-                      {item.desc}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    disabled={!canAfford}
-                    onClick={() => handleBuyConsumable(item.id, item.cost)}
-                    className={`py-2 px-3 w-full rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all transform active:scale-95 border
-                      ${
-                        canAfford
-                          ? "bg-orange-500 hover:bg-orange-600 border-orange-500 text-white cursor-pointer shadow-md shadow-orange-500/20"
-                          : "bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-850 text-slate-400 dark:text-slate-600 dark:text-slate-300 cursor-not-allowed opacity-45"
-                      }
-                    `}
-                  >
-                    <span>🪙</span>
-                    <span>{item.cost} RC</span>
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Gear Shop (Shoes) */}
-        <div className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-6 shadow-sm flex flex-col gap-4">
-          <div className="flex justify-between items-center mb-2 border-b border-[#E5E7EB] dark:border-slate-800 pb-2">
-            <h2 className="font-heading text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
-              <span>👟</span> Super Shoe Shop
-            </h2>
-            <span className="text-xs text-gray-400 dark:text-gray-500 font-medium">
-              Equip shoes to gain pace bonuses
-            </span>
-          </div>
-
-          {/* Currently Equipped Shoes Card */}
-          <div className="p-4 rounded-2xl bg-orange-50/40 dark:bg-orange-950/10 border border-orange-100/30 dark:border-orange-900/30 flex flex-col sm:flex-row justify-between items-center gap-3">
-            <div className="flex items-center gap-3">
-              <span className="text-3xl">👟</span>
-              <div>
-                <h3 className="font-black text-sm text-slate-800 dark:text-white">
-                  {profile.equippedShoes
-                    ? profile.equippedShoes.name
-                    : "Standard Running Shoes"}
-                </h3>
-                <p className="text-[10px] text-gray-500 dark:text-gray-400">
-                  {profile.equippedShoes
-                    ? `Pace Boost: -${profile.equippedShoes.paceBonus}s/km`
-                    : "No extra pace bonuses. Standard performance."}
-                </p>
-              </div>
+        {/* Centralized Shop Banner */}
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-800 rounded-[2rem] p-6 text-white shadow-lg flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl flex-shrink-0">
+              🏪
             </div>
-            {profile.equippedShoes && (
-              <div className="flex flex-col items-end">
-                <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium uppercase tracking-wider">
-                  Durability
-                </span>
-                <span className="text-xs font-mono font-bold text-slate-800 dark:text-white mt-1">
-                  {profile.equippedShoes.durability} / {profile.equippedShoes.maxDurability} races
-                </span>
-              </div>
-            )}
+            <div>
+              <h2 className="font-heading text-lg font-bold text-white">
+                Centralized Shop System
+              </h2>
+              <p className="text-xs text-blue-100 mt-0.5">
+                Browse shoes, nutrition, and gear in the dedicated shop.
+              </p>
+            </div>
           </div>
-
-          <div className="grid gap-4 sm:grid-cols-2 mt-2">
-            {[
-              {
-                id: "lightweight" as const,
-                name: "Lightweight Trainers",
-                paceBonus: 6,
-                maxDurability: 5,
-                cost: 100,
-                desc: "High durability. Gives a moderate pace boost of -6s/km.",
-                bgClass:
-                  "bg-sky-50/40 dark:bg-sky-950/10 border border-sky-100/30 dark:border-sky-900/30 rounded-2xl",
-              },
-              {
-                id: "carbon_racer" as const,
-                name: "Carbon Plated Super Shoes",
-                paceBonus: 15,
-                maxDurability: 3,
-                cost: 250,
-                desc: "Low durability. Gives a massive pace boost of -15s/km.",
-                bgClass:
-                  "bg-amber-50/40 dark:bg-amber-950/10 border border-amber-100/30 dark:border-amber-900/30 rounded-2xl",
-              },
-            ].map((shoe) => {
-              const canAfford = (profile.coins || 0) >= shoe.cost;
-              return (
-                <div
-                  key={shoe.id}
-                  className={`p-4 flex flex-col justify-between gap-3 text-center sm:text-left ${shoe.bgClass}`}
-                >
-                  <div className="flex flex-col gap-1">
-                    <h3 className="font-bold text-xs text-slate-800 dark:text-white">
-                      {shoe.name}
-                    </h3>
-                    <p className="text-[10px] text-gray-500 dark:text-gray-450 leading-snug">
-                      {shoe.desc}
-                    </p>
-                    <div className="flex justify-between items-center text-[10px] text-slate-500 dark:text-gray-400 font-mono mt-1">
-                      <span>Pace: -{shoe.paceBonus}s/km</span>
-                      <span>Durability: {shoe.maxDurability} races</span>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    disabled={!canAfford}
-                    onClick={() =>
-                      handleBuyShoes(
-                        shoe.id,
-                        shoe.name,
-                        shoe.cost,
-                        shoe.paceBonus,
-                        shoe.maxDurability,
-                      )
-                    }
-                    className={`py-2 px-3 w-full rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all transform active:scale-95 border
-                      ${
-                        canAfford
-                          ? "bg-orange-500 hover:bg-orange-600 border-orange-500 text-white cursor-pointer shadow-md shadow-orange-500/20"
-                          : "bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-850 text-slate-400 dark:text-slate-600 dark:text-slate-300 cursor-not-allowed opacity-45"
-                      }
-                    `}
-                  >
-                    <span>🪙</span>
-                    <span>{shoe.cost} RC</span>
-                  </button>
-                </div>
-              );
-            })}
-          </div>
+          <button
+            type="button"
+            onClick={() => router.push("/shop")}
+            className="px-5 py-2.5 rounded-xl bg-white text-blue-600 font-bold text-xs hover:bg-blue-50 transition active:scale-95 shadow flex-shrink-0"
+          >
+            Visit Shop →
+          </button>
         </div>
 
         {/* Personal Best Tracker */}
