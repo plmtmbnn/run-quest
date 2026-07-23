@@ -140,9 +140,9 @@ export function simulateKmStep(
 ): void {
   // Load default/fallback values for the runner profile if missing
   const profile = runnerProfile || {
-    currentFitness: 50,
-    currentFatigue: 0,
-    currentReadiness: 100,
+    currentFitness: 30,
+    currentFatigue: 10,
+    currentReadiness: 80,
     speedAttr: 10,
     staminaAttr: 10,
     hydrationAttr: 10,

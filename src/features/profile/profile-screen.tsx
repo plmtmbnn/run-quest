@@ -21,6 +21,7 @@ import {
   getReadinessLevel,
 } from "@/runner/runner-selectors";
 import { useRunnerStore } from "@/runner/runner-store";
+import { useTrainingStore } from "@/training/training-store";
 import { usePlayerStore } from "@/store/player-store";
 import { PBTracker } from "@/components/runner/pb-tracker";
 
@@ -108,6 +109,8 @@ export function ProfileScreen() {
   
   // Get player name from player store
   const playerName = player?.name || `Runner #${player?.id.slice(0, 5).toUpperCase() || "00000"}`;
+
+  const { trainingState } = useTrainingStore();
 
   const handleUpgradeAttribute = (
     attr: "speedAttr" | "staminaAttr" | "hydrationAttr" | "willpowerAttr",
@@ -380,6 +383,91 @@ export function ProfileScreen() {
           >
             Visit Shop →
           </button>
+        </div>
+
+        {/* Training History & Adaptation Status */}
+        <div className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-6 shadow-sm flex flex-col gap-5">
+          <div className="flex justify-between items-center border-b border-gray-100 dark:border-slate-800 pb-3">
+            <h2 className="font-heading text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+              <span>📅</span> Training History & Adaptation Status
+            </h2>
+            <button
+              type="button"
+              onClick={() => router.push("/training")}
+              className="text-xs font-bold text-indigo-500 hover:text-indigo-600 transition"
+            >
+              Open Planner →
+            </button>
+          </div>
+
+          {/* Pending Adaptations */}
+          {trainingState.adaptationQueue.length > 0 ? (
+            <div className="bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 rounded-2xl p-4 flex flex-col gap-2">
+              <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
+                <span>⏳</span> Pending Delayed Adaptations ({trainingState.adaptationQueue.length})
+              </span>
+              <div className="space-y-1.5">
+                {trainingState.adaptationQueue.map((item, i) => (
+                  <div key={i} className="flex justify-between items-center text-xs">
+                    <span className="text-slate-600 dark:text-slate-300 font-medium">
+                      Matures on Day {item.date}
+                    </span>
+                    <span className="font-mono font-bold text-emerald-500">
+                      +{(item.fitnessGain).toFixed(1)} Fitness
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="text-xs text-slate-400 dark:text-slate-500 italic bg-slate-50 dark:bg-slate-800/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+              No pending fitness adaptations. Complete hard training sessions to queue delayed fitness gains!
+            </div>
+          )}
+
+          {/* Training History Log */}
+          <div>
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+              Recent Training Sessions (Last 7 Days)
+            </h3>
+            {trainingState.trainingHistory.length > 0 ? (
+              <div className="space-y-2">
+                {trainingState.trainingHistory.slice(-7).reverse().map((day, idx) => (
+                  <div
+                    key={idx}
+                    className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800 text-xs"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono font-bold text-slate-400">
+                        Day {day.date}
+                      </span>
+                      <span className="font-bold text-slate-800 dark:text-white">
+                        {day.activity}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 font-mono text-[11px]">
+                      {day.effect.fitness > 0 && (
+                        <span className="text-emerald-500 font-bold">
+                          +{day.effect.fitness} Fit
+                        </span>
+                      )}
+                      {day.effect.fatigue > 0 ? (
+                        <span className="text-orange-500">
+                          +{day.effect.fatigue} Fat
+                        </span>
+                      ) : day.effect.fatigue < 0 ? (
+                        <span className="text-emerald-500">
+                          {day.effect.fatigue} Fat
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-slate-400 italic">No training sessions recorded yet.</p>
+            )}
+          </div>
         </div>
 
         {/* Personal Best Tracker */}

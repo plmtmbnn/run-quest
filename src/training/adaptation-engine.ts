@@ -38,6 +38,12 @@ export const processAdaptationQueue = (currentDayIndex: number): void => {
   };
   saveRunnerState(updatedRunnerState);
 
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(
+      new CustomEvent("runner-state-updated", { detail: updatedRunnerState })
+    );
+  }
+
   // Remove applied adaptations from the queue.
   const updatedAdaptationQueue = trainingState.adaptationQueue.filter(
     (adaptation) => adaptation.date > today,

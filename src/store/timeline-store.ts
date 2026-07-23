@@ -33,7 +33,7 @@ interface TimelineState {
   loaded: boolean;
 
   initialize(): void;
-  doAction(actionId: ActionId): void;
+  doAction(actionId: ActionId, customEnergyCost?: number): void;
   ff(mode: FastForwardMode): void;
   acknowledgeEvent(eventId: string): void;
   setRoutine(routine: GameState["routine"]): void;
@@ -99,10 +99,11 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     storageRepository.saveGameState(state);
   },
 
-  doAction(actionId: ActionId) {
+  doAction(actionId: ActionId, customEnergyCost?: number) {
     const { gameState } = get();
     if (!gameState) return;
-    const action = getAction(actionId);
+    const baseAction = getAction(actionId);
+    const action = customEnergyCost !== undefined ? { ...baseAction, energyCost: customEnergyCost } : baseAction;
     const next = applyAction(gameState, action);
 
     // If day(s) advanced, simulate competition/social days!

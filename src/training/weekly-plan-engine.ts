@@ -19,6 +19,7 @@ import type {
 } from "./training-types";
 import {
   PLAN_TEMPLATES,
+  getTemplateById,
   selectOptimalTemplate,
   isHardActivity,
   getActivityEnergyCost,
@@ -31,7 +32,8 @@ import {
 export function generateWeeklyPlan(
   startDayIndex: number,
   runnerState: RunnerState,
-  upcomingRaces: RaceOccurrence[] = []
+  upcomingRaces: RaceOccurrence[] = [],
+  templateId?: string
 ): WeeklyPlan {
   const weekStartDay = getWeekStartDay(startDayIndex);
   const weekEndDay = weekStartDay + 6;
@@ -49,22 +51,42 @@ export function generateWeeklyPlan(
   // Select appropriate template
   let template: PlanTemplate;
   
-  if (hadRecentRace) {
+  if (templateId) {
+    const requestedTemplate = getTemplateById(templateId);
+    if (requestedTemplate) {
+      template = requestedTemplate;
+    } else if (hadRecentRace) {
+      template = RECOVERY_TEMPLATE;
+    } else if (hasUpcomingRace) {
+      const baseTemplate = selectOptimalTemplate(
+        runnerState.profile.currentFitness || 30,
+        runnerState.profile.currentFatigue || 10,
+        false
+      );
+      template = createTaperTemplate(baseTemplate);
+    } else {
+      template = selectOptimalTemplate(
+        runnerState.profile.currentFitness || 30,
+        runnerState.profile.currentFatigue || 10,
+        false
+      );
+    }
+  } else if (hadRecentRace) {
     // Post-race recovery week
     template = RECOVERY_TEMPLATE;
   } else if (hasUpcomingRace) {
     // Taper week before race - reduce volume by 30%
     const baseTemplate = selectOptimalTemplate(
-      runnerState.profile.currentFitness || 50,
-      runnerState.profile.currentFatigue || 30,
+      runnerState.profile.currentFitness || 30,
+      runnerState.profile.currentFatigue || 10,
       false
     );
     template = createTaperTemplate(baseTemplate);
   } else {
     // Normal training week
     template = selectOptimalTemplate(
-      runnerState.profile.currentFitness || 50,
-      runnerState.profile.currentFatigue || 30,
+      runnerState.profile.currentFitness || 30,
+      runnerState.profile.currentFatigue || 10,
       false
     );
   }
@@ -275,13 +297,17 @@ export function generatePlanFeedback(
 /**
  * Calculate plan adherence metrics
  */
-export function calculateAdherence(plan: WeeklyPlan): AdherenceMetrics {
+export function calculateAdherence(
+  plan: WeeklyPlan,
+  currentDayIndex?: number
+): AdherenceMetrics {
   const totalPlanned = plan.plannedActivities.length;
   const completed = plan.plannedActivities.filter((p) => p.isCompleted);
   const totalCompleted = completed.length;
   const swapped = completed.filter((p) => p.reason === "swapped").length;
+  const effectiveDayIndex = currentDayIndex ?? plan.weekStartDay + 7;
   const missed = plan.plannedActivities.filter(
-    (p) => !p.isCompleted && p.dayIndex < Date.now()
+    (p) => !p.isCompleted && p.dayIndex < effectiveDayIndex
   ).length;
 
   const completionRate = totalPlanned > 0 

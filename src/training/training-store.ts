@@ -27,11 +27,11 @@ interface TrainingStoreState {
   planHistory: WeeklyPlan[];
   lastPlanGenerated: number;
   setCurrentPlan: (plan: WeeklyPlan) => void;
-  generateNewPlan: (dayIndex: number, runnerState: RunnerState, upcomingRaces?: RaceOccurrence[]) => void;
+  generateNewPlan: (dayIndex: number, runnerState: RunnerState, upcomingRaces?: RaceOccurrence[], templateId?: string) => void;
   completeActivity: (dayIndex: number, activity: DailyActivity) => void;
   swapActivity: (dayIndex: number, newActivity: DailyActivity) => void;
   archivePlan: (plan: WeeklyPlan) => void;
-  getAdherenceMetrics: () => { completionRate: number; substitutionRate: number; missedWorkouts: number; totalPlanned: number; totalCompleted: number; };
+  getAdherenceMetrics: (currentDayIndex?: number) => { completionRate: number; substitutionRate: number; missedWorkouts: number; totalPlanned: number; totalCompleted: number; };
   getTodaysActivity: (currentDayIndex: number) => { activity: DailyActivity; energyCost: number; } | null;
 }
 
@@ -82,8 +82,8 @@ const useGlobalTrainingStore = create<TrainingStoreState>((set, get) => {
     saveWeeklyPlan(plan);
   },
 
-  generateNewPlan: (dayIndex, runnerState, upcomingRaces = []) => {
-    const newPlan = generateWeeklyPlan(dayIndex, runnerState, upcomingRaces);
+  generateNewPlan: (dayIndex, runnerState, upcomingRaces = [], templateId?: string) => {
+    const newPlan = generateWeeklyPlan(dayIndex, runnerState, upcomingRaces, templateId);
     
     // Archive old plan if exists
     const { currentWeeklyPlan } = get();
@@ -121,7 +121,7 @@ const useGlobalTrainingStore = create<TrainingStoreState>((set, get) => {
     savePlanHistory(recentHistory);
   },
 
-  getAdherenceMetrics: () => {
+  getAdherenceMetrics: (currentDayIndex?: number) => {
     const { currentWeeklyPlan } = get();
     if (!currentWeeklyPlan) {
       return {
@@ -132,7 +132,7 @@ const useGlobalTrainingStore = create<TrainingStoreState>((set, get) => {
         totalCompleted: 0,
       };
     }
-    return calculateAdherence(currentWeeklyPlan);
+    return calculateAdherence(currentWeeklyPlan, currentDayIndex);
   },
 
   getTodaysActivity: (currentDayIndex) => {
@@ -149,6 +149,8 @@ const useGlobalTrainingStore = create<TrainingStoreState>((set, get) => {
 };
 });
 
+let inMemoryTrainingState: TrainingState | null = null;
+
 /**
  * Loads the training state from local storage.
  * @returns The training state, or the default state if not found.
@@ -164,7 +166,7 @@ export const loadTrainingState = (): TrainingState => {
   } catch (error) {
     console.error("Failed to load training state from local storage:", error);
   }
-  return DEFAULT_TRAINING_STATE;
+  return inMemoryTrainingState || DEFAULT_TRAINING_STATE;
 };
 
 /**
@@ -172,6 +174,7 @@ export const loadTrainingState = (): TrainingState => {
  * @param state The training state to save.
  */
 export const saveTrainingState = (state: TrainingState): void => {
+  inMemoryTrainingState = state;
   try {
     if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
       localStorage.setItem(TRAINING_STORAGE_KEY, JSON.stringify(state));

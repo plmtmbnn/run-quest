@@ -17,6 +17,10 @@ import { PlanTemplateSelector } from "../../components/training/plan-template-se
 import { CoachFeedbackPanel } from "../../components/training/coach-feedback-panel";
 import { getRegisteredRaces } from "../../scheduling/race-calendar-engine";
 import { getWeekStartDay } from "../../training/weekly-plan-engine";
+import { recordTrainingActivity } from "../../training/training-engine";
+import { loadRunnerState } from "../../runner/runner-persistence";
+import { CustomPlanBuilder } from "../../components/training/custom-plan-builder";
+import { TrainingResultsOverlay, type WorkoutStatDiff } from "../../components/training/training-results-overlay";
 
 /**
  * Weekly Training Planner Screen (Sprint 30 - Task 9)
@@ -41,6 +45,12 @@ export function TrainingScreen() {
   const [autoExpandDayIndex, setAutoExpandDayIndex] = useState<number | undefined>(
     undefined,
   );
+  const [isCustomBuilderOpen, setIsCustomBuilderOpen] = useState(false);
+  const [workoutOverlay, setWorkoutOverlay] = useState<{
+    isOpen: boolean;
+    activity: DailyActivity;
+    statsDiff: WorkoutStatDiff;
+  } | null>(null);
   const [mounted, setMounted] = useState(false);
 
   // Initialize weekly plan state on mount
@@ -86,23 +96,14 @@ export function TrainingScreen() {
     (template: PlanTemplate) => {
       setSelectedTemplate(template);
 
-      // "Create Custom Plan" is passed as an empty object (no id), since a
-      // full custom-plan editor isn't built yet. Instead of doing nothing,
-      // open the existing day-by-day editor on the first editable day so the
-      // player can adjust each day's activity individually.
       const hasId = Boolean((template as { id?: string }).id);
-      if (!hasId && currentWeeklyPlan) {
-        const firstEditable = currentWeeklyPlan.plannedActivities
-          .map((pa) => pa.dayIndex)
-          .filter((d) => d >= dayIndex)
-          .sort((a, b) => a - b)[0];
-        if (firstEditable !== undefined) {
-          setAutoExpandDayIndex(firstEditable);
-          setSelectedDayIndex(firstEditable);
-        }
+      if (hasId) {
+        generateNewPlan(dayIndex, runnerState, upcomingRaces, (template as { id: string }).id);
+      } else {
+        setIsCustomBuilderOpen(true);
       }
     },
-    [currentWeeklyPlan, dayIndex],
+    [dayIndex, runnerState, upcomingRaces, generateNewPlan],
   );
 
   // Handle day selection
@@ -124,16 +125,39 @@ export function TrainingScreen() {
     );
     
     if (todaysActivity) {
-      // Deduct EP via train action in timeline
-      useTimelineStore.getState().doAction("train");
+      const fitnessBefore = runnerState.profile.currentFitness;
+      const fatigueBefore = runnerState.profile.currentFatigue;
+      const readinessBefore = runnerState.profile.currentReadiness;
+
+      // 1. Deduct EP via train action in timeline (variable EP)
+      useTimelineStore.getState().doAction("train", todaysActivity.energyCost);
       
-      // Record the activity
+      // 2. Record the training activity (updates fitness/fatigue/readiness & adaptation queue)
+      recordTrainingActivity(todaysActivity.activity, dayIndex);
+
+      // 3. Complete the activity in the plan
       completeActivity(dayIndex, todaysActivity.activity);
-      
-      // Redirect to profile
-      router.push("/profile");
+
+      // 4. Fetch updated stats for overlay feedback
+      const updatedRunner = loadRunnerState();
+      const statsDiff: WorkoutStatDiff = {
+        fitnessBefore,
+        fitnessAfter: updatedRunner.profile.currentFitness,
+        fatigueBefore,
+        fatigueAfter: updatedRunner.profile.currentFatigue,
+        readinessBefore,
+        readinessAfter: updatedRunner.profile.currentReadiness,
+        epUsed: todaysActivity.energyCost,
+        xpGained: 20,
+      };
+
+      setWorkoutOverlay({
+        isOpen: true,
+        activity: todaysActivity.activity,
+        statsDiff,
+      });
     }
-  }, [currentWeeklyPlan, dayIndex, completeActivity, router]);
+  }, [currentWeeklyPlan, dayIndex, runnerState, completeActivity]);
 
   // Get today's planned activity
   const todaysActivity = currentWeeklyPlan?.plannedActivities.find(
@@ -141,7 +165,7 @@ export function TrainingScreen() {
   );
 
   // Get adherence metrics
-  const adherence = getAdherenceMetrics();
+  const adherence = getAdherenceMetrics(dayIndex);
 
   // Get coach feedback
   const coachFeedback = currentWeeklyPlan?.coachFeedback || [];
@@ -419,6 +443,28 @@ export function TrainingScreen() {
           </button>
         </div>
       </main>
+
+      {/* Custom Plan Builder Modal */}
+      <CustomPlanBuilder
+        isOpen={isCustomBuilderOpen}
+        onClose={() => setIsCustomBuilderOpen(false)}
+        currentDayIndex={dayIndex}
+        runnerState={runnerState}
+        onApplyPlan={(newPlan) => {
+          setCurrentPlan(newPlan);
+          setSelectedTemplate(null);
+        }}
+      />
+
+      {/* Post-Training Results Feedback Overlay */}
+      {workoutOverlay && (
+        <TrainingResultsOverlay
+          isOpen={workoutOverlay.isOpen}
+          onClose={() => setWorkoutOverlay(null)}
+          activity={workoutOverlay.activity}
+          statsDiff={workoutOverlay.statsDiff}
+        />
+      )}
     </motion.div>
   );
 }

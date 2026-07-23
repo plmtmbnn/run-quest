@@ -56,6 +56,7 @@ import { usePlayerStore } from "@/store/player-store";
 import { useSettingsStore } from "@/store/settings-store";
 import { useTimelineStore } from "@/store/timeline-store";
 import { useTrainingStore } from "@/training/training-store";
+import { generateCoachRecommendation } from "@/training/coach-recommendation";
 import type { DailyChallenge } from "@/types/engine";
 
 export function HomeScreen() {
@@ -337,6 +338,12 @@ export function HomeScreen() {
     setSelectedRaceOccurrence(null);
   };
 
+  const { currentWeeklyPlan } = useTrainingStore();
+  const todaysActivity = currentWeeklyPlan?.plannedActivities.find(
+    (pa) => pa.dayIndex === currentDayIndex
+  );
+  const coachTip = generateCoachRecommendation(currentDayIndex, registeredRaces);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
@@ -374,6 +381,56 @@ export function HomeScreen() {
       {/* Main Container */}
       <main className="flex-1 px-4 md:px-6 py-3 md:py-4 flex flex-col gap-4 md:gap-6">
         <GameStats />
+
+        {/* Today's Training Card & Coach Tip */}
+        {todaysActivity && (
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl md:rounded-[2rem] p-4 md:p-5 shadow-sm flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-lg shadow-sm">
+                  🏃
+                </div>
+                <div>
+                  <h3 className="font-heading font-black text-sm text-slate-800 dark:text-white">
+                    Today's Training
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {todaysActivity.isCompleted ? "Completed for today ✅" : "Scheduled"}
+                  </p>
+                </div>
+              </div>
+              <span className="text-xs font-mono font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2.5 py-1 rounded-lg">
+                ⚡ {todaysActivity.energyCost} EP
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
+              <span className="text-sm font-bold text-slate-800 dark:text-white">
+                {todaysActivity.activity}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  playSound("click");
+                  router.push("/training");
+                }}
+                className="px-3.5 py-1.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-indigo-500/20 active:scale-95"
+              >
+                {todaysActivity.isCompleted ? "View Plan" : "Lace Up →"}
+              </button>
+            </div>
+
+            {coachTip && (
+              <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl text-xs text-slate-600 dark:text-slate-300 flex items-start gap-2 border border-slate-100 dark:border-slate-800">
+                <span className="text-base shrink-0">💡</span>
+                <div>
+                  <span className="font-bold text-slate-800 dark:text-white block">Coach Tip:</span>
+                  <span>{coachTip.message}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Player Stats Panel (Updated to show Money) */}
         {player && gameState && (

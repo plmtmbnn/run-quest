@@ -9,6 +9,8 @@ import {
 
 const RUNNER_STORAGE_KEY = "runnerProfile";
 
+let inMemoryRunnerState: RunnerState | null = null;
+
 /**
  * Loads the Runner Profile from local storage.
  * @returns The RunnerState, or the default state if not found.
@@ -24,7 +26,7 @@ export const loadRunnerState = (): RunnerState => {
   } catch (error) {
     console.error("Failed to load runner state from local storage:", error);
   }
-  return DEFAULT_RUNNER_STATE;
+  return inMemoryRunnerState || DEFAULT_RUNNER_STATE;
 };
 
 /**
@@ -32,6 +34,7 @@ export const loadRunnerState = (): RunnerState => {
  * @param state The RunnerState to save.
  */
 export const saveRunnerState = (state: RunnerState): void => {
+  inMemoryRunnerState = state;
   try {
     if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
       localStorage.setItem(RUNNER_STORAGE_KEY, JSON.stringify(state));

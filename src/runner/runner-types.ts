@@ -111,9 +111,9 @@ export const DEFAULT_RUNNER_PROFILE: RunnerProfile = {
   totalTrainingDays: 0,
   currentWeek: 1,
   currentSeason: 1,
-  currentFitness: 50, // Neutral starting value
-  currentFatigue: 0,
-  currentReadiness: 100, // Neutral starting value
+  currentFitness: 30, // Beginner starting value
+  currentFatigue: 10,
+  currentReadiness: 80, // Beginner starting value
   consistency: 0,
   level: 1,
   xp: 0,

@@ -13,10 +13,24 @@ export const useRunnerStore = () => {
   const [runnerState, setRunnerState] =
     useState<RunnerState>(DEFAULT_RUNNER_STATE);
 
-  // Load the runner state from local storage on mount.
+  // Load the runner state from local storage on mount and listen for external updates.
   useEffect(() => {
     const storedState = loadRunnerState();
     setRunnerState(storedState);
+
+    const handleUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<RunnerState>;
+      if (customEvent.detail) {
+        setRunnerState(customEvent.detail);
+      } else {
+        setRunnerState(loadRunnerState());
+      }
+    };
+
+    window.addEventListener("runner-state-updated", handleUpdate);
+    return () => {
+      window.removeEventListener("runner-state-updated", handleUpdate);
+    };
   }, []);
 
   // Save the runner state to local storage whenever it changes.

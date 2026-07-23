@@ -37,32 +37,44 @@ export const recordTrainingActivity = (
   // Get the effect of the activity.
   const effect = ACTIVITY_EFFECTS[activity];
 
-  // Update the runner's fatigue and readiness immediately.
-  const updatedFatigue = runnerState.profile.currentFatigue + effect.fatigue;
-  const updatedReadiness =
-    runnerState.profile.currentReadiness + effect.readiness;
+  // Calculate immediate fitness gain (30% immediate, 70% delayed adaptation)
+  const immediateFitness = (effect.fitness || 0) * 0.3;
+  const updatedFitness = Math.min(100, Math.max(0, runnerState.profile.currentFitness + immediateFitness));
+  const updatedFatigue = Math.min(100, Math.max(0, runnerState.profile.currentFatigue + effect.fatigue));
+  const updatedReadiness = Math.min(100, Math.max(0, runnerState.profile.currentReadiness + effect.readiness));
 
-  // Award 20 XP and 30 Coins for training
+  // Award 20 XP for training
   const xpGained = 20;
-  const coinsGained = 30;
   const runnerProfileWithXP = awardXP(runnerState.profile, xpGained);
 
   const updatedRunnerState = {
     ...runnerState,
     profile: {
       ...runnerProfileWithXP,
-      coins: (runnerProfileWithXP.coins || 0) + coinsGained,
-      currentFatigue: Math.min(100, Math.max(0, updatedFatigue)),
-      currentReadiness: Math.min(100, Math.max(0, updatedReadiness)),
+      totalTrainingDays: (runnerState.profile.totalTrainingDays || 0) + 1,
+      currentFitness: updatedFitness,
+      currentFatigue: updatedFatigue,
+      currentReadiness: updatedReadiness,
     },
-    lastUpdated: new Date().toISOString(), // This is just save metadata, keeping it
+    lastUpdated: new Date().toISOString(),
   };
   saveRunnerState(updatedRunnerState);
 
-  // Queue delayed adaptation if applicable.
-  if (effect.adaptationDays && effect.fitness > 0) {
-    queueAdaptation(effect.fitness, effect.adaptationDays, currentDayIndex);
+  // Notify reactive state listeners
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(
+      new CustomEvent("runner-state-updated", { detail: updatedRunnerState })
+    );
   }
+
+  // Queue remaining delayed adaptation (70%) if applicable.
+  if (effect.adaptationDays && effect.fitness > 0) {
+    const delayedFitness = effect.fitness * 0.7;
+    queueAdaptation(delayedFitness, effect.adaptationDays, currentDayIndex);
+  }
+
+  // Fetch the latest training state (which includes any queued adaptations)
+  const currentTrainingState = loadTrainingState();
 
   // Create a new training day entry.
   const newTrainingDay: TrainingDay = {
@@ -74,18 +86,18 @@ export const recordTrainingActivity = (
 
   // Update the training history.
   const updatedTrainingHistory = [
-    ...trainingState.trainingHistory.filter((day) => day.date !== today),
+    ...currentTrainingState.trainingHistory.filter((day) => day.date !== today),
     newTrainingDay,
   ];
 
   // Update the weekly training balance.
   const updatedWeeklyBalance = updateWeeklyBalance(
-    trainingState.weeklyBalance,
+    currentTrainingState.weeklyBalance,
     activity,
   );
 
   const updatedTrainingState: TrainingState = {
-    ...trainingState,
+    ...currentTrainingState,
     trainingHistory: updatedTrainingHistory,
     weeklyBalance: updatedWeeklyBalance,
     lastUpdated: currentDayIndex,

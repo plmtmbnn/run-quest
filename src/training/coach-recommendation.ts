@@ -1,6 +1,4 @@
-// coach-recommendation.ts
-// Daily coach recommendations for the Training & Recovery System.
-
+import type { RaceOccurrence } from "@/scheduling/race-calendar-types";
 import { loadRunnerState } from "@/runner/runner-persistence";
 import { isHardActivity, isRecoveryActivity } from "./training-effects";
 import { loadTrainingState } from "./training-store";
@@ -8,15 +6,25 @@ import type { CoachRecommendation, DailyActivity } from "./training-types";
 
 /**
  * Generates a coach recommendation for today's activity.
+ * @param currentDayIndex Current day index.
+ * @param upcomingRaces Optional list of registered upcoming races.
  * @returns The coach recommendation.
  */
 export const generateCoachRecommendation = (
   currentDayIndex: number,
+  upcomingRaces: RaceOccurrence[] = [],
 ): CoachRecommendation => {
   const runnerState = loadRunnerState();
   const trainingState = loadTrainingState();
   const { currentFatigue, currentReadiness } = runnerState.profile;
   const { trainingHistory } = trainingState;
+
+  // Check for upcoming races
+  const nearestRace = upcomingRaces
+    .filter((r) => !r.isCompleted && r.dayIndex >= currentDayIndex)
+    .sort((a, b) => a.dayIndex - b.dayIndex)[0];
+
+  const daysToRace = nearestRace ? nearestRace.dayIndex - currentDayIndex : null;
 
   // Get yesterday's activity (if any).
   const yesterdayIndex = currentDayIndex - 1;
@@ -24,12 +32,28 @@ export const generateCoachRecommendation = (
     (day) => day.date === yesterdayIndex,
   )?.activity;
 
-  // Determine the recommendation based on current state.
+  // Determine recommendation
   let recommendation: DailyActivity;
   let message: string;
   let reason: string;
 
-  if (currentFatigue >= 80) {
+  if (daysToRace === 0) {
+    recommendation = "Full Rest";
+    message = "Race Day! Good luck out there! 🏆";
+    reason = "Focus completely on race execution and peak performance.";
+  } else if (daysToRace === 1) {
+    recommendation = "Full Rest";
+    message = "Rest up, big race tomorrow! 🏆";
+    reason = "Save all your energy and muscle freshness for race day.";
+  } else if (daysToRace !== null && daysToRace >= 2 && daysToRace <= 3) {
+    recommendation = "Recovery Run";
+    message = "Taper — light run today, save your legs";
+    reason = "Keep your legs loose while shedding accumulated fatigue before race day.";
+  } else if (daysToRace !== null && daysToRace >= 4 && daysToRace <= 7) {
+    recommendation = currentFatigue < 50 ? "Tempo Run" : "Easy Run";
+    message = "Last quality session before race week!";
+    reason = "Maintain race pace rhythm without risking overtraining before taper.";
+  } else if (currentFatigue >= 80) {
     recommendation = "Full Rest";
     message = "You are carrying too much fatigue. Take a rest day.";
     reason = "High fatigue levels increase injury risk and reduce performance.";
