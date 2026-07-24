@@ -799,6 +799,10 @@
     "age_label": "Usia {age}",
     "energy_level": "Level energi: {current}/{max}"
   },
+  "settings_dob": {
+    "randomize": "Acak",
+    "desc": "Digunakan untuk perhitungan usia dan statistik"
+  },
   "alert": {
     "race_today": {
       "title": "Hari Balapan!",
@@ -808,9 +812,6 @@
     }
   },
   "onboarding_dob": {
-    "randomize": "Acak"
-  },
-  "settings_dob": {
     "randomize": "Acak"
   },
   "result": {

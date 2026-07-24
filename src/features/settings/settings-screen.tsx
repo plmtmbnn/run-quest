@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
+  Calendar,
   Dices,
   ShieldAlert,
   Trash2,
@@ -17,6 +18,7 @@ import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { usePlayerStore } from "@/store/player-store";
 import { useSettingsStore } from "@/store/settings-store";
 import { generateRunnerName } from "@/utils/name-generator";
+import { generateRandomDOB } from "@/utils/date-generator";
 
 import { SearchableCountrySelect } from "@/components/ui/searchable-country-select";
 
@@ -26,6 +28,7 @@ export function SettingsScreen() {
   const player = usePlayerStore((state) => state.player);
   const setPlayerName = usePlayerStore((state) => state.setPlayerName);
   const setNationality = usePlayerStore((state) => state.setNationality);
+  const setDateOfBirth = usePlayerStore((state) => state.setDateOfBirth);
   const {
     settings,
     setSound,
@@ -41,6 +44,8 @@ export function SettingsScreen() {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [hasInitializedName, setHasInitializedName] = useState(false);
   const [hasNameError, setHasNameError] = useState(false);
+  const [dobInput, setDobInput] = useState(player?.dateOfBirth || "");
+  const [useRandomDOB, setUseRandomDOB] = useState(false);
 
   useEffect(() => {
     if (player?.name && !hasInitializedName) {
@@ -195,6 +200,48 @@ export function SettingsScreen() {
                   setPreferredCurrency(country.defaultCurrency);
                 }}
               />
+            </div>
+          </div>
+
+          {/* Date of Birth */}
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                � Date of Birth
+              </span>
+              <span className="text-xs text-gray-400 dark:text-gray-500">
+                {t("settings.dob.desc" as TranslationKey) || "Used for age calculation and statistics"}
+              </span>
+            </div>
+            <div className="flex gap-2 items-center mt-1">
+              <input
+                type="date"
+                value={dobInput || player?.dateOfBirth || ""}
+                onChange={(e) => {
+                  playSound("click");
+                  setDobInput(e.target.value);
+                  setUseRandomDOB(false);
+                  if (e.target.value) {
+                    setDateOfBirth(e.target.value);
+                  }
+                }}
+                className="flex-grow min-h-[44px] border rounded-xl px-3.5 py-2 text-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none bg-slate-50 dark:bg-slate-900 focus:bg-white dark:focus:bg-slate-800 text-slate-800 dark:text-white font-bold transition-all border-[#E5E7EB] dark:border-slate-700"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  playSound("click");
+                  const randomDate = generateRandomDOB();
+                  setDobInput(randomDate);
+                  setUseRandomDOB(true);
+                  setDateOfBirth(randomDate);
+                }}
+                aria-label={t("settings_dob.randomize" as TranslationKey) || "Randomize"}
+                className="min-h-[44px] min-w-[44px] p-2.5 bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white rounded-xl transition-all shadow-sm flex items-center justify-center border border-indigo-400 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+                title={t("settings_dob.randomize" as TranslationKey) || "Randomize date of birth"}
+              >
+                <Calendar className="w-4 h-4" />
+              </button>
             </div>
           </div>
 

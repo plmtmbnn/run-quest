@@ -306,9 +306,6 @@ export function HomeScreen() {
       if (onlyRegister) {
         playSound("success");
       } else {
-        // Compete action energy deduction
-        doAction("compete");
-
         const raceSchedule = getScheduleById(selectedRaceOccurrence.scheduleId);
 
         const scenarioForBriefing: DailyChallenge = {

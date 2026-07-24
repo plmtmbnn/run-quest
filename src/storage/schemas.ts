@@ -28,6 +28,7 @@ export const StoredPlayerSchema = z.object({
   name: z.string().optional(),
   nationality: z.string().optional().default("ID"),
   language: z.enum(["en", "id"]),
+  dateOfBirth: z.string().optional(),
   createdAt: z.string(),
   lastPlayedAt: z.string().nullable(),
   statistics: PlayerStatisticsSchema,

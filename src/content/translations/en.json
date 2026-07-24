@@ -799,6 +799,10 @@
     "age_label": "Age {age}",
     "energy_level": "Energy level: {current}/{max}"
   },
+  "settings_dob": {
+    "randomize": "Randomize",
+    "desc": "Used for age calculation and statistics"
+  },
   "alert": {
     "race_today": {
       "title": "Race Day!",
@@ -808,9 +812,6 @@
     }
   },
   "onboarding_dob": {
-    "randomize": "Randomize"
-  },
-  "settings_dob": {
     "randomize": "Randomize"
   },
   "result": {

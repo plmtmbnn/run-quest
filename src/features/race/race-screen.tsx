@@ -12,6 +12,7 @@ import { advanceSimulation } from "@/engine/simulation/engine";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { useRunnerStore } from "@/runner/runner-store";
+import { getEnergyCostForDistance } from "@/economy/race-entry-engine";
 import { generateDailyChallenge } from "@/services/challenge/generator";
 import { useGameStore } from "@/store/game-store";
 import { usePlayerStore } from "@/store/player-store";
@@ -234,6 +235,10 @@ export function RaceScreen() {
       } else if (simResult) {
         setIsFinished(true);
         playSound("success");
+
+        // Deduct energy after race finishes in RaceScreen
+        const energyCost = getEnergyCostForDistance(challenge?.race?.distance);
+        useTimelineStore.getState().doAction("compete", energyCost);
 
         // Save result and auto-redirect to results screen
         setResult(simResult);

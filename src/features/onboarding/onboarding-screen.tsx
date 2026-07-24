@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowLeft,
   ArrowRight,
+  Calendar,
   Compass,
   Dices,
   Flame,
@@ -17,6 +18,7 @@ import { storageRepository } from "@/storage/storage-repository";
 import { usePlayerStore } from "@/store/player-store";
 import { useSettingsStore } from "@/store/settings-store";
 import { generateRunnerName } from "@/utils/name-generator";
+import { generateRandomDOB } from "@/utils/date-generator";
 
 import { detectDeviceCountry } from "@/utils/device-location";
 import { SearchableCountrySelect } from "@/components/ui/searchable-country-select";
@@ -34,12 +36,15 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
   const player = usePlayerStore((state) => state.player);
   const setPlayerName = usePlayerStore((state) => state.setPlayerName);
   const setNationality = usePlayerStore((state) => state.setNationality);
+  const setDateOfBirth = usePlayerStore((state) => state.setDateOfBirth);
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState(0); // -1 for prev, 1 for next
   const [nameInput, setNameInput] = useState("");
   const [hasInitializedName, setHasInitializedName] = useState(false);
   const [hasNameError, setHasNameError] = useState(false);
+  const [dobInput, setDobInput] = useState("");
+  const [useRandomDOB, setUseRandomDOB] = useState(false);
 
   // Dynamic device locale detection
   const [selectedNationality, setSelectedNationality] = useState(() =>
@@ -125,9 +130,12 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       setHasNameError(true);
       return;
     }
-setPlayerName(nameInput.trim());
+	setPlayerName(nameInput.trim());
     setNationality(selectedNationality);
     setPreferredCurrency(selectedCurrency);
+    if (dobInput || useRandomDOB) {
+      setDateOfBirth(dobInput || generateRandomDOB());
+    }
     storageRepository.saveSettings({
       version: 1,
       theme: "system", // Use system preference by default instead of forcing light
@@ -386,6 +394,52 @@ setPlayerName(nameInput.trim());
                                 </button>
                               );
                             })}
+                          </div>
+                        </div>
+
+                        {/* Date of Birth with Randomize Option */}
+                        <div className="flex flex-col gap-1.5 mt-3">
+                          <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                            📅 Date of Birth
+                          </span>
+                          <div className="flex gap-2 items-center">
+                            <input
+                              type="date"
+                              value={dobInput || player?.dateOfBirth || ""}
+                              onChange={(e) => {
+                                setDobInput(e.target.value);
+                                setUseRandomDOB(false);
+                              }}
+                              className="flex-grow min-h-[44px] border rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white border-slate-200 dark:border-slate-800 font-bold transition-all"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                playSound("click");
+                                const randomDate = generateRandomDOB();
+                                setDobInput(randomDate);
+                                setUseRandomDOB(true);
+                              }}
+                              className="min-h-[44px] min-w-[44px] p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-indigo-500 hover:bg-indigo-600 text-white transition-colors shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 flex items-center justify-center"
+                              title="Randomize date of birth"
+                              aria-label={t("onboarding_dob.randomize" as TranslationKey) || "Randomize"}
+                            >
+                              <Calendar className="w-4 h-4" />
+                            </button>
+                          </div>
+                          <div className="flex gap-2 mt-1">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                playSound("click");
+                                const randomDate = generateRandomDOB();
+                                setDobInput(randomDate);
+                                setUseRandomDOB(true);
+                              }}
+                              className="text-[10px] px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 font-semibold border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors"
+                            >
+                              {t("onboarding_dob.randomize" as TranslationKey) || "Randomize Age (18-65)"}
+                            </button>
                           </div>
                         </div>
                       </div>

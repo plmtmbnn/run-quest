@@ -180,6 +180,19 @@ export function PreparationScreen() {
 
   const handleStartSimulation = () => {
     playSound("click");
+
+    const energyCost = 25;
+    const currentEnergy = useTimelineStore.getState().gameState?.energy || 100;
+    const isLowEnergy = currentEnergy < energyCost;
+
+    // If low energy, pass flag for high DNF risk
+    if (isLowEnergy && currentChallenge) {
+      useGameStore.getState().setActiveGhost?.({
+        runnerName: "LOW_ENERGY_DNF_RISK",
+        splits: [0],
+      });
+    }
+
     if (preparation.warmup !== "none") {
       setShowWarmupGame(true);
       setWarmupProgress(0);

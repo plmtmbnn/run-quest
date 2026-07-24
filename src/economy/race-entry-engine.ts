@@ -114,14 +114,18 @@ export function validateRaceEntry(
     });
   }
 
-  // Check energy
+  // Check energy - only block if energy is critically low (below required cost)
+  // Allow entry with low energy but with high DNF risk warning
   if (energyCost > 0 && gameState.energy < energyCost) {
-    blockers.push({
-      reason: `Need ${energyCost} energy to race (have ${gameState.energy})`,
-      type: "energy",
-      resolved: false,
-      howToResolve: "Rest to recover energy (1 day rest = full recovery)",
-    });
+    // Instead of blocking, add as warning for low energy (high DNF risk)
+    // Player can still enter but will have very high risk of DNF
+    if (gameState.energy < energyCost * 0.3) {
+      // Critical low energy - still allow but with explicit warning
+      warnings.push(`⚠️ CRITICAL: Starting with very low energy (${gameState.energy}/${energyCost} EP). Very high risk of DNF!`);
+    } else if (gameState.energy < energyCost) {
+      // Low energy - allow entry but warn
+      warnings.push(`⚠️ LOW ENERGY: Starting with insufficient energy (${gameState.energy}/${energyCost} EP). High risk of DNF!`);
+    }
   }
 
   const hasMoney = economy.currentBalance >= entryFee;
@@ -277,8 +281,9 @@ export function processRaceEntry(
     success = res.success;
   }
 
-  // Deduct energy if not only registering
-  const energyDeduction = onlyRegister ? 0 : getEnergyCostForDistance(options?.distanceInKm);
+  // Energy deduction moved to preparation screen (Sprint 33)
+  // Always allow start, but with high DNF risk if energy is low
+  const energyDeduction = 0; // Deducted in preparation screen instead
 
   return {
     economy: updatedEconomy,

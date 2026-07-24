@@ -54,6 +54,8 @@ export interface PlayerState {
   setPlayerName: (name: string) => void;
   /** Update runner nationality (ISO 3166-1 alpha-2). */
   setNationality: (nationality: string) => void;
+  /** Update date of birth. */
+  setDateOfBirth: (dateOfBirth: string) => void;
   /** Persist language preference on the player record. */
   setLanguage: (language: "en" | "id") => void;
   /** Complete today's run and update all statistics and daily lockout markers. */
@@ -95,6 +97,14 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     const { player } = get();
     if (!player) return;
     const updated: StoredPlayer = { ...player, nationality };
+    storageRepository.savePlayer(updated);
+    set({ player: updated });
+  },
+
+  setDateOfBirth(dateOfBirth) {
+    const { player } = get();
+    if (!player) return;
+    const updated: StoredPlayer = { ...player, dateOfBirth };
     storageRepository.savePlayer(updated);
     set({ player: updated });
   },
