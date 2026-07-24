@@ -798,5 +798,23 @@
     "date_full_format": "Year {year}, Month {month}, Week {week}, Day {day}",
     "age_label": "Age {age}",
     "energy_level": "Energy level: {current}/{max}"
+  },
+  "alert": {
+    "race_today": {
+      "title": "Race Day!",
+      "message": "Your race starts today: {title} ({distance}km)",
+      "button": "Let's Go!",
+      "dismiss": "Dismiss"
+    }
+  },
+  "onboarding_dob": {
+    "randomize": "Randomize"
+  },
+  "settings_dob": {
+    "randomize": "Randomize"
+  },
+  "result": {
+    "highlights_collapsed": "Show {count} Highlights",
+    "highlights_expanded": "Hide Highlights"
   }
 }

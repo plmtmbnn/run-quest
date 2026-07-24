@@ -16,6 +16,8 @@ import { DailyStatsCard } from "@/components/share/daily-stats-card";
 import { ShareModal } from "@/components/share/share-modal";
 import { GameStats } from "@/components/ui/game-clock";
 import { RestControls } from "@/components/ui/rest-controls";
+// Sprint 33 Imports
+import { RaceDayAlert } from "@/components/alerts/race-day-alert";
 import { formatCurrency } from "@/economy/currency-converter";
 import {
   earnAchievementBonus,
@@ -86,6 +88,10 @@ export function HomeScreen() {
   const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
   const [entryValidation, setEntryValidation] =
     useState<EntryValidation | null>(null);
+
+  // Sprint 33: Race Day Alert State
+  const [showRaceAlert, setShowRaceAlert] = useState(false);
+  const [todaysRace, setTodaysRace] = useState<RaceOccurrence | null>(null);
 
   // Work selector modal state
   const [isWorkModalOpen, setIsWorkModalOpen] = useState(false);
@@ -191,6 +197,23 @@ export function HomeScreen() {
     }
     setBoardStatus(status);
   }, [todayStr]);
+
+  // Sprint 33: Check for race day alerts
+  useEffect(() => {
+    if (!gameState) return;
+    
+    const racesToday = getTodaysRaces(gameState.scheduling, gameState, currentDayIndex);
+    
+    if (racesToday.length > 0) {
+      const alertKey = `race_alert_shown_${currentDayIndex}`;
+      const hasShown = localStorage.getItem(alertKey);
+      
+      if (!hasShown) {
+        setTodaysRace(racesToday[0]);
+        setShowRaceAlert(true);
+      }
+    }
+  }, [gameState, currentDayIndex]);
 
   // New: Get races from scheduling engine
   const todaysRaces = gameState
@@ -626,6 +649,20 @@ export function HomeScreen() {
 
       {/* Floating Rest Controls */}
       <RestControls />
+
+      {/* Sprint 33: Race Day Alert */}
+      {todaysRace && (
+        <RaceDayAlert
+          isOpen={showRaceAlert}
+          onClose={() => {
+            setShowRaceAlert(false);
+            localStorage.setItem(`race_alert_shown_${currentDayIndex}`, 'true');
+          }}
+          raceTitle={todaysRace.name}
+          raceDistance={todaysRace.categories?.[0]?.distance || 5}
+          autoCloseDelay={5000}
+        />
+      )}
     </motion.div>
   );
 }

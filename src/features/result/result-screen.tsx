@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Award, BookOpen, Clock, Home, Share2, Sparkles } from "lucide-react";
+import { Award, BookOpen, ChevronDown, Clock, Home, Share2, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CoachQuoteCard } from "@/components/share/coach-quote-card";
@@ -30,6 +30,7 @@ import { usePlayerStore } from "@/store/player-store";
 import { usePreparationStore } from "@/store/preparation-store";
 import { useTimelineStore } from "@/store/timeline-store";
 import type { RaceEvent } from "@/types/engine";
+import { isHighlightShareable } from "@/utils/highlight-utils";
 
 export function ResultScreen() {
   const router = useRouter();
@@ -58,6 +59,7 @@ export function ResultScreen() {
   const [activeCoachQuote, setActiveCoachQuote] = useState<string | null>(null);
   const [activeEventHighlight, setActiveEventHighlight] =
     useState<RaceEvent | null>(null);
+  const [isHighlightsExpanded, setIsHighlightsExpanded] = useState(false);
 
   const dayIndex = useTimelineStore((state) => state.gameState?.dayIndex ?? 0);
   const challenge =
@@ -684,41 +686,58 @@ export function ResultScreen() {
           </p>
 
           <div className="flex flex-col gap-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-              {t("challenge.result.story_headline" as TranslationKey)}
-            </h3>
-            <ul className="flex flex-col gap-2.5">
-              {story.highlights.map((h, idx) => {
-                const event = lastResult.events.find(
-                  (e) =>
-                    h.en.includes(`At km ${e.km}:`) ||
-                    h.id.includes(`Di km ${e.km}:`),
-                );
+            <button
+              type="button"
+              onClick={() => setIsHighlightsExpanded(!isHighlightsExpanded)}
+              className="flex items-center justify-between w-full text-left group hover:opacity-80 transition-opacity"
+            >
+              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                {t("challenge.result.story_headline" as TranslationKey)} ({story.highlights.length})
+              </h3>
+              <ChevronDown 
+                className={`h-4 w-4 text-gray-400 dark:text-gray-500 transition-transform ${
+                  isHighlightsExpanded ? 'rotate-180' : ''
+                }`}
+              />
+            </button>
+            
+            {isHighlightsExpanded && (
+              <ul className="flex flex-col gap-2.5">
+                {story.highlights.map((h, idx) => {
+                  const event = lastResult.events.find(
+                    (e) =>
+                      h.en.includes(`At km ${e.km}:`) ||
+                      h.id.includes(`Di km ${e.km}:`),
+                  );
+                  const isShareable = isHighlightShareable(h, idx);
 
-                return (
-                  <li
-                    key={`highlight-${idx}-${h.en}`}
-                    className="text-xs text-gray-700 dark:text-gray-200 dark:text-gray-300 bg-gray-50 dark:bg-slate-900 border border-gray-100 dark:border-slate-800/40 rounded-xl p-3 flex items-center justify-between gap-4"
-                  >
-                    <span className="flex-grow leading-relaxed">{h[lang]}</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (event) {
-                          setActiveEventHighlight(event);
-                        } else {
-                          setActiveCoachQuote(h[lang]);
-                        }
-                      }}
-                      className="p-1.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-700 dark:text-slate-300 transition active:scale-90 flex-shrink-0"
-                      aria-label="Share race moment"
+                  return (
+                    <li
+                      key={`highlight-${idx}-${h.en}`}
+                      className="text-xs text-gray-700 dark:text-gray-200 dark:text-gray-300 bg-gray-50 dark:bg-slate-900 border border-gray-100 dark:border-slate-800/40 rounded-xl p-3 flex items-center justify-between gap-4"
                     >
-                      <Share2 className="h-3.5 w-3.5" />
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
+                      <span className="flex-grow leading-relaxed">{h[lang]}</span>
+                      {isShareable && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (event) {
+                              setActiveEventHighlight(event);
+                            } else {
+                              setActiveCoachQuote(h[lang]);
+                            }
+                          }}
+                          className="p-1.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-700 dark:text-slate-300 transition active:scale-90 flex-shrink-0"
+                          aria-label="Share race moment"
+                        >
+                          <Share2 className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
         </section>
 

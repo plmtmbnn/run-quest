@@ -798,5 +798,23 @@
     "date_full_format": "Tahun {year}, Bulan {month}, Minggu {week}, Hari {day}",
     "age_label": "Usia {age}",
     "energy_level": "Level energi: {current}/{max}"
+  },
+  "alert": {
+    "race_today": {
+      "title": "Hari Balapan!",
+      "message": "Balapanmu dimulai hari ini: {title} ({distance}km)",
+      "button": "Ayo!",
+      "dismiss": "Tutup"
+    }
+  },
+  "onboarding_dob": {
+    "randomize": "Acak"
+  },
+  "settings_dob": {
+    "randomize": "Acak"
+  },
+  "result": {
+    "highlights_collapsed": "Tampilkan {count} Sorotan",
+    "highlights_expanded": "Sembunyikan Sorotan"
   }
 }
