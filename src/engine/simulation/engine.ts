@@ -680,30 +680,58 @@ export function advanceSimulation(
   const currentStepState = state;
 
   for (let km = startKm; km <= maxKms; km++) {
-    // Weather shift logic mid-race (if distance >= 8, at half way point, 25% chance)
-    if (
-      km === Math.floor(totalDistance / 2) &&
-      totalDistance >= 8 &&
-      random.nextRange(0, 100) < 25
-    ) {
-      const weathers: import("@/types/engine").Weather[] = [
-        "rain",
-        "storm",
-        "hot",
-        "cloudy",
-      ];
-      const newWeather =
-        weathers[Math.floor(random.nextRange(0, weathers.length))];
-      challenge.environment.weather = newWeather;
-      currentStepState.eventsResolved.push({
-        km,
-        title: { en: "Weather Shift!", id: "Perubahan Cuaca!" },
-        description: {
-          en: `The weather suddenly shifted to ${newWeather}!`,
-          id: `Cuaca tiba-tiba berubah menjadi ${newWeather}!`,
-        },
-        effect: { stamina: 0, hydration: -5, morale: -10, pace: 5 },
-      });
+    // ── Dynamic Weather Transitions (Sprint 34 – Task 5) ────────────────────
+    // Apply pre-rolled transitions from the challenge instead of random rolls.
+    // We mutate the challenge environment so subsequent km calculations use the
+    // new weather modifiers automatically through calculateEnvironmentModifiers.
+    if (challenge.weatherTransitions && challenge.weatherTransitions.length > 0) {
+      for (const wt of challenge.weatherTransitions) {
+        if (wt.km === km && !wt.alertShown) {
+          // Apply the new weather to the environment
+          challenge.environment.weather = wt.to;
+          challenge.environment.temperature = Math.round(
+            challenge.environment.temperature + wt.effect.temperatureDelta,
+          );
+
+          // Apply morale effect immediately
+          const moraleEffect = wt.effect.moraleModifier;
+          currentStepState.confidence = Math.max(
+            0,
+            Math.min(100, currentStepState.confidence + moraleEffect),
+          );
+          currentStepState.momentum = Math.max(
+            0,
+            Math.min(100, currentStepState.momentum + moraleEffect * 0.5),
+          );
+
+          // Apply energy cost multiplier as an immediate hit (one-time energy adjustment)
+          // Energy multiplier > 1 means more energy spent; we apply a proportional drain.
+          const energyImpact = (wt.effect.energyCostMultiplier - 1) * 15;
+          currentStepState.energy = Math.max(
+            0,
+            Math.min(100, currentStepState.energy - energyImpact),
+          );
+
+          // Mark as shown so it doesn't re-fire
+          wt.alertShown = true;
+
+          // Record as a race event
+          currentStepState.eventsResolved.push({
+            km,
+            title: { en: "Weather Shift!", id: "Perubahan Cuaca!" },
+            description: {
+              en: `Weather changed to ${wt.to}! ${wt.effect.energyCostMultiplier > 1 ? "Energy cost increased." : wt.effect.energyCostMultiplier < 1 ? "Conditions improved!" : "Conditions are stable."}`,
+              id: `Cuaca berubah menjadi ${wt.to}! ${wt.effect.energyCostMultiplier > 1 ? "Biaya energi meningkat." : wt.effect.energyCostMultiplier < 1 ? "Kondisi membaik!" : "Kondisi stabil."}`,
+            },
+            effect: {
+              stamina: -Math.round(energyImpact),
+              hydration: wt.effect.energyCostMultiplier > 1.1 ? -3 : 0,
+              morale: moraleEffect,
+              pace: 0,
+            },
+          });
+        }
+      }
     }
 
     // Check for breaking point triggers before the km starts

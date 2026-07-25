@@ -18,9 +18,9 @@ import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { generateDailyChallenge } from "@/services/challenge/generator";
 import { type GhostRun, loadGhostRun } from "@/social/ghost-engine";
-import { storageRepository } from "@/storage/storage-repository";
 import { useGameStore } from "@/store/game-store";
 import { useTimelineStore } from "@/store/timeline-store";
+import { makeRegistrationKey } from "@/scheduling/race-calendar-engine";
 
 export function BriefingScreen() {
   const router = useRouter();
@@ -30,6 +30,9 @@ export function BriefingScreen() {
   const { currentChallenge, setActiveGhost } = useGameStore();
   const { playSound } = useSound();
   const dayIndex = useTimelineStore((state) => state.gameState?.dayIndex ?? 0);
+  const schedulingState = useTimelineStore(
+    (state) => state.gameState?.scheduling,
+  );
 
   const formatTargetTime = (seconds: number) => {
     const hrs = Math.floor(seconds / 3600);
@@ -61,15 +64,25 @@ export function BriefingScreen() {
 ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
 
   useEffect(() => {
-    const daily = storageRepository.loadDaily();
-    if (
-      daily &&
-      daily.challengeId === challenge.id &&
-      daily.status === "completed"
-    ) {
+    if (!schedulingState) return;
+
+    const scheduleId = currentChallenge?.scheduleId;
+    if (!scheduleId) {
+      // No scheduled race — nothing to check here
+      return;
+    }
+
+    // Check if this specific race occurrence is already completed.
+    // Use composite key first, then legacy format for backward compat.
+    const instanceKey = makeRegistrationKey(scheduleId, dayIndex);
+    const isThisOccurrenceDone =
+      schedulingState.completedRaces[instanceKey] !== undefined ||
+      schedulingState.completedRaces[`${scheduleId}_${dayIndex}`] !== undefined;
+
+    if (isThisOccurrenceDone) {
       router.replace("/");
     }
-  }, [challenge.id, router]);
+  }, [schedulingState, currentChallenge?.scheduleId, dayIndex, router]);
 
   return (
     <motion.div

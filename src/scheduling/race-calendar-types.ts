@@ -116,6 +116,13 @@ export interface RaceOccurrence {
   /** When this occurrence happens */
   dayIndex: number;
 
+  /**
+   * Composite registration key for this specific occurrence.
+   * Format: `{scheduleId}_m{month}_y{year}`
+   * Used as the key in `scheduling.registered` and `scheduling.completedRaces`.
+   */
+  registrationInstanceId: string;
+
   /** Registration dates */
   registrationOpensAt: number;
   registrationClosesAt: number;

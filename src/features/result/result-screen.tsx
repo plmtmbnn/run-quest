@@ -1,18 +1,20 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Award, BookOpen, ChevronDown, Clock, Home, Share2, Sparkles } from "lucide-react";
+import { Award, BookOpen, ChevronDown, ChevronUp, Clock, Home, Share2, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CoachQuoteCard } from "@/components/share/coach-quote-card";
 import { EventHighlightCard } from "@/components/share/event-highlight-card";
 import { RaceReportCard } from "@/components/share/race-report-card";
 import { ShareModal } from "@/components/share/share-modal";
+import { PostRaceAnalytics } from "@/components/race/post-race-analytics";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { saveRunToHistory } from "@/runner/run-history";
 import { useRunnerStore } from "@/runner/runner-store";
 import type { RunRecord } from "@/runner/runner-types";
 import { generateDailyChallenge } from "@/services/challenge/generator";
+import { analyzeRacePerformance, type RaceAnalytics } from "@/services/analytics/race-analytics";
 import {
   isNewPersonalBest,
   loadGhostRun,
@@ -60,10 +62,16 @@ export function ResultScreen() {
   const [activeEventHighlight, setActiveEventHighlight] =
     useState<RaceEvent | null>(null);
   const [isHighlightsExpanded, setIsHighlightsExpanded] = useState(false);
+  
+  // Analytics state
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [raceAnalytics, setRaceAnalytics] = useState<RaceAnalytics | null>(null);
 
   const dayIndex = useTimelineStore((state) => state.gameState?.dayIndex ?? 0);
   const challenge =
     currentChallenge || generateDailyChallenge(dayIndex.toString());
+  
+  const { preparation } = usePreparationStore();
 
   useEffect(() => {
     if (!lastResult || hasProcessed) return;
@@ -223,6 +231,14 @@ export function ResultScreen() {
           profile.rankPoints || 0,
           dayIndex,
         );
+      
+      // Generate race analytics
+      try {
+        const analytics = analyzeRacePerformance(lastResult, challenge, preparation);
+        setRaceAnalytics(analytics);
+      } catch (error) {
+        console.error("Failed to generate race analytics:", error);
+      }
     }
 
     // Update profile
@@ -848,6 +864,55 @@ export function ResultScreen() {
               </table>
             </div>
           </section>
+        )}
+
+        {/* Deep Dive Analytics Button & Section */}
+        {raceAnalytics && (
+          <>
+            {!showAnalytics && (
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowAnalytics(true)}
+                className="w-full py-4 rounded-[2rem] border-2 border-dashed border-orange-300 dark:border-orange-700 bg-gradient-to-r from-orange-50 to-purple-50 dark:from-orange-900/10 dark:to-purple-900/10 hover:from-orange-100 hover:to-purple-100 dark:hover:from-orange-900/20 dark:hover:to-purple-900/20 transition-all"
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <Sparkles className="h-5 w-5 text-orange-500" />
+                  <span className="font-heading text-lg font-bold text-orange-600 dark:text-orange-400">
+                    {t("race.analytics.deep_dive" as TranslationKey) || "🔍 Deep Dive Analytics"}
+                  </span>
+                  <Sparkles className="h-5 w-5 text-purple-500" />
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  {t("race.analytics.deep_dive_desc" as TranslationKey) || "Pace charts, energy analysis, what-if scenarios & more"}
+                </p>
+              </motion.button>
+            )}
+            
+            {showAnalytics && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <PostRaceAnalytics analytics={raceAnalytics} lang={lang} />
+                
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowAnalytics(false)}
+                  className="w-full mt-4 py-3 rounded-[2rem] bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <ChevronUp className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                    <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+                      {t("race.analytics.collapse" as TranslationKey) || "Collapse Analytics"}
+                    </span>
+                  </div>
+                </motion.button>
+              </motion.div>
+            )}
+          </>
         )}
 
         {/* Strava-style Mock Comments Feed */}

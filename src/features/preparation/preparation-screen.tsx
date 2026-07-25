@@ -20,7 +20,7 @@ import { useSound } from "@/hooks/use-sound";
 import type { TranslationKey } from "@/i18n/use-translation";
 import { useTranslation } from "@/i18n/use-translation";
 import { generateDailyChallenge } from "@/services/challenge/generator";
-import { storageRepository } from "@/storage/storage-repository";
+import { makeRegistrationKey } from "@/scheduling/race-calendar-engine";
 import { useGameStore } from "@/store/game-store";
 import { usePreparationStore } from "@/store/preparation-store";
 import { useShopStore } from "@/shop/shop-store";
@@ -32,21 +32,34 @@ export function PreparationScreen() {
   const lang = (language === "id" ? "id" : "en") as "en" | "id";
   const { currentChallenge } = useGameStore();
   const dayIndex = useTimelineStore((state) => state.gameState?.dayIndex ?? 0);
+  const schedulingState = useTimelineStore(
+    (state) => state.gameState?.scheduling,
+  );
   const { hasItem, getItemQuantity } = useShopStore();
 
   const challenge =
     currentChallenge || generateDailyChallenge(dayIndex.toString());
 
   useEffect(() => {
-    const daily = storageRepository.loadDaily();
-    if (
-      daily &&
-      daily.challengeId === challenge.id &&
-      daily.status === "completed"
-    ) {
+    if (!schedulingState) return;
+
+    const scheduleId = currentChallenge?.scheduleId;
+    if (!scheduleId) {
+      // No scheduled race — nothing to check here
+      return;
+    }
+
+    // Check if this specific race occurrence is already completed.
+    // Use composite key first, then legacy format for backward compat.
+    const instanceKey = makeRegistrationKey(scheduleId, dayIndex);
+    const isThisOccurrenceDone =
+      schedulingState.completedRaces[instanceKey] !== undefined ||
+      schedulingState.completedRaces[`${scheduleId}_${dayIndex}`] !== undefined;
+
+    if (isThisOccurrenceDone) {
       router.replace("/");
     }
-  }, [challenge.id, router]);
+  }, [schedulingState, currentChallenge?.scheduleId, dayIndex, router]);
 
   const {
     preparation,

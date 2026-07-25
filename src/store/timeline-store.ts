@@ -146,12 +146,18 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
       const allEvents = getScheduledStoryEvents(stateWithFlags, storyProgress);
       const dayStoryEvents = allEvents.filter((e) => e.dayIndex === d);
 
-      // Check for registered races scheduled on day d
+      // Check for registered races scheduled on day d.
+      // Registration values may be a plain dayIndex (number) or
+      // { dayIndex, categoryId } when a category was selected — handle both.
       const registeredRacesOnDay: CalendarEvent[] = [];
       const registeredEntries = Object.entries(stateWithFlags.scheduling.registered);
-      for (const [scheduleId, raceDay] of registeredEntries) {
-        if (raceDay === d) {
-          const schedule = getScheduleById(scheduleId);
+      for (const [scheduleId, regVal] of registeredEntries) {
+        const regDay = typeof regVal === "object" ? regVal.dayIndex : regVal;
+        if (regDay === d) {
+          // Strip the composite key suffix to find the base schedule id
+          // e.g. "monthly_nusantara_10k_m0_y0" → "monthly_nusantara_10k"
+          const baseScheduleId = scheduleId.replace(/_m\d+_y\d+$/, "");
+          const schedule = getScheduleById(baseScheduleId);
           if (schedule) {
             registeredRacesOnDay.push({
               id: `race_${scheduleId}_day_${d}`,

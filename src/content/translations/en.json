@@ -139,6 +139,9 @@
       "desc": "Update your profile name",
       "error": "Runner name cannot be empty."
     },
+    "dob": {
+      "desc": "Used for age calculation and statistics"
+    },
     "nationality": {
       "title": "Nationality",
       "desc": "Your home country flag and default currency association"
@@ -616,7 +619,61 @@
       "remaining_seconds": "seconds to react",
       "strategic_choices": "How do you respond?",
       "timeout": "Pace Alert!",
-      "timeout_instinct": "Time's up! Your runner falls back on instinct..."
+      "timeout_instinct": "Time's up! Your runner falls back on instinct...",
+      "music_on": "Race Music On",
+      "music_off": "Race Music Muted",
+      "music": {
+        "phase_mid_race": "Mid-Race Pulse",
+        "phase_final_kick": "Final Kick Rush",
+        "phase_victory": "Victory Anthem"
+      },
+      "pace_projector": {
+        "title": "Finish Projection",
+        "predicted": "Predicted Finish",
+        "ahead_pb": "Ahead of PB",
+        "behind_pb": "Behind PB",
+        "pace_needed": "Pace Needed",
+        "coach_tip_start": "Looking strong — maintain this pace!",
+        "coach_tip_mid": "This is where champions are made.",
+        "coach_tip_end": "Empty the tank! Leave it all out there!",
+        "coach_tip_slow": "Pick it up — you're losing ground!",
+        "coach_tip_crisis": "Dig deep. This is the moment that defines you."
+      },
+      "achievement": {
+        "fastest_km": "Fastest Kilometer!",
+        "negative_split": "Negative Split!",
+        "perfect_stability": "Smooth Operator!",
+        "overtake_leader": "Took the Lead!",
+        "comeback_kid": "Comeback Kid!",
+        "halfway": "Halfway There!",
+        "century_km": "Double Digits!",
+        "energy_crisis": "Running on Empty!",
+        "clutch_gel": "Clutch Consumption!",
+        "dnf_escape": "Dodged a Bullet!",
+        "sub_pace_target": "On Target!"
+      },
+      "final_kick": {
+        "title": "FINAL KICK!",
+        "kick_button": "KICK!",
+        "perfect": "PERFECT!",
+        "good": "Good!",
+        "miss": "Miss!",
+        "perfect_all": "🔥 PERFECT KICK! All 5 checkpoints!",
+        "meters_remaining": "m to finish"
+      },
+      "rival": {
+        "pre_race": "Today's Challengers",
+        "overtake_player": "You overtook {rival}!",
+        "overtaken_by_player": "{rival} overtook you!",
+        "post_race_win": "Victory over {rival}!",
+        "post_race_lose": "{rival} got you this time.",
+        "relationship_up": "Rivalry Intensified!",
+        "relationship_level": "Rivalry Level",
+        "victory": "Victory!",
+        "defeated": "Defeated",
+        "by_margin": "by {seconds}s",
+        "decisively": "decisively"
+      }
     },
     "result": {
       "title": "Race Summary",
@@ -641,6 +698,54 @@
       "outcome_finish": "Race Complete",
       "outcome_dnf": "Did Not Finish (DNF)",
       "outcome_dns": "Did Not Start (DNS)"
+    },
+    "photo_finish": {
+      "title": "PHOTO FINISH!",
+      "winner": "WINNER",
+      "by_margin": "by {seconds}s!",
+      "replay": "Watch Again",
+      "skip": "Continue"
+    },
+    "result_card": {
+      "title": "Race Result Card",
+      "download": "Download Card",
+      "copy": "Copy to Clipboard",
+      "copied": "Copied!",
+      "downloading": "Saving...",
+      "share_title": "Share Your Victory!",
+      "share_desc": "Download or copy your race result card to share with friends.",
+      "achievements": "Achievements",
+      "bets_won": "Bets Won",
+      "personal_best": "🎯 Personal Best!"
+    },
+    "ghost_splits": {
+      "title": "Ghost Comparison",
+      "delta": "vs Ghost",
+      "ahead": "ahead",
+      "behind": "behind",
+      "equal": "equal"
+    },
+    "music": {
+      "on": "On",
+      "off": "Off",
+      "phase_start": "Start",
+      "phase_mid": "Mid Race",
+      "phase_final": "Final Kick",
+      "phase_crisis": "Crisis",
+      "phase_victory": "Victory"
+    },
+    "analytics": {
+      "title": "Deep Dive Analytics",
+      "deep_dive": "🔍 Deep Dive Analytics",
+      "deep_dive_desc": "Pace charts, energy analysis, what-if scenarios & more",
+      "collapse": "Collapse Analytics",
+      "pace_chart": "Pace Chart",
+      "energy_curve": "Energy Curve",
+      "position_progression": "Position",
+      "fatigue_split": "Fatigue",
+      "critical_moments": "Key Moments",
+      "best_split": "Best Split",
+      "worst_split": "Worst Split"
     }
   },
   "share": {
@@ -817,5 +922,29 @@
   "result": {
     "highlights_collapsed": "Show {count} Highlights",
     "highlights_expanded": "Hide Highlights"
+  },
+  "race": {
+    "analytics": {
+      "deep_dive": "🔍 Deep Dive Analytics",
+      "deep_dive_desc": "Pace charts, energy analysis, what-if scenarios & more",
+      "collapse": "Collapse Analytics",
+      "title": "Deep Dive Analytics",
+      "pace_chart": "Pace Chart",
+      "energy_curve": "Energy Curve",
+      "position_progression": "Position",
+      "fatigue_split": "Fatigue",
+      "critical_moments": "Key Moments"
+    },
+    "weather": {
+      "alert_title": "Weather Shifting!",
+      "transition_to": "Weather shifting to {weather} ahead!",
+      "energy_up": "Energy cost ↑{pct}%",
+      "energy_down": "Energy cost ↓{pct}%",
+      "morale_up": "Morale ↑{pct}%",
+      "morale_down": "Morale ↓{pct}%",
+      "conditions_improved": "Conditions improved!",
+      "energy_increased": "Energy cost increased.",
+      "conditions_stable": "Conditions are stable."
+    }
   }
 }

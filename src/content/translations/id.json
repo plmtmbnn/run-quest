@@ -139,6 +139,9 @@
       "desc": "Ubah nama profil pelarimu",
       "error": "Nama pelari tidak boleh kosong."
     },
+    "dob": {
+      "desc": "Digunakan untuk kalkulasi umur dan statistik"
+    },
     "nationality": {
       "title": "Kewarganegaraan",
       "desc": "Bendera negara asal dan asosiasi mata uang utama"
@@ -616,7 +619,61 @@
       "remaining_seconds": "detik untuk merespon",
       "strategic_choices": "Apa tindakanmu?",
       "timeout": "Pace Alert!",
-      "timeout_instinct": "Waktu habis! Pelarimu bertindak berdasarkan insting..."
+      "timeout_instinct": "Waktu habis! Pelarimu bertindak berdasarkan insting...",
+      "music_on": "Musik Lomba Aktif",
+      "music_off": "Musik Lomba Ditingheningkan",
+      "music": {
+        "phase_mid_race": "Ritme Pertengahan Lomba",
+        "phase_final_kick": "Gelombang Sprint Akhir",
+        "phase_victory": "Lagu Kemenangan"
+      },
+      "pace_projector": {
+        "title": "Proyeksi Finish",
+        "predicted": "Prediksi Waktu",
+        "ahead_pb": "Di Depan PB",
+        "behind_pb": "Di Belakang PB",
+        "pace_needed": "Pace Dibutuhkan",
+        "coach_tip_start": "Mantap — pertahankan pace ini!",
+        "coach_tip_mid": "Ini momen para juara tercipta.",
+        "coach_tip_end": "Keluarkan semua! Jangan sisakan tenaga!",
+        "coach_tip_slow": "Ayo — kamu mulai tertinggal!",
+        "coach_tip_crisis": "Bertahanlah. Inilah momen yang mendefinisikanmu."
+      },
+      "achievement": {
+        "fastest_km": "Kilometer Tercepat!",
+        "negative_split": "Split Negatif!",
+        "perfect_stability": "Operator Mulus!",
+        "overtake_leader": "Merebut Posisi Terdepan!",
+        "comeback_kid": "Si Raja Kebangkitan!",
+        "halfway": "Setengah Jalan!",
+        "century_km": "Dua Digit!",
+        "energy_crisis": "Habis Energi!",
+        "clutch_gel": "Konsumsi Krusial!",
+        "dnf_escape": "Hampir DNF!",
+        "sub_pace_target": "Tepat Sasaran!"
+      },
+      "final_kick": {
+        "title": "SPRINT AKHIR!",
+        "kick_button": "LARI!",
+        "perfect": "SEMPURNA!",
+        "good": "Bagus!",
+        "miss": "Terlewat!",
+        "perfect_all": "🔥 SPRINT SEMPURNA! Semua 5 checkpoint!",
+        "meters_remaining": "m menuju finish"
+      },
+      "rival": {
+        "pre_race": "Pesaing Hari Ini",
+        "overtake_player": "Kau menyusul {rival}!",
+        "overtaken_by_player": "{rival} menyusulmu!",
+        "post_race_win": "Kemenangan atas {rival}!",
+        "post_race_lose": "{rival} mengalahkanmu kali ini.",
+        "relationship_up": "Persaingan Meningkat!",
+        "relationship_level": "Level Persaingan",
+        "victory": "Kemenangan!",
+        "defeated": "Dikalahkan",
+        "by_margin": "dengan {seconds}s",
+        "decisively": "pasti"
+      }
     },
     "result": {
       "title": "Race Summary",
@@ -641,6 +698,54 @@
       "outcome_finish": "Race Selesai",
       "outcome_dnf": "Did Not Finish (DNF)",
       "outcome_dns": "Did Not Start (DNS)"
+    },
+    "photo_finish": {
+      "title": "FOTO FINISH!",
+      "winner": "PEMENANG",
+      "by_margin": "dengan selisih {seconds}s!",
+      "replay": "Tonton Lagi",
+      "skip": "Lanjut"
+    },
+    "result_card": {
+      "title": "Kartu Hasil Race",
+      "download": "Unduh Kartu",
+      "copy": "Salin ke Clipboard",
+      "copied": "Tersalin!",
+      "downloading": "Menyimpan...",
+      "share_title": "Bagikan Kemenanganmu!",
+      "share_desc": "Unduh atau salin kartu hasil balapan untuk dibagikan kepada teman.",
+      "achievements": "Pencapaian",
+      "bets_won": "Taruhan Menang",
+      "personal_best": "🎯 Rekor Pribadi!"
+    },
+    "ghost_splits": {
+      "title": "Perbandingan Ghost",
+      "delta": "vs Ghost",
+      "ahead": "di depan",
+      "behind": "di belakang",
+      "equal": "sama"
+    },
+    "music": {
+      "on": "Aktif",
+      "off": "Nonaktif",
+      "phase_start": "Start",
+      "phase_mid": "Tengah",
+      "phase_final": "Sprint Akhir",
+      "phase_crisis": "Krisis",
+      "phase_victory": "Kemenangan"
+    },
+    "analytics": {
+      "title": "Analisis Mendalam",
+      "deep_dive": "🔍 Analisis Mendalam",
+      "deep_dive_desc": "Grafik pace, analisis energi, skenario alternatif & lainnya",
+      "collapse": "Tutup Analisis",
+      "pace_chart": "Grafik Pace",
+      "energy_curve": "Kurva Energi",
+      "position_progression": "Posisi",
+      "fatigue_split": "Kelelahan",
+      "critical_moments": "Momen Kunci",
+      "best_split": "Split Terbaik",
+      "worst_split": "Split Terburuk"
     }
   },
   "share": {
@@ -817,5 +922,29 @@
   "result": {
     "highlights_collapsed": "Tampilkan {count} Sorotan",
     "highlights_expanded": "Sembunyikan Sorotan"
+  },
+  "race": {
+    "analytics": {
+      "deep_dive": "🔍 Analisis Mendalam",
+      "deep_dive_desc": "Grafik pace, analisis energi, skenario pengandaian & lainnya",
+      "collapse": "Tutup Analisis",
+      "title": "Analisis Mendalam",
+      "pace_chart": "Grafik Pace",
+      "energy_curve": "Kurva Energi",
+      "position_progression": "Posisi",
+      "fatigue_split": "Kelelahan",
+      "critical_moments": "Momen Penting"
+    },
+    "weather": {
+      "alert_title": "Cuaca Berubah!",
+      "transition_to": "Cuaca beralih ke {weather}!",
+      "energy_up": "Biaya energi ↑{pct}%",
+      "energy_down": "Biaya energi ↓{pct}%",
+      "morale_up": "Semangat ↑{pct}%",
+      "morale_down": "Semangat ↓{pct}%",
+      "conditions_improved": "Kondisi membaik!",
+      "energy_increased": "Biaya energi meningkat.",
+      "conditions_stable": "Kondisi stabil."
+    }
   }
 }

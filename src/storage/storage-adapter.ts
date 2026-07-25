@@ -51,33 +51,13 @@ export const storageAdapter = {
   },
 
   /**
-   * Remove all runquest keys from localStorage.
-   * Sprint 29 Task 11: Enhanced to clear all game-related keys
+   * Remove all keys from localStorage.
    */
   clear(): void {
-    const keysToRemove: StorageKey[] = [
-      "runquest.version",
-      "runquest.player",
-      "runquest.settings",
-      "runquest.history",
-      "runquest.daily",
-      "runquest.board",
-      "runquest.cache",
-      "runquest.timeline", // Sprint 29: Added missing timeline key
-    ];
-    for (const key of keysToRemove) {
-      this.remove(key);
-    }
-    
-    // Sprint 29: Clear additional non-prefixed keys used by various stores
     try {
-      globalThis.localStorage.removeItem("runnerProfile"); // Runner store
-      globalThis.localStorage.removeItem("trainingState"); // Training store (if exists)
-      globalThis.localStorage.removeItem("rivalData"); // Rival store (if exists)
-      globalThis.localStorage.removeItem("storyProgress"); // Story store (if exists)
-      globalThis.localStorage.removeItem("socialData"); // Social store (if exists)
+      globalThis.localStorage.clear();
     } catch (e) {
-      console.warn("[StorageAdapter] Failed to clear some additional keys", e);
+      console.warn("[StorageAdapter] Failed to clear localStorage", e);
     }
   },
 };

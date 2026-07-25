@@ -101,6 +101,23 @@ export interface StorySeed {
   mood: "optimistic" | "tense" | "survival" | "competitive";
 }
 
+/**
+ * Represents a single mid-race weather shift event pre-rolled at challenge generation.
+ */
+export interface WeatherTransition {
+  id: string;
+  km: number; // km at which the transition occurs
+  from: Weather;
+  to: Weather;
+  transitionDuration: number; // km over which it gradually changes (cosmetic)
+  effect: {
+    temperatureDelta: number; // °C change
+    energyCostMultiplier: number; // e.g. 1.2 = 20% more energy per km
+    moraleModifier: number; // +/- percentage applied to confidence
+  };
+  alertShown?: boolean; // whether the in-race alert has been shown to the player
+}
+
 export interface Scenario {
   id: string;
   date: string; // ISODate string
@@ -117,6 +134,8 @@ export interface Scenario {
   isChampionship?: boolean;
   totalEntrants?: number;
   prerequisites?: RacePrerequisites;
+  /** Pre-rolled weather transitions for mid-race dynamic weather (Task 5) */
+  weatherTransitions?: WeatherTransition[];
 }
 
 export type DailyChallenge = Scenario;

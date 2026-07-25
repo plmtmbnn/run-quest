@@ -163,6 +163,13 @@ export interface Dictionary {
       strategic_choices: string;
       timeout: string;
       timeout_instinct: string;
+      music_on?: string;
+      music_off?: string;
+      music?: {
+        phase_mid_race: string;
+        phase_final_kick: string;
+        phase_victory: string;
+      };
     };
     result: {
       title: string;
@@ -346,6 +353,9 @@ export interface Dictionary {
       desc: string;
       error: string;
     };
+    dob?: {
+      desc: string;
+    };
     sound: {
       title: string;
       desc: string;
@@ -471,5 +481,30 @@ export interface Dictionary {
     profile: string;
     social: string;
     economy: string;
+  };
+  race?: {
+    analytics: {
+      deep_dive: string;
+      deep_dive_desc: string;
+      collapse: string;
+      title: string;
+      pace_chart: string;
+      energy_curve: string;
+      position_progression: string;
+      fatigue_split: string;
+      critical_moments: string;
+    };
+    /** Sprint 34 – Task 5: Dynamic weather transition strings */
+    weather?: {
+      alert_title: string;
+      transition_to: string;
+      energy_up: string;
+      energy_down: string;
+      morale_up: string;
+      morale_down: string;
+      conditions_improved: string;
+      energy_increased: string;
+      conditions_stable: string;
+    };
   };
 }

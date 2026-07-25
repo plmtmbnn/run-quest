@@ -22,6 +22,23 @@ import type {
 import { RACE_SCHEDULES, RACE_SCHEDULES_GETTER } from "./race-schedule-database";
 
 /**
+ * Build the composite registration key for a specific race occurrence.
+ * Each unique (scheduleId × month × game-year) combination produces its own
+ * key, so registering for the same monthly race in different months never
+ * overwrites each other.
+ *
+ * Format: `{scheduleId}_m{gameMonth}_y{gameYear}`
+ */
+export function makeRegistrationKey(
+  scheduleId: string,
+  dayIndex: number,
+): string {
+  const gameMonth = Math.floor(dayIndex / DAYS_PER_MONTH) % 12; // 0–11
+  const gameYear = Math.floor(dayIndex / DAYS_PER_YEAR); // years since start
+  return `${scheduleId}_m${gameMonth}_y${gameYear}`;
+}
+
+/**
  * Get all races available to enter TODAY.
  * These are races the player can register for or race right now.
  */
@@ -131,8 +148,12 @@ function getRaceOccurrence(
     return null;
   }
 
-  // Check if this specific race occurrence on this dayIndex was completed
+  // Build the composite key for this specific occurrence
+  const registrationInstanceId = makeRegistrationKey(schedule.id, dayIndex);
+
+  // Check completion — try composite key first, then legacy plain-key format
   const completedDay =
+    schedulingState.completedRaces[registrationInstanceId] ??
     schedulingState.completedRaces[`${schedule.id}_${dayIndex}`] ??
     (schedulingState.completedRaces[schedule.id] === dayIndex
       ? dayIndex
@@ -144,7 +165,8 @@ function getRaceOccurrence(
   const registrationClosesAt =
     dayIndex - schedule.registration.closesDaysBefore;
 
-  // Count registered entrants (from scheduling state)
+  // Count registered entrants — look for any key that starts with scheduleId
+  // and whose stored dayIndex matches this occurrence day
   const registeredCount = Object.entries(schedulingState.registered).filter(
     ([id, regVal]) => {
       const regDay = typeof regVal === "object" ? regVal.dayIndex : regVal;
@@ -152,9 +174,13 @@ function getRaceOccurrence(
     },
   ).length;
 
-  const regVal = schedulingState.registered[schedule.id];
+  // Look up registration by composite key first, fall back to legacy plain key
+  const regVal =
+    schedulingState.registered[registrationInstanceId] ??
+    schedulingState.registered[schedule.id];
   const regDay = typeof regVal === "object" ? regVal.dayIndex : regVal;
-  const selectedCategoryId = typeof regVal === "object" ? regVal.categoryId : undefined;
+  const selectedCategoryId =
+    typeof regVal === "object" ? regVal.categoryId : undefined;
 
   const isRegistered = regDay === dayIndex;
   const isFull = schedule.maxEntrants
@@ -177,6 +203,7 @@ function getRaceOccurrence(
     tier: schedule.tier,
     description: schedule.description,
     dayIndex,
+    registrationInstanceId,
     registrationOpensAt,
     registrationClosesAt,
     entryFee: schedule.entry.fee,
@@ -266,6 +293,8 @@ function isRaceOnDay(schedule: RaceSchedule, dayIndex: number): boolean {
 
 /**
  * Register for a scheduled race.
+ * Uses a composite key (`{scheduleId}_m{month}_y{year}`) so that the same
+ * monthly schedule can be registered across multiple months simultaneously.
  */
 export function registerForRace(
   schedulingState: SchedulingState,
@@ -273,17 +302,19 @@ export function registerForRace(
   dayIndex: number,
   categoryId?: CategoryId,
 ): SchedulingState {
+  const key = makeRegistrationKey(scheduleId, dayIndex);
   return {
     ...schedulingState,
     registered: {
       ...schedulingState.registered,
-      [scheduleId]: categoryId ? { dayIndex, categoryId } : dayIndex,
+      [key]: categoryId ? { dayIndex, categoryId } : dayIndex,
     },
   };
 }
 
 /**
  * Mark a race as completed.
+ * Removes the composite key registration and records completion.
  */
 export function completeRace(
   schedulingState: SchedulingState,
@@ -291,17 +322,22 @@ export function completeRace(
   scheduleId: string,
   dayIndex: number,
 ): SchedulingState {
+  const instanceKey = makeRegistrationKey(scheduleId, dayIndex);
   return {
     ...schedulingState,
     completedRaces: {
       ...schedulingState.completedRaces,
-      [scheduleId]: dayIndex,
+      // Composite key (new format)
+      [instanceKey]: dayIndex,
+      // Legacy formats kept for backward compat with existing save data
       [`${scheduleId}_${dayIndex}`]: dayIndex,
       [raceId]: dayIndex,
     },
     registered: Object.fromEntries(
       Object.entries(schedulingState.registered).filter(
-        ([id]) => id !== scheduleId,
+        // Remove the specific occurrence key; other occurrences of the same
+        // schedule (different months) remain untouched
+        ([id]) => id !== instanceKey && id !== scheduleId,
       ),
     ),
     completedOneTimeEvents: scheduleId.includes("one_time")
@@ -436,6 +472,12 @@ export function getMonthlyCalendar(
 
 /**
  * Get all future or active races the player is currently registered for.
+ *
+ * - Shows races whose race day is >= today (upcoming + same-day).
+ * - Races whose day has already passed are considered expired/missed and are
+ *   NOT shown (they clear automatically when the clock advances past race day).
+ * - Completed races (finished today or earlier) are shown for the remainder of
+ *   race day only; on day+1 they are gone.
  */
 export function getRegisteredRaces(
   schedulingState: SchedulingState,
@@ -444,12 +486,19 @@ export function getRegisteredRaces(
   const registered: RaceOccurrence[] = [];
   const totalEntrants = 50;
 
-  // Gather all registered race occurrences
-  for (const [scheduleId, regVal] of Object.entries(schedulingState.registered)) {
-    const schedule = RACE_SCHEDULES.find((s) => s.id === scheduleId);
+  // Gather all registered race occurrences.
+  // Registration keys are now composite: `{scheduleId}_m{month}_y{year}`.
+  // Strip the suffix to find the underlying RaceSchedule definition.
+  for (const [compositeKey, regVal] of Object.entries(schedulingState.registered)) {
+    // Strip composite suffix (e.g. "_m0_y0") to get base schedule id
+    const baseScheduleId = compositeKey.replace(/_m\d+_y\d+$/, "");
+    const schedule = RACE_SCHEDULES.find((s) => s.id === baseScheduleId);
     if (!schedule) continue;
 
     const dayIdx = typeof regVal === "object" ? regVal.dayIndex : regVal;
+
+    // Skip races that are strictly in the past (day already over)
+    if (Number(dayIdx) < currentDayIndex) continue;
 
     const occurrence = getRaceOccurrence(
       schedule,
@@ -459,8 +508,10 @@ export function getRegisteredRaces(
     );
     if (!occurrence) continue;
 
-    // Determine completion status
+    // Determine completion status using the composite instance key
+    const instanceKey = occurrence.registrationInstanceId;
     const completedDay =
+      schedulingState.completedRaces[instanceKey] ??
       schedulingState.completedRaces[`${occurrence.scheduleId}_${occurrence.dayIndex}`] ??
       (schedulingState.completedRaces[occurrence.scheduleId] === occurrence.dayIndex
         ? occurrence.dayIndex
@@ -470,22 +521,12 @@ export function getRegisteredRaces(
     registered.push(occurrence);
   }
 
-  const now = currentDayIndex;
-  const ninetyDays = 90;
+  // Sort: today's races first, then upcoming by ascending day
+  registered.sort((a, b) => a.dayIndex - b.dayIndex);
 
-  const finished = registered.filter((r) => r.isCompleted);
-  const passedNotStarted = registered.filter(
-    (r) => !r.isCompleted && r.dayIndex < now && r.dayIndex >= now - ninetyDays,
-  );
-  const upcoming = registered.filter((r) => r.dayIndex >= now && !r.isCompleted);
-
-  // Sort groups
-  finished.sort((a, b) => b.dayIndex - a.dayIndex); // most recent first
-  passedNotStarted.sort((a, b) => b.dayIndex - a.dayIndex);
-  upcoming.sort((a, b) => a.dayIndex - b.dayIndex);
-
-  return [...finished, ...passedNotStarted, ...upcoming];
+  return registered;
 }
+
 
 // Re-export for convenience
 export { RACE_SCHEDULES };

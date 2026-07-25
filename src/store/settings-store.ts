@@ -95,7 +95,6 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   },
 
   resetAllData() {
-    // Sprint 29 Task 11: Enhanced reset - preserve user preferences
     const currentSettings = get().settings;
     
     // Preserve these user preferences across resets
@@ -107,7 +106,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
       preferredCurrency: currentSettings.preferredCurrency,
     };
     
-    // Clear all game data
+    // Clear all game data from storage completely
     storageRepository.clearAll();
     
     // Restore preserved preferences
@@ -117,7 +116,9 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     };
     storageRepository.saveSettings(restoredSettings);
     
-    // Reload the page to reinitialize all stores
-    globalThis.location.reload();
+    // Redirect to home root to reinitialize a brand new game from the start
+    if (typeof window !== "undefined") {
+      window.location.href = "/";
+    }
   },
 }));

@@ -81,6 +81,7 @@ describe("Sprint 32: Training Performance Overhaul Tests", () => {
         icon: "🏆",
         color: "blue",
         dayIndex: 5,
+        registrationInstanceId: "race_1_m0_y0",
         registrationOpensAt: 0,
         registrationClosesAt: 4,
         isCompleted: false,

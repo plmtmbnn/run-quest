@@ -7,7 +7,11 @@ import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { analyzeRace } from "@/coach/coach-analysis";
 import { BreakingPointOverlay } from "@/components/race/breaking-point";
 import { DesperationOverlay } from "@/components/race/desperation-mode";
+import { FinalKick, type KickTiming } from "@/components/race/final-kick";
+import { MicroAchievementPopup } from "@/components/race/micro-achievement-popup";
+import { PaceProjector } from "@/components/race/pace-projector";
 import { TrackPositionVisualizer } from "@/components/race/track-position-visualizer";
+import { checkRaceAchievements, type RaceAchievement } from "@/engine/achievements/race-achievements";
 import { advanceSimulation } from "@/engine/simulation/engine";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
@@ -18,6 +22,19 @@ import { useGameStore } from "@/store/game-store";
 import { usePlayerStore } from "@/store/player-store";
 import { usePreparationStore } from "@/store/preparation-store";
 import { useTimelineStore } from "@/store/timeline-store";
+import { BetResultsPopup } from "@/components/race/bet-results-popup";
+import { CrowdAtmosphere } from "@/components/race/crowd-atmosphere";
+import { GhostSplitComparison } from "@/components/race/ghost-split-comparison";
+import { PhotoFinish, isPhotoFinish } from "@/components/race/photo-finish";
+import { ResultCardGenerator } from "@/components/race/result-card-generator";
+import { RivalDialog, RivalLineup, RivalStatusUpdate } from "@/components/race/rival-dialog";
+import { SelfBetPanel, type BetTarget, type PlacedBet } from "@/components/race/self-bet-panel";
+import { WeatherAlert } from "@/components/race/weather-alert";
+import { selectRivalsForRace, generateRivalDialog, getRivalMilestoneText, updateRivalRelationship, type Rival } from "@/engine/rivals/rival-engine";
+import { useAdaptiveMusic, useCrowdNoise } from "@/hooks/use-adaptive-music";
+import type { RaceMusicStats } from "@/hooks/use-adaptive-music";
+import { formatCurrency } from "@/economy/currency-converter";
+import { recordTransaction } from "@/economy/earning-engine";
 import type {
   ActiveBreakingPoint,
   DecisionCard,
@@ -38,6 +55,7 @@ export function RaceScreen() {
   const completeChallenge = usePlayerStore((state) => state.completeChallenge);
   const { preparation } = usePreparationStore();
   const { runnerState, setRunnerState } = useRunnerStore();
+  const player = usePlayerStore((state) => state.player);
   const { playSound } = useSound();
   const [selectedPacing, setSelectedPacing] = useState<
     import("@/types/engine").PacingPlan
@@ -103,6 +121,73 @@ export function RaceScreen() {
   const isPaused = Boolean(
     activeDecision || activeBreakingPoint || activeDesperation,
   );
+
+  // ── Micro-Achievement system ─────────────────────────────────────────────
+  type AchievementQueueItem = RaceAchievement & { isFirstTime: boolean; instanceId: string };
+  const [achievementQueue, setAchievementQueue] = useState<AchievementQueueItem[]>([]);
+  /** IDs of achievements already earned this race (prevents re-triggering) */
+  const earnedAchievementsRef = useRef<Set<string>>(new Set());
+  /** Pace per km, used for negative split / fastest km detection */
+  const kmPacesRef = useRef<number[]>([]);
+  /** Previous player position, for comeback/overtake detection */
+  const prevPlayerPositionRef = useRef<number>(1);
+
+  // ── Final Kick mini-game ─────────────────────────────────────────────────
+  const [isFinalKick, setIsFinalKick] = useState(false);
+  const [kickTotalBoost, setKickTotalBoost] = useState(0);
+  const [kickPerfectCount, setKickPerfectCount] = useState(0);
+
+  // -- Bet on Yourself system
+  const [placedBets, setPlacedBets] = useState<PlacedBet[]>([]);
+  const [betResults, setBetResults] = useState<Array<PlacedBet & { payout: number; won: boolean }>>([]);
+  const [showBetResults, setShowBetResults] = useState(false);
+  const hadBreakingPointRef = useRef(false);
+
+  // -- Photo Finish & Result Card system
+  const [isPhotoFinishMode, setIsPhotoFinishMode] = useState(false);
+  const [showResultCard, setShowResultCard] = useState(false);
+  const playerName = player?.name || `Runner #${player?.id.slice(0, 5).toUpperCase() || "00000"}`;
+
+  // -- Dynamic Weather System (Sprint 34 – Task 5)
+  /** The currently active weather transition to show an alert for, or null */
+  const [activeWeatherTransition, setActiveWeatherTransition] = useState<import("@/types/engine").WeatherTransition | null>(null);
+  /** The live weather icon shown in the header (updated after each transition) */
+  const [currentWeatherDisplay, setCurrentWeatherDisplay] = useState(challenge.environment.weather);
+  /** Tracks which transition IDs have already fired, so they don't re-trigger */
+  const firedTransitionIdsRef = useRef<Set<string>>(new Set());
+
+  // -- Adaptive Music System
+  const musicStats: RaceMusicStats = {
+    currentKm,
+    totalDistance: challenge.race.distance,
+    energy: stats.energy,
+    focus: stats.focus,
+    confidence: stats.confidence,
+    momentum: stats.momentum,
+    riskLevel: stats.riskLevel,
+    pace: stats.pace,
+    pacingPlan: selectedPacing,
+    isPaused,
+  };
+  
+  const { currentPhase, isPlaying: isMusicPlaying, playSoundEffect } = useAdaptiveMusic(musicStats);
+  const { crowdIntensity } = useCrowdNoise(musicStats);
+
+  // -- Rivalry system
+  const [raceRivals, setRaceRivals] = useState<Rival[]>([]);
+  const [showRivalLineup, setShowRivalLineup] = useState(true);
+  const [activeRivalDialog, setActiveRivalDialog] = useState<{
+    rival: Rival;
+    text: string;
+    context: "pre_race" | "overtake_player" | "overtaken_by_player";
+  } | null>(null);
+  const [activeRivalStatus, setActiveRivalStatus] = useState<{
+    rival: Rival;
+    relationshipLevel: number;
+    playerBeatRival: boolean;
+    margin: number;
+  } | null>(null);
+  const overtakenRivalsRef = useRef<Set<string>>(new Set());
 
   const simStateRef = useRef<SimulationState | null>(null);
   const fullStateLogRef = useRef<
@@ -196,6 +281,18 @@ export function RaceScreen() {
       handleAdvance();
     }
   }, [handleAdvance]);
+  
+  // Select rivals for this race on mount
+  useEffect(() => {
+    if (raceRivals.length === 0 && runnerState.profile) {
+      const selected = selectRivalsForRace({
+        playerSkill: runnerState.profile.skillPoints || 50,
+        raceDistance: challenge.race.distance,
+        previousRivals: runnerState.profile.rivalRelationships || {},
+      });
+      setRaceRivals(selected);
+    }
+  }, [runnerState.profile, challenge.race.distance, raceRivals.length]);
 
   // Ticker animation that catches up to targetKm one by one
   useEffect(() => {
@@ -212,6 +309,7 @@ export function RaceScreen() {
         simState?.activeBreakingPoint &&
         !simState.activeBreakingPoint.resolved
       ) {
+        hadBreakingPointRef.current = true; // track for clean_race bet
         setActiveBreakingPoint(simState.activeBreakingPoint);
         return;
       } else if (
@@ -240,6 +338,60 @@ export function RaceScreen() {
         const energyCost = getEnergyCostForDistance(challenge?.race?.distance);
         useTimelineStore.getState().doAction("compete", energyCost);
 
+        // ── Update rival relationships after race ─────────────────────────────
+        // Check which rivals the player beat and update relationships
+        if (raceRivals.length > 0 && simResult.stateLog && simResult.stateLog.length > 0) {
+          const playerFinishTime = simResult.finishTime;
+          const playerOutcome = simResult.outcome;
+          const playerIsDNF = playerOutcome === "dnf" || playerOutcome === "dns";
+          
+          // Get final state to determine standings
+          const finalState = simResult.stateLog[simResult.stateLog.length - 1];
+          
+          // Update relationships for each rival
+          const updatedRelationships = { ...(runnerState.profile.rivalRelationships || {}) };
+          
+          for (const rival of raceRivals) {
+            // Find rival in opponents
+            const rivalOpponent = finalState.opponents?.find(o => o.id === rival.id);
+            if (rivalOpponent) {
+              const rivalFinishTime = rivalOpponent.accumulatedTime;
+              const rivalIsDNF = rivalOpponent.isDNF || false;
+              const margin = Math.abs(playerFinishTime - rivalFinishTime);
+              const playerBeatRival = !playerIsDNF && (rivalIsDNF || playerFinishTime < rivalFinishTime);
+              
+              // Update relationship
+              const existingRel = updatedRelationships[rival.id];
+              const updatedRel = updateRivalRelationship(
+                existingRel,
+                playerBeatRival,
+                margin,
+              );
+              updatedRelationships[rival.id] = updatedRel;
+              
+              // Show status update for this rival (only first one to avoid spam)
+              if (raceRivals.indexOf(rival) === 0) {
+                setActiveRivalStatus({
+                  rival,
+                  relationshipLevel: updatedRel.relationshipLevel,
+                  playerBeatRival,
+                  margin,
+                });
+              }
+            }
+          }
+          
+          // Update runner state with new relationships
+          const updatedRunnerState = {
+            ...runnerState,
+            profile: {
+              ...runnerState.profile,
+              rivalRelationships: updatedRelationships,
+            },
+          };
+          setRunnerState(updatedRunnerState);
+        }
+
         // Save result and auto-redirect to results screen
         setResult(simResult);
         analyzeRace(simResult, challenge, preparation);
@@ -249,9 +401,111 @@ export function RaceScreen() {
           simResult,
           language,
         );
-        setTimeout(() => {
-          router.push("/result");
-        }, 1500);
+
+        // -- Settle bets if any were placed
+        const currentBets = placedBets;
+        if (currentBets.length > 0) {
+          const lastStateLog = simResult.stateLog;
+          const lastState = lastStateLog[lastStateLog.length - 1];
+          const isTop3 = ["gold", "silver", "bronze"].includes(simResult.outcome);
+          const isWin = simResult.outcome === "gold";
+          const isDNF = simResult.outcome === "dnf" || simResult.outcome === "dns";
+
+          // Negative split: compare first half vs second half accumulated times
+          const halfIdx = Math.floor(lastStateLog.length / 2);
+          const firstHalfPaces = lastStateLog.slice(1, halfIdx + 1).map((s, i) => {
+            const prev = lastStateLog[i];
+            return s.accumulatedTime - prev.accumulatedTime;
+          });
+          const secondHalfPaces = lastStateLog.slice(halfIdx + 1).map((s, i) => {
+            const prev = lastStateLog[halfIdx + i];
+            return s.accumulatedTime - prev.accumulatedTime;
+          });
+          const avgFirst = firstHalfPaces.length > 0 ? firstHalfPaces.reduce((a, b) => a + b, 0) / firstHalfPaces.length : 999;
+          const avgSecond = secondHalfPaces.length > 0 ? secondHalfPaces.reduce((a, b) => a + b, 0) / secondHalfPaces.length : 999;
+          const isNegativeSplit = avgSecond < avgFirst;
+
+          // PB check
+          const pbForDistance = runnerState.profile.runHistory
+            ?.filter((r) => r.distance === challenge.race.distance)
+            .sort((a, b) => a.finishTime - b.finishTime)[0]?.finishTime;
+          const beatsPB = pbForDistance ? simResult.finishTime < pbForDistance : false;
+
+          const settled = currentBets.map((bet) => {
+            let won = false;
+            switch (bet.target.id) {
+              case "top_3": won = isTop3 && !isDNF; break;
+              case "win": won = isWin; break;
+              case "no_dnf": won = !isDNF; break;
+              case "negative_split": won = isNegativeSplit && !isDNF; break;
+              case "beat_pb": won = beatsPB; break;
+              case "clean_race": won = !hadBreakingPointRef.current && !isDNF; break;
+            }
+            const payout = won ? Math.round(bet.wager * bet.target.multiplier) : 0;
+            return { ...bet, won, payout, status: (won ? "won" : "lost") as PlacedBet["status"] };
+          });
+
+          setBetResults(settled);
+
+          // Apply economy transactions for wins
+          const gameState = useTimelineStore.getState().gameState;
+          if (gameState) {
+            let updatedEconomy = { ...gameState.economy };
+            const dayIndex = gameState.dayIndex;
+            for (const s of settled) {
+              if (s.won) {
+                const { economy } = recordTransaction(
+                  updatedEconomy,
+                  "earn",
+                  "race_prize",
+                  s.payout,
+                  dayIndex,
+                  `Bet won: ${s.target.label} (${s.target.multiplier}x)`,
+                );
+                updatedEconomy = economy;
+              }
+            }
+            useTimelineStore.getState().setGameState((prev) => ({
+              ...prev!,
+              economy: updatedEconomy,
+              resources: { ...prev!.resources, money: updatedEconomy.currentBalance },
+            }));
+          }
+
+          setShowBetResults(true);
+          // Check if this qualifies for photo finish
+          const photoFinishEligible = isPhotoFinish(simResult, playerName);
+          
+          if (photoFinishEligible) {
+            // Show photo finish animation first, then bet results, then redirect
+            setIsPhotoFinishMode(true);
+            // After photo finish completes, show bet results and redirect
+            setTimeout(() => {
+              setIsPhotoFinishMode(false);
+              setShowBetResults(true);
+              setTimeout(() => { router.push("/result"); }, 4000);
+            }, 4000);
+          } else {
+            // Delay redirect so bet popup is visible
+            setTimeout(() => { router.push("/result"); }, 4000);
+          }
+        } else {
+          // Check if this qualifies for photo finish (no bets case)
+          const photoFinishEligible = isPhotoFinish(simResult, playerName);
+          
+          if (photoFinishEligible) {
+            // Show photo finish animation first, then redirect
+            setIsPhotoFinishMode(true);
+            setTimeout(() => {
+              setIsPhotoFinishMode(false);
+              router.push("/result");
+            }, 4000);
+          } else {
+            setTimeout(() => {
+              router.push("/result");
+            }, 1500);
+          }
+        }
         return;
       }
       return;
@@ -262,6 +516,17 @@ export function RaceScreen() {
     const timer = setTimeout(() => {
       const nextKmValue = currentKm + 1;
       playSound("tick");
+      
+      // Play footsteps sound effect periodically
+      if (nextKmValue % 2 === 0) {
+        playSoundEffect("footsteps");
+      }
+      
+      // Play bell chime at 5km intervals
+      if (nextKmValue % 5 === 0 && nextKmValue > 0) {
+        playSoundEffect("bell_chime");
+      }
+      
       setCurrentKm(nextKmValue);
 
       // Extract events resolved at nextKmValue
@@ -284,21 +549,154 @@ export function RaceScreen() {
           ? snapshot.accumulatedTime - prevSnapshot.accumulatedTime
           : snapshot.accumulatedTime;
 
-        dispatchStats({
-          type: 'UPDATE',
-          payload: {
-            energy: Math.max(0, Math.round(snapshot.energy)),
-            hydration: Math.max(0, Math.round(snapshot.hydration)),
-            focus: Math.max(0, Math.round(snapshot.focus)),
-            confidence: Math.max(0, Math.round(snapshot.confidence)),
-            muscleFatigue: Math.round(snapshot.muscleFatigue ?? 0),
-            mentalFatigue: Math.round(snapshot.mentalFatigue ?? 0),
-            momentum: Math.round(snapshot.momentum ?? 50),
-            paceStability: Math.round(snapshot.paceStability ?? 80),
-            riskLevel: Math.round(snapshot.riskLevel ?? 20),
-            pace: elapsedSeconds,
+        // Track km paces for achievement detection
+        if (elapsedSeconds > 0) {
+          kmPacesRef.current = [...kmPacesRef.current, elapsedSeconds];
+        }
+
+          dispatchStats({
+            type: 'UPDATE',
+            payload: {
+              energy: Math.max(0, Math.round(snapshot.energy)),
+              hydration: Math.max(0, Math.round(snapshot.hydration)),
+              focus: Math.max(0, Math.round(snapshot.focus)),
+              confidence: Math.max(0, Math.round(snapshot.confidence)),
+              muscleFatigue: Math.round(snapshot.muscleFatigue ?? 0),
+              mentalFatigue: Math.round(snapshot.mentalFatigue ?? 0),
+              momentum: Math.round(snapshot.momentum ?? 50),
+              paceStability: Math.round(snapshot.paceStability ?? 80),
+              riskLevel: Math.round(snapshot.riskLevel ?? 20),
+              pace: elapsedSeconds,
+            }
+          });
+          
+          // Play heartbeat when energy is critically low
+          if (snapshot.energy < 20) {
+            playSoundEffect("heartbeat");
           }
-        });
+
+        // ── Achievement detection ──────────────────────────────────────────
+        // Compute current player position by sorting all runners together
+        type RunnerEntry = { id: string; distanceCovered: number; accumulatedTime: number };
+        const allRunners: RunnerEntry[] = [
+          { id: "player_local", distanceCovered: snapshot.distanceCovered, accumulatedTime: snapshot.accumulatedTime },
+          ...(snapshot.opponents ?? []).map((o) => ({ id: o.id, distanceCovered: o.distanceCovered, accumulatedTime: o.accumulatedTime })),
+        ];
+        allRunners.sort((a, b) => b.distanceCovered - a.distanceCovered || a.accumulatedTime - b.accumulatedTime);
+        const playerPos = Math.max(1, allRunners.findIndex((r) => r.id === "player_local") + 1);
+        const prevPos = prevPlayerPositionRef.current;
+        
+        // Play crowd cheer when player improves position (overtakes someone)
+        if (prevPos > playerPos && prevPos > 1) {
+          playSoundEffect("crowd_cheer");
+        }
+
+        // ── Rival overtake detection ────────────────────────────────────────
+        // Check if player overtook any rival or was overtaken by any rival
+        if (snapshot.opponents && prevSnapshot?.opponents) {
+          const currentOpponents = snapshot.opponents;
+          const prevOpponents = prevSnapshot.opponents;
+          
+          // Build position maps for current and previous km
+          const currentPositions = [...currentOpponents, { id: "player_local", distanceCovered: snapshot.distanceCovered, accumulatedTime: snapshot.accumulatedTime }]
+            .sort((a, b) => b.distanceCovered - a.distanceCovered || a.accumulatedTime - b.accumulatedTime);
+          
+          const prevPositions = [...prevOpponents, { id: "player_local", distanceCovered: prevSnapshot.distanceCovered, accumulatedTime: prevSnapshot.accumulatedTime }]
+            .sort((a, b) => b.distanceCovered - a.distanceCovered || a.accumulatedTime - b.accumulatedTime);
+          
+          // Find rivals that the player overtook (rival was ahead, now behind)
+          for (const rival of raceRivals) {
+            const rivalId = rival.id;
+            const currentRivalIndex = currentPositions.findIndex(r => r.id === rivalId);
+            const prevRivalIndex = prevPositions.findIndex(r => r.id === rivalId);
+            const currentPlayerIndex = currentPositions.findIndex(r => r.id === "player_local");
+            const prevPlayerIndex = prevPositions.findIndex(r => r.id === "player_local");
+            
+            // Player overtook this rival
+            if (prevRivalIndex !== -1 && currentRivalIndex !== -1 && 
+                prevPlayerIndex !== -1 && currentPlayerIndex !== -1) {
+              if (prevRivalIndex < prevPlayerIndex && currentRivalIndex > currentPlayerIndex) {
+                // Player overtook rival - trigger dialog
+                if (!overtakenRivalsRef.current.has(rivalId)) {
+                  const dialog = generateRivalDialog(rival, "overtake_player", {
+                    km: nextKmValue,
+                    relationshipLevel: runnerState.profile.rivalRelationships?.[rivalId]?.relationshipLevel ?? 0,
+                  });
+                  setActiveRivalDialog({
+                    rival,
+                    text: dialog.text,
+                    context: "overtake_player",
+                  });
+                  overtakenRivalsRef.current.add(rivalId);
+                }
+              }
+              // Rival overtook player
+              else if (prevRivalIndex > prevPlayerIndex && currentRivalIndex < currentPlayerIndex) {
+                // Rival overtook player - trigger dialog
+                if (!overtakenRivalsRef.current.has(rivalId)) {
+                  const dialog = generateRivalDialog(rival, "overtaken_by_player", {
+                    km: nextKmValue,
+                    relationshipLevel: runnerState.profile.rivalRelationships?.[rivalId]?.relationshipLevel ?? 0,
+                  });
+                  setActiveRivalDialog({
+                    rival,
+                    text: dialog.text,
+                    context: "overtaken_by_player",
+                  });
+                  overtakenRivalsRef.current.add(rivalId);
+                }
+              }
+            }
+          }
+        }
+
+        const earnedSet = earnedAchievementsRef.current;
+        const newAchievements = checkRaceAchievements(
+          snapshot,
+          prevSnapshot ?? null,
+          {
+            km: nextKmValue,
+            totalDistance: challenge.race.distance,
+            playerPosition: playerPos,
+            prevPlayerPosition: prevPos,
+            totalRunners: (snapshot.opponents?.length ?? 0) + 1,
+            isFirstTime: true, // refined inside checkRaceAchievements
+            events: matchedEvents,
+            kmPaces: kmPacesRef.current,
+          },
+          earnedSet,
+        );
+
+        if (newAchievements.length > 0) {
+          const queueItems: AchievementQueueItem[] = newAchievements.map((a) => ({
+            ...a,
+            isFirstTime: !earnedSet.has(a.id),
+            instanceId: `${a.id}-${nextKmValue}-${Date.now()}`,
+          }));
+          newAchievements.forEach((a) => earnedSet.add(a.id));
+          setAchievementQueue((prev) => [...prev, ...queueItems]);
+          playSound("success");
+        }
+
+        prevPlayerPositionRef.current = playerPos;
+
+        // ── Weather Transition detection (Sprint 34 – Task 5) ────────────────
+        // Check if any pre-rolled transition fires at this km
+        if (challenge.weatherTransitions && challenge.weatherTransitions.length > 0) {
+          for (const wt of challenge.weatherTransitions) {
+            if (wt.km === nextKmValue && !firedTransitionIdsRef.current.has(wt.id)) {
+              firedTransitionIdsRef.current.add(wt.id);
+              setActiveWeatherTransition(wt);
+              setCurrentWeatherDisplay(wt.to);
+            }
+          }
+        }
+
+        // ── Final kick detection ───────────────────────────────────────────
+        const tickerMetersRemaining = (challenge.race.distance - snapshot.distanceCovered) * 1000;
+        if (tickerMetersRemaining <= 500 && !isFinalKick) {
+          setIsFinalKick(true);
+        }
       }
     }, intervalMs);
 
@@ -481,6 +879,86 @@ export function RaceScreen() {
     ]);
   };
 
+  // Handle final kick timing result
+  const handleKick = useCallback(
+    (timing: KickTiming) => {
+      const boostMap: Record<KickTiming, number> = { perfect: 0.5, good: 0.2, miss: 0 };
+      const boost = boostMap[timing];
+      if (boost > 0) {
+        setKickTotalBoost((prev) => prev + boost);
+        playSound("success");
+      }
+      if (timing === "perfect") {
+        setKickPerfectCount((prev) => prev + 1);
+      }
+    },
+    [playSound],
+  );
+
+  // Bet callbacks
+  const handlePlaceBet = useCallback(
+    (target: BetTarget, wager: number) => {
+      const newBet: PlacedBet = {
+        id: `bet-${Date.now()}`,
+        target,
+        wager,
+        status: "pending",
+      };
+      // Deduct wager from economy immediately
+      const gameState = useTimelineStore.getState().gameState;
+      if (gameState) {
+        const { economy } = recordTransaction(
+          gameState.economy,
+          "spend",
+          "race_entry",
+          wager,
+          gameState.dayIndex,
+          `Bet placed: ${target.label}`,
+        );
+        useTimelineStore.getState().setGameState((prev) => ({
+          ...prev!,
+          economy,
+          resources: { ...prev!.resources, money: economy.currentBalance },
+        }));
+      }
+      setPlacedBets((prev) => [...prev, newBet]);
+      playSound("success");
+    },
+    [playSound],
+  );
+
+  const handleCancelBet = useCallback(
+    (betId: string) => {
+      const bet = placedBets.find((b) => b.id === betId);
+      if (!bet) return;
+      // Refund wager
+      const gameState = useTimelineStore.getState().gameState;
+      if (gameState) {
+        const { economy } = recordTransaction(
+          gameState.economy,
+          "earn",
+          "race_prize",
+          bet.wager,
+          gameState.dayIndex,
+          `Bet cancelled: ${bet.target.label} (refund)`,
+        );
+        useTimelineStore.getState().setGameState((prev) => ({
+          ...prev!,
+          economy,
+          resources: { ...prev!.resources, money: economy.currentBalance },
+        }));
+      }
+      setPlacedBets((prev) => prev.filter((b) => b.id !== betId));
+      playSound("click");
+    },
+    [placedBets, playSound],
+  );
+  // Compute live meters remaining for the final kick component
+  const metersRemaining = Math.max(
+    0,
+    (challenge.race.distance - currentKm) * 1000,
+  );
+
   const progressPercentage = Math.min(
     100,
     (currentKm / challenge.race.distance) * 100,
@@ -591,8 +1069,9 @@ export function RaceScreen() {
             </h1>
             <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mt-1 text-[10px] md:text-xs text-slate-500 dark:text-gray-400">
               <span className="capitalize">
+                {/* Use live weather display which updates after transitions */}
                 {t(
-                  `challenge.weather.${challenge.environment.weather}` as TranslationKey,
+                  `challenge.weather.${currentWeatherDisplay}` as TranslationKey,
                 )}
               </span>
               <span>•</span>
@@ -630,6 +1109,44 @@ export function RaceScreen() {
               <span className="hidden sm:inline">{t("challenge.race.simulating" as TranslationKey)}</span>
               <span className="sm:hidden">Live</span>
             </div>
+            
+            {/* Music Phase Indicator */}
+            {currentPhase !== "none" && (
+              <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-semibold">
+                <span className="text-lg">🎶</span>
+                <span className="text-slate-600 dark:text-slate-300">
+                  {t(`challenge.race.music.phase_${currentPhase}` as TranslationKey) || currentPhase}
+                </span>
+              </div>
+            )}
+            
+            {/* Music Control Button */}
+            <button
+              type="button"
+              onClick={() => {
+                // Toggle music - the hook handles the actual toggle
+                // We'll use playSoundEffect to trigger a sound when music is toggled
+                if (isMusicPlaying) {
+                  playSoundEffect("crowd_cheer");
+                } else {
+                  playSoundEffect("bell_chime");
+                }
+              }}
+              className="flex items-center gap-1.5 px-2.5 md:px-3 py-1 md:py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[10px] md:text-xs font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            >
+              <span className="text-lg">🎵</span>
+              <span className="hidden md:inline">
+                {isMusicPlaying ? (t("challenge.race.music_on" as TranslationKey) || "On") : (t("challenge.race.music_off" as TranslationKey) || "Off")}
+              </span>
+            </button>
+            
+            {/* Crowd Intensity Meter */}
+            {crowdIntensity > 0 && (
+              <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 md:py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-semibold">
+                <span>👥</span>
+                <span className="text-slate-600 dark:text-slate-300">{Math.round(crowdIntensity)}%</span>
+              </div>
+            )}
           </div>
         </div>
       </header>
@@ -696,7 +1213,21 @@ export function RaceScreen() {
           </div>
 
           {/* Visual Race Track Progress */}
-          <div className="w-full flex flex-col gap-2 mt-4 md:mt-6 border-t border-slate-100 dark:border-gray-800 pt-4 md:pt-6">
+          <div className="w-full flex flex-col gap-2 mt-4 md:mt-6 border-t border-slate-100 dark:border-gray-800 pt-4 md:pt-6 relative">
+            {/* Crowd Atmosphere Overlay */}
+            <div className="absolute inset-0 pointer-events-none z-10">
+              <CrowdAtmosphere
+                currentKm={currentKm}
+                totalDistance={challenge.race.distance}
+                playerPosition={runners.findIndex(r => r.isPlayer) + 1}
+                totalRunners={runners.length}
+                energy={stats.energy}
+                momentum={stats.momentum}
+                isPaused={isPaused}
+                isBreakingPoint={!!activeBreakingPoint}
+              />
+            </div>
+            
             <TrackPositionVisualizer
               runners={runners}
               currentKm={currentKm}
@@ -709,7 +1240,54 @@ export function RaceScreen() {
               isPaused={isPaused}
             />
           </div>
+
+          {/* Ghost Split Comparison - shows when ghost is active */}
+          {activeGhost && currentKm > 0 && (
+            <GhostSplitComparison
+              challenge={challenge}
+              stateLog={fullStateLogRef.current}
+              currentKm={currentKm}
+              currentPace={stats.pace}
+              lang={lang}
+              activeGhost={activeGhost}
+              playerName={playerName}
+              isPaused={isPaused}
+            />
+          )}
         </div>
+
+        {/* Pace Projector — Live finish prediction */}
+        {currentKm > 0 && !isFinished && (
+          <PaceProjector
+            currentPace={stats.pace}
+            distanceCovered={currentKm}
+            totalDistance={challenge.race.distance}
+            accumulatedTime={currentSnapshot?.accumulatedTime ?? 0}
+            personalBest={runnerState.profile.runHistory?.length
+              ? (() => {
+                  const pbs = runnerState.profile.runHistory
+                    ?.filter(r => r.distance === challenge.race.distance)
+                    .sort((a, b) => a.finishTime - b.finishTime);
+                  return pbs.length > 0 ? pbs[0].finishTime : undefined;
+                })()
+              : undefined}
+            isPaused={isPaused}
+            simSpeed={simSpeed}
+          />
+        )}
+
+        {/* Final Kick mini-game — activates in last 500m */}
+        <AnimatePresence>
+          {isFinalKick && !isFinished && (
+            <FinalKick
+              metersRemaining={metersRemaining}
+              onKick={handleKick}
+              totalBoost={kickTotalBoost}
+              perfectCount={kickPerfectCount}
+              isPaused={isPaused}
+            />
+          )}
+        </AnimatePresence>
 
         {/* Live Simulation HUD Dashboard */}
         <div className="flex flex-col gap-4 md:gap-6 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[2rem] p-4 md:p-6 shadow-sm">
@@ -717,6 +1295,18 @@ export function RaceScreen() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 border-b border-slate-100 dark:border-gray-800 pb-4 md:pb-6">
             {/* Left Column: Real-Time Tactics (Pacing Buttons) */}
             <div className="flex flex-col gap-3">
+              {/* Bet on Yourself Panel */}
+              <div className="mb-2">
+                <SelfBetPanel
+                  currentBalance={useTimelineStore((s) => s.gameState?.economy.currentBalance ?? 0)}
+                  placedBets={placedBets}
+                  onPlaceBet={handlePlaceBet}
+                  onCancelBet={handleCancelBet}
+                  currentKm={currentKm}
+                  hasBreakingPoint={hadBreakingPointRef.current}
+                />
+              </div>
+
               <h4 className="text-xs md:text-sm uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-500 flex items-center gap-1.5">
                 <span>⚡</span> Real-Time Tactics
               </h4>
@@ -1241,10 +1831,116 @@ export function RaceScreen() {
         </div>
       )}
 
+      {/* Photo Finish Overlay */}
+      {isPhotoFinishMode && simResult && (
+        <PhotoFinish
+          result={simResult}
+          challenge={challenge}
+          playerName={playerName}
+          lang={lang}
+          onComplete={() => setIsPhotoFinishMode(false)}
+        />
+      )}
+
+      {/* Result Card Generator Overlay */}
+      {showResultCard && simResult && (
+        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-6 z-50">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="w-full max-w-md"
+          >
+            <ResultCardGenerator
+              challenge={challenge}
+              result={simResult}
+              playerName={playerName}
+              lang={lang}
+              betResults={betResults}
+              earnedAchievements={[]}
+              onDownloadComplete={() => setShowResultCard(false)}
+              onCopyComplete={() => setShowResultCard(false)}
+            />
+          </motion.div>
+        </div>
+      )}
+
       {/* Footer */}
       <footer className="p-6 border-t border-slate-200 dark:border-gray-900 bg-white dark:bg-gray-900/30 text-center text-xs text-slate-400 dark:text-gray-500">
         {t("challenge.race.engine_version" as TranslationKey)}
       </footer>
+
+      {/* Rival Lineup Overlay — pre-race introduction */}
+      <AnimatePresence>
+        {showRivalLineup && raceRivals.length > 0 && (
+          <div className="fixed top-4 right-4 md:top-6 md:right-6 z-50">
+            <RivalLineup
+              rivals={raceRivals}
+              onIntroComplete={() => setShowRivalLineup(false)}
+            />
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Rival Dialog Overlay — during race */}
+      <AnimatePresence>
+        {activeRivalDialog && (
+          <div className="fixed top-16 right-4 md:top-20 md:right-6 z-50">
+            <RivalDialog
+              rival={activeRivalDialog.rival}
+              text={activeRivalDialog.text}
+              context={activeRivalDialog.context}
+              onDismiss={() => setActiveRivalDialog(null)}
+            />
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Rival Status Update Overlay — post-race */}
+      <AnimatePresence>
+        {activeRivalStatus && (
+          <div className="fixed top-4 right-4 md:top-6 md:right-6 z-50">
+            <RivalStatusUpdate
+              rival={activeRivalStatus.rival}
+              relationshipLevel={activeRivalStatus.relationshipLevel}
+              playerBeatRival={activeRivalStatus.playerBeatRival}
+              margin={activeRivalStatus.margin}
+              onDismiss={() => setActiveRivalStatus(null)}
+            />
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Micro-Achievement Popup Overlay — fixed top-right, stacked queue */}
+      <MicroAchievementPopup
+        queue={achievementQueue}
+        onDismiss={(instanceId) =>
+          setAchievementQueue((prev) => prev.filter((a) => a.instanceId !== instanceId))
+        }
+      />
+
+      {/* Weather Alert Overlay — slides in from top on mid-race weather change */}
+      <WeatherAlert
+        transition={activeWeatherTransition}
+        onDismiss={() => setActiveWeatherTransition(null)}
+      />
+
+      {/* Bet Results Overlay */}
+      <AnimatePresence>
+        {showBetResults && (
+          <BetResultsPopup
+            results={betResults}
+            onClose={() => {
+              setShowBetResults(false);
+              router.push("/result");
+            }}
+            onRunItBack={() => {
+              setShowBetResults(false);
+              router.push("/result"); // Eventually could redirect to prep screen instead
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

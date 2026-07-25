@@ -1,4 +1,5 @@
 import { generateRaceAnalysis } from "@/engine/intelligence/intelligence-engine";
+import { generateWeatherTransitions } from "@/engine/weather/weather-transitions";
 import type {
   Checkpoint,
   DailyChallenge,
@@ -330,9 +331,13 @@ function generateScenarioForEntry(
 
   const analysis = generateRaceAnalysis(scenarioBase, seed);
 
+  // Pre-roll weather transitions for this race (Sprint 34 – Task 5)
+  const weatherTransitions = generateWeatherTransitions(weather, distance, seed);
+
   return {
     ...scenarioBase,
     analysis,
+    weatherTransitions,
   };
 }
 
