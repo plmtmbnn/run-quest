@@ -56,7 +56,7 @@ function meetsRequirements(sponsor: Sponsor, gameState: GameState): boolean {
 
   // Rating check
   if (req.minRating) {
-    const rating = (flags.rating as number) ?? 0;
+    const rating = (flags.rating as number) ?? 1500;
     if (rating < req.minRating) return false;
   }
 

@@ -16,7 +16,10 @@
       "runs": "Races",
       "streak": "Run Streak",
       "distance": "Distance",
-      "money": "Balance"
+      "money": "Balance",
+      "wins": "Wins",
+      "rating": "Rating",
+      "reputation": "Rep"
     },
     "entry_tickets": "Race Entries:",
     "remaining": "Remaining",

@@ -304,6 +304,35 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
         );
       }
 
+      // 5. Compute progression flag updates (career_wins, rating, reputation)
+      const isWin = position === 1 && result.outcome !== "dnf" && result.outcome !== "dns";
+      const isFinished = result.outcome !== "dnf" && result.outcome !== "dns";
+      const currentChallengeTier = currentChallenge?.tier ?? "local";
+
+      // Rating growth per tier (base values for each finishing position range)
+      const tierRatingGain: Record<string, { win: number; podium: number; top5: number; finish: number; dnf: number }> = {
+        local:         { win: 30,  podium: 15,  top5: 8,  finish: 3,  dnf: -3 },
+        regional:      { win: 50,  podium: 25,  top5: 12, finish: 5,  dnf: -5 },
+        state:         { win: 70,  podium: 35,  top5: 18, finish: 7,  dnf: -7 },
+        national:      { win: 100, podium: 50,  top5: 25, finish: 10, dnf: -10 },
+        international: { win: 150, podium: 75,  top5: 40, finish: 15, dnf: -15 },
+      };
+      const gains = tierRatingGain[currentChallengeTier] ?? tierRatingGain.local;
+      let ratingDelta: number;
+      if (!isFinished) ratingDelta = gains.dnf;
+      else if (position === 1) ratingDelta = gains.win;
+      else if (position <= 3) ratingDelta = gains.podium;
+      else if (position <= 5) ratingDelta = gains.top5;
+      else ratingDelta = gains.finish;
+
+      // Reputation growth
+      let repDelta = 0;
+      if (isFinished) {
+        if (position === 1) repDelta = Math.floor(gains.win / 3);
+        else if (position <= 3) repDelta = Math.floor(gains.podium / 3);
+        else repDelta = 1;
+      }
+
       // 5. Update timeline store game state
       useTimelineStore.getState().setGameState((prev) => ({
         ...prev!,
@@ -313,6 +342,15 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
         resources: {
           ...prev!.resources,
           money: updatedEconomy.currentBalance,
+        },
+        flags: {
+          ...prev!.flags,
+          // Increment career_wins so sponsorship unlock checks work
+          career_wins: ((prev!.flags.career_wins as number) ?? 0) + (isWin ? 1 : 0),
+          // Organic rating growth from every race (positive for finishes, slight penalty for DNF)
+          rating: Math.max(0, ((prev!.flags.rating as number) ?? 1500) + ratingDelta),
+          // Reputation grows with podiums and wins
+          reputation: Math.max(0, ((prev!.flags.reputation as number) ?? 0) + repDelta),
         },
       }));
 

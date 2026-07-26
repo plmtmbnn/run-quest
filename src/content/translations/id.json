@@ -16,7 +16,10 @@
       "runs": "Total Race",
       "streak": "Streak",
       "distance": "Jarak Tempuh",
-      "money": "Saldo"
+      "money": "Saldo",
+      "wins": "Menang",
+      "rating": "Rating",
+      "reputation": "Rep"
     },
     "entry_tickets": "Tiket Masuk Harian:",
     "remaining": "Tersisa",

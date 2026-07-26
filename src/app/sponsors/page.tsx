@@ -108,6 +108,7 @@ export default function SponsorsPage() {
           onRejectOffer={handleRejectSponsor}
           onClaimStipend={handleClaimStipend}
           dayIndex={gameState.dayIndex}
+          playerFlags={gameState.flags}
         />
       </main>
     </motion.div>

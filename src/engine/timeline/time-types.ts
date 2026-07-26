@@ -156,6 +156,9 @@ export const DEFAULT_GAME_STATE: GameState = {
   flags: {
     activeJobId: "full_time", // Sprint 30: Default job as Employee (full-time)
     lastJobChangeDay: -7, // Allow immediate job change on first day
+    rating: 1500, // Starting ELO-style rating (sponsor requirements are 1600+)
+    reputation: 0, // Grows with race results and season rewards
+    career_wins: 0, // Total race victories (used for sponsor unlock checks)
   },
   // NEW SPRINT 26 INITIALIZATIONS
   economy: DEFAULT_ECONOMY_STATE,

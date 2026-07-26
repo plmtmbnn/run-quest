@@ -24,6 +24,9 @@ export interface Dictionary {
       streak: string;
       distance: string;
       money: string;
+      wins: string;
+      rating: string;
+      reputation: string;
     };
     entry_tickets: string;
     remaining: string;

@@ -48,11 +48,20 @@ export function GameStats() {
         <div className="flex justify-center items-center bg-slate-50 dark:bg-slate-800/50 rounded-xl md:rounded-2xl p-2 md:p-3 text-center border border-slate-100 dark:border-slate-700/50 h-10">
           <div className="h-4 w-32 bg-slate-200 dark:bg-slate-700 rounded"></div>
         </div>
-        {/* Stats Skeletons */}
+        {/* Stats Skeletons — Activity Row */}
         <div className="grid grid-cols-3 gap-2 md:gap-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/50 rounded-xl md:rounded-2xl p-2 md:p-3 text-center border border-slate-100 dark:border-slate-700/50 h-16">
               <div className="h-3 w-12 bg-slate-200 dark:bg-slate-700 rounded mb-2"></div>
+              <div className="h-4 w-8 bg-slate-200 dark:bg-slate-700 rounded"></div>
+            </div>
+          ))}
+        </div>
+        {/* Stats Skeletons — Progression Row */}
+        <div className="grid grid-cols-3 gap-2 md:gap-3">
+          {[4, 5, 6].map((i) => (
+            <div key={i} className="flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/50 rounded-xl md:rounded-2xl p-2 md:p-3 text-center border border-slate-100 dark:border-slate-700/50 h-16">
+              <div className="h-3 w-10 bg-slate-200 dark:bg-slate-700 rounded mb-2"></div>
               <div className="h-4 w-8 bg-slate-200 dark:bg-slate-700 rounded"></div>
             </div>
           ))}
@@ -83,6 +92,22 @@ export function GameStats() {
     [player?.statistics?.totalDistance]
   );
 
+  // Progression stats (used for sponsor/job unlock checks)
+  const careerWins = useMemo(() =>
+    formatCompact((gameState?.flags?.career_wins as number) ?? 0),
+    [gameState?.flags?.career_wins]
+  );
+
+  const rating = useMemo(() =>
+    formatCompact((gameState?.flags?.rating as number) ?? 1500),
+    [gameState?.flags?.rating]
+  );
+
+  const reputation = useMemo(() =>
+    formatCompact((gameState?.flags?.reputation as number) ?? 0),
+    [gameState?.flags?.reputation]
+  );
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
@@ -111,7 +136,7 @@ export function GameStats() {
         </div>
       )}
       
-      {/* Player Stats (Money, Runs, Distance) */}
+      {/* Player Stats — Activity Row */}
       <div className="grid grid-cols-3 gap-2 md:gap-3">
         <StatCard
           label={t("home.stats.money" as TranslationKey)}
@@ -128,6 +153,28 @@ export function GameStats() {
           label={t("home.stats.distance" as TranslationKey)}
           value={distance}
           aria-label={`${t("home.stats.distance" as TranslationKey)}: ${distance}`}
+        />
+      </div>
+
+      {/* Progression Stats — Sponsor/Unlock Row */}
+      <div className="grid grid-cols-3 gap-2 md:gap-3">
+        <StatCard
+          label={t("home.stats.wins" as TranslationKey)}
+          value={careerWins}
+          icon="🏆"
+          aria-label={`Wins: ${careerWins}`}
+        />
+        <StatCard
+          label={t("home.stats.rating" as TranslationKey)}
+          value={rating}
+          icon="⭐"
+          aria-label={`Rating: ${rating}`}
+        />
+        <StatCard
+          label={t("home.stats.reputation" as TranslationKey)}
+          value={reputation}
+          icon="🌟"
+          aria-label={`Reputation: ${reputation}`}
         />
       </div>
     </motion.div>

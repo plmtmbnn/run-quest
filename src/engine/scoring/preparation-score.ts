@@ -55,28 +55,45 @@ export function calculatePreparationScore(
       break;
   }
 
-  // 2. Nutrition (Sprint 13.1 Multi-select scoring)
+  // 2. Nutrition (Sprint 13.1 Multi-select scoring & Quantity multiplier)
   if (prep.nutrition.length === 0) {
     modifiers.hydrationModifier += 2.0; // Fast dehydration
     modifiers.fatigueModifier += 2.0;
   } else {
     for (const item of prep.nutrition) {
+      const qty = prep.nutritionQuantities?.[item] ?? 1;
       switch (item) {
         case "water":
-          modifiers.hydrationModifier -= 2.0; // Water: + Hydration Stability
+          modifiers.hydrationModifier -= 2.0 * qty; // Water: + Hydration Stability
           break;
         case "electrolyte":
-          modifiers.hydrationModifier -= 3.5; // Electrolytes: + Reduced Cramp Risk
-          modifiers.fatigueModifier -= 0.5;
+          modifiers.hydrationModifier -= 3.5 * qty; // Electrolytes: + Reduced Cramp Risk
+          modifiers.fatigueModifier -= 0.5 * qty;
           break;
         case "energy_gel":
-          modifiers.basePaceModifier -= 5; // Energy Gel: + Mid-Race Energy Boost
-          modifiers.fatigueModifier -= 0.8;
+          modifiers.basePaceModifier -= 5 * qty; // Energy Gel: + Mid-Race Energy Boost
+          modifiers.fatigueModifier -= 0.8 * qty;
           break;
         case "caffeine":
-          modifiers.focusModifier += 2.0; // Caffeine: + Early Focus
-          modifiers.basePaceModifier -= 8; // Caffeine: + Aggressive Pace Potential
-          modifiers.fatigueModifier += 0.5; // Caffeine: higher strain/fatigue
+          modifiers.focusModifier += 2.0 * qty; // Caffeine: + Early Focus
+          modifiers.basePaceModifier -= 8 * qty; // Caffeine: + Aggressive Pace Potential
+          modifiers.fatigueModifier += 0.5 * qty; // Caffeine: higher strain/fatigue
+          break;
+        case "energy_bar":
+          modifiers.basePaceModifier -= 4 * qty;
+          modifiers.fatigueModifier -= 1.0 * qty;
+          break;
+        case "hydration_mix":
+          modifiers.hydrationModifier -= 2.5 * qty;
+          modifiers.basePaceModifier -= 3 * qty;
+          break;
+        case "salt_tablets":
+          modifiers.hydrationModifier -= 3.0 * qty;
+          modifiers.fatigueModifier -= 0.3 * qty;
+          break;
+        case "caffeine_gum":
+          modifiers.focusModifier += 2.5 * qty;
+          modifiers.basePaceModifier -= 4 * qty;
           break;
       }
     }

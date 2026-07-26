@@ -223,7 +223,11 @@ export function PreparationScreen() {
 🏁 ${challenge.race.title[lang]}
 
 👟 ${t(`preparation.shoes.${preparation.shoes}.name` as TranslationKey)}
-🥤 Nutrition: ${preparation.nutrition.length > 0 ? preparation.nutrition.map((n) => t(`preparation.nutrition.${n}.name` as TranslationKey)).join(", ") : "None"}
+🥤 Nutrition: ${preparation.nutrition.length > 0 ? preparation.nutrition.map((n) => {
+  const qty = preparation.nutritionQuantities?.[n] ?? 1;
+  const name = t(`preparation.nutrition.${n}.name` as TranslationKey);
+  return qty > 1 ? `${name} (x${qty})` : name;
+}).join(", ") : "None"}
 🔥 ${t(`preparation.warmup.${preparation.warmup}.name` as TranslationKey)}
 📊 ${t(`preparation.pacing.${preparation.pacing}.name` as TranslationKey)}
 🧠 ${t(`preparation.mindset.${preparation.mindset}.name` as TranslationKey)}
@@ -461,7 +465,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                         ? {
                             count: currentQty,
                             maxCount: Math.min(4, Math.max(1, ownedQty)),
-                            onIncrease: () => _setNutritionQuantity(nut.id, currentQty + 1),
+                            onIncrease: () => _setNutritionQuantity(nut.id, Math.min(ownedQty, currentQty + 1)),
                             onDecrease: () => _setNutritionQuantity(nut.id, currentQty - 1),
                           }
                         : undefined

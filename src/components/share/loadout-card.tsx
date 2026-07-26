@@ -52,9 +52,11 @@ export function LoadoutCard({
             <span className="font-semibold text-slate-100">
               {preparation.nutrition.length > 0
                 ? preparation.nutrition
-                    .map((item) =>
-                      t(`preparation.nutrition.${item}.name` as TranslationKey),
-                    )
+                    .map((item) => {
+                      const name = t(`preparation.nutrition.${item}.name` as TranslationKey);
+                      const qty = preparation.nutritionQuantities?.[item] ?? 1;
+                      return qty > 1 ? `${name} (x${qty})` : name;
+                    })
                     .join(", ")
                 : "None"}
             </span>

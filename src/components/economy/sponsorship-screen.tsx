@@ -31,6 +31,7 @@ interface SponsorshipScreenProps {
   onRejectOffer?: (sponsorId: string) => void;
   onClaimStipend: () => void;
   dayIndex?: number;
+  playerFlags?: Record<string, string | number | boolean>;
 }
 
 export function SponsorshipScreen({
@@ -41,6 +42,7 @@ export function SponsorshipScreen({
   onRejectOffer,
   onClaimStipend,
   dayIndex = 0,
+  playerFlags = {},
 }: SponsorshipScreenProps) {
   const { t } = useTranslation();
 
@@ -217,6 +219,7 @@ export function SponsorshipScreen({
                         status={status}
                         cooldownDays={cooldownDays}
                         isNextUpgrade={isNextUpgrade}
+                        playerFlags={playerFlags}
                         onSign={
                           status === "available" || status === "pending"
                             ? () => onSignSponsor(sponsor.id)
@@ -250,6 +253,7 @@ function SponsorCard({
   lifetimeEarnings,
   isNextUpgrade,
   cooldownDays,
+  playerFlags = {},
 }: {
   sponsor: Sponsor;
   status: "active" | "available" | "pending" | "cooldown" | "locked";
@@ -260,6 +264,7 @@ function SponsorCard({
   lifetimeEarnings?: number;
   isNextUpgrade?: boolean;
   cooldownDays?: number;
+  playerFlags?: Record<string, string | number | boolean>;
 }) {
   const { t } = useTranslation();
   const preferredCurrency =
@@ -444,29 +449,67 @@ function SponsorCard({
           )}
 
           {status === "locked" && (
-            <div className="flex flex-col gap-1 items-end mt-4 md:mt-0">
+            <div className="flex flex-col gap-2 items-end mt-4 md:mt-0 min-w-[140px]">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                 {t("sponsors.unlock_requirements" as TranslationKey)}
               </span>
-              <div className="flex flex-wrap md:flex-col justify-end gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400">
-                {sponsor.requirements.minWins && (
-                  <span className="bg-white/50 dark:bg-slate-900/50 px-2 py-1 rounded border border-slate-200 dark:border-slate-800 shadow-sm">
-                    <span aria-hidden="true">🏆</span>{" "}
-                    {interpolate(t("sponsors.req_wins" as TranslationKey), {
-                      count: sponsor.requirements.minWins,
-                    })}
-                  </span>
-                )}
-                {sponsor.requirements.minRating && (
-                  <span className="bg-white/50 dark:bg-slate-900/50 px-2 py-1 rounded border border-slate-200 dark:border-slate-800 shadow-sm">
-                    <span aria-hidden="true">⭐</span>{" "}
-                    {interpolate(t("sponsors.req_rating" as TranslationKey), {
-                      rating: sponsor.requirements.minRating,
-                    })}
-                  </span>
-                )}
+              <div className="flex flex-col gap-2 w-full">
+                {sponsor.requirements.minWins && (() => {
+                  const current = (playerFlags.career_wins as number) ?? 0;
+                  const required = sponsor.requirements.minWins;
+                  const pct = Math.min(100, Math.round((current / required) * 100));
+                  const met = current >= required;
+                  return (
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center justify-between text-[10px] font-bold">
+                        <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
+                          <span aria-hidden="true">🏆</span>
+                          {interpolate(t("sponsors.req_wins" as TranslationKey), { count: required })}
+                        </span>
+                        <span className={met ? "text-green-500" : "text-slate-500 dark:text-slate-400"}>
+                          {current}/{required}
+                        </span>
+                      </div>
+                      <div className="h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-500 ${
+                            met ? "bg-green-500" : "bg-indigo-400"
+                          }`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })()}
+                {sponsor.requirements.minRating && (() => {
+                  const current = (playerFlags.rating as number) ?? 1500;
+                  const required = sponsor.requirements.minRating;
+                  const pct = Math.min(100, Math.round(((current - 1500) / (required - 1500)) * 100));
+                  const met = current >= required;
+                  return (
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center justify-between text-[10px] font-bold">
+                        <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
+                          <span aria-hidden="true">⭐</span>
+                          {interpolate(t("sponsors.req_rating" as TranslationKey), { rating: required })}
+                        </span>
+                        <span className={met ? "text-green-500" : "text-slate-500 dark:text-slate-400"}>
+                          {current}/{required}
+                        </span>
+                      </div>
+                      <div className="h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-500 ${
+                            met ? "bg-green-500" : "bg-amber-400"
+                          }`}
+                          style={{ width: `${Math.max(0, pct)}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })()}
                 {sponsor.requirements.previousSponsor && (
-                  <span className="bg-white/50 dark:bg-slate-900/50 px-2 py-1 rounded border border-slate-200 dark:border-slate-800 shadow-sm">
+                  <span className="bg-white/50 dark:bg-slate-900/50 px-2 py-1 rounded border border-slate-200 dark:border-slate-800 shadow-sm text-xs font-semibold text-slate-600 dark:text-slate-400">
                     <span aria-hidden="true">🤝</span>{" "}
                     {t("sponsors.req_prev_sponsor" as TranslationKey)}
                   </span>
