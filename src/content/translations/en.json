@@ -68,33 +68,95 @@
     "next": "Next",
     "start": "Let's Go",
     "name_error": "Please enter a runner name before proceeding.",
+    "view_guide": "How to Play Guide",
     "slide_1": {
       "title": "Welcome to RunQuest",
-      "subtitle": "Your daily running simulation.",
-      "content": "Every day presents a new, procedurally generated race. Step into the shoes of a runner preparing for their next big event."
+      "subtitle": "Your Journey as a Competitive Runner.",
+      "content": "Step into the shoes of an athlete. Schedule upcoming races, manage your daily timeline, and train to build peak endurance and rating."
     },
     "slide_2": {
-      "title": "Race Strategy",
-      "subtitle": "Manage your pacing, nutrition, and endurance.",
-      "content": "Select the right gear for the terrain and weather. Pack your hydration, plan your negative splits, and hold your pace to hit your target time."
+      "title": "Daily Training & Energy",
+      "subtitle": "Balance workouts and recovery.",
+      "content": "Execute daily workouts like Easy Runs, Tempo Sessions, and Long Runs using Energy Points. Listen to coach tips and rest to prevent fatigue."
     },
     "slide_3": {
-      "title": "Race Day Experience",
-      "subtitle": "Live tracking, dynamic events, and performance analysis.",
-      "content": "Watch the race unfold live. Adapt to course conditions and download your finisher card to share your personal bests!"
+      "title": "Jobs, Shop & Gear",
+      "subtitle": "Fuel your career & economy.",
+      "content": "Work daily jobs to earn money in your local currency. Visit the Shop to unlock shoes and stock up on consumable nutrition like gels and hydration mix."
     },
     "slide_4": {
+      "title": "Race Day & Strategy",
+      "subtitle": "Pacing, weather & checkpoint nutrition.",
+      "content": "Enter scheduled races, select your footwear & nutrition items during preparation, and choose tactics like Negative Split or Surge to cross the finish line!"
+    },
+    "slide_5": {
       "title": "Runner Profile",
-      "subtitle": "Create your identity.",
-      "content": "We've detected your location! Pick your runner name, nationality, and default race currency."
+      "subtitle": "Create your runner identity.",
+      "content": "We've detected your location! Pick your runner name, nationality, default currency, and date of birth to get started."
     },
     "nationality": {
       "title": "Nationality",
       "desc": "Sets your country flag and home currency."
     },
+    "game_mode": {
+      "title": "Game Mode",
+      "career": "Career (Standard)",
+      "easy": "Easy (All Unlocked)"
+    },
     "currency": {
       "title": "Default Currency",
       "desc": "Used for all race fees and prizes."
+    }
+  },
+  "how_to_play": {
+    "title": "How to Play RunQuest",
+    "subtitle": "Master the art of race scheduling, training, economy, and pacing strategy.",
+    "back": "Back",
+    "pro_tip_title": "💡 Pro Runner Tip",
+    "pro_tip_desc": "Always buy hydration & gels from the Shop before entering a race! Consumables restore energy during checkpoints and prevent DNF.",
+    "sections": {
+      "scheduling": {
+        "title": "🗓️ Race Scheduling & Timeline",
+        "desc": "Races must be registered in advance for future days. Use the timeline controls to rest and advance days forward.",
+        "item1": "Browse upcoming calendar events (5K, 10K, Half Marathon, Full Marathon) and pay entry fees in advance.",
+        "item2": "Advancing time moves the game day by day and automatically halts when a registered race day is reached.",
+        "item3": "You cannot compete on the spot without scheduling beforehand!"
+      },
+      "economy": {
+        "title": "💼 Jobs, Economy & Sponsors",
+        "desc": "RunQuest features a single-currency monetary system based on your preferred currency ($/€/¥/Rp).",
+        "item1": "Work daily jobs to earn cash. Working is limited to once per game day.",
+        "item2": "Changing jobs carries a strict 7-day cooldown period.",
+        "item3": "Sign sponsor contracts to receive regular stipends and bonus payouts for hitting race goals."
+      },
+      "shop": {
+        "title": "🏪 Shop & Inventory",
+        "desc": "Access the central Shop screen to purchase gear, footwear, and consumable nutrition.",
+        "item1": "Shoes (Daily Trainer, Carbon Racer, Trail) are one-time permanent unlocks that boost performance.",
+        "item2": "Nutrition items (Water, Electrolytes, Energy Gels, Caffeine) are consumable items with quantity tracking.",
+        "item3": "Preparation Screen only allows equipping shoes and nutrition items that you currently own."
+      },
+      "training": {
+        "title": "🏃 Daily Workouts & Energy",
+        "desc": "Build your runner's physical attributes through structured training plans.",
+        "item1": "Select daily workouts (Easy Run, Tempo, Intervals, Long Run, Strength) consuming Energy Points (EP).",
+        "item2": "Follow coach recommendations to optimize your training load and prevent overtraining.",
+        "item3": "Rest days regenerate your energy reserves for race day."
+      },
+      "race_day": {
+        "title": "⏱️ Race Day & Live Pacing",
+        "desc": "Compete live on race day with strategic nutrition and pacing management.",
+        "item1": "Check weather forecast (temperature, humidity, wind) and elevation in the race briefing.",
+        "item2": "Select pacing strategies like Negative Split (save energy for end), Steady Pace, or Aggressive Surge.",
+        "item3": "Consume water, gels, or electrolytes at checkpoints to manage stamina and avoid hitting the wall."
+      },
+      "progression": {
+        "title": "🏆 Progression & Social",
+        "desc": "Level up your athlete and share your career milestones.",
+        "item1": "Earn XP from races and daily challenges to level up and allocate skill points.",
+        "item2": "Track rival activities, break personal records, and unlock achievements.",
+        "item3": "Generate and share personalized finisher cards and daily stats graphics."
+      }
     }
   },
   "race_calendar": {
@@ -626,9 +688,14 @@
       "music_on": "Race Music On",
       "music_off": "Race Music Muted",
       "music": {
+        "phase_start": "Start Phase",
         "phase_mid_race": "Mid-Race Pulse",
         "phase_final_kick": "Final Kick Rush",
-        "phase_victory": "Victory Anthem"
+        "phase_victory": "Victory Anthem",
+        "phase_mid": "Mid-Race Pulse",
+        "phase_final": "Final Kick Rush",
+        "phase_crisis": "Crisis Zone",
+        "phase_finish": "Finish Line Sprint"
       },
       "pace_projector": {
         "title": "Finish Projection",
@@ -878,7 +945,8 @@
     "home": "Home",
     "profile": "Profile",
     "social": "Social Hub",
-    "economy": "Economy"
+    "economy": "Economy",
+    "how_to_play": "How to Play"
   },
   "shop": {
     "title": "Shop",
@@ -948,6 +1016,66 @@
       "conditions_improved": "Conditions improved!",
       "energy_increased": "Energy cost increased.",
       "conditions_stable": "Conditions are stable."
+    }
+  },
+  "disclaimer": {
+    "title": "Offline & Unofficial Notice",
+    "offline_info": "RunQuest is an offline-first simulation game. All progress and data are stored locally in your browser with zero cloud dependencies required.",
+    "unofficial_notice": "All races, events, sponsors, brands, equipment, and marathons featured in RunQuest are fictional simulation elements. RunQuest is an independent project and is NOT affiliated with, sponsored by, or endorsed by any real-world official athletic organizations or events."
+  },
+  "social": {
+    "title": "Social & Competition Hub",
+    "subtitle": "Simulated online rankings, clubs, and head-to-head stats",
+    "tabs": {
+      "leaderboard": "Leaderboards",
+      "leaderboards": "Leaderboards",
+      "club": "Running Syndicate",
+      "stats": "Head to Head",
+      "head_to_head": "Head to Head",
+      "feed": "Activity Feed"
+    },
+    "scope": {
+      "regional": "Regional Ladder",
+      "global": "Global Elite",
+      "rivals": "Rivals Standing",
+      "select_region": "Select Your League Region",
+      "select_region_desc": "Select a competitive region to unlock simulated daily divisions, leaderboards, and contribution stats."
+    },
+    "club": {
+      "title": "Join a Running Syndicate",
+      "subtitle": "Joining a club provides unique weekly combined distance goals and passive training bonuses for attribute gains.",
+      "active_membership": "Active Membership",
+      "weekly_goal": "Weekly Combined Distance Goal",
+      "weekly_goal_desc": "Progress of all members towards the weekly syndicate chest",
+      "your_contribution": "Your Contribution",
+      "member_contributions": "Member Contributions",
+      "bonus_status": "Bonus Status",
+      "join_button": "Join Syndicate"
+    },
+    "stats": {
+      "percentile_rank": "Percentile Rank",
+      "percentile_desc": "Compared to active runners in regional division",
+      "league_rank": "League Division",
+      "league_desc": "Competitive Rank Points (RP)",
+      "performance_trend": "Performance Trend",
+      "trend_desc": "Based on recent race splits and outcomes",
+      "win_streak": "Win Streak",
+      "vs_last_run": "Vs Last Run",
+      "personal_best": "Personal Best",
+      "avg_last_5": "Avg (Last 5)",
+      "rival_head_to_head": "Rival Head to Head",
+      "rival_desc": "Lifetime win-loss records against named rivals",
+      "leading": "Leading",
+      "trailing": "Trailing",
+      "tied": "Tied",
+      "no_encounters": "No encounters yet",
+      "nemesis_title": "Active Nemesis"
+    },
+    "feed": {
+      "title": "Rival Activity Feed",
+      "subtitle": "Real-time simulated logs of competitor activity and training logs",
+      "today": "Today",
+      "days_ago": "{days} days ago"
     }
   }
 }

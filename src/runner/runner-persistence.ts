@@ -38,6 +38,9 @@ export const saveRunnerState = (state: RunnerState): void => {
   try {
     if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
       localStorage.setItem(RUNNER_STORAGE_KEY, JSON.stringify(state));
+      window.dispatchEvent(
+        new CustomEvent("runner-state-updated", { detail: state })
+      );
     }
   } catch (error) {
     console.error("Failed to save runner state to local storage:", error);

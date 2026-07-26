@@ -169,9 +169,14 @@ export interface Dictionary {
       music_on?: string;
       music_off?: string;
       music?: {
-        phase_mid_race: string;
-        phase_final_kick: string;
-        phase_victory: string;
+        phase_start?: string;
+        phase_mid_race?: string;
+        phase_final_kick?: string;
+        phase_victory?: string;
+        phase_mid?: string;
+        phase_final?: string;
+        phase_crisis?: string;
+        phase_finish?: string;
       };
     };
     result: {
@@ -322,6 +327,7 @@ export interface Dictionary {
     next: string;
     start: string;
     name_error: string;
+    view_guide: string;
     slide_1: {
       title: string;
       subtitle: string;
@@ -341,6 +347,62 @@ export interface Dictionary {
       title: string;
       subtitle: string;
       content: string;
+    };
+    slide_5: {
+      title: string;
+      subtitle: string;
+      content: string;
+    };
+  };
+  how_to_play: {
+    title: string;
+    subtitle: string;
+    back: string;
+    pro_tip_title: string;
+    pro_tip_desc: string;
+    sections: {
+      scheduling: {
+        title: string;
+        desc: string;
+        item1: string;
+        item2: string;
+        item3: string;
+      };
+      economy: {
+        title: string;
+        desc: string;
+        item1: string;
+        item2: string;
+        item3: string;
+      };
+      shop: {
+        title: string;
+        desc: string;
+        item1: string;
+        item2: string;
+        item3: string;
+      };
+      training: {
+        title: string;
+        desc: string;
+        item1: string;
+        item2: string;
+        item3: string;
+      };
+      race_day: {
+        title: string;
+        desc: string;
+        item1: string;
+        item2: string;
+        item3: string;
+      };
+      progression: {
+        title: string;
+        desc: string;
+        item1: string;
+        item2: string;
+        item3: string;
+      };
     };
   };
   settings: {
@@ -484,6 +546,7 @@ export interface Dictionary {
     profile: string;
     social: string;
     economy: string;
+    how_to_play?: string;
   };
   race?: {
     analytics: {
@@ -508,6 +571,66 @@ export interface Dictionary {
       conditions_improved: string;
       energy_increased: string;
       conditions_stable: string;
+    };
+  };
+  disclaimer?: {
+    title: string;
+    offline_info: string;
+    unofficial_notice: string;
+  };
+  social?: {
+    title: string;
+    subtitle: string;
+    tabs: {
+      leaderboard: string;
+      leaderboards: string;
+      club: string;
+      stats: string;
+      head_to_head: string;
+      feed: string;
+    };
+    scope: {
+      regional: string;
+      global: string;
+      rivals: string;
+      select_region: string;
+      select_region_desc: string;
+    };
+    club: {
+      title: string;
+      subtitle: string;
+      active_membership: string;
+      weekly_goal: string;
+      weekly_goal_desc: string;
+      your_contribution: string;
+      member_contributions: string;
+      bonus_status: string;
+      join_button: string;
+    };
+    stats: {
+      percentile_rank: string;
+      percentile_desc: string;
+      league_rank: string;
+      league_desc: string;
+      performance_trend: string;
+      trend_desc: string;
+      win_streak: string;
+      vs_last_run: string;
+      personal_best: string;
+      avg_last_5: string;
+      rival_head_to_head: string;
+      rival_desc: string;
+      leading: string;
+      trailing: string;
+      tied: string;
+      no_encounters: string;
+      nemesis_title: string;
+    };
+    feed: {
+      title: string;
+      subtitle: string;
+      today: string;
+      days_ago: string;
     };
   };
 }

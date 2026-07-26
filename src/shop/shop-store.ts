@@ -10,6 +10,7 @@ import type {
   PurchaseResult,
   ShopCategory,
 } from "./shop-types";
+import { FULL_CATALOG } from "./shop-catalog";
 
 export const DEFAULT_INVENTORY: PlayerInventory = {
   shoes: { daily_trainer: true } as Record<Shoe, boolean>,
@@ -41,6 +42,7 @@ interface ShopState {
   ) => PurchaseResult;
   consumeNutrition: (nutritionId: Nutrition, amount?: number) => void;
   resetInventory: () => void;
+  unlockAllItems: () => void;
 }
 
 export const useShopStore = create<ShopState>((set, get) => ({
@@ -166,6 +168,26 @@ export const useShopStore = create<ShopState>((set, get) => ({
     storageRepository.saveInventory({
       version: 1,
       ...DEFAULT_INVENTORY,
+    });
+  },
+
+  unlockAllItems: () => {
+    const newInventory: PlayerInventory = {
+      shoes: {} as Record<Shoe, boolean>,
+      nutrition: {} as Record<Nutrition, number>,
+      gear: {} as Record<Gear, boolean>,
+    };
+
+    FULL_CATALOG.forEach((item) => {
+      if (item.category === "shoes") newInventory.shoes[item.id as Shoe] = true;
+      if (item.category === "gear") newInventory.gear[item.id as Gear] = true;
+      if (item.category === "nutrition") newInventory.nutrition[item.id as Nutrition] = 99;
+    });
+
+    set({ inventory: newInventory, isInitialized: true });
+    storageRepository.saveInventory({
+      version: 1,
+      ...newInventory,
     });
   },
 }));

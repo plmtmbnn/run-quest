@@ -3,8 +3,10 @@
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
+  BookOpen,
   Calendar,
   Dices,
+  Info,
   ShieldAlert,
   Trash2,
   User,
@@ -375,6 +377,49 @@ export function SettingsScreen() {
               setPreferredCurrency(currency);
             }}
           />
+
+          <hr className="border-[#E5E7EB] dark:border-slate-800" />
+
+          {/* How to Play Guide Link */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                <BookOpen className="h-4.5 w-4.5 text-indigo-500" />{" "}
+                {t("how_to_play.title" as TranslationKey)}
+              </span>
+              <span className="text-xs text-gray-400 dark:text-gray-500">
+                {t("how_to_play.subtitle" as TranslationKey)}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                playSound("click");
+                router.push("/how-to-play");
+              }}
+              className="px-4 py-2.5 bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white text-xs font-extrabold rounded-2xl transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none shrink-0 self-start sm:self-auto"
+            >
+              {t("how_to_play.title" as TranslationKey)} →
+            </button>
+          </div>
+        </section>
+
+        {/* Offline & Unofficial Disclaimer Section */}
+        <section className="bg-slate-100/80 dark:bg-slate-900/60 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm p-6 flex flex-col gap-3">
+          <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-sm">
+            <Info className="h-4.5 w-4.5 shrink-0" />
+            <h3 className="font-heading font-black">{t("disclaimer.title" as TranslationKey)}</h3>
+          </div>
+          <div className="flex flex-col gap-2.5 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+            <div className="flex items-start gap-2 bg-white/60 dark:bg-slate-950/40 p-3 rounded-xl border border-slate-200/50 dark:border-slate-800/50">
+              <span className="text-base shrink-0">⚡</span>
+              <p>{t("disclaimer.offline_info" as TranslationKey)}</p>
+            </div>
+            <div className="flex items-start gap-2 bg-white/60 dark:bg-slate-950/40 p-3 rounded-xl border border-slate-200/50 dark:border-slate-800/50">
+              <span className="text-base shrink-0">⚠️</span>
+              <p>{t("disclaimer.unofficial_notice" as TranslationKey)}</p>
+            </div>
+          </div>
         </section>
 
         {/* Danger Zone */}

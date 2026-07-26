@@ -66,35 +66,97 @@
   "onboarding": {
     "header": "Selamat Datang di RunQuest",
     "next": "Lanjut",
-    "start": "Let's Go",
+    "start": "Mulai Lari",
     "name_error": "Jangan lupa masukkan nama pelari kamu.",
+    "view_guide": "Panduan Cara Bermain",
     "slide_1": {
       "title": "Selamat Datang di RunQuest",
-      "subtitle": "Simulasi lari harianmu.",
-      "content": "Setiap hari ada rute baru. Persiapkan dirimu seperti pelari yang bersiap menghadapi event besar."
+      "subtitle": "Perjalanan Karir Pelari Kompetitifmu.",
+      "content": "Jadilah seorang atlet lari! Jadwalkan event balapan masa depan, atur timeline harian, dan latih daya tahan serta rating performamu."
     },
     "slide_2": {
-      "title": "Race Strategy",
-      "subtitle": "Atur pace, nutrisi, dan daya tahan tubuh.",
-      "content": "Pilih gear yang tepat sesuai medan dan cuaca. Siapkan hydration, atur negative split, dan pertahankan pace untuk mencapai target."
+      "title": "Latihan Harian & Energi",
+      "subtitle": "Seimbangkan sesi workout & pemulihan.",
+      "content": "Jalankan sesi workout seperti Easy Run, Tempo, dan Long Run menggunakan Energy Points (EP). Dengarkan saran pelatih dan istirahat untuk mencegah fatigue."
     },
     "slide_3": {
-      "title": "Pengalaman Hari H",
-      "subtitle": "Live tracking, event dinamis, dan analisis performa.",
-      "content": "Saksikan balapan secara live. Sesuaikan dengan kondisi lintasan dan unduh finisher card untuk pamer personal best-mu!"
+      "title": "Pekerjaan, Toko & Gear",
+      "subtitle": "Danai karir & ekonomi pelarimu.",
+      "content": "Bekerjalah setiap hari untuk mendapatkan uang sesuai mata uang pilihanmu. Kunjungi Toko untuk membuka sepatu dan stok nutrisi konsumsi seperti gel & hidrasi."
     },
     "slide_4": {
+      "title": "Hari H Balapan & Strategi",
+      "subtitle": "Manajemen pace, cuaca & nutrisi pos check.",
+      "content": "Ikuti event terdaftar, pilih sepatu & nutrisi saat persiapan, dan tentukan taktik pace seperti Negative Split atau Surge untuk menembus garis finish!"
+    },
+    "slide_5": {
       "title": "Profil Pelari",
-      "subtitle": "Buat identitasmu.",
-      "content": "Lokasimu terdeteksi! Pilih nama pelari, kewarganegaraan, dan mata uang default balapan."
+      "subtitle": "Buat identitas pelarimu.",
+      "content": "Lokasimu terdeteksi! Pilih nama pelari, kewarganegaraan, mata uang default, dan tanggal lahir untuk mulai bermain."
     },
     "nationality": {
       "title": "Kewarganegaraan",
       "desc": "Menentukan bendera dan mata uang default."
     },
+    "game_mode": {
+      "title": "Mode Permainan",
+      "career": "Karir (Standar)",
+      "easy": "Mudah (Semua Terbuka)"
+    },
     "currency": {
       "title": "Mata Uang Default",
       "desc": "Digunakan untuk semua biaya pendaftaran & hadiah lomba."
+    }
+  },
+  "how_to_play": {
+    "title": "Cara Bermain RunQuest",
+    "subtitle": "Kuasai penjadwalan race, latihan harian, ekonomi, dan strategi pace.",
+    "back": "Kembali",
+    "pro_tip_title": "💡 Tips Pelari Pro",
+    "pro_tip_desc": "Selalu beli stok air & gel di Toko sebelum ikut balapan! Nutrisi konsumsi memulihkan energi di checkpoint dan mencegah DNF (Did Not Finish).",
+    "sections": {
+      "scheduling": {
+        "title": "🗓️ Penjadwalan Event & Timeline",
+        "desc": "Balapan wajib didaftarkan terlebih dahulu untuk hari mendatang. Gunakan kontrol timeline untuk istirahat dan memajukan hari.",
+        "item1": "Jelajahi kalender event mendatang (5K, 10K, Half Marathon, Full Marathon) dan bayar biaya pendaftaran di awal.",
+        "item2": "Memajukan waktu akan menggeser hari game secara bertahap dan berhenti otomatis tepat saat mencapai hari balapan terdaftar.",
+        "item3": "Kamu tidak bisa langsung balapan di tempat tanpa melakukan pendaftaran terlebih dahulu!"
+      },
+      "economy": {
+        "title": "💼 Pekerjaan, Ekonomi & Sponsor",
+        "desc": "RunQuest menggunakan sistem ekonomi satu mata uang sesuai mata uang pilihanmu ($/€/¥/Rp).",
+        "item1": "Bekerjalah pada pekerjaan harian untuk mendapatkan uang. Bekerja dibatasi maksimal 1 kali per hari game.",
+        "item2": "Berganti pekerjaan memiliki jeda cooldown ketat selama 7 hari.",
+        "item3": "Tanda tangani kontrak sponsor untuk menerima tunjangan rutin dan bonus pencapaian target lomba."
+      },
+      "shop": {
+        "title": "🏪 Toko & Inventaris",
+        "desc": "Akses layar Toko terpusat untuk membeli sepatu, gear, dan nutrisi konsumsi.",
+        "item1": "Sepatu (Daily Trainer, Carbon Racer, Trail) adalah item permanen sekali beli yang meningkatkan stat.",
+        "item2": "Nutrisi (Air, Elektrolit, Gel Energi, Kafein) adalah item konsumsi yang jumlahnya berkurang saat dipakai.",
+        "item3": "Layar Persiapan hanya menampilkan sepatu dan nutrisi yang sudah kamu miliki di inventaris."
+      },
+      "training": {
+        "title": "🏃 Sesi Latihan Harian & Energi",
+        "desc": "Tingkatkan atribut fisik pelarimu melalui program latihan yang terstruktur.",
+        "item1": "Pilih program latihan harian (Easy Run, Tempo, Interval, Long Run, Strength) menggunakan Energy Points (EP).",
+        "item2": "Ikuti saran pelatih untuk mengoptimalkan beban latihan dan mencegah bahaya overtraining.",
+        "item3": "Hari istirahat memulihkan cadangan energi tubuhmu menjelang hari balapan."
+      },
+      "race_day": {
+        "title": "⏱️ Hari H Balapan & Pace Live",
+        "desc": "Lakukan simulasi balapan live dengan taktik pace dan manajemen nutrisi yang tepat.",
+        "item1": "Periksa prakiraan cuaca (suhu, kelembapan, angin) serta elevasi rute pada briefing lomba.",
+        "item2": "Pilih strategi pace seperti Negative Split (hemat energi di awal), Steady Pace, atau Aggressive Surge.",
+        "item3": "Konsumsi air, gel, atau elektrolit saat melewati checkpoint untuk menjaga stamina dan menghindari exhaustion."
+      },
+      "progression": {
+        "title": "🏆 Progresi & Fitur Sosial",
+        "desc": "Tingkatkan level atletmu dan bagikan rekor pencapaian karirmu.",
+        "item1": "Dapatkan XP dari balapan dan quest harian untuk naik level serta alokasi skill points.",
+        "item2": "Pantau aktivitas pelari rival, pecahkan personal best, dan buka achievement karir.",
+        "item3": "Buat dan bagikan finisher card resmi serta grafik statistik harian ke media sosial."
+      }
     }
   },
   "race_calendar": {
@@ -626,9 +688,14 @@
       "music_on": "Musik Lomba Aktif",
       "music_off": "Musik Lomba Ditingheningkan",
       "music": {
+        "phase_start": "Fase Awal / Start",
         "phase_mid_race": "Ritme Pertengahan Lomba",
         "phase_final_kick": "Gelombang Sprint Akhir",
-        "phase_victory": "Lagu Kemenangan"
+        "phase_victory": "Lagu Kemenangan",
+        "phase_mid": "Ritme Pertengahan Lomba",
+        "phase_final": "Gelombang Sprint Akhir",
+        "phase_crisis": "Zona Krisis",
+        "phase_finish": "Sprint Garis Finish"
       },
       "pace_projector": {
         "title": "Proyeksi Finish",
@@ -878,7 +945,8 @@
     "home": "Beranda",
     "profile": "Profil",
     "social": "Sosial",
-    "economy": "Ekonomi"
+    "economy": "Ekonomi",
+    "how_to_play": "Cara Bermain"
   },
   "shop": {
     "title": "Toko",
@@ -948,6 +1016,66 @@
       "conditions_improved": "Kondisi membaik!",
       "energy_increased": "Biaya energi meningkat.",
       "conditions_stable": "Kondisi stabil."
+    }
+  },
+  "disclaimer": {
+    "title": "Informasi Offline & Penafian Resmi",
+    "offline_info": "RunQuest adalah game simulasi berprinsip offline-first. Semua progress dan data disimpan secara lokal di peramban Anda tanpa memerlukan koneksi cloud.",
+    "unofficial_notice": "Semua perlombaan, acara, sponsor, merek, peralatan, dan maraton dalam RunQuest merupakan elemen simulasi fiktif. RunQuest adalah proyek independen dan TIDAK terafiliasi dengan, disponsori oleh, atau didukung oleh organisasi atletik atau perlombaan resmi dunia nyata manapun."
+  },
+  "social": {
+    "title": "Pusat Kompetisi & Sosial",
+    "subtitle": "Peringkat simulasi online, klub sindikat, dan statistik head-to-head",
+    "tabs": {
+      "leaderboard": "Papan Peringkat",
+      "leaderboards": "Papan Peringkat",
+      "club": "Klub Lari",
+      "stats": "Head to Head",
+      "head_to_head": "Head to Head",
+      "feed": "Aktivitas Rival"
+    },
+    "scope": {
+      "regional": "Divisi Regional",
+      "global": "Elit Global",
+      "rivals": "Peringkat Rival",
+      "select_region": "Pilih Wilayah Liga Anda",
+      "select_region_desc": "Pilih wilayah kompetisi untuk membuka divisi harian, papan peringkat, dan statistik kontribusi."
+    },
+    "club": {
+      "title": "Bergabung dengan Sindikat Klub Lari",
+      "subtitle": "Bergabung dengan klub memberikan target jarak gabungan mingguan dan bonus latihan pasif untuk atribut pelari.",
+      "active_membership": "Keanggotaan Aktif",
+      "weekly_goal": "Target Jarak Gabungan Mingguan",
+      "weekly_goal_desc": "Progress seluruh anggota untuk membuka peti hadiah sindikat mingguan",
+      "your_contribution": "Kontribusi Anda",
+      "member_contributions": "Kontribusi Anggota",
+      "bonus_status": "Status Bonus",
+      "join_button": "Gabung Sindikat"
+    },
+    "stats": {
+      "percentile_rank": "Peringkat Persentil",
+      "percentile_desc": "Dibandingkan pelari aktif di divisi regional",
+      "league_rank": "Divisi Liga",
+      "league_desc": "Poin Peringkat Kompetitif (RP)",
+      "performance_trend": "Tren Performa",
+      "trend_desc": "Berdasarkan split dan hasil perlombaan terakhir",
+      "win_streak": "Rentetan Kemenangan",
+      "vs_last_run": "Vs Lari Terakhir",
+      "personal_best": "Waktu Terbaik (PB)",
+      "avg_last_5": "Rata-rata (5 Terakhir)",
+      "rival_head_to_head": "Head-to-Head Rival",
+      "rival_desc": "Rekor menang-kalah seumur hidup melawan rival utama",
+      "leading": "Unggul",
+      "trailing": "Tertinggal",
+      "tied": "Imbang",
+      "no_encounters": "Belum ada pertemuan",
+      "nemesis_title": "Musuh Utama (Nemesis)"
+    },
+    "feed": {
+      "title": "Log Aktivitas Rival",
+      "subtitle": "Catatan simulasi real-time dari latihan dan aktivitas pesaing",
+      "today": "Hari ini",
+      "days_ago": "{days} hari lalu"
     }
   }
 }

@@ -26,6 +26,7 @@ import { storageRepository } from "@/storage/storage-repository";
 import type { StoredGameState } from "@/storage/types";
 import { markStoryBeatViewed } from "@/story/story-engine";
 import { useStoryStore } from "@/story/story-store";
+import { useSettingsStore } from "@/store/settings-store";
 
 interface TimelineState {
   gameState: GameState | null;
@@ -73,6 +74,10 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     let state = stored as unknown as GameState;
     if (!state) {
       state = createInitialState(Date.now());
+      if (useSettingsStore.getState().settings.gameMode === "easy") {
+        state.resources.money = 1000;
+        state.economy = { ...state.economy, currentBalance: 1000 };
+      }
     } else {
       // Merge defaults for new Sprint 26 fields in case loading an older save
       state = {
@@ -242,6 +247,10 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
 
   newLife() {
     const fresh = createInitialState(Date.now());
+    if (useSettingsStore.getState().settings.gameMode === "easy") {
+      fresh.resources.money = 1000;
+      fresh.economy = { ...fresh.economy, currentBalance: 1000 };
+    }
 
     // Reset other stores
     useSocialStore.getState().resetSocial();

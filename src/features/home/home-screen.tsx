@@ -18,7 +18,9 @@ import { GameStats } from "@/components/ui/game-clock";
 import { RestControls } from "@/components/ui/rest-controls";
 // Sprint 33 Imports
 import { RaceDayAlert } from "@/components/alerts/race-day-alert";
+import { getCountryByCode } from "@/config/countries-data";
 import { formatCurrency } from "@/economy/currency-converter";
+import { formatCompact } from "@/utils/format-compact";
 import {
   earnAchievementBonus,
   earnChampionshipBonus,
@@ -452,36 +454,126 @@ export function HomeScreen() {
           </div>
         )}
 
-        {/* Player Stats Panel (Updated to show Money) */}
+        {/* Player Stats Panel (Enhanced Athlete Card) */}
         {player && gameState && (
-          <div className="bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl md:rounded-[2rem] p-4 md:p-5 lg:p-6 text-white shadow-xl shadow-orange-500/20 flex flex-col gap-4 md:gap-5 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 md:w-48 md:h-48 bg-white/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="flex flex-col gap-3 md:gap-3.5 min-w-0 w-full relative z-10">
-              <div className="flex flex-col gap-0.5 md:gap-1">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[9px] md:text-[10px] text-orange-100 uppercase tracking-widest font-black">
-                    {t("home.player_profile" as TranslationKey)}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      playSound("click");
-                      setIsShareOpen(true);
-                    }}
-                    className="flex items-center justify-center min-h-[32px] min-w-[32px] p-1 rounded-full hover:bg-white/10 text-orange-100 hover:text-white transition active:scale-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-                    aria-label={t("share.stats.title" as TranslationKey)}
-                  >
-                    <Share2 className="h-3 w-3 md:h-3.5 md:w-3.5" />
-                  </button>
+          <div className="bg-gradient-to-br from-orange-500 via-amber-600 to-orange-600 rounded-2xl md:rounded-[2rem] p-4 sm:p-5 md:p-6 text-white shadow-xl shadow-orange-500/20 flex flex-col gap-4 md:gap-5 relative overflow-hidden">
+            {/* Decorative Glow Blobs */}
+            <div className="absolute top-0 right-0 w-40 h-40 md:w-56 md:h-56 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-32 h-32 md:w-40 md:h-40 bg-amber-400/20 rounded-full blur-2xl pointer-events-none" />
+
+            <div className="flex flex-col gap-4 min-w-0 w-full relative z-10">
+              {/* Header: Flag, Name, Level & Share */}
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-11 h-11 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center text-xl shrink-0 shadow-inner">
+                    {getCountryByCode(player.nationality || "ID").flag}
+                  </div>
+                  <div className="min-w-0 flex flex-col">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-orange-100 uppercase tracking-widest font-black">
+                        {t("home.player_profile" as TranslationKey)}
+                      </span>
+                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-white/20 text-white border border-white/30">
+                        Lvl {runnerState?.profile?.level || 1}
+                      </span>
+                    </div>
+                    <span className="text-lg md:text-xl font-black font-heading truncate drop-shadow-sm">
+                      {player.name || `Runner #${player.id.slice(0, 5).toUpperCase()}`}
+                    </span>
+                  </div>
                 </div>
-                <span className="text-base md:text-lg lg:text-xl font-black font-heading truncate">
-                  {player.name ||
-                    `Runner #${player.id.slice(0, 5).toUpperCase()}`}
-                </span>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    playSound("click");
+                    setIsShareOpen(true);
+                  }}
+                  className="flex items-center justify-center min-h-[44px] min-w-[44px] p-2.5 rounded-2xl bg-white/15 hover:bg-white/25 border border-white/20 text-white transition active:scale-95 shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 shadow-sm"
+                  aria-label={t("share.stats.title" as TranslationKey)}
+                  title={t("share.stats.title" as TranslationKey)}
+                >
+                  <Share2 className="h-4 w-4" />
+                </button>
               </div>
+
+              {/* XP Progress Bar */}
+              {runnerState?.profile && (
+                <div className="flex flex-col gap-1.5 bg-black/10 backdrop-blur-sm p-3 rounded-2xl border border-white/10">
+                  <div className="flex justify-between items-center text-[11px] font-black">
+                    <span className="text-orange-100 flex items-center gap-1">
+                      <span>⚡ XP Progress</span>
+                    </span>
+                    <span className="font-mono text-white">
+                      {runnerState.profile.xp || 0} / {(runnerState.profile.level || 1) * 100} XP
+                      {Boolean(runnerState.profile.skillPoints) && (
+                        <span className="ml-2 px-1.5 py-0.5 rounded-md bg-amber-400 text-slate-900 font-extrabold text-[9px]">
+                          🌟 {runnerState.profile.skillPoints} SP
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                  <div className="h-2 w-full bg-black/20 rounded-full overflow-hidden p-0.5">
+                    <div
+                      className="h-full bg-gradient-to-r from-amber-300 to-yellow-100 rounded-full transition-all duration-500 shadow-sm"
+                      style={{
+                        width: `${Math.min(
+                          100,
+                          Math.round(
+                            ((runnerState.profile.xp || 0) /
+                              ((runnerState.profile.level || 1) * 100)) *
+                              100
+                          )
+                        )}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Quick Athlete Mini-Stats Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-2.5 border border-white/10 flex flex-col">
+                  <span className="text-[9px] uppercase font-bold text-orange-100 tracking-wider">
+                    {t("home.stats.runs" as TranslationKey) || "Races"}
+                  </span>
+                  <span className="font-mono font-black text-sm md:text-base mt-0.5 text-white">
+                    🏃 {formatCompact(player.statistics.totalRuns || 0)}
+                  </span>
+                </div>
+
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-2.5 border border-white/10 flex flex-col">
+                  <span className="text-[9px] uppercase font-bold text-orange-100 tracking-wider">
+                    {t("home.stats.streak" as TranslationKey) || "Streak"}
+                  </span>
+                  <span className="font-mono font-black text-sm md:text-base mt-0.5 text-white">
+                    🔥 {player.statistics.currentStreak || 0}d
+                  </span>
+                </div>
+
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-2.5 border border-white/10 flex flex-col">
+                  <span className="text-[9px] uppercase font-bold text-orange-100 tracking-wider">
+                    {t("home.stats.distance" as TranslationKey) || "Distance"}
+                  </span>
+                  <span className="font-mono font-black text-sm md:text-base mt-0.5 text-white">
+                    📏 {formatCompact(player.statistics.totalDistance || 0)} km
+                  </span>
+                </div>
+
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-2.5 border border-white/10 flex flex-col">
+                  <span className="text-[9px] uppercase font-bold text-orange-100 tracking-wider">
+                    {t("home.stats.rating" as TranslationKey) || "Rating / Wins"}
+                  </span>
+                  <span className="font-mono font-black text-sm md:text-base mt-0.5 text-white truncate">
+                    🏆 {formatCompact((gameState.flags?.rating as number) ?? 1500)} <span className="opacity-75 text-[10px]">({gameState.flags?.career_wins || 0}W)</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Categorized Quick Navigation Bar */}
               <nav
                 aria-label="Quick navigation"
-                className="flex flex-wrap gap-1.5"
+                className="flex flex-wrap gap-1.5 pt-1"
               >
                 <button
                   type="button"
@@ -490,10 +582,11 @@ export function HomeScreen() {
                     router.push("/training");
                   }}
                   aria-label={t("home.daily_training" as TranslationKey)}
-                  className="inline-flex items-center gap-1.5 self-start text-[9px] md:text-[10px] uppercase font-black tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-2.5 md:px-3 py-2 md:py-1.5 rounded-full transition-all border border-white/10 min-h-[36px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                  className="inline-flex items-center gap-1.5 text-[10px] uppercase font-black tracking-wider bg-white/15 hover:bg-white/25 active:scale-95 px-3 py-2 rounded-xl transition-all border border-white/15 min-h-[38px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                 >
-                  {t("home.daily_training" as TranslationKey)} →
+                  🏃 {t("home.daily_training" as TranslationKey)} →
                 </button>
+
                 <button
                   type="button"
                   onClick={() => {
@@ -501,10 +594,11 @@ export function HomeScreen() {
                     router.push("/profile");
                   }}
                   aria-label={t("home.runner_profile" as TranslationKey)}
-                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-2 md:py-1.5 rounded-full transition-all border border-white/10 min-h-[36px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                  className="inline-flex items-center gap-1.5 text-[10px] uppercase font-black tracking-wider bg-white/15 hover:bg-white/25 active:scale-95 px-3 py-2 rounded-xl transition-all border border-white/15 min-h-[38px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                 >
-                  {t("home.runner_profile" as TranslationKey)} →
+                  👤 {t("home.runner_profile" as TranslationKey)} →
                 </button>
+
                 <button
                   type="button"
                   onClick={() => {
@@ -512,15 +606,16 @@ export function HomeScreen() {
                     router.push("/social");
                   }}
                   aria-label={t("nav.social" as TranslationKey)}
-                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-2 md:py-1.5 rounded-full transition-all border border-white/10 relative min-h-[36px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                  className="inline-flex items-center gap-1.5 text-[10px] uppercase font-black tracking-wider bg-white/15 hover:bg-white/25 active:scale-95 px-3 py-2 rounded-xl transition-all border border-white/15 relative min-h-[38px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                 >
-                  {t("nav.social" as TranslationKey)} →
+                  💬 {t("nav.social" as TranslationKey)} →
                   {recentRivalActivities > 0 && (
                     <span className="absolute -top-1.5 -right-1.5 h-4 min-w-[16px] px-1 bg-rose-500 text-white text-[8px] font-black rounded-full flex items-center justify-center shadow-md shadow-rose-500/30 animate-pulse">
                       {recentRivalActivities}
                     </span>
                   )}
                 </button>
+
                 <button
                   type="button"
                   onClick={() => {
@@ -528,10 +623,11 @@ export function HomeScreen() {
                     router.push("/history");
                   }}
                   aria-label={t("history.title" as TranslationKey)}
-                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-2 md:py-1.5 rounded-full transition-all border border-white/10 min-h-[36px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                  className="inline-flex items-center gap-1.5 text-[10px] uppercase font-black tracking-wider bg-white/15 hover:bg-white/25 active:scale-95 px-3 py-2 rounded-xl transition-all border border-white/15 min-h-[38px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                 >
-                  {t("history.title" as TranslationKey)} →
+                  📜 {t("history.title" as TranslationKey)} →
                 </button>
+
                 <button
                   type="button"
                   onClick={() => {
@@ -539,10 +635,11 @@ export function HomeScreen() {
                     router.push("/shop");
                   }}
                   aria-label={t("nav.shop" as TranslationKey)}
-                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-blue-500/20 hover:bg-blue-500/30 active:scale-95 px-3 py-2 md:py-1.5 rounded-full transition-all border border-blue-400/30 min-h-[36px] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/60"
+                  className="inline-flex items-center gap-1.5 text-[10px] uppercase font-black tracking-wider bg-blue-500/30 hover:bg-blue-500/40 active:scale-95 px-3 py-2 rounded-xl transition-all border border-blue-400/40 min-h-[38px] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/60"
                 >
                   🏪 {t("nav.shop" as TranslationKey)} →
                 </button>
+
                 <button
                   type="button"
                   onClick={() => {
@@ -550,10 +647,11 @@ export function HomeScreen() {
                     router.push("/economy");
                   }}
                   aria-label={t("nav.economy" as TranslationKey)}
-                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-2 md:py-1.5 rounded-full transition-all border border-white/10 min-h-[36px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                  className="inline-flex items-center gap-1.5 text-[10px] uppercase font-black tracking-wider bg-white/15 hover:bg-white/25 active:scale-95 px-3 py-2 rounded-xl transition-all border border-white/15 min-h-[38px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                 >
                   💰 {t("nav.economy" as TranslationKey)} →
                 </button>
+
                 <button
                   type="button"
                   onClick={() => {
@@ -561,7 +659,7 @@ export function HomeScreen() {
                     router.push("/sponsors");
                   }}
                   aria-label={t("sponsors.title" as TranslationKey)}
-                  className="inline-flex items-center gap-1.5 self-start text-[10px] uppercase font-black tracking-wider bg-white/10 hover:bg-white/20 active:scale-95 px-3 py-2 md:py-1.5 rounded-full transition-all border border-white/10 relative min-h-[36px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                  className="inline-flex items-center gap-1.5 text-[10px] uppercase font-black tracking-wider bg-white/15 hover:bg-white/25 active:scale-95 px-3 py-2 rounded-xl transition-all border border-white/15 relative min-h-[38px] focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
                 >
                   🤝 {t("sponsors.title" as TranslationKey)} →
                   {(gameState?.sponsorship?.pendingOffers?.length ?? 0) > 0 && (
@@ -569,6 +667,18 @@ export function HomeScreen() {
                       {gameState?.sponsorship?.pendingOffers?.length ?? 0}
                     </span>
                   )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    playSound("click");
+                    router.push("/how-to-play");
+                  }}
+                  aria-label={t("how_to_play.title" as TranslationKey)}
+                  className="inline-flex items-center gap-1.5 text-[10px] uppercase font-black tracking-wider bg-indigo-500/30 hover:bg-indigo-500/40 active:scale-95 px-3 py-2 rounded-xl transition-all border border-indigo-400/40 min-h-[38px] focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/60"
+                >
+                  📖 {t("how_to_play.title" as TranslationKey)} →
                 </button>
               </nav>
             </div>

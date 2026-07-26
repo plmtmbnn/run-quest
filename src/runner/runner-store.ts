@@ -1,7 +1,7 @@
 // runner-store.ts
 // State management and persistence for the Runner Profile.
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { loadRunnerState, saveRunnerState } from "./runner-persistence";
 import { DEFAULT_RUNNER_STATE, type RunnerState } from "./runner-types";
 
@@ -10,20 +10,19 @@ import { DEFAULT_RUNNER_STATE, type RunnerState } from "./runner-types";
  * @returns The current RunnerState and a function to update it.
  */
 export const useRunnerStore = () => {
-  const [runnerState, setRunnerState] =
+  const [runnerState, setRunnerStateInternal] =
     useState<RunnerState>(DEFAULT_RUNNER_STATE);
 
   // Load the runner state from local storage on mount and listen for external updates.
   useEffect(() => {
-    const storedState = loadRunnerState();
-    setRunnerState(storedState);
+    setRunnerStateInternal(loadRunnerState());
 
     const handleUpdate = (e: Event) => {
       const customEvent = e as CustomEvent<RunnerState>;
       if (customEvent.detail) {
-        setRunnerState(customEvent.detail);
+        setRunnerStateInternal(customEvent.detail);
       } else {
-        setRunnerState(loadRunnerState());
+        setRunnerStateInternal(loadRunnerState());
       }
     };
 
@@ -33,10 +32,10 @@ export const useRunnerStore = () => {
     };
   }, []);
 
-  // Save the runner state to local storage whenever it changes.
-  useEffect(() => {
-    saveRunnerState(runnerState);
-  }, [runnerState]);
+  const setRunnerState = useCallback((state: RunnerState) => {
+    saveRunnerState(state);
+    setRunnerStateInternal(state);
+  }, []);
 
   return {
     runnerState,

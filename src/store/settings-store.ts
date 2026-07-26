@@ -1,8 +1,15 @@
 import { create } from "zustand";
 import type { CurrencyCode } from "@/economy/currency-config";
 import type { Language } from "@/i18n/types";
+import { clearAllPBs } from "@/runner/personal-best";
+import { resetRunnerState } from "@/runner/runner-persistence";
+import { useShopStore } from "@/shop/shop-store";
+import { useSocialStore } from "@/social/social-store";
 import { storageRepository } from "@/storage/storage-repository";
 import type { StoredSettings } from "@/storage/types";
+import { useGameStore } from "@/store/game-store";
+import { usePreparationStore } from "@/store/preparation-store";
+import { useStoryStore } from "@/story/story-store";
 
 const DEFAULT_SETTINGS: StoredSettings = {
   version: 1,
@@ -12,6 +19,7 @@ const DEFAULT_SETTINGS: StoredSettings = {
   sound: true,
   hapticFeedback: true,
   hasCompletedOnboarding: false,
+  gameMode: "career",
   preferredCurrency: "USD",
   preferences: {
     preferredSurface: "any",
@@ -29,6 +37,7 @@ export interface SettingsState {
   setSound: (value: boolean) => void;
   setHapticFeedback: (value: boolean) => void;
   setPreferredCurrency: (currency: CurrencyCode) => void;
+  setGameMode: (mode: "easy" | "career") => void;
   setPreferences: (prefs: StoredSettings["preferences"]) => void;
   completeOnboarding: () => void;
   resetAllData: () => void;
@@ -82,6 +91,12 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     set({ settings: updated });
   },
 
+  setGameMode(gameMode) {
+    const updated = { ...get().settings, gameMode };
+    storageRepository.saveSettings(updated);
+    set({ settings: updated });
+  },
+
   setPreferences(preferences) {
     const updated = { ...get().settings, preferences };
     storageRepository.saveSettings(updated);
@@ -105,18 +120,32 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
       theme: currentSettings.theme,
       preferredCurrency: currentSettings.preferredCurrency,
     };
+
+    // 1. Reset all in-memory sub-stores
+    try {
+      useShopStore.getState().resetInventory();
+      usePreparationStore.getState().reset();
+      useSocialStore.getState().resetSocial();
+      useStoryStore.getState().resetStoryProgress();
+      useGameStore.getState().clearState();
+      resetRunnerState();
+      clearAllPBs();
+    } catch (e) {
+      console.warn("Error resetting in-memory stores:", e);
+    }
     
-    // Clear all game data from storage completely
+    // 2. Clear all game data from storage completely
     storageRepository.clearAll();
     
-    // Restore preserved preferences
-    const restoredSettings = {
+    // 3. Restore preserved preferences
+    const restoredSettings: StoredSettings = {
       ...DEFAULT_SETTINGS,
       ...preservedPreferences,
+      hasCompletedOnboarding: false,
     };
     storageRepository.saveSettings(restoredSettings);
     
-    // Redirect to home root to reinitialize a brand new game from the start
+    // 4. Redirect to root to reinitialize fresh game state
     if (typeof window !== "undefined") {
       window.location.href = "/";
     }

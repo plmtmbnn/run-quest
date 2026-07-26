@@ -4,19 +4,27 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowLeft,
   ArrowRight,
+  BookOpen,
+  Briefcase,
   Calendar,
   Compass,
   Dices,
   Flame,
   HelpCircle,
+  ShoppingBag,
+  Timer,
   User,
+  Zap,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { storageRepository } from "@/storage/storage-repository";
 import { usePlayerStore } from "@/store/player-store";
 import { useSettingsStore } from "@/store/settings-store";
+import { useShopStore } from "@/shop/shop-store";
+import { useTimelineStore } from "@/store/timeline-store";
 import { generateRunnerName } from "@/utils/name-generator";
 import { generateRandomDOB } from "@/utils/date-generator";
 
@@ -30,8 +38,9 @@ interface OnboardingScreenProps {
 }
 
 export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
+  const router = useRouter();
   const { t, language } = useTranslation();
-  const { setLanguage, setPreferredCurrency } = useSettingsStore();
+  const { setLanguage, setPreferredCurrency, setGameMode } = useSettingsStore();
   const { playSound } = useSound();
   const player = usePlayerStore((state) => state.player);
   const setPlayerName = usePlayerStore((state) => state.setPlayerName);
@@ -54,6 +63,8 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
     const initialCountry = getCountryByCode(player?.nationality || detectDeviceCountry());
     return initialCountry.defaultCurrency;
   });
+  const [selectedGameMode, setSelectedGameMode] = useState<"career" | "easy">("career");
+  const unlockAllItems = useShopStore((state) => state.unlockAllItems);
 
   useEffect(() => {
     if (player?.name && !hasInitializedName) {
@@ -76,29 +87,38 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       titleKey: "onboarding.slide_2.title",
       subtitleKey: "onboarding.slide_2.subtitle",
       contentKey: "onboarding.slide_2.content",
-      icon: (
-        <Compass
-          className="w-16 h-16 md:w-20 md:h-20 text-indigo-500 animate-bounce drop-shadow-[0_0_15px_rgba(99,102,241,0.4)]"
-          style={{ animationDuration: "3s" }}
-        />
-      ),
-      color: "from-blue-500/10 via-blue-100/20 to-indigo-200/10",
-      bgGradient: "from-indigo-500 to-blue-600",
-      accent: "border-blue-200",
+      icon: <Zap className="w-16 h-16 md:w-20 md:h-20 text-amber-500 drop-shadow-[0_0_15px_rgba(245,158,11,0.4)]" />,
+      color: "from-amber-500/10 via-amber-100/20 to-yellow-200/10",
+      bgGradient: "from-amber-500 to-yellow-600",
+      accent: "border-amber-200",
     },
     {
       titleKey: "onboarding.slide_3.title",
       subtitleKey: "onboarding.slide_3.subtitle",
       contentKey: "onboarding.slide_3.content",
-      icon: <HelpCircle className="w-16 h-16 md:w-20 md:h-20 text-emerald-500 drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]" />,
-      color: "from-emerald-500/10 via-emerald-100/20 to-teal-200/10",
-      bgGradient: "from-emerald-500 to-teal-600",
-      accent: "border-emerald-200",
+      icon: <ShoppingBag className="w-16 h-16 md:w-20 md:h-20 text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.4)]" />,
+      color: "from-blue-500/10 via-blue-100/20 to-indigo-200/10",
+      bgGradient: "from-blue-500 to-indigo-600",
+      accent: "border-blue-200",
     },
     {
       titleKey: "onboarding.slide_4.title",
       subtitleKey: "onboarding.slide_4.subtitle",
       contentKey: "onboarding.slide_4.content",
+      icon: (
+        <Timer
+          className="w-16 h-16 md:w-20 md:h-20 text-rose-500 drop-shadow-[0_0_15px_rgba(244,63,94,0.4)] animate-bounce"
+          style={{ animationDuration: "3s" }}
+        />
+      ),
+      color: "from-rose-500/10 via-rose-100/20 to-purple-200/10",
+      bgGradient: "from-rose-500 to-purple-600",
+      accent: "border-rose-200",
+    },
+    {
+      titleKey: "onboarding.slide_5.title",
+      subtitleKey: "onboarding.slide_5.subtitle",
+      contentKey: "onboarding.slide_5.content",
       icon: <User className="w-16 h-16 md:w-20 md:h-20 text-violet-500 drop-shadow-[0_0_15px_rgba(139,92,246,0.4)]" />,
       color: "from-violet-500/10 via-violet-100/20 to-purple-200/10",
       bgGradient: "from-violet-500 to-purple-600",
@@ -133,6 +153,23 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
 	setPlayerName(nameInput.trim());
     setNationality(selectedNationality);
     setPreferredCurrency(selectedCurrency);
+    setGameMode(selectedGameMode);
+    
+    if (selectedGameMode === "easy") {
+      unlockAllItems();
+      const timelineStore = useTimelineStore.getState();
+      if (!timelineStore.gameState) {
+        timelineStore.initialize();
+      }
+      timelineStore.setGameState((prev) => ({
+        ...prev,
+        resources: { ...prev.resources, money: 1000 },
+        economy: {
+          ...prev.economy,
+          currentBalance: 1000,
+        },
+      }));
+    }
     if (dobInput || useRandomDOB) {
       setDateOfBirth(dobInput || generateRandomDOB());
     }
@@ -143,6 +180,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       reducedMotion: false,
       sound: true,
       hasCompletedOnboarding: true,
+      gameMode: selectedGameMode,
       preferredCurrency: selectedCurrency,
       hapticFeedback: true,
       preferences: {
@@ -226,38 +264,52 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
           </span>
         </div>
 
-        {/* Pill-styled Language Selector from UI Guidelines */}
-        <div className="flex bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 p-1 rounded-full shadow-sm relative">
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => {
               playSound("click");
-              setLanguage("en");
+              router.push("/how-to-play");
             }}
-            aria-pressed={language === "en"}
-            className={`px-4 py-1.5 rounded-full text-xs font-black tracking-wider transition-all duration-200 min-h-[32px] focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
-              language === "en"
-                ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/20"
-                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-            }`}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition shadow-sm"
           >
-            EN
+            <BookOpen className="w-3.5 h-3.5 text-indigo-500" />
+            <span className="hidden sm:inline">{t("onboarding.view_guide" as TranslationKey)}</span>
           </button>
-          <button
-            type="button"
-            onClick={() => {
-              playSound("click");
-              setLanguage("id");
-            }}
-            aria-pressed={language === "id"}
-            className={`px-4 py-1.5 rounded-full text-xs font-black tracking-wider transition-all duration-200 min-h-[32px] focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
-              language === "id"
-                ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/20"
-                : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-            }`}
-          >
-            ID
-          </button>
+
+          {/* Pill-styled Language Selector from UI Guidelines */}
+          <div className="flex bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 p-1 rounded-full shadow-sm relative">
+            <button
+              type="button"
+              onClick={() => {
+                playSound("click");
+                setLanguage("en");
+              }}
+              aria-pressed={language === "en"}
+              className={`px-3 sm:px-4 py-1.5 rounded-full text-xs font-black tracking-wider transition-all duration-200 min-h-[32px] focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
+                language === "en"
+                  ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/20"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              EN
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                playSound("click");
+                setLanguage("id");
+              }}
+              aria-pressed={language === "id"}
+              className={`px-3 sm:px-4 py-1.5 rounded-full text-xs font-black tracking-wider transition-all duration-200 min-h-[32px] focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 ${
+                language === "id"
+                  ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/20"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              ID
+            </button>
+          </div>
         </div>
       </header>
 
@@ -300,7 +352,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                     {t(activeSlide.subtitleKey as TranslationKey)}
                   </p>
 
-                  {currentSlide === 3 ? (
+                  {currentSlide === 4 ? (
                     <div className="flex flex-col gap-4 mt-2">
                       <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                         {t(activeSlide.contentKey as TranslationKey)}
@@ -319,7 +371,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                               }
                             }}
                             maxLength={24}
-                            aria-label={t("onboarding.slide_4.title" as TranslationKey)}
+                            aria-label={t("onboarding.slide_5.title" as TranslationKey)}
                             aria-invalid={hasNameError}
                             aria-describedby={hasNameError ? "onboarding-name-error" : undefined}
                             className={`flex-grow min-h-[44px] border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white border-slate-200 dark:border-slate-800 font-bold transition-all ${
@@ -442,12 +494,65 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                             </button>
                           </div>
                         </div>
+
+                        {/* Game Mode Selection */}
+                        <div className="flex flex-col gap-1.5 mt-3">
+                          <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                            🎮 {t("onboarding.game_mode.title" as TranslationKey) || "Game Mode"}
+                          </span>
+                          <div className="grid grid-cols-2 gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                playSound("click");
+                                setSelectedGameMode("career");
+                              }}
+                              className={`py-2 px-2 rounded-xl text-[10px] sm:text-xs font-extrabold transition-all border text-center flex flex-col items-center justify-center gap-1 min-h-[56px] ${
+                                selectedGameMode === "career"
+                                  ? "bg-indigo-500 text-white border-indigo-500 shadow-sm shadow-indigo-500/30"
+                                  : "bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900"
+                              }`}
+                            >
+                              <span className="text-sm">🏆</span>
+                              <span className="leading-tight">{t("onboarding.game_mode.career" as TranslationKey) || "Career (Standard)"}</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                playSound("click");
+                                setSelectedGameMode("easy");
+                              }}
+                              className={`py-2 px-2 rounded-xl text-[10px] sm:text-xs font-extrabold transition-all border text-center flex flex-col items-center justify-center gap-1 min-h-[56px] ${
+                                selectedGameMode === "easy"
+                                  ? "bg-emerald-500 text-white border-emerald-500 shadow-sm shadow-emerald-500/30"
+                                  : "bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900"
+                              }`}
+                            >
+                              <span className="text-sm">🚀</span>
+                              <span className="leading-tight">{t("onboarding.game_mode.easy" as TranslationKey) || "Easy (All Unlocked)"}</span>
+                            </button>
+                          </div>
+                        </div>
+
                       </div>
                     </div>
                   ) : (
-                    <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed mt-1">
-                      {t(activeSlide.contentKey as TranslationKey)}
-                    </p>
+                    <div className="flex flex-col gap-3 mt-1">
+                      <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                        {t(activeSlide.contentKey as TranslationKey)}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          playSound("click");
+                          router.push("/how-to-play");
+                        }}
+                        className="self-start text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 mt-1"
+                      >
+                        <BookOpen className="w-3.5 h-3.5" />
+                        <span>{t("onboarding.view_guide" as TranslationKey)} →</span>
+                      </button>
+                    </div>
                   )}
                 </motion.div>
               </AnimatePresence>

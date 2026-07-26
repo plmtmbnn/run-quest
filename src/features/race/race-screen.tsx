@@ -15,12 +15,13 @@ import { checkRaceAchievements, type RaceAchievement } from "@/engine/achievemen
 import { advanceSimulation } from "@/engine/simulation/engine";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
-import { useRunnerStore } from "@/runner/runner-store";
+import { getRunnerState, useRunnerStore } from "@/runner/runner-store";
 import { getEnergyCostForDistance } from "@/economy/race-entry-engine";
 import { generateDailyChallenge } from "@/services/challenge/generator";
 import { useGameStore } from "@/store/game-store";
 import { usePlayerStore } from "@/store/player-store";
 import { usePreparationStore } from "@/store/preparation-store";
+import { useShopStore } from "@/shop/shop-store";
 import { useTimelineStore } from "@/store/timeline-store";
 import { BetResultsPopup } from "@/components/race/bet-results-popup";
 import { CrowdAtmosphere } from "@/components/race/crowd-atmosphere";
@@ -66,6 +67,36 @@ export function RaceScreen() {
   useEffect(() => {
     selectedPacingRef.current = selectedPacing;
   }, [selectedPacing]);
+
+  const CONSUMABLE_META: Record<string, { label: string; icon: string; boostType: string }> = {
+    water: { label: "Purified Water", icon: "💧", boostType: "+20 Hydration" },
+    energy_bar: { label: "Energy Bar", icon: "🍫", boostType: "+25 Stamina" },
+    electrolyte: { label: "Electrolytes", icon: "⚡", boostType: "+35 Hydration" },
+    electrolytes: { label: "Electrolytes", icon: "⚡", boostType: "+35 Hydration" },
+    salt_tablets: { label: "Salt Tablets", icon: "🧂", boostType: "+20 Hydration" },
+    energy_gel: { label: "Energy Gel", icon: "🔋", boostType: "+30 Stamina" },
+    caffeine: { label: "Caffeine Shot", icon: "🧠", boostType: "+25 Focus" },
+    hydration_mix: { label: "Pro Hydration", icon: "🥤", boostType: "+40 Hydration" },
+    caffeine_gum: { label: "Caffeine Gum", icon: "⚡", boostType: "+20 Focus" },
+  };
+
+  // Active Consumables state initialized directly from player's preparation selection
+  const [activeConsumables, setActiveConsumables] = useState<Record<string, number>>(() => {
+    const initial: Record<string, number> = {};
+    const selectedList = preparation.nutrition || [];
+    const quantities = preparation.nutritionQuantities || {};
+
+    selectedList.forEach((itemId) => {
+      initial[itemId] = quantities[itemId] ?? 1;
+    });
+
+    // Fallback if player selected no nutrition items in preparation screen
+    if (Object.keys(initial).length === 0) {
+      initial["water"] = 1;
+      initial["energy_gel"] = 1;
+    }
+    return initial;
+  });
 
   // Load/Generate today's challenge once on mount
   const [challenge] = useState(() => {
@@ -338,21 +369,27 @@ export function RaceScreen() {
         const energyCost = getEnergyCostForDistance(challenge?.race?.distance);
         useTimelineStore.getState().doAction("compete", energyCost);
 
-        // ── Update rival relationships after race ─────────────────────────────
-        // Check which rivals the player beat and update relationships
+        // ── Save result and process XP, coins, leveling, and standings FIRST ──
+        setResult(simResult);
+        analyzeRace(simResult, challenge, preparation);
+        completeChallenge(
+          challenge.id,
+          challenge.race.distance,
+          simResult,
+          language,
+        );
+
+        // ── Update rival relationships after XP/leveling are persisted ─────
         if (raceRivals.length > 0 && simResult.stateLog && simResult.stateLog.length > 0) {
           const playerFinishTime = simResult.finishTime;
           const playerOutcome = simResult.outcome;
           const playerIsDNF = playerOutcome === "dnf" || playerOutcome === "dns";
-          
-          // Get final state to determine standings
           const finalState = simResult.stateLog[simResult.stateLog.length - 1];
           
-          // Update relationships for each rival
-          const updatedRelationships = { ...(runnerState.profile.rivalRelationships || {}) };
+          const freshState = getRunnerState();
+          const updatedRelationships = { ...(freshState.profile.rivalRelationships || {}) };
           
           for (const rival of raceRivals) {
-            // Find rival in opponents
             const rivalOpponent = finalState.opponents?.find(o => o.id === rival.id);
             if (rivalOpponent) {
               const rivalFinishTime = rivalOpponent.accumulatedTime;
@@ -360,7 +397,6 @@ export function RaceScreen() {
               const margin = Math.abs(playerFinishTime - rivalFinishTime);
               const playerBeatRival = !playerIsDNF && (rivalIsDNF || playerFinishTime < rivalFinishTime);
               
-              // Update relationship
               const existingRel = updatedRelationships[rival.id];
               const updatedRel = updateRivalRelationship(
                 existingRel,
@@ -369,7 +405,6 @@ export function RaceScreen() {
               );
               updatedRelationships[rival.id] = updatedRel;
               
-              // Show status update for this rival (only first one to avoid spam)
               if (raceRivals.indexOf(rival) === 0) {
                 setActiveRivalStatus({
                   rival,
@@ -380,27 +415,16 @@ export function RaceScreen() {
               }
             }
           }
-          
-          // Update runner state with new relationships
+
           const updatedRunnerState = {
-            ...runnerState,
+            ...freshState,
             profile: {
-              ...runnerState.profile,
+              ...freshState.profile,
               rivalRelationships: updatedRelationships,
             },
           };
           setRunnerState(updatedRunnerState);
         }
-
-        // Save result and auto-redirect to results screen
-        setResult(simResult);
-        analyzeRace(simResult, challenge, preparation);
-        completeChallenge(
-          challenge.id,
-          challenge.race.distance,
-          simResult,
-          language,
-        );
 
         // -- Settle bets if any were placed
         const currentBets = placedBets;
@@ -774,104 +798,90 @@ export function RaceScreen() {
     }
   }, [activeDecision, playSound]);
 
-  const consumeItem = (
-    item: "energy_gel" | "electrolytes" | "caffeine_gum",
-  ) => {
-    if (
-      !runnerState.profile.inventory ||
-      (runnerState.profile.inventory[item] || 0) <= 0
-    )
-      return;
+  const consumeItem = (itemKey: string) => {
+    const qty = activeConsumables[itemKey] || 0;
+    if (qty <= 0 || isFinished) return;
 
-    // 1. Deduct from inventory
-    const updatedInventory = {
-      ...runnerState.profile.inventory,
-      [item]: runnerState.profile.inventory[item] - 1,
-    };
-    const updatedState = {
-      ...runnerState,
-      profile: {
-        ...runnerState.profile,
-        inventory: updatedInventory,
-      },
-    };
-    setRunnerState(updatedState);
+    // 1. Deduct 1 from local activeConsumables state
+    setActiveConsumables((prev) => ({
+      ...prev,
+      [itemKey]: prev[itemKey] - 1,
+    }));
 
     // 2. Play sound
     playSound("success");
 
-    // 3. Apply modifier to active simulation state
-    let label = "";
-    let desc = "";
-    const effects = { stamina: 0, hydration: 0, morale: 0, pace: 0 };
+    // 3. Deduct from persistent shop store inventory if available
+    try {
+      useShopStore.getState().consumeNutrition(itemKey as any, 1);
+    } catch {
+      // safe fallback
+    }
 
-    if (item === "energy_gel") {
-      const isIronStomach =
-        runnerState.profile.activePerks?.includes("iron_stomach");
-      const energyBoost = isIronStomach ? 50 : 25;
-      label = "Consumed Energy Gel";
-      desc = `Stamina boosted by +${energyBoost}%!`;
-      effects.stamina = energyBoost;
+    // 4. Calculate boost values based on item
+    const isIronStomach = runnerState.profile.activePerks?.includes("iron_stomach");
+    let staminaBoost = 0;
+    let hydrationBoost = 0;
+    let focusBoost = 0;
+    const meta = CONSUMABLE_META[itemKey] || { label: itemKey, boostType: "+Boost" };
+    const label = `Consumed ${meta.label}`;
+    const desc = `${meta.label} (${meta.boostType})`;
+    const effects = { stamina: staminaBoost, hydration: hydrationBoost, morale: focusBoost, pace: 0 };
 
-      if (simStateRef.current) {
-        simStateRef.current.energy = Math.min(
-          100,
-          simStateRef.current.energy + energyBoost,
-        );
+    if (itemKey === "energy_gel") {
+      staminaBoost = isIronStomach ? 50 : 30;
+    } else if (itemKey === "water") {
+      hydrationBoost = 20;
+      staminaBoost = 10;
+    } else if (itemKey === "electrolyte" || itemKey === "electrolytes") {
+      hydrationBoost = 35;
+      staminaBoost = 10;
+    } else if (itemKey === "salt_tablets") {
+      hydrationBoost = 20;
+      staminaBoost = 15;
+    } else if (itemKey === "energy_bar") {
+      staminaBoost = 25;
+    } else if (itemKey === "hydration_mix") {
+      hydrationBoost = 40;
+      staminaBoost = 15;
+    } else if (itemKey === "caffeine" || itemKey === "caffeine_gum") {
+      focusBoost = 25;
+      staminaBoost = 10;
+    } else {
+      staminaBoost = 20;
+    }
+
+    if (simStateRef.current) {
+      if (staminaBoost > 0) {
+        simStateRef.current.energy = Math.min(100, simStateRef.current.energy + staminaBoost);
       }
-    } else if (item === "electrolytes") {
-      label = "Consumed Electrolytes";
-      desc = "Hydration boosted by +20%!";
-      effects.hydration = 20;
-
-      if (simStateRef.current) {
-        simStateRef.current.hydration = Math.min(
-          100,
-          simStateRef.current.hydration + 20,
-        );
+      if (hydrationBoost > 0) {
+        simStateRef.current.hydration = Math.min(100, (simStateRef.current.hydration || 80) + hydrationBoost);
       }
-    } else if (item === "caffeine_gum") {
-      label = "Consumed Caffeine Gum";
-      desc = "Focus / Morale boosted by +20%!";
-      effects.morale = 20;
-
-      if (simStateRef.current) {
-        simStateRef.current.focus = Math.min(
-          100,
-          simStateRef.current.focus + 20,
-        );
+      if (focusBoost > 0) {
+        simStateRef.current.focus = Math.min(100, simStateRef.current.focus + focusBoost);
       }
     }
 
-    // 4. Update local screen stats directly
+    // 5. Update local screen stats directly
     dispatchStats({
-      type: 'UPDATE',
-      payload: (() => {
-        const next = { ...stats };
-        if (item === "energy_gel") {
-          const isIronStomach = runnerState.profile.activePerks?.includes("iron_stomach");
-          next.energy = Math.min(100, stats.energy + (isIronStomach ? 50 : 25));
-        }
-        if (item === "electrolytes")
-          next.hydration = Math.min(100, stats.hydration + 20);
-        if (item === "caffeine_gum") next.focus = Math.min(100, stats.focus + 20);
-        return next;
-      })()
+      type: "UPDATE",
+      payload: {
+        ...stats,
+        energy: Math.min(100, stats.energy + staminaBoost),
+        hydration: Math.min(100, stats.hydration + hydrationBoost),
+        focus: Math.min(100, stats.focus + focusBoost),
+      },
     });
 
-    // 5. Append to runningEvents log
+    // 6. Append to runningEvents log
     setRunningEvents((prev) => [
       ...prev,
       {
         km: currentKm,
         title: {
           en: label,
-          id:
-            label === "Consumed Energy Gel"
-              ? "Mengonsumsi Gel Energi"
-              : label === "Consumed Electrolytes"
-                ? "Mengonsumsi Elektrolit"
-                : "Mengonsumsi Permen Kafein",
+          id: `Mengonsumsi ${meta.label}`,
         },
         description: { en: desc, id: desc },
         effect: effects,
@@ -1355,57 +1365,45 @@ export function RaceScreen() {
                 })}
               </div>
 
-              {/* Consumables Inventory */}
+              {/* Active Preparation Consumables */}
               <div className="mt-3 md:mt-4 border-t border-slate-100 dark:border-gray-800 pt-3 md:pt-4 flex flex-col gap-2">
-                <h4 className="text-[10px] md:text-xs uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
-                  <span>🥤</span> Active Consumables
-                </h4>
+                <div className="flex items-center justify-between">
+                  <h4 className="text-[10px] md:text-xs uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                    <span>🥤</span> Active Consumables
+                  </h4>
+                  <span className="text-[10px] font-mono font-bold text-indigo-500 dark:text-indigo-400">
+                    {Object.values(activeConsumables).reduce((a, b) => a + b, 0)} items remaining
+                  </span>
+                </div>
                 <div className="flex flex-wrap gap-2 mt-1">
-                  {Object.entries(runnerState.profile.inventory || {}).map(
-                    ([item, qty]) => {
-                      const label =
-                        item === "energy_gel"
-                          ? "Energy Gel"
-                          : item === "electrolytes"
-                            ? "Electrolytes"
-                            : "Caffeine Gum";
-                      const icon =
-                        item === "energy_gel"
-                          ? "🔋"
-                          : item === "electrolytes"
-                            ? "💧"
-                            : "🧠";
-                      const isAvailable = qty > 0;
+                  {Object.entries(activeConsumables).map(([itemKey, qty]) => {
+                    const meta = CONSUMABLE_META[itemKey] || {
+                      label: itemKey.replace("_", " "),
+                      icon: "⚡",
+                      boostType: "+Boost",
+                    };
+                    const isAvailable = qty > 0;
 
-                      return (
-                        <button
-                          key={item}
-                          type="button"
-                          disabled={!isAvailable || isFinished}
-                          onClick={() =>
-                            consumeItem(
-                              item as
-                                | "energy_gel"
-                                | "electrolytes"
-                                | "caffeine_gum",
-                            )
-                          }
-                          className={`py-2 px-3 rounded-[1.25rem] text-[11px] font-extrabold flex items-center gap-1.5 transition-all transform active:scale-95 border
-                          ${
-                            isAvailable && !isFinished
-                              ? "bg-slate-50 hover:bg-slate-100 dark:bg-slate-950 dark:hover:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 cursor-pointer shadow-sm"
-                              : "bg-slate-100 dark:bg-slate-900 border-slate-150 dark:border-slate-850 text-slate-450 dark:text-slate-600 opacity-45 cursor-not-allowed"
-                          }
-                        `}
-                        >
-                          <span>{icon}</span>
-                          <span>
-                            {label} ({qty})
-                          </span>
-                        </button>
-                      );
-                    },
-                  )}
+                    return (
+                      <button
+                        key={itemKey}
+                        type="button"
+                        disabled={!isAvailable || isFinished}
+                        onClick={() => consumeItem(itemKey)}
+                        className={`py-2.5 px-3.5 rounded-[1.25rem] text-[11px] font-extrabold flex items-center gap-1.5 transition-all transform active:scale-95 border min-h-[44px] ${
+                          isAvailable && !isFinished
+                            ? "bg-slate-50 hover:bg-slate-100 dark:bg-slate-950 dark:hover:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 cursor-pointer shadow-sm"
+                            : "bg-slate-100 dark:bg-slate-900 border-slate-150 dark:border-slate-850 text-slate-400 dark:text-slate-600 opacity-45 cursor-not-allowed"
+                        }`}
+                        title={`${meta.label} (${meta.boostType})`}
+                      >
+                        <span>{meta.icon}</span>
+                        <span>
+                          {meta.label} <span className="font-mono font-black">({qty})</span>
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>

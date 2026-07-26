@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Award, BookOpen, ChevronDown, ChevronUp, Clock, Home, Share2, Sparkles } from "lucide-react";
+import { Award, BookOpen, Camera, Check, ChevronDown, ChevronUp, Clock, Copy, Home, Share2, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CoachQuoteCard } from "@/components/share/coach-quote-card";
@@ -26,6 +26,7 @@ import {
   getTierAndDivision,
 } from "@/social/ranking-engine";
 import { setPBIfFaster } from "@/runner/personal-best";
+import { useSound } from "@/hooks/use-sound";
 import { useSocialStore } from "@/social/social-store";
 import { useGameStore } from "@/store/game-store";
 import { usePlayerStore } from "@/store/player-store";
@@ -38,6 +39,7 @@ export function ResultScreen() {
   const router = useRouter();
   const { t, language } = useTranslation();
   const lang = (language === "id" ? "id" : "en") as "en" | "id";
+  const { playSound } = useSound();
 
   const { lastResult, currentChallenge, clearState } = useGameStore();
   const { reset } = usePreparationStore();
@@ -58,10 +60,21 @@ export function ResultScreen() {
 
   // Share States
   const [isReportShareOpen, setIsReportShareOpen] = useState(false);
+  const [isSummaryCopied, setIsSummaryCopied] = useState(false);
   const [activeCoachQuote, setActiveCoachQuote] = useState<string | null>(null);
   const [activeEventHighlight, setActiveEventHighlight] =
     useState<RaceEvent | null>(null);
   const [isHighlightsExpanded, setIsHighlightsExpanded] = useState(false);
+
+  const handleCopySummary = () => {
+    if (!challenge) return;
+    playSound("click");
+    const summaryText = `🏃 RunQuest Victory Certificate 🏆\n📍 ${challenge.race.title[lang]}\n🏁 Distance: ${challenge.race.distance} km\n⏱️ Time: ${formatTime(finishTime)}\n🏅 Medal: ${outcome.toUpperCase()} | Grade: ${grade} | Score: ${score}/100\n🎮 Play at runquest.game`;
+    navigator.clipboard.writeText(summaryText).then(() => {
+      setIsSummaryCopied(true);
+      setTimeout(() => setIsSummaryCopied(false), 2500);
+    });
+  };
   
   // Analytics state
   const [showAnalytics, setShowAnalytics] = useState(false);
@@ -604,13 +617,25 @@ export function ResultScreen() {
         )}
 
         {/* Visual Share Card Preview */}
-        <div className="flex flex-col gap-3">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-            {t("challenge.result.share_card" as TranslationKey)}
-          </h3>
+        <div className="flex flex-col gap-3.5 bg-gradient-to-b from-slate-900/90 to-slate-950/90 border border-slate-800/80 rounded-[2.5rem] p-4 sm:p-6 shadow-2xl relative overflow-hidden backdrop-blur-md">
+          {/* Decorative Glow */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
 
-          <div className="relative overflow-hidden rounded-3xl border border-slate-250 dark:border-slate-800/60 bg-slate-950 p-4 flex justify-center shadow-inner">
-            <div className="scale-[0.6] sm:scale-[0.8] origin-center my-[-80px] sm:my-[-40px] pointer-events-none transition-transform duration-200">
+          <div className="flex items-center justify-between gap-3 relative z-10 px-1">
+            <div className="flex items-center gap-2">
+              <Camera className="w-4 h-4 text-indigo-400" />
+              <h3 className="text-xs font-black uppercase tracking-wider text-slate-300">
+                {t("challenge.result.share_card" as TranslationKey)}
+              </h3>
+            </div>
+            <span className="text-[10px] font-mono text-slate-400 bg-slate-800/60 px-2.5 py-0.5 rounded-full border border-slate-700/50">
+              800 × 450 PNG
+            </span>
+          </div>
+
+          <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-slate-950 p-2 sm:p-4 flex items-center justify-center shadow-inner relative z-10">
+            <div className="scale-[0.55] sm:scale-[0.75] md:scale-[0.85] origin-center my-[-90px] sm:my-[-45px] pointer-events-none transition-transform duration-200">
               <RaceReportCard
                 challenge={challenge}
                 outcome={outcome}
@@ -623,14 +648,42 @@ export function ResultScreen() {
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setIsReportShareOpen(true)}
-            className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-full text-sm font-semibold transition active:scale-[0.99] border border-slate-850"
-          >
-            <Share2 className="h-4 w-4" />
-            <span>{t("challenge.result.download_png" as TranslationKey)}</span>
-          </button>
+          {/* Action Buttons Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 relative z-10 pt-1">
+            <button
+              type="button"
+              onClick={() => {
+                playSound("click");
+                setIsReportShareOpen(true);
+              }}
+              className="w-full flex items-center justify-center gap-2 px-5 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-2xl text-xs md:text-sm font-black transition-all active:scale-95 shadow-lg shadow-indigo-500/25 min-h-[44px]"
+            >
+              <Share2 className="h-4 w-4" />
+              <span>{t("challenge.result.download_png" as TranslationKey)}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleCopySummary}
+              className={`w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl text-xs md:text-sm font-black transition-all active:scale-95 border min-h-[44px] ${
+                isSummaryCopied
+                  ? "bg-emerald-600 text-white border-emerald-500 shadow-md shadow-emerald-500/20"
+                  : "bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 border-slate-700/80"
+              }`}
+            >
+              {isSummaryCopied ? (
+                <>
+                  <Check className="h-4 w-4 text-white" />
+                  <span>Summary Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="h-4 w-4 text-slate-300" />
+                  <span>Copy Stats Text</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Rival Leaderboard */}
