@@ -536,6 +536,8 @@
     },
     "nutrition": {
       "title": "Race Fuel",
+      "hot_weather_tip": "☀️ Hot Weather Alert: Bring extra Hydration Mix or Electrolytes to prevent cramping and dehydration!",
+      "cold_weather_tip": "❄️ Cold Weather Alert: Pack Energy Gels for fast warmth and fuel without fluid overload!",
       "water": {
         "name": "Water",
         "desc": "Essential hydration for steady efforts."
@@ -571,6 +573,9 @@
     },
     "gear": {
       "title": "Apparel",
+      "hot_weather_tip": "☀️ High UV Warning: Equip a Running Cap or Performance Shades to block glare and sun heat!",
+      "cold_weather_tip": "❄️ Low Temp Warning: Equip Arm Sleeves or a Windbreaker to protect muscles from cold winds!",
+      "rainy_weather_tip": "🌧️ Rainy Track Warning: Equip a Cap and Tech Tee to keep vision clear and avoid chafing!",
       "cap": {
         "name": "Running Cap",
         "desc": "Shields from sun glare and light rain."
@@ -1180,6 +1185,7 @@
     "weekly_total": "Weekly Total",
     "monthly_total": "Monthly Total",
     "weekly_expenses": "Weekly Expenses",
+    "monthly_expenses": "Monthly Expenses",
     "mandatory": "Mandatory",
     "optional": "Optional",
     "unlocked_at": "Unlocked at Lvl {level}",
@@ -1192,6 +1198,13 @@
     "status_good": "✓ Can afford 4+ weeks",
     "status_warning": "⚠ Low funds ({weeks} weeks left)",
     "status_critical": "❌ Critical (< 2 weeks)",
+    "status_good_monthly": "✓ Can afford 3+ months",
+    "status_warning_monthly": "⚠ Low funds ({months} months left)",
+    "status_critical_monthly": "❌ Critical (< 1 month)",
+    "race_logistics_active": "{count} Active Races (+{amount} travel & hotel)",
+    "no_race_logistics": "Base Living (No active race travel)",
+    "base_living": "Base Living Cost",
+    "travel_logistics": "Accommodation & Travel (Flight/Bus/Hotel)",
     "unpaid_warning": "You have unpaid living expenses! Pay your bills before training or racing.",
     "insufficient_funds": "Insufficient funds to cover expenses!",
     "find_work": "Find Work",

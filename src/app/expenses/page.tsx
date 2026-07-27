@@ -32,6 +32,8 @@ export default function ExpensesPage() {
   const { gameState } = useTimelineStore();
   const currentBalance = gameState?.economy.currentBalance ?? 0;
   const runnerLevel = loadRunnerState().profile.level || 1;
+  const registeredMap = gameState?.scheduling?.registered || {};
+  const registeredCount = Object.keys(registeredMap).length;
 
   const {
     expenseState,
@@ -46,15 +48,15 @@ export default function ExpensesPage() {
     initialize();
   }, [initialize]);
 
-  const weeklyTotal = getWeeklyTotal(runnerLevel);
-  const monthlyTotal = getMonthlyTotal(runnerLevel);
+  const weeklyTotal = getWeeklyTotal(runnerLevel, registeredCount);
+  const monthlyTotal = getMonthlyTotal(runnerLevel, registeredCount);
   const activeBenefits = getActiveBenefits();
   const availableExpenses = RECURRING_EXPENSES.filter(
     (e) => runnerLevel >= e.unlockedAtLevel
   );
 
-  const weeksAffordable =
-    weeklyTotal > 0 ? Math.floor(currentBalance / weeklyTotal) : 999;
+  const monthsAffordable =
+    monthlyTotal > 0 ? Math.floor(currentBalance / monthlyTotal) : 999;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white p-4 sm:p-6 max-w-4xl mx-auto space-y-6">
@@ -87,7 +89,7 @@ export default function ExpensesPage() {
               <Clock className="w-4 h-4 text-blue-500" />
               {t("expenses.weekly_total")}
             </div>
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1">
+            <div className="text-2xl font-bold font-mono text-blue-600 dark:text-blue-400 mt-1">
               {formatCurrency(weeklyTotal, preferredCurrency)}
             </div>
           </div>
@@ -97,7 +99,7 @@ export default function ExpensesPage() {
               <Wallet className="w-4 h-4 text-indigo-500" />
               {t("expenses.monthly_total")}
             </div>
-            <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-1">
+            <div className="text-2xl font-bold font-mono text-indigo-600 dark:text-indigo-400 mt-1">
               {formatCurrency(monthlyTotal, preferredCurrency)}
             </div>
           </div>
@@ -105,19 +107,19 @@ export default function ExpensesPage() {
 
         {/* Affordability Status */}
         <div className="p-3 rounded-xl border flex items-center justify-between text-sm font-medium bg-slate-50 dark:bg-slate-800/30 border-slate-200 dark:border-slate-800">
-          <span>{t("home.stats.money")}: {formatCurrency(currentBalance, preferredCurrency)}</span>
+          <span>{t("home.stats.money")}: <span className="font-mono font-bold">{formatCurrency(currentBalance, preferredCurrency)}</span></span>
           <div>
-            {weeksAffordable >= 4 ? (
+            {monthsAffordable >= 3 ? (
               <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
-                {t("expenses.status_good")}
+                {t("expenses.status_good_monthly" as TranslationKey)}
               </span>
-            ) : weeksAffordable >= 2 ? (
+            ) : monthsAffordable >= 1 ? (
               <span className="text-amber-600 dark:text-amber-400 font-semibold">
-                {t("expenses.status_warning", { weeks: weeksAffordable })}
+                {(t("expenses.status_warning_monthly" as TranslationKey) || "").replace("{months}", String(monthsAffordable))}
               </span>
             ) : (
               <span className="text-rose-600 dark:text-rose-400 font-semibold">
-                {t("expenses.status_critical")}
+                {t("expenses.status_critical_monthly" as TranslationKey)}
               </span>
             )}
           </div>
@@ -160,7 +162,7 @@ export default function ExpensesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {availableExpenses.map((expense) => {
             const isActive = expenseState.activeExpenses.includes(expense.id);
-            const amount = calculateExpenseAmount(expense, runnerLevel);
+            const amount = calculateExpenseAmount(expense, runnerLevel, registeredCount);
 
             return (
               <div

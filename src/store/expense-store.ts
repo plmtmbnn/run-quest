@@ -42,21 +42,32 @@ interface ExpenseStore {
   processScheduledExpenses: (
     dayIndex: number,
     currentBalance: number,
-    playerLevel: number
+    playerLevel: number,
+    registeredCount?: number
   ) => ExpenseProcessingResult;
 
   // Queries
   getDueExpenses: (dayIndex: number, playerLevel: number) => RecurringExpense[];
   getActiveBenefits: () => Record<string, number>;
-  getWeeklyTotal: (playerLevel: number) => number;
-  getMonthlyTotal: (playerLevel: number) => number;
-  canAffordExpenses: (currentBalance: number, daysAhead: number, playerLevel: number) => boolean;
+  getWeeklyTotal: (playerLevel: number, registeredCount?: number) => number;
+  getMonthlyTotal: (playerLevel: number, registeredCount?: number) => number;
+  canAffordExpenses: (currentBalance: number, daysAhead: number, playerLevel: number, registeredCount?: number) => boolean;
   hasUnpaidExpenses: () => boolean;
 
   // Persistence
   loadFromStorage: () => void;
   saveToStorage: () => void;
   reset: () => void;
+}
+
+function getActiveRegisteredCount(): number {
+  try {
+    const { useTimelineStore } = require("@/store/timeline-store");
+    const registered = useTimelineStore.getState()?.gameState?.scheduling?.registered;
+    return registered ? Object.keys(registered).length : 0;
+  } catch {
+    return 0;
+  }
 }
 
 export const useExpenseStore = create<ExpenseStore>()((set, get) => ({
@@ -92,8 +103,9 @@ export const useExpenseStore = create<ExpenseStore>()((set, get) => ({
     });
   },
 
-  processScheduledExpenses: (dayIndex, currentBalance, playerLevel) => {
+  processScheduledExpenses: (dayIndex, currentBalance, playerLevel, registeredCount) => {
     const currentState = get().expenseState;
+    const regCount = registeredCount ?? getActiveRegisteredCount();
 
     const dueExpenses = calculateDueExpenses(
       dayIndex,
@@ -102,7 +114,7 @@ export const useExpenseStore = create<ExpenseStore>()((set, get) => ({
       playerLevel
     );
 
-    const result = processExpenses(dueExpenses, currentBalance, playerLevel, dayIndex);
+    const result = processExpenses(dueExpenses, currentBalance, playerLevel, dayIndex, regCount);
 
     if (result.dueExpenses.length > 0) {
       const transaction: ExpenseTransaction = {
@@ -148,17 +160,20 @@ export const useExpenseStore = create<ExpenseStore>()((set, get) => ({
     return getActiveBenefitsFromHelper(get().expenseState.activeExpenses);
   },
 
-  getWeeklyTotal: (playerLevel: number) => {
-    return getWeeklyExpenseTotal(get().expenseState.activeExpenses, playerLevel);
+  getWeeklyTotal: (playerLevel: number, registeredCount?: number) => {
+    const regCount = registeredCount ?? getActiveRegisteredCount();
+    return getWeeklyExpenseTotal(get().expenseState.activeExpenses, playerLevel, regCount);
   },
 
-  getMonthlyTotal: (playerLevel: number) => {
-    return getMonthlyExpenseTotal(get().expenseState.activeExpenses, playerLevel);
+  getMonthlyTotal: (playerLevel: number, registeredCount?: number) => {
+    const regCount = registeredCount ?? getActiveRegisteredCount();
+    return getMonthlyExpenseTotal(get().expenseState.activeExpenses, playerLevel, regCount);
   },
 
-  canAffordExpenses: (currentBalance: number, daysAhead: number, playerLevel: number) => {
-    const weeklyTotal = getWeeklyExpenseTotal(get().expenseState.activeExpenses, playerLevel);
-    const requiredAmount = (weeklyTotal / 7) * daysAhead;
+  canAffordExpenses: (currentBalance: number, daysAhead: number, playerLevel: number, registeredCount?: number) => {
+    const regCount = registeredCount ?? getActiveRegisteredCount();
+    const monthlyTotal = getMonthlyExpenseTotal(get().expenseState.activeExpenses, playerLevel, regCount);
+    const requiredAmount = (monthlyTotal / 30) * daysAhead;
     return currentBalance >= requiredAmount;
   },
 

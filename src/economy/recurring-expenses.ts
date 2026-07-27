@@ -72,8 +72,8 @@ export const RECURRING_EXPENSES: RecurringExpense[] = [
     name: 'expenses.living_expenses.name',
     description: 'expenses.living_expenses.description',
     category: 'living',
-    baseAmount: 500,
-    frequency: 'weekly',
+    baseAmount: 150,
+    frequency: 'monthly',
     mandatory: true,
     unlockedAtLevel: 1,
   },
@@ -155,11 +155,30 @@ export function getExpenseById(expenseId: string): RecurringExpense | null {
 }
 
 /**
- * Calculate amount for an expense, accounting for level scaling.
+ * Calculate Living Expense breakdown (base living + race logistics like accommodation & tickets).
  */
-export function calculateExpenseAmount(expense: RecurringExpense, playerLevel: number): number {
+export function calculateLivingBreakdown(playerLevel: number, registeredCount: number = 0) {
+  const baseLiving = 150 + Math.max(1, playerLevel) * 10;
+  const travelLogistics = Math.max(0, registeredCount) * 200; // hotel, accommodation, flight/bus tickets
+  return {
+    baseLiving,
+    travelLogistics,
+    total: baseLiving + travelLogistics,
+    registeredCount,
+  };
+}
+
+/**
+ * Calculate amount for an expense, accounting for level scaling and active race registrations.
+ */
+export function calculateExpenseAmount(
+  expense: RecurringExpense,
+  playerLevel: number,
+  registeredCount: number = 0
+): number {
   if (expense.id === 'living_expenses') {
-    return 500 + Math.max(1, playerLevel) * 25;
+    const breakdown = calculateLivingBreakdown(playerLevel, registeredCount);
+    return breakdown.total;
   }
   return expense.baseAmount;
 }
@@ -216,12 +235,13 @@ export function processExpenses(
   dueExpenses: RecurringExpense[],
   currentBalance: number,
   playerLevel: number,
-  dayIndex: number
+  dayIndex: number,
+  registeredCount: number = 0
 ): ExpenseProcessingResult {
   const expenseItems: ExpenseProcessingItem[] = dueExpenses.map(expense => ({
     id: expense.id,
     name: expense.name,
-    amount: calculateExpenseAmount(expense, playerLevel),
+    amount: calculateExpenseAmount(expense, playerLevel, registeredCount),
     category: expense.category,
     mandatory: expense.mandatory,
   }));
@@ -278,12 +298,16 @@ export function getActiveBenefits(activeExpenses: string[]): Record<string, numb
 /**
  * Calculate weekly total cost for active expenses + mandatory expenses.
  */
-export function getWeeklyExpenseTotal(activeExpenses: string[], playerLevel: number): number {
+export function getWeeklyExpenseTotal(
+  activeExpenses: string[],
+  playerLevel: number,
+  registeredCount: number = 0
+): number {
   let total = 0;
   for (const expense of RECURRING_EXPENSES) {
     if (playerLevel < expense.unlockedAtLevel) continue;
     if (expense.mandatory || activeExpenses.includes(expense.id)) {
-      const amount = calculateExpenseAmount(expense, playerLevel);
+      const amount = calculateExpenseAmount(expense, playerLevel, registeredCount);
       if (expense.frequency === 'weekly') {
         total += amount;
       } else if (expense.frequency === 'daily') {
@@ -299,12 +323,16 @@ export function getWeeklyExpenseTotal(activeExpenses: string[], playerLevel: num
 /**
  * Calculate monthly total cost for active expenses + mandatory expenses.
  */
-export function getMonthlyExpenseTotal(activeExpenses: string[], playerLevel: number): number {
+export function getMonthlyExpenseTotal(
+  activeExpenses: string[],
+  playerLevel: number,
+  registeredCount: number = 0
+): number {
   let total = 0;
   for (const expense of RECURRING_EXPENSES) {
     if (playerLevel < expense.unlockedAtLevel) continue;
     if (expense.mandatory || activeExpenses.includes(expense.id)) {
-      const amount = calculateExpenseAmount(expense, playerLevel);
+      const amount = calculateExpenseAmount(expense, playerLevel, registeredCount);
       if (expense.frequency === 'weekly') {
         total += amount * 4;
       } else if (expense.frequency === 'daily') {

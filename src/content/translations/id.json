@@ -536,6 +536,8 @@
     },
     "nutrition": {
       "title": "Race Fuel",
+      "hot_weather_tip": "☀️ Peringatan Cuaca Panas: Bawa Hydration Mix atau Elektrolit ekstra untuk cegah kram dan dehidrasi!",
+      "cold_weather_tip": "❄️ Peringatan Cuaca Dingin: Siapkan Energy Gel untuk kehangatan dan energi cepat tanpa kembung!",
       "water": {
         "name": "Air Putih",
         "desc": "Hydration esensial untuk menjaga stamina."
@@ -571,6 +573,9 @@
     },
     "gear": {
       "title": "Apparel",
+      "hot_weather_tip": "☀️ Peringatan Terik UV: Pakai Topi Lari atau Kacamata Hitam untuk menahan silau matahari!",
+      "cold_weather_tip": "❄️ Peringatan Suhu Dingin: Gunakan Arm Sleeves atau Windbreaker untuk melindungi otot dari angin dingin!",
+      "rainy_weather_tip": "🌧️ Peringatan Hujan: Gunakan Topi Lari dan Kaos Tech Tee agar pandangan tetap jernih dan bebas lecet!",
       "cap": {
         "name": "Running Cap",
         "desc": "Melindungi dari silau matahari dan hujan rintik."
@@ -1180,6 +1185,7 @@
     "weekly_total": "Total Mingguan",
     "monthly_total": "Total Bulanan",
     "weekly_expenses": "Biaya Mingguan",
+    "monthly_expenses": "Biaya Bulanan",
     "mandatory": "Wajib",
     "optional": "Opsional",
     "unlocked_at": "Terbuka di Lvl {level}",
@@ -1192,6 +1198,13 @@
     "status_good": "✓ Mampu bayar 4+ minggu",
     "status_warning": "⚠ Dana rendah (sisa {weeks} minggu)",
     "status_critical": "❌ Kritis (< 2 minggu)",
+    "status_good_monthly": "✓ Mampu bayar 3+ bulan",
+    "status_warning_monthly": "⚠ Dana rendah (sisa {months} bulan)",
+    "status_critical_monthly": "❌ Kritis (< 1 bulan)",
+    "race_logistics_active": "{count} Ras Aktif (+{amount} travel & hotel)",
+    "no_race_logistics": "Biaya Hidup Dasar (Tanpa travel ras)",
+    "base_living": "Biaya Hidup Dasar",
+    "travel_logistics": "Akomodasi & Tiket Travel (Pesawat/Bus/Hotel)",
     "unpaid_warning": "Kamu memiliki biaya hidup yang belum dibayar! Bayar tagihanmu sebelum latihan atau balapan.",
     "insufficient_funds": "Dana tidak mencukupi untuk membayar biaya!",
     "find_work": "Cari Pekerjaan",

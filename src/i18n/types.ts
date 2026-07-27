@@ -75,6 +75,8 @@ export interface Dictionary {
     };
     nutrition: {
       title: string;
+      hot_weather_tip?: string;
+      cold_weather_tip?: string;
       water: ChoiceText;
       electrolyte: ChoiceText;
       energy_gel: ChoiceText;
@@ -86,6 +88,9 @@ export interface Dictionary {
     };
     gear: {
       title: string;
+      hot_weather_tip?: string;
+      cold_weather_tip?: string;
+      rainy_weather_tip?: string;
       cap: ChoiceText;
       sunglasses: ChoiceText;
       arm_sleeves: ChoiceText;

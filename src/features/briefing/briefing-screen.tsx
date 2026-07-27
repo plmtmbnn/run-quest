@@ -68,12 +68,9 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
 
     const scheduleId = currentChallenge?.scheduleId;
     if (!scheduleId) {
-      // No scheduled race — nothing to check here
       return;
     }
 
-    // Check if this specific race occurrence is already completed.
-    // Use composite key first, then legacy format for backward compat.
     const instanceKey = makeRegistrationKey(scheduleId, dayIndex);
     const isThisOccurrenceDone =
       schedulingState.completedRaces[instanceKey] !== undefined ||
@@ -84,146 +81,170 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
     }
   }, [schedulingState, currentChallenge?.scheduleId, dayIndex, router]);
 
+  const surfaceColorClass =
+    challenge.race.surface === "trail"
+      ? "bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/40"
+      : challenge.race.surface === "track"
+      ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-900/40"
+      : "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-900/40";
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
       transition={{ duration: 0.25, ease: "easeInOut" }}
-      className="min-h-screen bg-[#fffdf8] dark:bg-[#090d16] pb-24 text-gray-900 dark:text-white"
+      className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-28 lg:pb-16 text-slate-800 dark:text-white flex flex-col"
     >
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-gray-200 dark:border-slate-800 bg-[#ffffff]/90 dark:bg-[#111827]/90 px-6 py-4 backdrop-blur-md">
-        <div className="mx-auto flex max-w-2xl items-center gap-4">
+      <header className="sticky top-0 z-20 border-b border-[#E5E7EB] dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md">
+        <div className="mx-auto flex max-w-3xl items-center gap-4 px-4 sm:px-6 py-3.5">
           <button
             type="button"
             onClick={() => {
               playSound("click");
               router.back();
             }}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 transition hover:bg-gray-50 dark:hover:bg-slate-800 active:scale-95"
+            className="flex h-10 w-10 min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-[#E5E7EB] dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 transition-all hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
             aria-label="Back"
           >
-            <ArrowLeft className="h-4.5 w-4.5 text-gray-600 dark:text-gray-300" />
+            <ArrowLeft className="h-5 w-5 text-slate-600 dark:text-slate-300" />
           </button>
           <div>
-            <h1 className="font-heading text-xl font-bold text-gray-900 dark:text-white">
+            <h1 className="font-heading font-black text-lg sm:text-xl md:text-2xl text-slate-800 dark:text-white">
               {t("challenge.briefing.title" as TranslationKey)}
             </h1>
-            <p className="text-xs text-gray-500 dark:text-gray-300">
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
               {t("challenge.briefing.subtitle" as TranslationKey)}
             </p>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-2xl px-6 py-8 flex flex-col gap-6">
-        <div className="rounded-3xl border-2 border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm">
-          <div className="inline-flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 text-xs font-semibold px-3 py-1 rounded-full mb-4">
+      <main className="mx-auto w-full max-w-3xl px-4 sm:px-6 py-6 sm:py-8 flex flex-col gap-6">
+        {/* Hero Card Container */}
+        <div className="rounded-[2rem] border border-[#E5E7EB] dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm">
+          {/* Surface Category Badge */}
+          <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider font-heading mb-4 ${surfaceColorClass}`}>
             <Flame className="w-3.5 h-3.5" />
             <span>Today&apos;s Race Details</span>
           </div>
 
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white font-heading mb-2">
+          <h2 className="text-2xl sm:text-3xl font-heading font-black text-slate-900 dark:text-white mb-2 leading-tight">
             {challenge.race.title[lang]}
           </h2>
-          <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300 mb-6">
+          <p className="text-xs sm:text-sm leading-relaxed text-slate-600 dark:text-slate-300 mb-6">
             {challenge.race.description[lang]}
           </p>
 
-          <div className="grid grid-cols-2 gap-4 border-t border-b border-gray-100 dark:border-slate-800 py-6 mb-6">
-            <div className="flex items-center gap-3">
-              <MapPin className="h-5 w-5 text-gray-400" />
-              <div>
-                <p className="text-[10px] text-gray-400 uppercase font-semibold">
+          {/* 4 Metric Mini Cards Grid */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 border-t border-b border-[#E5E7EB] dark:border-slate-800/80 py-6 mb-6">
+            <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800 p-3.5 sm:p-4 rounded-2xl flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shrink-0">
+                <MapPin className="h-4.5 w-4.5" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                   {t("challenge.briefing.distance" as TranslationKey)}
-                </p>
-                <p className="font-bold text-gray-800 dark:text-gray-100">
+                </span>
+                <span className="font-mono font-bold text-sm sm:text-base text-slate-900 dark:text-white truncate block">
                   {challenge.race.distance} km
-                </p>
+                </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <Flame className="h-5 w-5 text-gray-400" />
-              <div>
-                <p className="text-[10px] text-gray-400 uppercase font-semibold">
+            <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800 p-3.5 sm:p-4 rounded-2xl flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 shrink-0">
+                <Flame className="h-4.5 w-4.5" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                   {t("challenge.briefing.weather_temp" as TranslationKey)}
-                </p>
-                <p className="font-bold text-gray-800 dark:text-gray-100">
+                </span>
+                <span className="font-mono font-bold text-sm sm:text-base text-slate-900 dark:text-white truncate block">
                   {t(
                     `challenge.weather.${challenge.environment.weather}` as TranslationKey,
                   )}{" "}
                   {challenge.environment.temperature}°C
-                </p>
+                </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <Wind className="h-5 w-5 text-gray-400" />
-              <div>
-                <p className="text-[10px] text-gray-400 uppercase font-semibold">
+            <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800 p-3.5 sm:p-4 rounded-2xl flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 shrink-0">
+                <Wind className="h-4.5 w-4.5" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                   {t("challenge.briefing.surface_type" as TranslationKey)}
-                </p>
-                <p className="font-bold text-gray-800 dark:text-gray-100">
+                </span>
+                <span className="font-heading font-black text-xs sm:text-sm text-slate-900 dark:text-white capitalize truncate block">
                   {t(
                     `challenge.surface.${challenge.race.surface}` as TranslationKey,
                   )}
-                </p>
+                </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <Sparkles className="h-5 w-5 text-gray-400" />
-              <div>
-                <p className="text-[10px] text-gray-400 uppercase font-semibold">
+            <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800 p-3.5 sm:p-4 rounded-2xl flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 shrink-0">
+                <Sparkles className="h-4.5 w-4.5" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-0.5">
                   {t("challenge.briefing.elevation_profile" as TranslationKey)}
-                </p>
-                <p className="font-bold text-gray-800 dark:text-gray-100">
+                </span>
+                <span className="font-heading font-black text-xs sm:text-sm text-slate-900 dark:text-white capitalize truncate block">
                   {t(
                     `challenge.elevation.${challenge.race.elevation}` as TranslationKey,
                   )}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-orange-50/50 dark:bg-[#431407]/40 rounded-2xl p-4 flex flex-col justify-center">
-              <span className="text-[10px] text-orange-400 dark:text-[#fdba74] uppercase font-bold mb-1">
-                {t("challenge.briefing.target_time" as TranslationKey)}
-              </span>
-              <div className="flex items-center gap-1.5 text-orange-800 dark:text-[#fed7aa] font-bold text-lg">
-                <Clock className="w-5 h-5 text-orange-500" />
-                <span>
-                  Under {formatTargetTime(challenge.objective.targetTime)}
-                </span>
-              </div>
-            </div>
-
-            <div className="bg-blue-50/50 dark:bg-[#172554]/40 rounded-2xl p-4 flex flex-col justify-center">
-              <span className="text-[10px] text-blue-400 dark:text-[#93c5fd] uppercase font-bold mb-1">
-                {t("challenge.briefing.wind_speed" as TranslationKey)}
-              </span>
-              <div className="flex items-center gap-1.5 text-blue-800 dark:text-[#bfdbfe] font-bold text-lg">
-                <Wind className="w-5 h-5 text-blue-500" />
-                <span>
-                  {challenge.environment.wind.speed} km/h{" "}
-                  {challenge.environment.wind.direction}
                 </span>
               </div>
             </div>
           </div>
 
+          {/* Highlight Stat Banners */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6">
+            <div className="bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-900/50 rounded-2xl p-4 sm:p-5 flex items-center justify-between shadow-sm">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300 block mb-1">
+                  {t("challenge.briefing.target_time" as TranslationKey)}
+                </span>
+                <div className="flex items-center gap-2 text-amber-900 dark:text-amber-200 font-mono font-bold text-lg sm:text-xl">
+                  <Clock className="w-5 h-5 text-amber-500 shrink-0" />
+                  <span>
+                    Under {formatTargetTime(challenge.objective.targetTime)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-sky-50/80 dark:bg-sky-950/30 border border-sky-200/80 dark:border-sky-900/50 rounded-2xl p-4 sm:p-5 flex items-center justify-between shadow-sm">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-sky-800 dark:text-sky-300 block mb-1">
+                  {t("challenge.briefing.wind_speed" as TranslationKey)}
+                </span>
+                <div className="flex items-center gap-2 text-sky-900 dark:text-sky-200 font-mono font-bold text-lg sm:text-xl">
+                  <Wind className="w-5 h-5 text-sky-500 shrink-0" />
+                  <span>
+                    {challenge.environment.wind.speed} km/h{" "}
+                    {challenge.environment.wind.direction}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* PB Ghost Card */}
           {ghost && (
-            <div className="bg-indigo-50/50 dark:bg-indigo-950/20 border-2 border-indigo-200 dark:border-indigo-900/30 rounded-[2rem] p-5 mb-6 flex items-center justify-between shadow-sm">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">👻</span>
+            <div className="bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900/60 rounded-[2rem] p-5 sm:p-6 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+              <div className="flex items-center gap-3.5">
+                <span className="text-3xl shrink-0">👻</span>
                 <div>
-                  <h3 className="font-extrabold text-sm text-indigo-950 dark:text-indigo-200 leading-tight">
+                  <h3 className="font-heading font-black text-sm text-indigo-950 dark:text-indigo-100">
                     Race against PB Ghost
                   </h3>
-                  <p className="text-[10px] text-indigo-500 dark:text-indigo-400 mt-0.5">
+                  <p className="text-xs font-mono font-bold text-indigo-700 dark:text-indigo-300 mt-1">
                     Your personal best: {Math.floor(ghost.finishTime / 60)}m{" "}
                     {Math.floor(ghost.finishTime % 60)}s (Recorded on Day{" "}
                     {ghost.recordedAt})
@@ -236,10 +257,10 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
                   playSound("click");
                   setEnableGhost(!enableGhost);
                 }}
-                className={`px-4 py-2 rounded-2xl text-xs font-black uppercase transition-all ${
+                className={`w-full sm:w-auto px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all min-h-[44px] ${
                   enableGhost
-                    ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/20 border-indigo-550 border"
-                    : "bg-white dark:bg-slate-900 border border-gray-250 dark:border-slate-800 text-gray-500 dark:text-gray-400 hover:bg-gray-50"
+                    ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/20 border border-indigo-500 active:scale-95"
+                    : "bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 active:scale-95"
                 }`}
               >
                 {enableGhost ? "ENABLED" : "ENABLE"}
@@ -247,16 +268,17 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
             </div>
           )}
 
-          <div className="flex flex-col sm:flex-row gap-3">
+          {/* Action CTAs for Desktop & Tablet */}
+          <div className="hidden lg:flex flex-col sm:flex-row gap-3 pt-2">
             <button
               type="button"
               onClick={() => {
                 playSound("click");
                 setIsShareOpen(true);
               }}
-              className="flex-grow flex items-center justify-center gap-2 px-6 py-4 border-2 border-blue-500 bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 active:scale-[0.98] rounded-full text-base font-semibold transition duration-200"
+              className="flex-grow border border-[#E5E7EB] dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/80 active:scale-95 font-bold text-xs py-4 px-6 rounded-2xl transition-all flex items-center justify-center gap-2 min-h-[44px]"
             >
-              <Share2 className="w-5 h-5" />
+              <Share2 className="w-4 h-4 text-slate-500 dark:text-slate-400" />
               <span>{t("share.race_choice.button" as TranslationKey)}</span>
             </button>
             <button
@@ -273,7 +295,7 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
                 }
                 router.push("/preparation");
               }}
-              className="flex-grow bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold text-base py-4 rounded-full transition-all duration-200 shadow-sm flex items-center justify-center gap-1.5"
+              className="flex-grow bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white font-black text-xs sm:text-sm uppercase tracking-wider py-4 px-6 rounded-2xl shadow-md shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 min-h-[44px]"
             >
               <span>
                 {t("challenge.briefing.start_prep" as TranslationKey)}
@@ -283,6 +305,40 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
           </div>
         </div>
       </main>
+
+      {/* Mobile Fixed Bottom Action Bar */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/95 dark:bg-slate-900/95 border-t border-[#E5E7EB] dark:border-slate-800 backdrop-blur-md z-30 lg:hidden flex items-center gap-3 shadow-lg">
+        <button
+          type="button"
+          onClick={() => {
+            playSound("click");
+            if (enableGhost && ghost) {
+              setActiveGhost({
+                runnerName: ghost.runnerName,
+                splits: ghost.splits,
+              });
+            } else {
+              setActiveGhost(null);
+            }
+            router.push("/preparation");
+          }}
+          className="flex-1 py-3.5 px-4 rounded-2xl text-xs sm:text-sm font-black uppercase tracking-wider transition-all duration-200 shadow-md bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white shadow-indigo-500/20 flex items-center justify-center gap-2 min-h-[44px]"
+        >
+          <span>{t("challenge.briefing.start_prep" as TranslationKey)}</span>
+          <span>→</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            playSound("click");
+            setIsShareOpen(true);
+          }}
+          className="p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 active:scale-95 transition-all flex items-center justify-center min-w-[44px] min-h-[44px]"
+          aria-label={t("share.race_choice.button" as TranslationKey)}
+        >
+          <Share2 className="h-5 w-5 text-slate-500 dark:text-slate-400" />
+        </button>
+      </div>
 
       <ShareModal
         isOpen={isShareOpen}
@@ -300,3 +356,5 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
     </motion.div>
   );
 }
+
+

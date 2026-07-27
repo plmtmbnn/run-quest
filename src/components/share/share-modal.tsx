@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, Copy, Download, Loader2, Share2, Sparkles, X } from "lucide-react";
+import { Award, Check, Copy, Download, Loader2, Share2, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useShareCard } from "@/hooks/use-share-card";
 import { useSound } from "@/hooks/use-sound";
@@ -73,7 +73,7 @@ export function ShareModal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xl flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-y-auto"
+      className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-y-auto"
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.94, y: 20 }}
@@ -84,26 +84,22 @@ export function ShareModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby={MODAL_TITLE_ID}
-        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 max-w-lg w-full p-5 sm:p-6 md:p-8 rounded-[2.5rem] shadow-2xl relative flex flex-col gap-5 md:gap-6 max-h-[92dvh] overflow-y-auto scrollbar-none"
+        className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 max-w-lg w-full p-5 sm:p-6 md:p-8 rounded-[2.5rem] shadow-2xl relative flex flex-col gap-5 md:gap-6 max-h-[92dvh] overflow-y-auto scrollbar-none"
       >
-        {/* Glow Aura Background Effect */}
-        <div className="absolute -top-32 -left-32 w-72 h-72 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-32 -right-32 w-72 h-72 bg-purple-500/15 rounded-full blur-3xl pointer-events-none" />
-
         {/* Top Header Row & Close Button */}
         <div className="flex items-start justify-between gap-3 relative z-10">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="p-2.5 bg-gradient-to-tr from-indigo-500/15 via-purple-500/15 to-blue-500/15 rounded-2xl border border-indigo-500/30 text-indigo-500 dark:text-indigo-400 shrink-0 shadow-sm">
-              <Sparkles className="h-5 w-5 animate-pulse" />
+            <div className="p-2.5 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 rounded-2xl border border-indigo-200/60 dark:border-indigo-900/40 shrink-0 shadow-sm">
+              <Award className="h-5 w-5" />
             </div>
             <div className="min-w-0">
               <h3
                 id={MODAL_TITLE_ID}
-                className="text-lg sm:text-xl font-black font-heading tracking-tight text-slate-900 dark:text-white truncate"
+                className="text-lg sm:text-xl font-heading font-black tracking-tight text-slate-900 dark:text-white truncate"
               >
                 {t("share.modal.title" as TranslationKey)}
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 truncate">
                 {t("share.modal.subtitle" as TranslationKey)}
               </p>
             </div>
@@ -115,31 +111,41 @@ export function ShareModal({
               playSound("click");
               onClose();
             }}
-            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all active:scale-95 shrink-0 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full border border-[#E5E7EB] dark:border-slate-800 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all active:scale-95 shrink-0 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
             aria-label="Close modal"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        {/* Card Preview Container */}
-        <div className="flex flex-col gap-2 w-full relative z-10">
-          <div className="flex items-center gap-2 justify-center text-[10px] sm:text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">
-            <span className="h-px bg-slate-200 dark:border-slate-800 dark:bg-slate-800 flex-1" />
-            <span>Victory Card Preview</span>
-            <span className="h-px bg-slate-200 dark:border-slate-800 dark:bg-slate-800 flex-1" />
+        {/* Authentic Athletic Marathon Victory Card Preview */}
+        <div className="flex flex-col gap-2.5 w-full relative z-10">
+          {/* Header Badge */}
+          <div className="flex items-center justify-center gap-2">
+            <span className="h-px bg-[#E5E7EB] dark:bg-slate-800 flex-1" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/40 text-xs font-heading font-black uppercase tracking-wider shadow-xs">
+              <span className="text-xs">🏅</span>
+              <span>Victory Card Preview</span>
+            </div>
+            <span className="h-px bg-[#E5E7EB] dark:bg-slate-800 flex-1" />
           </div>
 
-          <div className="relative group bg-slate-950 rounded-2xl sm:rounded-3xl p-3 sm:p-5 overflow-hidden border border-slate-200/50 dark:border-slate-800 shadow-inner flex justify-center w-full">
-            {/* Subtle Grid overlay */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:16px_16px] opacity-30 pointer-events-none" />
+          {/* Clean Marathon Finish-Line Showcase Box */}
+          <div className="relative group bg-slate-100 dark:bg-slate-950 rounded-[2rem] p-4 sm:p-6 overflow-hidden border border-[#E5E7EB] dark:border-slate-800 shadow-inner flex justify-center w-full">
+            {/* Subtle Sunbeam Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 via-transparent to-indigo-500/5 dark:from-amber-500/10 dark:to-indigo-500/10 pointer-events-none" />
+
+            {/* Finish Line Ribbon Text Accent */}
+            <div className="absolute top-3 left-4 text-[10px] font-mono font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 pointer-events-none select-none">
+              🏁 FINISH DIPLOMA
+            </div>
 
             {/* Interactive Card Scaler */}
             <div className="origin-center scale-[0.42] xs:scale-[0.48] sm:scale-[0.56] md:scale-[0.62] my-[-125px] xs:my-[-105px] sm:my-[-85px] md:my-[-70px] transition-transform duration-300 z-10">
               {/* High-resolution screenshot card container */}
               <div
                 ref={cardRef}
-                className="shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-2xl overflow-hidden border-2 border-slate-800 bg-slate-900 transition-shadow duration-300"
+                className="shadow-xl rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition-transform duration-300 group-hover:scale-[1.01]"
               >
                 {children}
               </div>
@@ -147,7 +153,7 @@ export function ShareModal({
           </div>
         </div>
 
-        {/* Mobile-First Sharing Actions Grid */}
+        {/* Action Buttons */}
         <div className="grid grid-cols-3 gap-2.5 sm:gap-3.5 relative z-10 pt-1">
           {/* Copy Text Button */}
           <button
@@ -155,7 +161,7 @@ export function ShareModal({
             onClick={handleCopy}
             className={`group flex flex-col items-center justify-center gap-1.5 p-3 sm:p-3.5 rounded-2xl border transition-all active:scale-95 min-h-[54px] ${
               copied
-                ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-600 dark:text-emerald-400"
+                ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900/60 text-emerald-700 dark:text-emerald-300"
                 : "bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
             }`}
           >
@@ -192,14 +198,14 @@ export function ShareModal({
             </span>
           </button>
 
-          {/* Native Share Button (Primary) */}
+          {/* Native Share Button (Primary CTA) */}
           <button
             type="button"
             onClick={handleNativeShare}
             disabled={isSharing}
-            className="group flex flex-col items-center justify-center gap-1.5 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-500/25 border border-indigo-400/40 min-h-[54px]"
+            className="group flex flex-col items-center justify-center gap-1.5 p-3 sm:p-3.5 rounded-2xl bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white font-black transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-indigo-500/20 min-h-[54px]"
           >
-            <div className="p-1.5 rounded-xl bg-white/20 group-hover:scale-110 transition-transform border border-white/20">
+            <div className="p-1.5 rounded-xl bg-white/20 group-hover:scale-110 transition-transform">
               <Share2 className="h-4.5 w-4.5 text-white" />
             </div>
             <span className="text-[10px] text-center font-black uppercase tracking-wider text-white block truncate max-w-full">
@@ -211,3 +217,4 @@ export function ShareModal({
     </motion.div>
   );
 }
+
