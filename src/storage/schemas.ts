@@ -53,6 +53,8 @@ export const StoredSettingsSchema = z.object({
       preferredDistance: z.enum(["short", "medium", "long", "any"]),
     })
     .default({ preferredSurface: "any", preferredDistance: "any" }),
+  // Flag to enable Firebase sync
+  syncWithFirebase: z.boolean().default(false),
 });
 
 /**

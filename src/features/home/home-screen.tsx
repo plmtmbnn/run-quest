@@ -16,11 +16,14 @@ import { DailyStatsCard } from "@/components/share/daily-stats-card";
 import { ShareModal } from "@/components/share/share-modal";
 import { GameStats } from "@/components/ui/game-clock";
 import { RestControls } from "@/components/ui/rest-controls";
+import { HealthStatusWidget } from "@/components/health/health-status-widget";
+import { ExpenseWidget } from "@/components/home/expense-widget";
 // Sprint 33 Imports
 import { RaceDayAlert } from "@/components/alerts/race-day-alert";
 import { getCountryByCode } from "@/config/countries-data";
 import { formatCurrency } from "@/economy/currency-converter";
 import { formatCompact } from "@/utils/format-compact";
+import { generateRaceChallenge } from "@/services/challenge/generator";
 import {
   earnAchievementBonus,
   earnChampionshipBonus,
@@ -310,42 +313,54 @@ export function HomeScreen() {
       } else {
         const raceSchedule = getScheduleById(selectedRaceOccurrence.scheduleId);
 
-        const scenarioForBriefing: DailyChallenge = {
-          id: selectedRaceOccurrence.raceId,
-          date: new Date().toISOString(),
-          environment: {
-            weather: "sunny",
-            temperature: 20,
-            humidity: 50,
-            wind: { direction: "north", speed: 10 },
-            timeOfDay: "morning",
-          },
-          race: {
-            title: {
-              en: raceNameWithCategory,
-              id: raceNameWithCategory,
-            },
-            description: {
-              en: selectedRaceOccurrence.description,
-              id: selectedRaceOccurrence.description,
-            },
-            distance: actualDistance,
-            surface: "road",
-            elevation: "flat",
-            checkpoints: [],
-          },
-          objective: { targetTime: Math.round(actualDistance * 300) }, // 5:00 min/km pace baseline target
-          storySeed: { mood: "competitive" },
+        // Determine surface and elevation based on race name/description
+        // Trail races typically have "trail" in the ID or name
+        const isTrailRace = 
+          selectedRaceOccurrence.scheduleId.toLowerCase().includes("trail") ||
+          selectedRaceOccurrence.name.toLowerCase().includes("trail") ||
+          selectedRaceOccurrence.description.toLowerCase().includes("trail");
+        
+        const surface = isTrailRace ? "trail" : "road";
+        
+        // Determine elevation from race characteristics
+        const hasHills = 
+          selectedRaceOccurrence.name.toLowerCase().includes("hill") ||
+          selectedRaceOccurrence.description.toLowerCase().includes("hill") ||
+          selectedRaceOccurrence.description.toLowerCase().includes("climb") ||
+          selectedRaceOccurrence.description.toLowerCase().includes("elevation");
+        
+        const hasMountain = 
+          selectedRaceOccurrence.description.toLowerCase().includes("mountain") ||
+          selectedRaceOccurrence.description.toLowerCase().includes("summit") ||
+          selectedRaceOccurrence.description.toLowerCase().includes("peak");
+        
+        const elevation = hasMountain ? "hilly" : hasHills ? "rolling" : "flat";
 
-          tier: selectedRaceOccurrence.tier,
-          entryFee: actualFee,
+        // Generate race challenge with dynamic weather based on race parameters
+        const scenarioForBriefing = generateRaceChallenge({
           scheduleId: selectedRaceOccurrence.scheduleId,
+          dayIndex: currentDayIndex,
+          distance: actualDistance,
+          surface,
+          elevation,
+          tier: selectedRaceOccurrence.tier,
+          raceName: {
+            en: raceNameWithCategory,
+            id: raceNameWithCategory,
+          },
+          entryFee: actualFee,
+          region: selectedRaceOccurrence.locationId,
+        });
+
+        // Add additional properties that aren't in the base scenario
+        const enrichedScenario: DailyChallenge = {
+          ...scenarioForBriefing,
           isChampionship: isChampionship(raceSchedule!),
           totalEntrants: actualMaxEntrants,
           prerequisites: selectedRaceOccurrence.prerequisites,
         };
 
-        setChallenge(scenarioForBriefing);
+        setChallenge(enrichedScenario);
         router.push("/briefing");
       }
     } else {
@@ -403,6 +418,8 @@ export function HomeScreen() {
       {/* Main Container */}
       <main className="flex-1 px-4 md:px-6 py-3 md:py-4 flex flex-col gap-4 md:gap-6">
         <GameStats />
+        <HealthStatusWidget />
+        <ExpenseWidget />
 
         {/* Today's Training Card & Coach Tip */}
         {todaysActivity && (

@@ -4,7 +4,12 @@
     "cancel": "Cancel",
     "save": "Save Changes",
     "loading": "Warming up...",
-    "continue": "Next"
+    "continue": "Next",
+    "days": "days",
+    "back": "Back",
+    "level": "Level",
+    "balance": "Balance",
+    "reduction": "reduction"
   },
   "home": {
     "player_profile": "Runner Profile",
@@ -90,6 +95,11 @@
       "content": "Enter scheduled races, select your footwear & nutrition items during preparation, and choose tactics like Negative Split or Surge to cross the finish line!"
     },
     "slide_5": {
+      "title": "Global Community Overall",
+      "subtitle": "All-time statistics live from Firebase.",
+      "content": "See overall community activity across all runners and registered races worldwide in real-time."
+    },
+    "slide_6": {
       "title": "Runner Profile",
       "subtitle": "Create your runner identity.",
       "content": "We've detected your location! Pick your runner name, nationality, default currency, and date of birth to get started."
@@ -175,13 +185,21 @@
     },
     "status": {
       "completed": "Race Complete",
+      "registered": "Registered",
+      "registration_open": "Registration Open",
+      "available": "Registration Open",
+      "too_early": "Opens Soon",
+      "too_late": "Registration Closed",
+      "today": "Today!",
+      "tomorrow": "Tomorrow",
+      "missed": "Missed",
+      "full": "Corral Full",
       "passed": "Registration Closed",
       "race_day": "Race Day - Enter Corral",
       "in_days": "Race in {days} days",
-      "registered": "Registered",
-      "full": "Corral Full",
-      "registration_open": "Registration Open",
-      "opens_in": "Opens in {days} days"
+      "opens_in": "Opens in {days}d",
+      "coming_soon": "Coming Soon",
+      "upcoming": "Upcoming"
     },
     "labels": {
       "entry_fee": "Entry Fee",
@@ -189,6 +207,9 @@
       "entry_fee_value": "Entry fee: {fee}",
       "tier_race_on": "{tier} race on {date}",
       "days_until": "{days}d"
+    },
+    "actions": {
+      "register": "Register"
     }
   },
   "settings": {
@@ -250,6 +271,10 @@
       "backdrop": "Close currency picker",
       "search": "Search currency…",
       "no_results": "No currencies found"
+    },
+    "sync": {
+      "title": "Sync with Firebase",
+      "desc": "Enable automatic data synchronization with Firebase."
     }
   },
   "sponsors": {
@@ -1076,6 +1101,138 @@
       "subtitle": "Real-time simulated logs of competitor activity and training logs",
       "today": "Today",
       "days_ago": "{days} days ago"
+    }
+  },
+  "health": {
+    "healthy": "Healthy",
+    "injured": "Injured",
+    "recovering": "Recovering",
+    "status": {
+      "healthy": "Healthy",
+      "injured": "Injured",
+      "recovering": "Recovering"
+    },
+    "injuries": {
+      "muscle_soreness": "Muscle Soreness",
+      "blisters": "Blisters",
+      "minor_strain": "Minor Strain",
+      "muscle_pull": "Muscle Pull",
+      "shin_splints": "Shin Splints",
+      "runners_knee": "Runner's Knee",
+      "joint_pain": "Joint Pain",
+      "stress_fracture": "Stress Fracture",
+      "ligament_strain": "Ligament Strain",
+      "tendon_injury": "Tendon Injury",
+      "fracture": "Fracture",
+      "torn_ligament": "Torn Ligament",
+      "chronic_condition": "Chronic Condition"
+    },
+    "severity_minor": "Minor",
+    "severity_moderate": "Moderate",
+    "severity_major": "Major",
+    "severity_critical": "Critical",
+    "medical_center": "Medical Center",
+    "get_treatment": "Get Treatment",
+    "days_remaining": "{days} days remaining",
+    "cannot_train_injured": "Cannot train while injured",
+    "cannot_race_injured": "Cannot race with this injury",
+    "health_status": "Health Status",
+    "overall_status": "Overall Status",
+    "overtrain_risk": "Overtrain Risk",
+    "fatigue_level": "Fatigue Level",
+    "performance": "Performance",
+    "active_injuries": "Active Injuries",
+    "no_active_injuries": "No active injuries - you're good to go!",
+    "injury_history": "Injury History",
+    "no_injury_history": "No previous injuries recorded",
+    "treatment_options_for": "Treatment Options for {injury}",
+    "no_treatments_available": "No treatments available for this injury",
+    "view_treatments": "View Treatments",
+    "apply_treatment": "Apply Treatment",
+    "treatment_success": "Treatment Successful!",
+    "treatment_failed": "Treatment Failed",
+    "instant_heal": "Instant Heal",
+    "recovery_time": "Recovery: {days} days",
+    "success_rate": "{rate}% Success Rate",
+    "take_rest_day": "Take Rest Day",
+    "cannot_train": "Cannot Train",
+    "cannot_race": "Cannot Race",
+    "view_details": "View Details",
+    "healed": "Healed",
+    "day": "Day {day}",
+    "insufficient_funds": "Insufficient funds",
+    "high_overtrain": "High Overtraining",
+    "high_fatigue": "High Fatigue",
+    "performance_impact": "Performance Impact",
+    "reduction": "reduction",
+    "treatment_failed_try_again": "Treatment failed. Try again or choose a different option.",
+    "injury_instantly_healed": "Injury instantly healed!",
+    "treatment_applied": "{treatment} applied. Estimated recovery: {days} days.",
+    "critical": "Critical",
+    "major_injury": "Major Injury",
+    "moderate_injury": "Moderate Injury",
+    "minor_injury": "Minor Injury"
+  },
+  "expenses": {
+    "title": "Recurring Expenses",
+    "day": "Day {day}",
+    "summary": "Expense Summary",
+    "weekly_total": "Weekly Total",
+    "monthly_total": "Monthly Total",
+    "weekly_expenses": "Weekly Expenses",
+    "mandatory": "Mandatory",
+    "optional": "Optional",
+    "unlocked_at": "Unlocked at Lvl {level}",
+    "enable": "Enable",
+    "disable": "Disable",
+    "manage": "Manage Expenses",
+    "history": "Payment History",
+    "active_benefits": "Active Benefits",
+    "benefits_title": "Benefits:",
+    "status_good": "✓ Can afford 4+ weeks",
+    "status_warning": "⚠ Low funds ({weeks} weeks left)",
+    "status_critical": "❌ Critical (< 2 weeks)",
+    "unpaid_warning": "You have unpaid living expenses! Pay your bills before training or racing.",
+    "insufficient_funds": "Insufficient funds to cover expenses!",
+    "find_work": "Find Work",
+    "deducted": "Deducted: {amount}",
+    "frequency": {
+      "daily": "day",
+      "weekly": "week",
+      "monthly": "month"
+    },
+    "benefits": {
+      "trainingEffectiveness": "Training Effectiveness",
+      "xpBonus": "XP Bonus",
+      "injuryRiskReduction": "Injury Risk Reduction",
+      "recoverySpeed": "Recovery Speed",
+      "treatmentDiscount": "Treatment Discount",
+      "staminaRecovery": "Stamina Recovery",
+      "nutritionEfficiency": "Nutrition Efficiency"
+    },
+    "living_expenses": {
+      "name": "Living Expenses",
+      "description": "Food, housing, utilities, and basic living costs"
+    },
+    "gym_membership": {
+      "name": "Gym Membership",
+      "description": "Access to training facilities and equipment"
+    },
+    "personal_coaching": {
+      "name": "Personal Coaching",
+      "description": "Custom guidance, faster XP gain & better workouts"
+    },
+    "health_insurance": {
+      "name": "Health Insurance",
+      "description": "Medical treatment discounts and faster recovery"
+    },
+    "sports_massage": {
+      "name": "Sports Massage",
+      "description": "Prevents injury accumulation and reduces overtrain"
+    },
+    "nutritionist": {
+      "name": "Nutritionist Consultation",
+      "description": "Boosts stamina recovery and nutrition item efficiency"
     }
   }
 }

@@ -10,6 +10,7 @@ import { formatCurrency } from "@/economy/currency-converter";
 import { formatGameDate } from "@/engine/timeline/calendar";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { useSound } from "@/hooks/use-sound";
+import { getRegistrationStatus, getStatusLabel } from "@/scheduling/race-registration-status";
 
 // Interpolate {placeholder} tokens in translation strings.
 function interpolate(template: string, vars: Record<string, string | number>): string {
@@ -549,15 +550,13 @@ function UpcomingRaceCard({
   const preferredCurrency =
     useSettingsStore((state) => state.settings.preferredCurrency) || "USD";
   const currentDayIndex = useTimelineStore.getState().gameState?.dayIndex ?? 0;
-  const daysUntil = race.dayIndex - race.registrationOpensAt;
+  
+  // Use new registration status engine
+  const registrationInfo = getRegistrationStatus(race, currentDayIndex);
+  const statusLabel = getStatusLabel(race, currentDayIndex, t);
+  
   const daysFromNow = race.dayIndex - currentDayIndex;
-  const isOpen = daysUntil <= 0;
   const isRegistered = race.isRegistered;
-  const status = isOpen
-    ? t("race_calendar.status.registration_open" as TranslationKey)
-    : interpolate(t("race_calendar.status.opens_in" as TranslationKey), {
-        days: daysUntil,
-      });
 
   // Tier styling
   const tierConfig: Record<
@@ -601,7 +600,7 @@ function UpcomingRaceCard({
   const ariaLabel = `${race.name} - ${interpolate(
     t("race_calendar.labels.tier_race_on" as TranslationKey),
     { tier: race.tier, date: formatGameDate(race.dayIndex) },
-  )}. ${status}. ${interpolate(
+  )}. ${statusLabel.text}. ${interpolate(
     t("race_calendar.labels.entry_fee_value" as TranslationKey),
     { fee: formatCurrency(race.entryFee, preferredCurrency) },
   )}. ${isRegistered ? t("race_calendar.status.registered" as TranslationKey) : ""}`;
@@ -679,19 +678,18 @@ function UpcomingRaceCard({
       </div>
       <div className="text-right shrink-0 ml-4 flex flex-col items-end gap-1">
         <div
-          className={`text-xs font-extbold flex items-center justify-end gap-1 ${isOpen ? "text-emerald-600 dark:text-emerald-400 animate-pulse" : "text-blue-600 dark:text-blue-400"}`}
+          className={`text-xs font-extbold flex items-center justify-end gap-1 ${statusLabel.color} ${statusLabel.animated ? 'animate-pulse' : ''}`}
         >
-          {isOpen && <Calendar className="w-3 h-3" />}
-          {status}
+          {registrationInfo.canRegister && <Calendar className="w-3 h-3" />}
+          {statusLabel.text}
         </div>
-        {isOpen && !isRegistered && (
-          <button
-            onClick={onClick}
-            className="text-[10px] font-bold uppercase px-2 py-1 rounded-xl bg-indigo-500 text-white hover:bg-indigo-600 transition-colors"
+        {registrationInfo.canRegister && !isRegistered && (
+          <span
+            className="text-[10px] font-bold uppercase px-2 py-1 rounded-xl bg-indigo-500 text-white hover:bg-indigo-600 transition-colors inline-block"
             aria-label={t("race_calendar.actions.register" as TranslationKey)}
           >
             {t("race_calendar.actions.register" as TranslationKey)}
-          </button>
+          </span>
         )}
         <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
           {formatCurrency(race.entryFee, preferredCurrency)}

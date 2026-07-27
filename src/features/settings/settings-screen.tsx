@@ -19,10 +19,12 @@ import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { usePlayerStore } from "@/store/player-store";
 import { useSettingsStore } from "@/store/settings-store";
+import { useFirebaseStore } from "@/store/firebaseStore";
 import { generateRunnerName } from "@/utils/name-generator";
 import { generateRandomDOB } from "@/utils/date-generator";
 
 import { SearchableCountrySelect } from "@/components/ui/searchable-country-select";
+import { GlobalCommunityStats } from "@/components/stats/global-community-stats";
 
 export function SettingsScreen() {
   const router = useRouter();
@@ -38,6 +40,7 @@ export function SettingsScreen() {
     setTheme,
     setPreferences,
     setPreferredCurrency,
+    setSyncEnabled,
     resetAllData,
   } = useSettingsStore();
   const { playSound } = useSound();
@@ -379,8 +382,45 @@ export function SettingsScreen() {
           />
 
           <hr className="border-[#E5E7EB] dark:border-slate-800" />
+      {/* Data Sync Toggle */}
+      <div className="flex items-center justify-between">
+        <div className="flex flex-col">
+          <span className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+            {t("settings.sync.title")}
+          </span>
+          <span className="text-xs text-gray-400 dark:text-gray-500">
+            {t("settings.sync.desc")}
+          </span>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={settings.syncWithFirebase}
+          aria-label={t("settings.sync.title")}
+          onClick={() => {
+            playSound("click");
+            const next = !settings.syncWithFirebase;
+            setSyncEnabled(next);
+            useFirebaseStore.getState().setEnabled(next);
+          }}
+          className={`w-14 h-8 shrink-0 rounded-full p-1 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+            settings.syncWithFirebase ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"
+          }`}
+        >
+          <div
+            className={`bg-white dark:bg-slate-900 w-6 h-6 rounded-full shadow-md transform transition-transform duration-200 ${
+              settings.syncWithFirebase ? "translate-x-6" : "translate-x-0"
+            }`}
+          />
+        </button>
+      </div>
 
-          {/* How to Play Guide Link */}
+          {/* Overall All-Time Community Stats */}
+          <div className="mt-4">
+            <GlobalCommunityStats />
+          </div>
+
+          <hr className="border-[#E5E7EB] dark:border-slate-800" />
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex flex-col">
               <span className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">

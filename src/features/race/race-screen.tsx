@@ -13,7 +13,7 @@ import { PaceProjector } from "@/components/race/pace-projector";
 import { TrackPositionVisualizer } from "@/components/race/track-position-visualizer";
 import { checkRaceAchievements, type RaceAchievement } from "@/engine/achievements/race-achievements";
 import { advanceSimulation } from "@/engine/simulation/engine";
-import { useSound } from "@/hooks/use-sound";
+
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { getRunnerState, useRunnerStore } from "@/runner/runner-store";
 import { getEnergyCostForDistance } from "@/economy/race-entry-engine";
@@ -24,7 +24,7 @@ import { usePreparationStore } from "@/store/preparation-store";
 import { useShopStore } from "@/shop/shop-store";
 import { useTimelineStore } from "@/store/timeline-store";
 import { BetResultsPopup } from "@/components/race/bet-results-popup";
-import { CrowdAtmosphere } from "@/components/race/crowd-atmosphere";
+
 import { GhostSplitComparison } from "@/components/race/ghost-split-comparison";
 import { PhotoFinish, isPhotoFinish } from "@/components/race/photo-finish";
 import { ResultCardGenerator } from "@/components/race/result-card-generator";
@@ -32,8 +32,7 @@ import { RivalDialog, RivalLineup, RivalStatusUpdate } from "@/components/race/r
 import { SelfBetPanel, type BetTarget, type PlacedBet } from "@/components/race/self-bet-panel";
 import { WeatherAlert } from "@/components/race/weather-alert";
 import { selectRivalsForRace, generateRivalDialog, getRivalMilestoneText, updateRivalRelationship, type Rival } from "@/engine/rivals/rival-engine";
-import { useAdaptiveMusic, useCrowdNoise } from "@/hooks/use-adaptive-music";
-import type { RaceMusicStats } from "@/hooks/use-adaptive-music";
+
 import { formatCurrency } from "@/economy/currency-converter";
 import { recordTransaction } from "@/economy/earning-engine";
 import type {
@@ -57,7 +56,7 @@ export function RaceScreen() {
   const { preparation } = usePreparationStore();
   const { runnerState, setRunnerState } = useRunnerStore();
   const player = usePlayerStore((state) => state.player);
-  const { playSound } = useSound();
+
   const [selectedPacing, setSelectedPacing] = useState<
     import("@/types/engine").PacingPlan
   >(preparation.pacing);
@@ -187,22 +186,7 @@ export function RaceScreen() {
   /** Tracks which transition IDs have already fired, so they don't re-trigger */
   const firedTransitionIdsRef = useRef<Set<string>>(new Set());
 
-  // -- Adaptive Music System
-  const musicStats: RaceMusicStats = {
-    currentKm,
-    totalDistance: challenge.race.distance,
-    energy: stats.energy,
-    focus: stats.focus,
-    confidence: stats.confidence,
-    momentum: stats.momentum,
-    riskLevel: stats.riskLevel,
-    pace: stats.pace,
-    pacingPlan: selectedPacing,
-    isPaused,
-  };
-  
-  const { currentPhase, isPlaying: isMusicPlaying, playSoundEffect } = useAdaptiveMusic(musicStats);
-  const { crowdIntensity } = useCrowdNoise(musicStats);
+
 
   // -- Rivalry system
   const [raceRivals, setRaceRivals] = useState<Rival[]>([]);
@@ -363,7 +347,6 @@ export function RaceScreen() {
         return;
       } else if (simResult) {
         setIsFinished(true);
-        playSound("success");
 
         // Deduct energy after race finishes in RaceScreen
         const energyCost = getEnergyCostForDistance(challenge?.race?.distance);
@@ -539,19 +522,8 @@ export function RaceScreen() {
     const intervalMs = 1500 / simSpeed; // 1.5 seconds per km scaled by speed multiplier
     const timer = setTimeout(() => {
       const nextKmValue = currentKm + 1;
-      playSound("tick");
-      
-      // Play footsteps sound effect periodically
-      if (nextKmValue % 2 === 0) {
-        playSoundEffect("footsteps");
-      }
-      
-      // Play bell chime at 5km intervals
-      if (nextKmValue % 5 === 0 && nextKmValue > 0) {
-        playSoundEffect("bell_chime");
-      }
-      
       setCurrentKm(nextKmValue);
+
 
       // Extract events resolved at nextKmValue
       const events = simResult
@@ -593,11 +565,6 @@ export function RaceScreen() {
               pace: elapsedSeconds,
             }
           });
-          
-          // Play heartbeat when energy is critically low
-          if (snapshot.energy < 20) {
-            playSoundEffect("heartbeat");
-          }
 
         // ── Achievement detection ──────────────────────────────────────────
         // Compute current player position by sorting all runners together
@@ -609,11 +576,6 @@ export function RaceScreen() {
         allRunners.sort((a, b) => b.distanceCovered - a.distanceCovered || a.accumulatedTime - b.accumulatedTime);
         const playerPos = Math.max(1, allRunners.findIndex((r) => r.id === "player_local") + 1);
         const prevPos = prevPlayerPositionRef.current;
-        
-        // Play crowd cheer when player improves position (overtakes someone)
-        if (prevPos > playerPos && prevPos > 1) {
-          playSoundEffect("crowd_cheer");
-        }
 
         // ── Rival overtake detection ────────────────────────────────────────
         // Check if player overtook any rival or was overtaken by any rival
@@ -699,7 +661,6 @@ export function RaceScreen() {
           }));
           newAchievements.forEach((a) => earnedSet.add(a.id));
           setAchievementQueue((prev) => [...prev, ...queueItems]);
-          playSound("success");
         }
 
         prevPlayerPositionRef.current = playerPos;
@@ -735,7 +696,6 @@ export function RaceScreen() {
     simResult,
     simState,
     challenge,
-    playSound,
     setResult,
     completeChallenge,
     language,
@@ -772,31 +732,22 @@ export function RaceScreen() {
 
   // Selection callback for user choices
   const selectChoice = (choiceId: string) => {
-    playSound("click");
     setActiveDecision(null);
     handleAdvance(choiceId);
   };
 
   const handleBreakingPointRecovery = (optionId: string) => {
     if (!activeBreakingPoint) return;
-    playSound("click");
     setActiveBreakingPoint(null);
     handleAdvance(optionId);
   };
 
   const handleDesperationChoice = (choiceId: string) => {
     if (!activeDesperation) return;
-    playSound("click");
     setActiveDesperation(null);
     handleAdvance(choiceId);
   };
 
-  // Play alert sound when decision is active
-  useEffect(() => {
-    if (activeDecision) {
-      playSound("alert");
-    }
-  }, [activeDecision, playSound]);
 
   const consumeItem = (itemKey: string) => {
     const qty = activeConsumables[itemKey] || 0;
@@ -808,10 +759,7 @@ export function RaceScreen() {
       [itemKey]: prev[itemKey] - 1,
     }));
 
-    // 2. Play sound
-    playSound("success");
-
-    // 3. Deduct from persistent shop store inventory if available
+    // 2. Deduct from persistent shop store inventory if available
     try {
       useShopStore.getState().consumeNutrition(itemKey as any, 1);
     } catch {
@@ -896,13 +844,12 @@ export function RaceScreen() {
       const boost = boostMap[timing];
       if (boost > 0) {
         setKickTotalBoost((prev) => prev + boost);
-        playSound("success");
       }
       if (timing === "perfect") {
         setKickPerfectCount((prev) => prev + 1);
       }
     },
-    [playSound],
+    [],
   );
 
   // Bet callbacks
@@ -932,9 +879,8 @@ export function RaceScreen() {
         }));
       }
       setPlacedBets((prev) => [...prev, newBet]);
-      playSound("success");
     },
-    [playSound],
+    [],
   );
 
   const handleCancelBet = useCallback(
@@ -959,9 +905,8 @@ export function RaceScreen() {
         }));
       }
       setPlacedBets((prev) => prev.filter((b) => b.id !== betId));
-      playSound("click");
     },
-    [placedBets, playSound],
+    [placedBets],
   );
   // Compute live meters remaining for the final kick component
   const metersRemaining = Math.max(
@@ -1102,7 +1047,6 @@ export function RaceScreen() {
                   key={speed}
                   onClick={() => {
                     setSimSpeed(speed);
-                    playSound("click");
                   }}
                   className={`flex items-center justify-center w-6 h-6 md:w-7 md:h-7 rounded-full text-[10px] md:text-xs font-bold transition-all ${
                     simSpeed === speed 
@@ -1119,44 +1063,6 @@ export function RaceScreen() {
               <span className="hidden sm:inline">{t("challenge.race.simulating" as TranslationKey)}</span>
               <span className="sm:hidden">Live</span>
             </div>
-            
-            {/* Music Phase Indicator */}
-            {currentPhase !== "none" && (
-              <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-semibold">
-                <span className="text-lg">🎶</span>
-                <span className="text-slate-600 dark:text-slate-300">
-                  {t(`challenge.race.music.phase_${currentPhase}` as TranslationKey) || currentPhase}
-                </span>
-              </div>
-            )}
-            
-            {/* Music Control Button */}
-            <button
-              type="button"
-              onClick={() => {
-                // Toggle music - the hook handles the actual toggle
-                // We'll use playSoundEffect to trigger a sound when music is toggled
-                if (isMusicPlaying) {
-                  playSoundEffect("crowd_cheer");
-                } else {
-                  playSoundEffect("bell_chime");
-                }
-              }}
-              className="flex items-center gap-1.5 px-2.5 md:px-3 py-1 md:py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-[10px] md:text-xs font-semibold hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-            >
-              <span className="text-lg">🎵</span>
-              <span className="hidden md:inline">
-                {isMusicPlaying ? (t("challenge.race.music_on" as TranslationKey) || "On") : (t("challenge.race.music_off" as TranslationKey) || "Off")}
-              </span>
-            </button>
-            
-            {/* Crowd Intensity Meter */}
-            {crowdIntensity > 0 && (
-              <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 md:py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-semibold">
-                <span>👥</span>
-                <span className="text-slate-600 dark:text-slate-300">{Math.round(crowdIntensity)}%</span>
-              </div>
-            )}
           </div>
         </div>
       </header>
@@ -1224,20 +1130,7 @@ export function RaceScreen() {
 
           {/* Visual Race Track Progress */}
           <div className="w-full flex flex-col gap-2 mt-4 md:mt-6 border-t border-slate-100 dark:border-gray-800 pt-4 md:pt-6 relative">
-            {/* Crowd Atmosphere Overlay */}
-            <div className="absolute inset-0 pointer-events-none z-10">
-              <CrowdAtmosphere
-                currentKm={currentKm}
-                totalDistance={challenge.race.distance}
-                playerPosition={runners.findIndex(r => r.isPlayer) + 1}
-                totalRunners={runners.length}
-                energy={stats.energy}
-                momentum={stats.momentum}
-                isPaused={isPaused}
-                isBreakingPoint={!!activeBreakingPoint}
-              />
-            </div>
-            
+
             <TrackPositionVisualizer
               runners={runners}
               currentKm={currentKm}
@@ -1246,7 +1139,6 @@ export function RaceScreen() {
               selectedPacing={selectedPacing}
               surface={challenge.race.surface}
               playerEnergy={stats.energy}
-              playSound={playSound}
               isPaused={isPaused}
             />
           </div>
@@ -1337,7 +1229,6 @@ export function RaceScreen() {
                       disabled={isSprintLocked}
                       onClick={() => {
                         setSelectedPacing(mode);
-                        playSound("click");
                       }}
                       className={`py-2 px-3 rounded-[1.25rem] text-xs font-bold transition-all transform active:scale-95 flex flex-col items-start gap-0.5 border
                         ${

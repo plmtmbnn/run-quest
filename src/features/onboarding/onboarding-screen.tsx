@@ -15,6 +15,7 @@ import {
   Timer,
   User,
   Zap,
+  Globe2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -32,6 +33,9 @@ import { detectDeviceCountry } from "@/utils/device-location";
 import { SearchableCountrySelect } from "@/components/ui/searchable-country-select";
 import { type CountryData, getCountryByCode } from "@/config/countries-data";
 import type { CurrencyCode } from "@/economy/currency-config";
+import { GlobalCommunityStats } from "@/components/stats/global-community-stats";
+import { recordNewRunner } from "@/lib/firebaseService";
+import { useFirebaseStore } from "@/store/firebaseStore";
 
 interface OnboardingScreenProps {
   onComplete: () => void;
@@ -116,9 +120,22 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       accent: "border-rose-200",
     },
     {
+      id: "community_stats",
       titleKey: "onboarding.slide_5.title",
       subtitleKey: "onboarding.slide_5.subtitle",
       contentKey: "onboarding.slide_5.content",
+      icon: (
+        <Globe2 className="w-16 h-16 md:w-20 md:h-20 text-emerald-500 drop-shadow-[0_0_15px_rgba(16,185,129,0.4)]" />
+      ),
+      color: "from-emerald-500/10 via-emerald-100/20 to-teal-200/10",
+      bgGradient: "from-emerald-500 to-teal-600",
+      accent: "border-emerald-200",
+    },
+    {
+      id: "profile",
+      titleKey: "onboarding.slide_6.title",
+      subtitleKey: "onboarding.slide_6.subtitle",
+      contentKey: "onboarding.slide_6.content",
       icon: <User className="w-16 h-16 md:w-20 md:h-20 text-violet-500 drop-shadow-[0_0_15px_rgba(139,92,246,0.4)]" />,
       color: "from-violet-500/10 via-violet-100/20 to-purple-200/10",
       bgGradient: "from-violet-500 to-purple-600",
@@ -187,7 +204,13 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
         preferredSurface: "any",
         preferredDistance: "any",
       },
+      syncWithFirebase: true,
     });
+    useFirebaseStore.getState().setEnabled(true);
+    const finalPlayer = usePlayerStore.getState().player;
+    if (finalPlayer) {
+      recordNewRunner(finalPlayer);
+    }
     onComplete();
   };
 
@@ -352,7 +375,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                     {t(activeSlide.subtitleKey as TranslationKey)}
                   </p>
 
-                  {currentSlide === 4 ? (
+                  {isLastSlide ? (
                     <div className="flex flex-col gap-4 mt-2">
                       <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
                         {t(activeSlide.contentKey as TranslationKey)}
@@ -371,7 +394,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                               }
                             }}
                             maxLength={24}
-                            aria-label={t("onboarding.slide_5.title" as TranslationKey)}
+                            aria-label={t("onboarding.slide_6.title" as TranslationKey)}
                             aria-invalid={hasNameError}
                             aria-describedby={hasNameError ? "onboarding-name-error" : undefined}
                             className={`flex-grow min-h-[44px] border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white border-slate-200 dark:border-slate-800 font-bold transition-all ${
@@ -536,6 +559,13 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
 
                       </div>
                     </div>
+                  ) : activeSlide.id === "community_stats" ? (
+                    <div className="flex flex-col gap-3 mt-1">
+                      <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                        {t(activeSlide.contentKey as TranslationKey)}
+                      </p>
+                      <GlobalCommunityStats className="mt-2" />
+                    </div>
                   ) : (
                     <div className="flex flex-col gap-3 mt-1">
                       <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -570,7 +600,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                   type="button"
                   role="tab"
                   aria-selected={idx === currentSlide}
-                  aria-label={`${t("onboarding.slide_" + (idx + 1) + ".title" as TranslationKey)} (${idx + 1} of ${slides.length})`}
+                  aria-label={`${t(slide.titleKey as TranslationKey)} (${idx + 1} of ${slides.length})`}
                   onClick={() => {
                     playSound("click");
                     setSlideWithDirection(idx);

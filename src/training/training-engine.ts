@@ -3,7 +3,7 @@
 
 import { analyzeTraining } from "@/coach/coach-analysis";
 import type { TrainingTelemetry } from "@/coach/coach-types";
-import { awardXP } from "@/runner/runner-engine";
+import { awardXP } from "@/runner/progression-engine";
 import { loadRunnerState, saveRunnerState } from "@/runner/runner-persistence";
 import { queueAdaptation } from "./adaptation-engine";
 import {
@@ -21,6 +21,8 @@ import type {
   TrainingDay,
   TrainingState,
 } from "./training-types";
+import { useHealthStore } from "@/health/health-store";
+import { calculateInjuryRisk, rollForInjury, createInjury, canTrainWithInjuries } from "@/health/injury-risk-engine";
 
 /**
  * Records today's training activity and updates the runner's state.
@@ -33,6 +35,12 @@ export const recordTrainingActivity = (
   const today = currentDayIndex;
   const trainingState = loadTrainingState();
   const runnerState = loadRunnerState();
+  const healthState = useHealthStore.getState().healthState;
+
+  // Check if runner can train due to injuries
+  if (!canTrainWithInjuries(healthState)) {
+    throw new Error('Cannot train while injured');
+  }
 
   // Get the effect of the activity.
   const effect = ACTIVITY_EFFECTS[activity];
@@ -45,7 +53,14 @@ export const recordTrainingActivity = (
 
   // Award 20 XP for training
   const xpGained = 20;
-  const runnerProfileWithXP = awardXP(runnerState.profile, xpGained);
+  const xpResult = awardXP(runnerState.profile, xpGained);
+  
+  const runnerProfileWithXP = {
+    ...runnerState.profile,
+    xp: xpResult.xp,
+    level: xpResult.level,
+    skillPoints: xpResult.skillPoints,
+  };
 
   const updatedRunnerState = {
     ...runnerState,
@@ -136,9 +151,176 @@ export const recordTrainingActivity = (
     weeklyBalance: updatedWeeklyBalance,
   };
 
+  // Check for injury after training
+  checkForTrainingInjury(currentDayIndex, runnerState.profile, activity, healthState);
+
+  // Update health store with training day
+  updateHealthAfterTraining(healthState, activity);
+
   // Run the training analysis (will save feedback and tendencies)
   analyzeTraining(telemetry);
 };
+
+/**
+ * Check for injury after training activity.
+ */
+function checkForTrainingInjury(
+  dayIndex: number,
+  runnerProfile: any,
+  activity: DailyActivity,
+  healthState: any
+): void {
+  // Calculate injury risk based on training activity
+  const activityDetails = {
+    type: 'training' as const,
+    distance: getActivityDistance(activity),
+    intensity: getActivityIntensity(activity),
+    duration: getActivityDuration(activity),
+    daysSinceLastRest: healthState.consecutiveTrainingDays,
+    hasProperEquipment: true, // Assume proper equipment for now
+    hasGoodNutrition: true, // Assume good nutrition for now
+    didWarmup: true, // Assume warmup was done
+    isFollowingTrainingPlan: true, // Assume following plan
+  };
+
+  const injuryRisk = calculateInjuryRisk(healthState, runnerProfile, activityDetails);
+  
+  // Roll for injury
+  const injuryResult = rollForInjury(injuryRisk.totalRisk);
+  
+  if (injuryResult.injured) {
+    const injury = createInjury(
+      injuryResult.injuryType!,
+      injuryResult.severity!,
+      dayIndex
+    );
+    
+    // Add injury to health state
+    const healthStore = useHealthStore.getState();
+    healthStore.addInjury(injury);
+    healthStore.saveToStorage();
+  }
+}
+
+/**
+ * Update health state after training.
+ */
+function updateHealthAfterTraining(healthState: any, activity: DailyActivity): void {
+  const healthStore = useHealthStore.getState();
+  
+  // Increment consecutive training days
+  if (!isRestDay(activity)) {
+    healthStore.incrementConsecutiveTrainingDays();
+  } else {
+    // Reset consecutive training days for rest days
+    healthStore.resetConsecutiveTrainingDays();
+    healthStore.addRestDay();
+  }
+  
+  // Update overtraining level based on activity intensity
+  const intensity = getActivityIntensity(activity);
+  const overtrainDelta = intensity * 5; // More intense activities increase overtraining more
+  healthStore.updateOvertrainLevel(overtrainDelta);
+  
+  // Update fatigue level
+  const fatigueDelta = intensity * 10; // More intense activities cause more fatigue
+  healthStore.updateFatigueLevel(fatigueDelta);
+  
+  healthStore.saveToStorage();
+}
+
+/**
+ * Get distance for a training activity.
+ */
+function getActivityDistance(activity: string): number {
+  const distances: Record<string, number> = {
+    rest: 0,
+    easy_run: 5,
+    moderate_run: 8,
+    hard_run: 12,
+    long_run: 15,
+    speed_work: 6,
+    hill_repeats: 4,
+    tempo_run: 10,
+    recovery_run: 3,
+    cross_train: 8,
+    strength: 0,
+    yoga: 0,
+    mobility: 0,
+    "Recovery Run": 3,
+    "Easy Run": 5,
+    "Tempo Run": 10,
+    "Interval Training": 6,
+    "Long Run": 15,
+    "Hill Repeats": 4,
+    "Strength Training": 0,
+    "Mobility Session": 0,
+    "Full Rest": 0,
+  };
+  return distances[activity] || 5;
+}
+
+/**
+ * Get intensity for a training activity (0-1).
+ */
+function getActivityIntensity(activity: string): number {
+  const intensities: Record<string, number> = {
+    rest: 0,
+    easy_run: 0.4,
+    moderate_run: 0.6,
+    hard_run: 0.8,
+    long_run: 0.7,
+    speed_work: 0.9,
+    hill_repeats: 0.85,
+    tempo_run: 0.8,
+    recovery_run: 0.3,
+    cross_train: 0.5,
+    strength: 0.6,
+    yoga: 0.2,
+    mobility: 0.1,
+    "Recovery Run": 0.3,
+    "Easy Run": 0.4,
+    "Tempo Run": 0.8,
+    "Interval Training": 0.9,
+    "Long Run": 0.7,
+    "Hill Repeats": 0.85,
+    "Strength Training": 0.6,
+    "Mobility Session": 0.1,
+    "Full Rest": 0,
+  };
+  return intensities[activity] || 0.5;
+}
+
+/**
+ * Get duration for a training activity in minutes.
+ */
+function getActivityDuration(activity: string): number {
+  const durations: Record<string, number> = {
+    rest: 0,
+    easy_run: 30,
+    moderate_run: 45,
+    hard_run: 60,
+    long_run: 90,
+    speed_work: 45,
+    hill_repeats: 30,
+    tempo_run: 40,
+    recovery_run: 20,
+    cross_train: 60,
+    strength: 45,
+    yoga: 30,
+    mobility: 15,
+    "Recovery Run": 20,
+    "Easy Run": 30,
+    "Tempo Run": 40,
+    "Interval Training": 45,
+    "Long Run": 90,
+    "Hill Repeats": 30,
+    "Strength Training": 45,
+    "Mobility Session": 15,
+    "Full Rest": 0,
+  };
+  return durations[activity] || 45;
+}
 
 /**
  * Updates the weekly training balance based on the activity.

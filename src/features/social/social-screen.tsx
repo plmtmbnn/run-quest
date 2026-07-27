@@ -65,8 +65,8 @@ export function SocialScreen() {
   const [scope, setScope] = useState<LeaderboardScope>("regional");
 
   useEffect(() => {
-    loadFromStorage();
-  }, [loadFromStorage]);
+    useSocialStore.getState().loadFromStorage();
+  }, []);
 
   const handleTabChange = (tab: Tab) => {
     playSound("click");
@@ -269,19 +269,21 @@ export function SocialScreen() {
                 key={tab}
                 type="button"
                 onClick={() => handleTabChange(tab)}
+                aria-label={t(`social.tabs.${tab}` as TranslationKey)}
+                aria-current={isActive ? "page" : undefined}
                 className={`py-2.5 px-1 sm:px-3 text-[10px] sm:text-xs font-black uppercase tracking-wider rounded-xl transition-all min-h-[44px] flex flex-col sm:flex-row items-center justify-center gap-1 ${
                   isActive
                     ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-500/20 scale-[1.02]"
                     : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/50 dark:hover:bg-slate-800/50"
                 }`}
               >
-                <span>
+                <span aria-hidden="true">
                   {tab === "leaderboard" && "🏆"}
                   {tab === "club" && "🛡️"}
                   {tab === "stats" && "⚔️"}
                   {tab === "feed" && "📡"}
                 </span>
-                <span className="truncate">
+                <span className={`${isActive ? "block" : "hidden sm:block"} truncate`}>
                   {t(`social.tabs.${tab}` as TranslationKey)}
                 </span>
               </button>

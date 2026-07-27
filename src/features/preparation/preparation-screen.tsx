@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import {
+  AlertTriangle,
   ArrowLeft,
   Clock,
   Flame,
@@ -14,6 +15,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useExpenseStore } from "@/store/expense-store";
 import { LoadoutCard } from "@/components/share/loadout-card";
 import { ShareModal } from "@/components/share/share-modal";
 import { useSound } from "@/hooks/use-sound";
@@ -192,6 +194,10 @@ export function PreparationScreen() {
   };
 
   const handleStartSimulation = () => {
+    if (useExpenseStore.getState().hasUnpaidExpenses()) {
+      alert(t("expenses.unpaid_warning" as TranslationKey));
+      return;
+    }
     playSound("click");
 
     const energyCost = 25;
@@ -826,11 +832,22 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
 
           {/* Sticky ready CTA */}
           <div className="rounded-[2rem] border-2 border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-[0_8px_24px_rgba(0,0,0,0.05)] flex flex-col gap-3">
+            {useExpenseStore.getState().hasUnpaidExpenses() && (
+              <div className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-semibold flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
+                <span>{t("expenses.unpaid_warning" as TranslationKey)}</span>
+              </div>
+            )}
             <button
               id="ready-race-cta"
               type="button"
+              disabled={useExpenseStore.getState().hasUnpaidExpenses()}
               onClick={handleStartSimulation}
-              className="w-full bg-orange-500 hover:bg-orange-600 active:scale-[0.98] text-white font-black text-base py-4 rounded-[1.5rem] transition-all duration-200 shadow-md shadow-orange-500/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 flex items-center justify-center gap-2"
+              className={`w-full font-black text-base py-4 rounded-[1.5rem] transition-all duration-200 shadow-md flex items-center justify-center gap-2 ${
+                useExpenseStore.getState().hasUnpaidExpenses()
+                  ? "bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed shadow-none"
+                  : "bg-orange-500 hover:bg-orange-600 active:scale-[0.98] text-white shadow-orange-500/20"
+              }`}
             >
               {t("preparation.ready" as TranslationKey)} →
             </button>

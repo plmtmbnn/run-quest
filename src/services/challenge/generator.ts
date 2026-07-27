@@ -1,5 +1,10 @@
 import { generateRaceAnalysis } from "@/engine/intelligence/intelligence-engine";
 import { generateWeatherTransitions } from "@/engine/weather/weather-transitions";
+import {
+  generateRaceWeather,
+  weatherToEnvironment,
+} from "@/engine/race/weather-engine";
+import type { RaceTier } from "@/economy/economy-types";
 import type {
   Checkpoint,
   DailyChallenge,
@@ -494,4 +499,176 @@ export function generateDailyRaceBoard(
 export function generateDailyChallenge(dateStr: string): DailyChallenge {
   const board = generateDailyRaceBoard(dateStr);
   return board.entries[0].scenario;
+}
+
+/**
+ * Generate a race challenge with race-specific weather
+ * Uses scheduleId + dayIndex for deterministic but varied weather per race
+ */
+export function generateRaceChallenge(params: {
+  scheduleId: string;
+  dayIndex: number;
+  distance: number;
+  surface: Surface;
+  elevation: Elevation;
+  tier: RaceTier;
+  raceName: { en: string; id: string };
+  entryFee: number;
+  region?: string;
+}): Scenario {
+  const {
+    scheduleId,
+    dayIndex,
+    distance,
+    surface,
+    elevation,
+    tier,
+    raceName,
+    entryFee,
+    region,
+  } = params;
+
+  // Generate race-specific weather using the new weather engine
+  const weatherConditions = generateRaceWeather(
+    scheduleId,
+    dayIndex,
+    tier,
+    region
+  );
+  const environment = weatherToEnvironment(weatherConditions);
+
+  // Create seed from scheduleId + dayIndex for other procedural generation
+  const seed = hashString(`${scheduleId}_${dayIndex}`);
+  const random = new SeededRandom(seed);
+
+  // 3. Pacing calculation
+  let basePaceKm = 300; // 5:00 min/km
+  if (surface === "trail") basePaceKm += 30;
+  if (surface === "track") basePaceKm -= 10;
+  if (elevation === "rolling") basePaceKm += 10;
+  if (elevation === "hilly") basePaceKm += 35;
+
+  if (environment.weather === "hot") basePaceKm += 15;
+  if (environment.weather === "rain") basePaceKm += 10;
+  if (environment.weather === "storm") basePaceKm += 45;
+
+  const targetTime = Math.floor(distance * basePaceKm);
+
+  // 4. Checkpoints
+  const checkpoints: Checkpoint[] = [];
+  const kmInterval = distance > 10 ? 5 : 2;
+  const maxKms = Math.floor(distance);
+
+  const eventPoolList = [
+    ["cheering_crowd", "sun_glare"],
+    ["hydration_station", "strong_wind"],
+    ["crowded_corner", "loose_gravel"],
+    ["cheering_crowd", "loose_gravel"],
+    ["cheering_crowd", "loose_gravel"],
+  ];
+
+  for (let km = kmInterval; km < maxKms; km += kmInterval) {
+    const poolIndex = Math.floor(random.nextRange(0, eventPoolList.length));
+    checkpoints.push({
+      km,
+      eventPool: eventPoolList[poolIndex],
+    });
+  }
+
+  const title = {
+    en: `${raceName.en} (${distance}K)`,
+    id: `${raceName.id} (${distance}K)`,
+  };
+
+  const weatherLabel = WEATHER_MAP[environment.weather];
+  const elevationLabel = ELEVATION_MAP[elevation];
+  const surfaceLabel = SURFACE_MAP[surface];
+
+  const description = {
+    en: `Run a ${distance}km course on a ${elevationLabel.en} ${surfaceLabel.en} under ${weatherLabel.en} conditions. Target: ${Math.floor(
+      targetTime / 60,
+    )}m ${targetTime % 60}s.`,
+    id: `Lari lintasan ${distance}km di atas ${surfaceLabel.id} ${elevationLabel.id} dalam kondisi ${weatherLabel.id}. Target: ${Math.floor(
+      targetTime / 60,
+    )}m ${targetTime % 60}s.`,
+  };
+
+  // 5. Procedural Bonus Objective
+  const bonusObjectives = [
+    {
+      en: "Finish with focus above 50%",
+      id: "Selesaikan dengan fokus di atas 50%",
+    },
+    {
+      en: "Finish with hydration above 40%",
+      id: "Selesaikan dengan hidrasi di atas 40%",
+    },
+    {
+      en: "Finish with energy above 30%",
+      id: "Selesaikan dengan energi di atas 30%",
+    },
+    {
+      en: "Beat target time by 15 seconds",
+      id: "Kalahkan target waktu sebanyak 15 detik",
+    },
+    {
+      en: "Maintain steady pacing strategy",
+      id: "Pertahankan strategi lari stabil",
+    },
+  ];
+  const bonusIndex = Math.floor(random.nextRange(0, bonusObjectives.length));
+  const bonusObjectiveText = bonusObjectives[bonusIndex];
+  const bonusCondition = `${bonusObjectiveText.en} | ${bonusObjectiveText.id}`;
+
+  const scenarioBase: Omit<Scenario, "analysis"> = {
+    id: `${scheduleId}_${dayIndex}`,
+    date: dayIndex.toString(),
+    environment,
+    race: {
+      title,
+      description,
+      distance,
+      surface,
+      elevation,
+      checkpoints,
+    },
+    objective: {
+      targetTime,
+      bonusCondition,
+    },
+    storySeed: {
+      mood: environment.weather === "storm" ? "survival" : "optimistic",
+    },
+    tier,
+    entryFee,
+    scheduleId,
+  };
+
+  const analysis = generateRaceAnalysis(scenarioBase, seed);
+
+  // Pre-roll weather transitions for this race
+  const weatherTransitions = generateWeatherTransitions(
+    environment.weather,
+    distance,
+    seed
+  );
+
+  return {
+    ...scenarioBase,
+    analysis,
+    weatherTransitions,
+  };
+}
+
+/**
+ * Hash a string to a number for seeding
+ */
+function hashString(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return Math.abs(hash);
 }

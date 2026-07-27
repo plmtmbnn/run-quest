@@ -25,6 +25,8 @@ const DEFAULT_SETTINGS: StoredSettings = {
     preferredSurface: "any",
     preferredDistance: "any",
   },
+  // New flag for Firebase sync
+  syncWithFirebase: true,
 };
 
 export interface SettingsState {
@@ -38,6 +40,7 @@ export interface SettingsState {
   setHapticFeedback: (value: boolean) => void;
   setPreferredCurrency: (currency: CurrencyCode) => void;
   setGameMode: (mode: "easy" | "career") => void;
+  setSyncEnabled: (enabled: boolean) => void;
   setPreferences: (prefs: StoredSettings["preferences"]) => void;
   completeOnboarding: () => void;
   resetAllData: () => void;
@@ -93,6 +96,12 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
 
   setGameMode(gameMode) {
     const updated = { ...get().settings, gameMode };
+    storageRepository.saveSettings(updated);
+    set({ settings: updated });
+  },
+
+  setSyncEnabled(enabled) {
+    const updated = { ...get().settings, syncWithFirebase: enabled };
     storageRepository.saveSettings(updated);
     set({ settings: updated });
   },

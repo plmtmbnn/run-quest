@@ -23,6 +23,9 @@ import { DEFAULT_SCHEDULING_STATE } from "@/scheduling/race-calendar-types";
 import { getScheduleById } from "@/scheduling/race-calendar-engine";
 import { useSocialStore } from "@/social/social-store";
 import { storageRepository } from "@/storage/storage-repository";
+import { useHealthStore } from "@/health/health-store";
+import { useExpenseStore } from "@/store/expense-store";
+import { loadRunnerState } from "@/runner/runner-persistence";
 import type { StoredGameState } from "@/storage/types";
 import { markStoryBeatViewed } from "@/story/story-engine";
 import { useStoryStore } from "@/story/story-store";
@@ -62,6 +65,23 @@ function toStored(state: GameState): StoredGameState {
     sponsorship: state.sponsorship,
     scheduling: state.scheduling,
   } as unknown as StoredGameState;
+}
+
+function updateHealthForDaysAdvanced(daysAdvanced: number, actionId: string) {
+  const healthStore = useHealthStore.getState();
+
+  // Update injury recovery for each day
+  healthStore.updateInjuryRecovery(daysAdvanced);
+
+  // If this was a rest action, update rest day tracking
+  if (actionId === "rest") {
+    healthStore.addRestDay();
+    healthStore.resetConsecutiveTrainingDays();
+    healthStore.updateOvertrainLevel(-10);
+    healthStore.updateFatigueLevel(-15);
+  }
+
+  healthStore.saveToStorage();
 }
 
 export const useTimelineStore = create<TimelineState>((set, get) => ({
@@ -121,11 +141,28 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
         socialStore.simulateCompetitionDay(playerKm, undefined, d);
       }
       socialStore.ageActivities(next.dayIndex);
+      
+      // Update health state for each day advanced
+      updateHealthForDaysAdvanced(daysAdvanced, actionId);
     }
 
     const updatedState = processMonthlySalary(next);
-    set({ gameState: updatedState });
-    storageRepository.saveGameState(updatedState);
+    const runnerLevel = loadRunnerState().profile.level || 1;
+    const expenseResult = useExpenseStore.getState().processScheduledExpenses(
+      updatedState.dayIndex,
+      updatedState.economy.currentBalance,
+      runnerLevel
+    );
+    const finalState = expenseResult.canAfford && expenseResult.dueExpenses.length > 0
+      ? {
+          ...updatedState,
+          economy: { ...updatedState.economy, currentBalance: expenseResult.balanceAfter },
+          resources: { ...updatedState.resources, money: expenseResult.balanceAfter },
+        }
+      : updatedState;
+
+    set({ gameState: finalState });
+    storageRepository.saveGameState(finalState);
   },
 
   ff(mode: FastForwardMode) {
@@ -179,24 +216,42 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
 
     const { state, events } = fastForward(stateWithFlags, mode, eventsForDay);
 
-      // Apply monthly salary credit if applicable
-      const stateAfterSalary = processMonthlySalary(state);
+    // Apply monthly salary credit if applicable
+    const stateAfterSalary = processMonthlySalary(state);
+    const runnerLevel = loadRunnerState().profile.level || 1;
+    const expenseResult = useExpenseStore.getState().processScheduledExpenses(
+      stateAfterSalary.dayIndex,
+      stateAfterSalary.economy.currentBalance,
+      runnerLevel
+    );
+    const finalState = expenseResult.canAfford && expenseResult.dueExpenses.length > 0
+      ? {
+          ...stateAfterSalary,
+          economy: { ...stateAfterSalary.economy, currentBalance: expenseResult.balanceAfter },
+          resources: { ...stateAfterSalary.resources, money: expenseResult.balanceAfter },
+        }
+      : stateAfterSalary;
 
-      // If day(s) advanced, simulate competition/social days!
-      const daysAdvanced = stateAfterSalary.dayIndex - stateWithFlags.dayIndex;
+    // If day(s) advanced, simulate competition/social days!
+    const daysAdvanced = finalState.dayIndex - stateWithFlags.dayIndex;
     if (daysAdvanced > 0) {
       const socialStore = useSocialStore.getState();
-      for (let d = stateWithFlags.dayIndex; d < stateAfterSalary.dayIndex; d++) {
+      for (let d = stateWithFlags.dayIndex; d < finalState.dayIndex; d++) {
         const dow = d % 7;
         const slot = stateWithFlags.routine[dow] || "rest";
         const playerKm = slot === "compete" ? 10 : slot === "train" ? 5 : 0;
         socialStore.simulateCompetitionDay(playerKm, undefined, d);
       }
-      socialStore.ageActivities(stateAfterSalary.dayIndex);
+      socialStore.ageActivities(finalState.dayIndex);
+      
+      // Update health state for days advanced
+      const healthStore = useHealthStore.getState();
+      healthStore.updateInjuryRecovery(daysAdvanced);
+      healthStore.saveToStorage();
     }
 
-    set({ gameState: stateAfterSalary, pendingEvents: events });
-    storageRepository.saveGameState(stateAfterSalary);
+    set({ gameState: finalState, pendingEvents: events });
+    storageRepository.saveGameState(finalState);
 
     // Mark any triggered story beats as viewed so subsequent fast-forwards don't get stuck on the same beat
     if (events.length > 0) {
@@ -255,6 +310,7 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     // Reset other stores
     useSocialStore.getState().resetSocial();
     useStoryStore.getState().resetStoryProgress();
+    useExpenseStore.getState().reset();
 
     // Ensure first chapter start day is recorded on fresh state
     fresh.flags["chapter_1_start_day"] = 0;

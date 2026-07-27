@@ -6,6 +6,7 @@ import { useSettingsStore } from "@/store/settings-store";
 import { migrateToShopSystem } from "@/shop/shop-migration";
 import { useShopStore } from "@/shop/shop-store";
 import { useTimelineStore } from "@/store/timeline-store";
+import { useFirebaseStore } from "@/store/firebaseStore";
 
 interface AppProviderProps {
   children: React.ReactNode;
@@ -19,6 +20,12 @@ interface AppProviderProps {
 if (typeof window !== "undefined") {
   // Synchronously hydrate all stores from localStorage on module load
   useSettingsStore.getState().initializeSettings();
+  // Sync Firebase enabled flag from persisted settings
+  useFirebaseStore
+    .getState()
+    .setEnabled(
+      useSettingsStore.getState().settings.syncWithFirebase ?? false,
+    );
   usePlayerStore.getState().initializePlayer();
   useTimelineStore.getState().initialize();
   migrateToShopSystem();
@@ -40,6 +47,12 @@ export function AppProvider({ children }: AppProviderProps) {
   useEffect(() => {
     // Re-run initialization to catch any edge cases or updates
     initializeSettings();
+    // Sync Firebase enabled flag from persisted settings
+    useFirebaseStore
+      .getState()
+      .setEnabled(
+        useSettingsStore.getState().settings.syncWithFirebase ?? false,
+      );
     initializePlayer();
     useTimelineStore.getState().initialize();
     migrateToShopSystem();

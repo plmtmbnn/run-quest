@@ -18,6 +18,8 @@ import { useGameStore } from "@/store/game-store";
 import { usePreparationStore } from "@/store/preparation-store";
 import { useShopStore } from "@/shop/shop-store";
 import { useTimelineStore } from "@/store/timeline-store";
+import { recordNewRunner, recordRaceFinished } from "@/lib/firebaseService";
+import { useFirebaseStore } from "@/store/firebaseStore";
 import type { SimulationResult } from "@/types/engine";
 import { generateRunnerName } from "@/utils/name-generator";
 
@@ -81,6 +83,8 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     } else {
       const newPlayer = createNewPlayer();
       storageRepository.savePlayer(newPlayer);
+      // Record the new runner profile to Firebase (safely no-ops if Firebase is not configured)
+      recordNewRunner(newPlayer);
       set({ player: newPlayer });
     }
   },
@@ -209,6 +213,12 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       coinsGained,
       didBeatNemesis,
     );
+    // Record race completion to Firebase (safely no-ops if Firebase is not configured)
+    recordRaceFinished({
+      distance,
+      time: result.finishTime,
+      outcome: result.outcome,
+    });
 
     // Apply Economy updates (Sprint 27 integration)
     const gameState = useTimelineStore.getState().gameState;

@@ -15,6 +15,8 @@ export type DailyActivity =
   | "Mobility Session"
   | "Full Rest";
 
+export type TrainingActivity = DailyActivity;
+
 /**
  * Represents the effect of a daily activity on the runner's metrics.
  */

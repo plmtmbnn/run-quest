@@ -4,7 +4,12 @@
     "cancel": "Batal",
     "save": "Simpan",
     "loading": "Warming up...",
-    "continue": "Lanjut"
+    "continue": "Lanjut",
+    "days": "hari",
+    "back": "Kembali",
+    "level": "Level",
+    "balance": "Saldo",
+    "reduction": "penurunan"
   },
   "home": {
     "player_profile": "Profil Pelari",
@@ -90,6 +95,11 @@
       "content": "Ikuti event terdaftar, pilih sepatu & nutrisi saat persiapan, dan tentukan taktik pace seperti Negative Split atau Surge untuk menembus garis finish!"
     },
     "slide_5": {
+      "title": "Komunitas Global",
+      "subtitle": "Statistik keseluruhan secara langsung dari Firebase.",
+      "content": "Lihat aktivitas keseluruhan komunitas pelari dan balapan terdaftar di seluruh dunia secara real-time."
+    },
+    "slide_6": {
       "title": "Profil Pelari",
       "subtitle": "Buat identitas pelarimu.",
       "content": "Lokasimu terdeteksi! Pilih nama pelari, kewarganegaraan, mata uang default, dan tanggal lahir untuk mulai bermain."
@@ -175,13 +185,21 @@
     },
     "status": {
       "completed": "Race Selesai",
+      "registered": "Terdaftar",
+      "registration_open": "Pendaftaran Dibuka",
+      "available": "Pendaftaran Dibuka",
+      "too_early": "Segera Dibuka",
+      "too_late": "Pendaftaran Ditutup",
+      "today": "Hari Ini!",
+      "tomorrow": "Besok",
+      "missed": "Terlewat",
+      "full": "Kuota Penuh",
       "passed": "Pendaftaran Ditutup",
       "race_day": "Hari Race - Masuk Start",
       "in_days": "Race dalam {days} hari",
-      "registered": "Terdaftar",
-      "full": "Kuota Penuh",
-      "registration_open": "Pendaftaran Dibuka",
-      "opens_in": "Buka dalam {days} hari"
+      "opens_in": "Buka dalam {days}h",
+      "coming_soon": "Segera Hadir",
+      "upcoming": "Akan Datang"
     },
     "labels": {
       "entry_fee": "Biaya Registrasi",
@@ -189,6 +207,9 @@
       "entry_fee_value": "Biaya masuk: {fee}",
       "tier_race_on": "Race {tier} pada {date}",
       "days_until": "{days}h"
+    },
+    "actions": {
+      "register": "Daftar"
     }
   },
   "settings": {
@@ -250,6 +271,10 @@
       "backdrop": "Tutup pilihan",
       "search": "Cari mata uang…",
       "no_results": "Tidak ditemukan"
+    },
+    "sync": {
+      "title": "Sinkronkan dengan Firebase",
+      "desc": "Aktifkan sinkronisasi data otomatis dengan Firebase."
     }
   },
   "sponsors": {
@@ -1076,6 +1101,138 @@
       "subtitle": "Catatan simulasi real-time dari latihan dan aktivitas pesaing",
       "today": "Hari ini",
       "days_ago": "{days} hari lalu"
+    }
+  },
+  "health": {
+    "healthy": "Sehat",
+    "injured": "Cedera",
+    "recovering": "Sedang Pulih",
+    "status": {
+      "healthy": "Sehat",
+      "injured": "Cedera",
+      "recovering": "Sedang Pulih"
+    },
+    "injuries": {
+      "muscle_soreness": "Nyeri Otot",
+      "blisters": "Lecet",
+      "minor_strain": "Keseleo Ringan",
+      "muscle_pull": "Tarik Otot",
+      "shin_splints": "Shin Splints",
+      "runners_knee": "Nyeri Lutut Pelari",
+      "joint_pain": "Nyeri Sendi",
+      "stress_fracture": "Patah Tulang Stress",
+      "ligament_strain": "Keseleo Ligamen",
+      "tendon_injury": "Cedera Tendon",
+      "fracture": "Patah Tulang",
+      "torn_ligament": "Robek Ligamen",
+      "chronic_condition": "Kondisi Kronis"
+    },
+    "severity_minor": "Ringan",
+    "severity_moderate": "Sedang",
+    "severity_major": "Berat",
+    "severity_critical": "Kritis",
+    "medical_center": "Pusat Medis",
+    "get_treatment": "Dapatkan Pengobatan",
+    "days_remaining": "{days} hari tersisa",
+    "cannot_train_injured": "Tidak bisa latihan saat cedera",
+    "cannot_race_injured": "Tidak bisa balapan dengan cedera ini",
+    "health_status": "Status Kesehatan",
+    "overall_status": "Status Keseluruhan",
+    "overtrain_risk": "Risiko Overtraining",
+    "fatigue_level": "Tingkat Kelelahan",
+    "performance": "Performa",
+    "active_injuries": "Cedera Aktif",
+    "no_active_injuries": "Tidak ada cedera aktif - kamu siap!",
+    "injury_history": "Riwayat Cedera",
+    "no_injury_history": "Tidak ada riwayat cedera",
+    "treatment_options_for": "Opsi Pengobatan untuk {injury}",
+    "no_treatments_available": "Tidak ada pengobatan yang tersedia",
+    "view_treatments": "Lihat Pengobatan",
+    "apply_treatment": "Terapkan Pengobatan",
+    "treatment_success": "Pengobatan Berhasil!",
+    "treatment_failed": "Pengobatan Gagal",
+    "instant_heal": "Penyembuhan Instan",
+    "recovery_time": "Pemulihan: {days} hari",
+    "success_rate": "Tingkat Keberhasilan: {rate}%",
+    "take_rest_day": "Ambil Hari Istirahat",
+    "cannot_train": "Tidak Bisa Latihan",
+    "cannot_race": "Tidak Bisa Balapan",
+    "view_details": "Lihat Detail",
+    "healed": "Sembuh",
+    "day": "Hari {day}",
+    "insufficient_funds": "Dana tidak mencukupi",
+    "high_overtrain": "Overtraining Tinggi",
+    "high_fatigue": "Kelelahan Tinggi",
+    "performance_impact": "Dampak Performa",
+    "reduction": "penurunan",
+    "treatment_failed_try_again": "Pengobatan gagal. Coba lagi atau pilih opsi lain.",
+    "injury_instantly_healed": "Cedera sembuh secara instan!",
+    "treatment_applied": "{treatment} diterapkan. Perkiraan pemulihan: {days} hari.",
+    "critical": "Kritis",
+    "major_injury": "Cedera Berat",
+    "moderate_injury": "Cedera Sedang",
+    "minor_injury": "Cedera Ringan"
+  },
+  "expenses": {
+    "title": "Biaya Berulang",
+    "day": "Hari {day}",
+    "summary": "Ringkasan Biaya",
+    "weekly_total": "Total Mingguan",
+    "monthly_total": "Total Bulanan",
+    "weekly_expenses": "Biaya Mingguan",
+    "mandatory": "Wajib",
+    "optional": "Opsional",
+    "unlocked_at": "Terbuka di Lvl {level}",
+    "enable": "Aktifkan",
+    "disable": "Nonaktifkan",
+    "manage": "Kelola Biaya",
+    "history": "Riwayat Pembayaran",
+    "active_benefits": "Manfaat Aktif",
+    "benefits_title": "Manfaat:",
+    "status_good": "✓ Mampu bayar 4+ minggu",
+    "status_warning": "⚠ Dana rendah (sisa {weeks} minggu)",
+    "status_critical": "❌ Kritis (< 2 minggu)",
+    "unpaid_warning": "Kamu memiliki biaya hidup yang belum dibayar! Bayar tagihanmu sebelum latihan atau balapan.",
+    "insufficient_funds": "Dana tidak mencukupi untuk membayar biaya!",
+    "find_work": "Cari Pekerjaan",
+    "deducted": "Dipotong: {amount}",
+    "frequency": {
+      "daily": "hari",
+      "weekly": "minggu",
+      "monthly": "bulan"
+    },
+    "benefits": {
+      "trainingEffectiveness": "Efektivitas Latihan",
+      "xpBonus": "Bonus XP",
+      "injuryRiskReduction": "Pengurangan Risiko Cedera",
+      "recoverySpeed": "Kecepatan Pemulihan",
+      "treatmentDiscount": "Diskon Pengobatan",
+      "staminaRecovery": "Pemulihan Stamina",
+      "nutritionEfficiency": "Efisiensi Nutrisi"
+    },
+    "living_expenses": {
+      "name": "Biaya Hidup",
+      "description": "Makanan, tempat tinggal, utilitas, dan biaya hidup dasar"
+    },
+    "gym_membership": {
+      "name": "Keanggotaan Gym",
+      "description": "Akses ke fasilitas dan peralatan latihan"
+    },
+    "personal_coaching": {
+      "name": "Pelatih Pribadi",
+      "description": "Panduan kustom, peningkatan XP lebih cepat & latihan lebih baik"
+    },
+    "health_insurance": {
+      "name": "Asuransi Kesehatan",
+      "description": "Diskon perawatan medis dan pemulihan lebih cepat"
+    },
+    "sports_massage": {
+      "name": "Pijat Olahraga",
+      "description": "Mencegah penumpukan cedera dan mengurangi kelelahan"
+    },
+    "nutritionist": {
+      "name": "Konsultasi Ahli Gizi",
+      "description": "Meningkatkan pemulihan stamina dan efisiensi item nutrisi"
     }
   }
 }

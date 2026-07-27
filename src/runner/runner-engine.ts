@@ -3,6 +3,8 @@
 
 import { loadRunnerState, saveRunnerState } from "./runner-persistence";
 import type { RunnerProfile, RunnerState } from "./runner-types";
+// Import from progression-engine for consistency
+import { awardXP } from "./progression-engine";
 
 /**
  * Calculates the runner's Race Readiness based on Fitness, Fatigue, and other factors.
@@ -88,36 +90,6 @@ export const updateConsistency = (
  * @param time The time taken in seconds.
  * @param intensity The intensity of the race (0-1).
  */
-/**
- * Awards XP to the runner profile and processes leveling up.
- * @param profile The RunnerProfile to award XP to.
- * @param xpGained The amount of XP gained.
- * @returns The updated RunnerProfile with new levels and skill points if leveled up.
- */
-export const awardXP = (
-  profile: RunnerProfile,
-  xpGained: number,
-): RunnerProfile => {
-  let xp = profile.xp + xpGained;
-  let level = profile.level;
-  let skillPoints = profile.skillPoints;
-
-  let xpNeeded = level * 100;
-  while (xp >= xpNeeded) {
-    xp -= xpNeeded;
-    level += 1;
-    skillPoints += 3; // Grant 3 skill points per level up
-    xpNeeded = level * 100;
-  }
-
-  return {
-    ...profile,
-    level,
-    xp,
-    skillPoints,
-  };
-};
-
 /**
  * Updates the runner's profile after completing a race.
  * @param distance The distance run in kilometers.
@@ -225,7 +197,13 @@ export const completeRace = (
 
   const finalXpGained = (xpGained || 0) + bonusXp;
   if (finalXpGained > 0) {
-    updatedProfile = awardXP(updatedProfile, finalXpGained);
+    const xpResult = awardXP(updatedProfile, finalXpGained);
+    updatedProfile = {
+      ...updatedProfile,
+      xp: xpResult.xp,
+      level: xpResult.level,
+      skillPoints: xpResult.skillPoints,
+    };
   }
 
   const finalCoinsGained = (coinsGained || 0) + bonusCoins;
@@ -288,7 +266,13 @@ export const updateTrainingDay = (
   updatedProfile.currentReadiness = calculateRaceReadiness(updatedProfile);
 
   if (xpGained) {
-    updatedProfile = awardXP(updatedProfile, xpGained);
+    const xpResult = awardXP(updatedProfile, xpGained);
+    updatedProfile = {
+      ...updatedProfile,
+      xp: xpResult.xp,
+      level: xpResult.level,
+      skillPoints: xpResult.skillPoints,
+    };
   }
 
   if (coinsGained) {

@@ -23,7 +23,6 @@ interface TrackPositionVisualizerProps {
   selectedPacing: PacingPlan;
   surface: Surface;
   playerEnergy: number;
-  playSound?: (sound: "click" | "tick" | "success" | "alert") => void;
   isPaused?: boolean;
 }
 
@@ -35,7 +34,6 @@ export function TrackPositionVisualizer({
   selectedPacing,
   surface,
   playerEnergy,
-  playSound,
   isPaused = false,
 }: TrackPositionVisualizerProps) {
   const [viewMode, setViewMode] = useState<"full" | "proximity">("full");
@@ -77,14 +75,12 @@ export function TrackPositionVisualizer({
       const passedRunner = sortedRunners[playerRank]; // runner right behind player now
       const msg = passedRunner ? `Overtook ${passedRunner.name}! ⚡` : "Moved up in position! ⚡";
       setOvertakeMessage(msg);
-      if (playSound) playSound("success");
-
       const timer = setTimeout(() => setOvertakeMessage(null), 3000);
       return () => clearTimeout(timer);
     }
 
     prevRanksRef.current = currentRanks;
-  }, [playerRank, sortedRunners, playSound, playerRunner]);
+  }, [playerRank, sortedRunners, playerRunner]);
 
   // Calculate view bounds for full vs proximity mode
   let minDist = 0;
@@ -214,7 +210,6 @@ export function TrackPositionVisualizer({
             type="button"
             onClick={() => {
               setViewMode((prev) => (prev === "full" ? "proximity" : "full"));
-              if (playSound) playSound("click");
             }}
             className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] font-bold transition-all border border-slate-200 dark:border-slate-700 shadow-sm"
             title="Toggle between Full Track and Proximity View"

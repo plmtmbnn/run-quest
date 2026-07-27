@@ -150,4 +150,32 @@ export const storageRepository = {
   clearAll(): void {
     storageAdapter.clear();
   },
+
+  // ── Custom Storage (for health, expenses, etc.) ────────────────
+
+  loadCustom<T>(key: string): T | null {
+    try {
+      const raw = globalThis.localStorage.getItem(key);
+      if (raw === null) return null;
+      return JSON.parse(raw) as T;
+    } catch {
+      return null;
+    }
+  },
+
+  saveCustom<T>(key: string, value: T): void {
+    try {
+      globalThis.localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+      console.warn(`[StorageRepository] Failed to save custom key: ${key}`);
+    }
+  },
+
+  removeCustom(key: string): void {
+    try {
+      globalThis.localStorage.removeItem(key);
+    } catch {
+      console.warn(`[StorageRepository] Failed to remove custom key: ${key}`);
+    }
+  },
 };

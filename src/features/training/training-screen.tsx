@@ -1,9 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowLeft, Settings, Zap, TrendingUp, Heart, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Settings, Zap, TrendingUp, Heart, ShieldCheck, AlertTriangle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { useExpenseStore } from "../../store/expense-store";
 import { type TranslationKey, useTranslation } from "../../i18n/use-translation";
 import { useRunnerStore } from "../../runner/runner-store";
 import { useTimelineStore } from "../../store/timeline-store";
@@ -233,6 +234,23 @@ export function TrainingScreen() {
 
       {/* Main content */}
       <main className="mx-auto w-full max-w-6xl px-4 md:px-6 py-6 flex-1 flex flex-col gap-4 md:gap-6">
+        {useExpenseStore.getState().hasUnpaidExpenses() && (
+          <div className="bg-rose-500/10 border border-rose-500/30 text-rose-900 dark:text-rose-200 rounded-2xl p-4 flex items-center justify-between gap-3 shadow-sm">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="w-6 h-6 text-rose-600 dark:text-rose-400 shrink-0" />
+              <div>
+                <p className="font-bold text-sm">{t("expenses.unpaid_warning" as TranslationKey)}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => router.push("/economy")}
+              className="px-4 py-2 bg-rose-600 text-white rounded-xl font-bold text-xs hover:bg-rose-700 transition shrink-0"
+            >
+              {t("expenses.find_work" as TranslationKey)}
+            </button>
+          </div>
+        )}
+
         {/* Loading state */}
         {isGeneratingPlan && !currentWeeklyPlan && (
           <div className="flex-1 flex items-center justify-center">

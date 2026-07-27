@@ -2,7 +2,6 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useSound } from "@/hooks/use-sound";
 import type { SimulationResult } from "@/types/engine";
 import type { DailyChallenge } from "@/types/engine";
 
@@ -24,7 +23,6 @@ interface PhotoFinishProps {
  * Shows a dramatic slow-motion photo finish animation with split-screen comparison.
  */
 export function PhotoFinish({ result, challenge, playerName, lang, onComplete }: PhotoFinishProps) {
-  const { playSound } = useSound();
   const [isPlaying, setIsPlaying] = useState(true);
   const [showWinner, setShowWinner] = useState(false);
   const [replayCount, setReplayCount] = useState(0);
@@ -84,40 +82,29 @@ export function PhotoFinish({ result, challenge, playerName, lang, onComplete }:
     return `${seconds.toFixed(3)}s`;
   };
 
-  // Play sounds in sequence
+  // Animation timers
   useEffect(() => {
     if (!isPlaying) return;
-    
-    const sounds = [
-      { name: "success" as const, delay: 0 },
-      { name: "success" as const, delay: 500 },
-      { name: "success" as const, delay: 1500 },
-    ];
-    
-    sounds.forEach(({ name, delay }) => {
-      setTimeout(() => playSound(name), delay);
-    });
-    
+
     // Start the animation timer
     startTimeRef.current = Date.now();
-    
+
     // Show winner after animation
     const winnerTimer = setTimeout(() => {
       setShowWinner(true);
-      playSound("success");
     }, 2000);
-    
+
     // Complete after full animation
     const completeTimer = setTimeout(() => {
       setIsPlaying(false);
       onComplete();
     }, 4000);
-    
+
     return () => {
       clearTimeout(winnerTimer);
       clearTimeout(completeTimer);
     };
-  }, [isPlaying, playSound, onComplete]);
+  }, [isPlaying, onComplete]);
 
   const handleReplay = useCallback(() => {
     setShowWinner(false);
@@ -126,9 +113,8 @@ export function PhotoFinish({ result, challenge, playerName, lang, onComplete }:
     
     setTimeout(() => {
       setShowWinner(true);
-      playSound("success");
     }, 2000);
-  }, [playSound]);
+  }, []);
 
   const handleSkip = useCallback(() => {
     if (animationFrameRef.current) {

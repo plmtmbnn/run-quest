@@ -7,6 +7,7 @@ import {
   getUpcomingRaces,
   getRegisteredRaces,
   registerForRace,
+  makeRegistrationKey,
 } from "@/scheduling/race-calendar-engine";
 import { createInitialState } from "@/engine/timeline";
 
@@ -23,7 +24,8 @@ describe("Race Calendar Scheduling Engine", () => {
     let schedulingState = DEFAULT_SCHEDULING_STATE;
 
     schedulingState = registerForRace(schedulingState, "monthly_nusantara_10k", 27);
-    expect(schedulingState.registered["monthly_nusantara_10k"]).toBe(27);
+    const key = makeRegistrationKey("monthly_nusantara_10k", 27);
+    expect(schedulingState.registered[key]).toBe(27);
 
     const registered = getRegisteredRaces(schedulingState, 0);
     expect(registered.length).toBeGreaterThan(0);

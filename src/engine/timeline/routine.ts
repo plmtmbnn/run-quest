@@ -85,13 +85,14 @@ export function fastForward(
       return { state: current, events: collectedEvents };
     }
 
-    // Check if there are scheduled events on the current day Index
+    // Advance 1 day via routine
+    current = executeRoutineDay(current);
+
+    // Check if there are scheduled events on the newly reached dayIndex
     const dayEvents = eventsForDay(current.dayIndex);
     if (dayEvents.length > 0) {
       return { state: current, events: dayEvents };
     }
-
-    current = executeRoutineDay(current);
   }
 }
 

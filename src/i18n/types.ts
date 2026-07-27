@@ -12,6 +12,11 @@ export interface Dictionary {
     save: string;
     loading: string;
     continue: string;
+    days: string;
+    back: string;
+    level: string;
+    balance: string;
+    reduction: string;
   };
   home: {
     player_profile: string;
@@ -461,6 +466,10 @@ export interface Dictionary {
       search: string;
       no_results: string;
     };
+    sync: {
+      title: string;
+      desc: string;
+    };
   };
   economy: {
     page_title: string;
@@ -632,5 +641,119 @@ export interface Dictionary {
       today: string;
       days_ago: string;
     };
+  };
+  expenses: {
+    title: string;
+    day: string;
+    summary: string;
+    weekly_total: string;
+    monthly_total: string;
+    weekly_expenses: string;
+    mandatory: string;
+    optional: string;
+    unlocked_at: string;
+    enable: string;
+    disable: string;
+    manage: string;
+    history: string;
+    active_benefits: string;
+    benefits_title: string;
+    status_good: string;
+    status_warning: string;
+    status_critical: string;
+    unpaid_warning: string;
+    insufficient_funds: string;
+    find_work: string;
+    deducted: string;
+    frequency: {
+      daily: string;
+      weekly: string;
+      monthly: string;
+    };
+    benefits: {
+      trainingEffectiveness: string;
+      xpBonus: string;
+      injuryRiskReduction: string;
+      recoverySpeed: string;
+      treatmentDiscount: string;
+      staminaRecovery: string;
+      nutritionEfficiency: string;
+    };
+    living_expenses: {
+      name: string;
+      description: string;
+    };
+    gym_membership: {
+      name: string;
+      description: string;
+    };
+    personal_coaching: {
+      name: string;
+      description: string;
+    };
+    health_insurance: {
+      name: string;
+      description: string;
+    };
+    sports_massage: {
+      name: string;
+      description: string;
+    };
+    nutritionist: {
+      name: string;
+      description: string;
+    };
+  };
+  health?: {
+    status?: string | { healthy: string; injured: string; recovering: string };
+    healthy?: string;
+    injured?: string;
+    recovering?: string;
+    overtrained?: string;
+    overtrain_level?: string;
+    fatigue_level?: string;
+    performance?: string;
+    active_injuries?: string;
+    no_active_injuries?: string;
+    injury_history?: string;
+    no_injury_history?: string;
+    treatment_options_for?: string;
+    no_treatments_available?: string;
+    view_treatments?: string;
+    apply_treatment?: string;
+    treatment_success?: string;
+    treatment_failed?: string;
+    instant_heal?: string;
+    recovery_time?: string;
+    success_rate?: string;
+    take_rest_day?: string;
+    cannot_train?: string;
+    cannot_race?: string;
+    view_details?: string;
+    healed?: string;
+    day?: string;
+    insufficient_funds?: string;
+    high_overtrain?: string;
+    high_fatigue?: string;
+    performance_impact?: string;
+    reduction?: string;
+    treatment_failed_try_again?: string;
+    injury_instantly_healed?: string;
+    treatment_applied?: string;
+    critical?: string;
+    major_injury?: string;
+    moderate_injury?: string;
+    minor_injury?: string;
+    health_status?: string;
+    medical_center?: string;
+    overall_status?: string;
+    overtrain_risk?: string;
+    days_remaining?: string;
+    severity_critical?: string;
+    severity_major?: string;
+    severity_moderate?: string;
+    severity_minor?: string;
+    injuries?: Record<string, string>;
+    [key: string]: any;
   };
 }
