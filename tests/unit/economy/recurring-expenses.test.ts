@@ -20,9 +20,9 @@ describe("Recurring Expenses Engine", () => {
       const livingExpense = getExpenseById("living_expenses")!;
       expect(livingExpense).toBeDefined();
 
-      expect(calculateExpenseAmount(livingExpense, 1)).toBe(525); // 500 + 1*25
-      expect(calculateExpenseAmount(livingExpense, 5)).toBe(625); // 500 + 5*25
-      expect(calculateExpenseAmount(livingExpense, 10)).toBe(750); // 500 + 10*25
+      expect(calculateExpenseAmount(livingExpense, 1)).toBe(160); // 150 + 1*10
+      expect(calculateExpenseAmount(livingExpense, 5)).toBe(200); // 150 + 5*10
+      expect(calculateExpenseAmount(livingExpense, 10)).toBe(250); // 150 + 10*10
     });
 
     it("returns base amount for non-scaling expenses", () => {
@@ -48,8 +48,8 @@ describe("Recurring Expenses Engine", () => {
   });
 
   describe("calculateDueExpenses", () => {
-    it("includes mandatory living expenses for level 1 player on day 7", () => {
-      const due = calculateDueExpenses(7, 0, [], 1);
+    it("includes mandatory living expenses for level 1 player on day 30", () => {
+      const due = calculateDueExpenses(30, 0, [], 1);
       expect(due.map((e) => e.id)).toContain("living_expenses");
     });
 
@@ -71,18 +71,18 @@ describe("Recurring Expenses Engine", () => {
 
   describe("processExpenses", () => {
     it("deducts money when funds are sufficient", () => {
-      const dueExpenses = calculateDueExpenses(7, 0, ["gym_membership"], 3);
-      const result = processExpenses(dueExpenses, 1000, 3, 7);
+      const dueExpenses = calculateDueExpenses(30, 0, ["gym_membership"], 3);
+      const result = processExpenses(dueExpenses, 1000, 3, 30);
 
-      // living (575) + gym (100) = 675
+      // living (180) + gym (100) = 280
       expect(result.canAfford).toBe(true);
-      expect(result.totalDue).toBe(675);
-      expect(result.balanceAfter).toBe(325);
+      expect(result.totalDue).toBe(280);
+      expect(result.balanceAfter).toBe(720);
     });
 
     it("handles insufficient funds gracefully and provides consequences", () => {
-      const dueExpenses = calculateDueExpenses(7, 0, [], 1);
-      const result = processExpenses(dueExpenses, 100, 1, 7);
+      const dueExpenses = calculateDueExpenses(30, 0, [], 1);
+      const result = processExpenses(dueExpenses, 100, 1, 30);
 
       expect(result.canAfford).toBe(false);
       expect(result.consequences.length).toBeGreaterThan(0);
@@ -120,14 +120,14 @@ describe("Recurring Expenses Engine", () => {
     it("tracks payment history and unpaid status in store", () => {
       const store = useExpenseStore.getState();
       
-      // Process with sufficient funds
-      const res1 = store.processScheduledExpenses(7, 1000, 1);
+      // Process with sufficient funds on day 30 (monthly due day)
+      const res1 = store.processScheduledExpenses(30, 1000, 1);
       expect(res1.canAfford).toBe(true);
       expect(useExpenseStore.getState().hasUnpaidExpenses()).toBe(false);
       expect(useExpenseStore.getState().expenseState.expenseHistory).toHaveLength(1);
 
-      // Process with insufficient funds
-      const res2 = store.processScheduledExpenses(14, 50, 1);
+      // Process with insufficient funds on day 60
+      const res2 = store.processScheduledExpenses(60, 50, 1);
       expect(res2.canAfford).toBe(false);
       expect(useExpenseStore.getState().hasUnpaidExpenses()).toBe(true);
     });

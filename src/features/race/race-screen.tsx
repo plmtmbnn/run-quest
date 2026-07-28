@@ -6,13 +6,26 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { analyzeRace } from "@/coach/coach-analysis";
 import { BreakingPointOverlay } from "@/components/race/breaking-point";
+import { CriticalAlert, getAlertLevel } from "@/components/race/critical-alert";
 import { DesperationOverlay } from "@/components/race/desperation-mode";
 import { FinalKick, type KickTiming } from "@/components/race/final-kick";
+import { FinishLineSequence } from "@/components/race/finish-line-sequence";
+import { HeartRateMonitor } from "@/components/race/heart-rate-monitor";
+import { PRCelebration, usePRDetection } from "@/components/race/pr-celebration";
+import { MentalCommentary, useCommentaryQueue } from "@/components/race/mental-commentary";
 import { MicroAchievementPopup } from "@/components/race/micro-achievement-popup";
 import { PaceProjector } from "@/components/race/pace-projector";
+import { SplitCallout, useSplitCalloutQueue } from "@/components/race/split-callout";
 import { TrackPositionVisualizer } from "@/components/race/track-position-visualizer";
 import { checkRaceAchievements, type RaceAchievement } from "@/engine/achievements/race-achievements";
 import { advanceSimulation } from "@/engine/simulation/engine";
+import { FlowStateMeter } from "@/components/race/flow-state-meter";
+import { CadenceRhythm } from "@/components/race/cadence-rhythm";
+import { ParallaxEnvironment } from "@/components/race/parallax-environment";
+import { WeatherParticles } from "@/components/race/weather-particles";
+import { BreathingControl } from "@/components/race/breathing-control";
+import { BodyStressAvatar } from "@/components/race/body-stress-avatar";
+import { useSound } from "@/hooks/use-sound";
 
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { getRunnerState, useRunnerStore } from "@/runner/runner-store";
@@ -205,10 +218,101 @@ export function RaceScreen() {
   const overtakenRivalsRef = useRef<Set<string>>(new Set());
 
   const simStateRef = useRef<SimulationState | null>(null);
+
+  // ── Mental Commentary system ─────────────────────────────────────────────
+  const { activeCommentary, triggerCommentary, dismissCommentary } = useCommentaryQueue();
+
+  // ── Split Callout system ─────────────────────────────────────────────────
+  const { activeSplit, triggerSplitCallout, dismissSplitCallout } = useSplitCalloutQueue();
+  const previousCumulativeTimeRef = useRef(0);
+
+  // ── Critical Alert system ─────────────────────────────────────────────────
+  const [hasBurnedReserves, setHasBurnedReserves] = useState(false);
+
+  // ── Finish Line Sequence ──────────────────────────────────────────────────
+  const [showFinishSequence, setShowFinishSequence] = useState(false);
+
+  // ── PR Celebration ────────────────────────────────────────────────────────
+  const [showPRCelebration, setShowPRCelebration] = useState(false);
+  const { isNewPR, previousTime } = usePRDetection(
+    simResult?.finishTime || 0,
+    challenge.race.distance,
+    runnerState.profile
+  );
   const fullStateLogRef = useRef<
     Omit<SimulationState, "accumulatedStateLog">[]
   >([]);
   const maxDistanceMapRef = useRef<Map<string, number>>(new Map());
+
+  // Sprint 36 Zone Audio Trigger
+  const { playSound } = useSound();
+  const wasInZoneRef = useRef(false);
+  useEffect(() => {
+    const isZone = simState?.flowState?.isInTheZone ?? false;
+    if (isZone && !wasInZoneRef.current) {
+      playSound("success");
+    }
+    wasInZoneRef.current = isZone;
+  }, [simState?.flowState?.isInTheZone, playSound]);
+
+  // Sprint 36 Cadence & Rhythm Hit Handler
+  const handleRhythmHit = useCallback(
+    (result: import("@/engine/simulation/rhythm-engine").RhythmHitResult) => {
+      setSimState((prev) => {
+        if (!prev) return prev;
+        const currentRhythm = prev.rhythmState || {
+          spm: 175,
+          comboCount: 0,
+          activeEfficiencyBoost: 0,
+          boostExpiresAtKm: 0,
+          isMinimized: false,
+        };
+        return {
+          ...prev,
+          rhythmState: {
+            ...currentRhythm,
+            comboCount: result.comboCount,
+            activeEfficiencyBoost: result.efficiencyBoost,
+            boostExpiresAtKm: currentKm + 2,
+          },
+        };
+      });
+    },
+    [currentKm],
+  );
+
+  // Sprint 36 Breathing Control Success Handler
+  const handleBreathingSuccess = useCallback(() => {
+    setSimState((prev) => {
+      if (!prev) return prev;
+      const res = import("@/engine/simulation/breathing-engine").then(() => {});
+      const currentBreathing = prev.breathingState || {
+        category: "calm" as const,
+        breathsPerMin: 16,
+        heartRateBpm: 140,
+        canControl: false,
+        cooldownRemainingMs: 0,
+        lastControlledAtTime: 0,
+      };
+      const updatedBreathing = {
+        ...currentBreathing,
+        heartRateBpm: Math.max(100, currentBreathing.heartRateBpm - 10),
+        canControl: false,
+        cooldownRemainingMs: 120000,
+        lastControlledAtTime: Date.now(),
+      };
+      const newFocus = Math.min(100, (prev.focus ?? 100) + 5);
+      dispatchStats({
+        type: "UPDATE",
+        payload: { focus: newFocus },
+      });
+      return {
+        ...prev,
+        focus: newFocus,
+        breathingState: updatedBreathing,
+      };
+    });
+  }, []);
 
   // Trigger to advance simulation chunk
   const handleAdvance = useCallback(
@@ -347,6 +451,9 @@ export function RaceScreen() {
         return;
       } else if (simResult) {
         setIsFinished(true);
+        
+        // Trigger finish line sequence
+        setShowFinishSequence(true);
 
         // Deduct energy after race finishes in RaceScreen
         const energyCost = getEnergyCostForDistance(challenge?.race?.distance);
@@ -518,8 +625,9 @@ export function RaceScreen() {
       return;
     }
 
-    // Ticker needs to advance
-    const intervalMs = 1500 / simSpeed; // 1.5 seconds per km scaled by speed multiplier
+    // Ticker needs to advance (with subtle 5% slow-mo in The Zone)
+    const isZoneActive = simState?.flowState?.isInTheZone ?? false;
+    const intervalMs = (1500 / simSpeed) * (isZoneActive ? 1.05 : 1.0);
     const timer = setTimeout(() => {
       const nextKmValue = currentKm + 1;
       setCurrentKm(nextKmValue);
@@ -548,6 +656,21 @@ export function RaceScreen() {
         // Track km paces for achievement detection
         if (elapsedSeconds > 0) {
           kmPacesRef.current = [...kmPacesRef.current, elapsedSeconds];
+        }
+
+        // ── Split Callout trigger ─────────────────────────────────────────
+        // Trigger split callout for each completed kilometer
+        if (nextKmValue > 0 && elapsedSeconds > 0) {
+          // TODO: Get PB comparison time from player stats (if available)
+          // For now, we'll pass undefined and the component will show neutral status
+          const comparisonTime = undefined; // Future: Get from player's best time for this distance
+          
+          triggerSplitCallout(
+            nextKmValue,
+            elapsedSeconds,
+            snapshot.accumulatedTime,
+            comparisonTime
+          );
         }
 
           dispatchStats({
@@ -614,6 +737,11 @@ export function RaceScreen() {
                     context: "overtake_player",
                   });
                   overtakenRivalsRef.current.add(rivalId);
+                  
+                  // Trigger mental commentary
+                  if (snapshot) {
+                    triggerCommentary("overtake_rival", nextKmValue, snapshot);
+                  }
                 }
               }
               // Rival overtook player
@@ -630,6 +758,11 @@ export function RaceScreen() {
                     context: "overtaken_by_player",
                   });
                   overtakenRivalsRef.current.add(rivalId);
+                  
+                  // Trigger mental commentary
+                  if (snapshot) {
+                    triggerCommentary("being_overtaken", nextKmValue, snapshot);
+                  }
                 }
               }
             }
@@ -681,6 +814,51 @@ export function RaceScreen() {
         const tickerMetersRemaining = (challenge.race.distance - snapshot.distanceCovered) * 1000;
         if (tickerMetersRemaining <= 500 && !isFinalKick) {
           setIsFinalKick(true);
+          // Trigger final kick commentary
+          triggerCommentary("final_kick", nextKmValue, snapshot);
+        }
+        
+        // ── Mental Commentary triggers ───────────────────────────────────────
+        // Race start
+        if (nextKmValue <= 0.1) {
+          triggerCommentary("race_start", nextKmValue, snapshot);
+        }
+        
+        // Halfway point
+        const halfwayPoint = challenge.race.distance / 2;
+        if (Math.abs(nextKmValue - halfwayPoint) < 0.1) {
+          triggerCommentary("halfway", nextKmValue, snapshot);
+        }
+        
+        // Low energy
+        if (snapshot.energy < 30 && snapshot.energy > 15) {
+          triggerCommentary("low_energy", nextKmValue, snapshot);
+        }
+        
+        // High fatigue
+        if (snapshot.muscleFatigue > 70) {
+          triggerCommentary("high_fatigue", nextKmValue, snapshot);
+        }
+        
+        // Final 2km
+        if (snapshot.distanceCovered >= challenge.race.distance - 2.1 && 
+            snapshot.distanceCovered <= challenge.race.distance - 1.9) {
+          triggerCommentary("final_2km", nextKmValue, snapshot);
+        }
+        
+        // Breaking point
+        if (snapshot.activeBreakingPoint && !snapshot.activeBreakingPoint.resolved) {
+          triggerCommentary("breaking_point", nextKmValue, snapshot);
+        }
+        
+        // Desperation mode
+        if (snapshot.desperationMode && !snapshot.hasTriggeredDesperation) {
+          triggerCommentary("desperation", nextKmValue, snapshot);
+        }
+        
+        // Runner's high
+        if (snapshot.isRunnersHighActive) {
+          triggerCommentary("runners_high", nextKmValue, snapshot);
         }
       }
     }, intervalMs);
@@ -704,6 +882,8 @@ export function RaceScreen() {
     handleAdvance,
     simSpeed,
     isFinished,
+    triggerCommentary,
+    triggerSplitCallout,
   ]);
 
   // Countdown timer decrement
@@ -836,6 +1016,42 @@ export function RaceScreen() {
       },
     ]);
   };
+
+  // Handle Burn Reserves emergency action
+  const handleBurnReserves = useCallback(() => {
+    if (hasBurnedReserves || !simState) return;
+    
+    setHasBurnedReserves(true);
+    
+    // Boost energy by 20%
+    dispatchStats({
+      type: "UPDATE",
+      payload: {
+        ...stats,
+        energy: Math.min(100, stats.energy + 20),
+      },
+    });
+    
+    // Add event to log
+    setRunningEvents((prev) => [
+      ...prev,
+      {
+        km: currentKm,
+        title: {
+          en: "🔥 Burned Reserves!",
+          id: "🔥 Membakar Cadangan!",
+        },
+        description: {
+          en: "Emergency energy boost (+20%), reduced max stamina for remainder",
+          id: "Dorongan energi darurat (+20%), stamina maksimal berkurang untuk sisa lomba",
+        },
+        effect: { stamina: 20, hydration: 0, morale: 0, pace: 0 },
+      },
+    ]);
+    
+    // Trigger commentary
+    triggerCommentary("desperation", currentKm, simState);
+  }, [hasBurnedReserves, simState, stats, currentKm, triggerCommentary]);
 
   // Handle final kick timing result
   const handleKick = useCallback(
@@ -1012,6 +1228,29 @@ export function RaceScreen() {
 
   return (
     <div className="min-h-screen bg-[#fffdf8] dark:bg-[#090d16] text-slate-900 dark:text-white flex flex-col justify-between overflow-hidden relative">
+      {/* Environmental Parallax Background */}
+      <ParallaxEnvironment
+        surface={challenge.race.surface}
+        pacing={selectedPacing}
+        timeOfDay={challenge.environment.timeOfDay}
+        currentKm={currentKm}
+      />
+      {/* Dynamic Weather Particle Effects Overlay */}
+      <WeatherParticles
+        weather={currentWeatherDisplay}
+        temperature={challenge.environment.temperature}
+        wind={challenge.environment.wind}
+      />
+      {/* Flow State Screen Edge Glow Overlay */}
+      {simState?.flowState && simState.flowState.level !== "building" && (
+        <div
+          className={`fixed inset-0 pointer-events-none z-30 transition-all duration-700 ${
+            simState.flowState.isInTheZone
+              ? "bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-indigo-500/20 shadow-[inset_0_0_90px_rgba(168,85,247,0.35)] animate-pulse"
+              : "bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-indigo-500/10 shadow-[inset_0_0_50px_rgba(59,130,246,0.15)]"
+          }`}
+        />
+      )}
       {/* Header */}
       <header className="px-4 md:px-6 py-4 md:py-6 border-b border-slate-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/50 backdrop-blur-md">
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0">
@@ -1209,6 +1448,37 @@ export function RaceScreen() {
                 />
               </div>
 
+              {/* Heart Rate Monitor */}
+              {simState && (
+                <div className="mb-2">
+                  <HeartRateMonitor
+                    state={simState}
+                    currentPacing={selectedPacing}
+                  />
+                </div>
+              )}
+
+              {/* Sprint 36 Breathing Control Component */}
+              <div className="mb-2">
+                <BreathingControl
+                  breathingState={simState?.breathingState}
+                  onControlSuccess={handleBreathingSuccess}
+                />
+              </div>
+
+              {/* Flow State Meter */}
+              <div className="mb-2">
+                <FlowStateMeter flowState={simState?.flowState} />
+              </div>
+
+              {/* Sprint 36 Cadence & Rhythm Component */}
+              <CadenceRhythm
+                rhythmState={simState?.rhythmState}
+                selectedPacing={selectedPacing}
+                currentKm={currentKm}
+                onHit={handleRhythmHit}
+              />
+
               <h4 className="text-xs md:text-sm uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-500 flex items-center gap-1.5">
                 <span>⚡</span> Real-Time Tactics
               </h4>
@@ -1362,6 +1632,11 @@ export function RaceScreen() {
                   })}
                 </div>
               </div>
+
+              {/* Sprint 36 Body Stress Avatar Component */}
+              <div className="mt-3">
+                <BodyStressAvatar bodyStress={simState?.bodyStress} />
+              </div>
             </div>
           </div>
 
@@ -1413,7 +1688,7 @@ export function RaceScreen() {
           </div>
 
           {/* Sub-attributes / Indicators */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 border-t border-slate-100 dark:border-gray-800 pt-4 md:pt-6">
+          <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 border-t border-slate-100 dark:border-gray-800 pt-4 md:pt-6 transition-opacity duration-500 ${simState?.flowState?.isInTheZone ? "opacity-35 hover:opacity-100" : "opacity-100"}`}>
             <div className="flex flex-col gap-2 md:gap-3">
               <span className="text-xs md:text-sm uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-500">
                 Fatigue & Stability
@@ -1830,6 +2105,73 @@ export function RaceScreen() {
           />
         )}
       </AnimatePresence>
+
+      {/* Critical Alert — DNF warning system */}
+      {simState && !isFinished && (() => {
+        const alertLevel = getAlertLevel(simState.energy);
+        if (!alertLevel) return null;
+        
+        const distanceRemaining = challenge.race.distance - simState.distanceCovered;
+        
+        return (
+          <CriticalAlert
+            level={alertLevel}
+            energy={simState.energy}
+            distanceRemaining={distanceRemaining}
+            onBurnReserves={handleBurnReserves}
+            hasBurnedReserves={hasBurnedReserves}
+          />
+        );
+      })()}
+
+      {/* Mental Commentary Overlay — motivational internal monologue */}
+      <MentalCommentary
+        trigger={activeCommentary}
+        onDismiss={dismissCommentary}
+      />
+
+      {/* Split Callout Overlay — kilometer split times with PB comparison */}
+      {activeSplit && (
+        <SplitCallout
+          km={activeSplit.km}
+          splitTime={activeSplit.splitTime}
+          cumulativeTime={activeSplit.cumulativeTime}
+          comparisonTime={activeSplit.comparisonTime}
+          onDismiss={dismissSplitCallout}
+        />
+      )}
+
+      {/* Finish Line Sequence — collapse and recovery animation */}
+      {showFinishSequence && simResult && simState && (
+        <FinishLineSequence
+          finalTime={simResult.finishTime}
+          initialHeartRate={Math.round(
+            150 + (simState.muscleFatigue * 0.8) + (simState.mentalFatigue * 0.5)
+          )}
+          onComplete={() => {
+            setShowFinishSequence(false);
+            // Check if this is a new PR and show celebration
+            if (isNewPR && previousTime) {
+              setShowPRCelebration(true);
+            }
+          }}
+        />
+      )}
+
+      {/* PR Celebration — personal record achievement */}
+      {showPRCelebration && simResult && previousTime && (
+        <PRCelebration
+          previousTime={previousTime}
+          newTime={simResult.finishTime}
+          distance={challenge.race.distance}
+          onDismiss={() => setShowPRCelebration(false)}
+          onShare={() => {
+            // Open result card generator for sharing
+            setShowResultCard(true);
+            setShowPRCelebration(false);
+          }}
+        />
+      )}
     </div>
   );
 }

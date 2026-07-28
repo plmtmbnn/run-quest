@@ -55,6 +55,8 @@ export const StoredSettingsSchema = z.object({
     .default({ preferredSurface: "any", preferredDistance: "any" }),
   // Flag to enable Firebase sync
   syncWithFirebase: z.boolean().default(false),
+  parallaxEnabled: z.boolean().optional().default(true),
+  weatherEffectsEnabled: z.boolean().optional().default(true),
 });
 
 /**

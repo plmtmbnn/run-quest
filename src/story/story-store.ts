@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { initializeStoryProgress } from "./story-engine";
 import {
   loadOrInitializeStoryProgress,
   saveStoryProgress,
@@ -40,9 +41,9 @@ export const useStoryStore = create<StoryState>((set, get) => ({
   },
 
   resetStoryProgress: () => {
-    const initialized = loadOrInitializeStoryProgress();
-    set({ storyProgress: initialized });
-    saveStoryProgress(initialized);
+    const fresh = initializeStoryProgress();
+    set({ storyProgress: fresh });
+    saveStoryProgress(fresh);
   },
 
   loadFromStorage: () => {

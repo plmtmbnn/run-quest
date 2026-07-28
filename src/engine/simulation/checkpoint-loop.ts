@@ -15,6 +15,11 @@ import type {
   RaceSegment,
   SimulationState,
 } from "@/types/engine";
+import {
+  applyFlowScoreDelta,
+  createInitialFlowState,
+  evaluateKmFlowDelta,
+} from "@/engine/simulation/flow-state-engine";
 import type { SeededRandom } from "@/utils/random/seeded-random";
 
 /**
@@ -347,9 +352,13 @@ export function simulateKmStep(
 
   // Momentum improves energy efficiency (better momentum reduces fatigue rate)
   const momentumEfficiency = 1.0 - ((state.momentum ?? 50) - 50) * 0.003;
-  const finalFatigueDelta = state.isRunnersHighActive
+  let finalFatigueDelta = state.isRunnersHighActive
     ? 0
     : calculatedFatigue * momentumEfficiency;
+  // Apply Flow State "The Zone" fatigue accumulation reduction (-15%)
+  if (state.flowState?.isInTheZone) {
+    finalFatigueDelta *= 0.85;
+  }
   state.fatigue = Math.min(100, state.fatigue + finalFatigueDelta);
   state.energy = Math.max(0, 100 - state.fatigue);
   state.hydration = Math.max(0, state.hydration - calculatedHydration);
@@ -446,6 +455,18 @@ export function simulateKmStep(
   // Runner's High flow state speed boost
   if (state.isRunnersHighActive) {
     paceSeconds -= 20; // 20 seconds/km speed boost during runner's high
+  }
+  // Sprint 36 Flow State "The Zone" efficiency bonus (+5% speed boost)
+  if (state.flowState?.isInTheZone) {
+    paceSeconds *= 0.95;
+  }
+  // Sprint 36 Cadence & Rhythm efficiency bonus
+  if (
+    state.rhythmState &&
+    state.rhythmState.activeEfficiencyBoost > 0 &&
+    km <= state.rhythmState.boostExpiresAtKm
+  ) {
+    paceSeconds *= 1 - state.rhythmState.activeEfficiencyBoost;
   }
 
   // Calculate dynamic pacing speed adjustments
@@ -578,4 +599,27 @@ export function simulateKmStep(
   );
   state.accumulatedTime += kmDuration;
   state.distanceCovered = km;
+
+  // Sprint 36 Flow State step evaluation
+  const targetPaceSeconds =
+    challenge.objective?.targetTime && challenge.race.distance > 0
+      ? challenge.objective.targetTime / challenge.race.distance
+      : 300;
+
+  if (!state.flowState) {
+    state.flowState = createInitialFlowState();
+  }
+
+  const flowEval = evaluateKmFlowDelta({
+    actualPaceSeconds: kmDuration,
+    targetPaceSeconds,
+    hasActiveBreakingPoint: !!state.activeBreakingPoint,
+    energy: state.energy,
+  });
+
+  state.flowState = applyFlowScoreDelta(
+    state.flowState,
+    flowEval.delta,
+    flowEval.isPaceOptimal,
+  );
 }

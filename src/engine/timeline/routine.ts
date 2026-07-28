@@ -81,18 +81,18 @@ export function fastForward(
   while (true) {
     if (isDead(current)) return { state: current, events: collectedEvents };
 
+    // Check if there are scheduled events on the current dayIndex
+    const dayEvents = eventsForDay(current.dayIndex);
+    if (dayEvents.length > 0) {
+      return { state: current, events: dayEvents };
+    }
+
     if (current.dayIndex >= stop) {
       return { state: current, events: collectedEvents };
     }
 
     // Advance 1 day via routine
     current = executeRoutineDay(current);
-
-    // Check if there are scheduled events on the newly reached dayIndex
-    const dayEvents = eventsForDay(current.dayIndex);
-    if (dayEvents.length > 0) {
-      return { state: current, events: dayEvents };
-    }
   }
 }
 

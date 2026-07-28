@@ -205,6 +205,8 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
         preferredDistance: "any",
       },
       syncWithFirebase: true,
+      parallaxEnabled: true,
+      weatherEffectsEnabled: true,
     });
     useFirebaseStore.getState().setEnabled(true);
     const finalPlayer = usePlayerStore.getState().player;

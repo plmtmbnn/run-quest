@@ -12,6 +12,16 @@ import { calculatePerformance } from "@/engine/performance/calculator";
 import { calculatePreparationScore } from "@/engine/scoring/preparation-score";
 import { simulateKmStep } from "@/engine/simulation/checkpoint-loop";
 import { generateDecisionTimeline } from "@/engine/simulation/decision-generator";
+import {
+  applyFlowScoreDelta,
+  createInitialFlowState,
+} from "@/engine/simulation/flow-state-engine";
+import { createInitialRhythmState } from "@/engine/simulation/rhythm-engine";
+import {
+  createInitialBreathingState,
+  updateBreathingState,
+} from "@/engine/simulation/breathing-engine";
+import { calculateBodyStress } from "@/engine/simulation/body-stress-engine";
 import { generateStory } from "@/engine/story/story-builder";
 import type {
   ChoiceBehavior,
@@ -292,7 +302,11 @@ export function advanceSimulation(
       shownBreakingPoints: [],
       hasTriggeredDesperation: false,
       desperationMode: null,
+      flowState: createInitialFlowState(),
+      rhythmState: createInitialRhythmState(runnerProfile?.speedAttr),
+      breathingState: createInitialBreathingState(130),
     };
+    state.bodyStress = calculateBodyStress(state);
 
     // DNS check (rare event roll on first step)
     const initRandom = new SeededRandom(seed);
@@ -616,6 +630,17 @@ export function advanceSimulation(
           state.riskLevel = Math.max(5, (state.riskLevel ?? 20) - 2);
         }
 
+        // Flow state impact on decision
+        const isBadChoice =
+          (choice.behavior === "aggressive" && state.energy < 30) ||
+          choice.effects.stamina <= -20 ||
+          choice.effects.morale <= -15;
+        const flowDelta = isBadChoice ? -10 : 10;
+        state.flowState = applyFlowScoreDelta(
+          state.flowState || createInitialFlowState(),
+          flowDelta,
+        );
+
         // Schedule delayed effects based on choices (Sprint 13.1)
         state.delayedEffects = state.delayedEffects ?? [];
         const currentKm = state.distanceCovered;
@@ -750,6 +775,12 @@ export function advanceSimulation(
       currentStepState.activeBreakingPoint = activeBp;
       currentStepState.shownBreakingPoints = Array.from(
         bpEngine.getShownBreakingPoints(),
+      );
+
+      // Flow state breaking point penalty (-20)
+      currentStepState.flowState = applyFlowScoreDelta(
+        currentStepState.flowState || createInitialFlowState(),
+        -20,
       );
 
       // Apply base onset effects immediately
@@ -963,6 +994,29 @@ export function advanceSimulation(
       random,
       challenge,
       runnerProfile,
+    );
+
+    // Sprint 36 Breathing State Update
+    const estimatedHR = Math.round(
+      120 +
+        (currentStepState.fatigue * 0.7) +
+        (currentStepState.currentPacing === "sprint"
+          ? 25
+          : currentStepState.currentPacing === "push"
+            ? 15
+            : 0),
+    );
+    currentStepState.breathingState = updateBreathingState(
+      currentStepState.breathingState || createInitialBreathingState(estimatedHR),
+      estimatedHR,
+    );
+
+    // Sprint 36 Body Stress Update
+    currentStepState.bodyStress = calculateBodyStress(
+      currentStepState,
+      false,
+      currentStepState.currentPacing === "sprint",
+      preparation.shoes === "minimalist_trail",
     );
 
     // Apply special rare event if scheduled for this kilometer

@@ -27,6 +27,8 @@ const DEFAULT_SETTINGS: StoredSettings = {
   },
   // New flag for Firebase sync
   syncWithFirebase: true,
+  parallaxEnabled: true,
+  weatherEffectsEnabled: true,
 };
 
 export interface SettingsState {
@@ -36,6 +38,8 @@ export interface SettingsState {
   setLanguage: (lang: Language) => void;
   setTheme: (theme: "light" | "dark" | "system") => void;
   setReducedMotion: (value: boolean) => void;
+  setParallaxEnabled: (value: boolean) => void;
+  setWeatherEffectsEnabled: (value: boolean) => void;
   setSound: (value: boolean) => void;
   setHapticFeedback: (value: boolean) => void;
   setPreferredCurrency: (currency: CurrencyCode) => void;
@@ -72,6 +76,18 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
 
   setReducedMotion(reducedMotion) {
     const updated = { ...get().settings, reducedMotion };
+    storageRepository.saveSettings(updated);
+    set({ settings: updated });
+  },
+
+  setParallaxEnabled(parallaxEnabled) {
+    const updated = { ...get().settings, parallaxEnabled };
+    storageRepository.saveSettings(updated);
+    set({ settings: updated });
+  },
+
+  setWeatherEffectsEnabled(weatherEffectsEnabled) {
+    const updated = { ...get().settings, weatherEffectsEnabled };
     storageRepository.saveSettings(updated);
     set({ settings: updated });
   },

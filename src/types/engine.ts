@@ -2,9 +2,30 @@ import type { RaceTier } from "@/economy/economy-types";
 import type { RacePrerequisites } from "@/economy/race-entry-engine";
 import type { ActiveBreakingPoint } from "@/engine/breaking-points/breaking-types";
 import type { DesperationMode } from "@/engine/desperation/desperation-types";
+import type { FlowLevel, FlowState } from "@/engine/simulation/types";
+import type { RhythmState } from "@/engine/simulation/rhythm-engine";
+import type { BreathingCategory, BreathingState } from "@/engine/simulation/breathing-engine";
+import type {
+  BodyStressState,
+  BodyZoneId,
+  StressLevel,
+  ZoneStressInfo,
+} from "@/engine/simulation/body-stress-engine";
 import type { RunnerProfile } from "@/runner/runner-types";
 
-export type { ActiveBreakingPoint, DesperationMode };
+export type {
+  ActiveBreakingPoint,
+  BodyStressState,
+  BodyZoneId,
+  BreathingCategory,
+  BreathingState,
+  DesperationMode,
+  FlowLevel,
+  FlowState,
+  RhythmState,
+  StressLevel,
+  ZoneStressInfo,
+};
 
 export type Shoe = "daily_trainer" | "carbon_racer" | "lightweight" | "trail" | "stability" | "max_cushion" | "aggressive_trail" | "minimalist_trail";
 
@@ -278,6 +299,14 @@ export interface SimulationState {
   endorphinState?: import("@/engine/endorphins/endorphin-types").EndorphinState;
   hasUsedEndorphins?: boolean;
   activeEndorphinRush?: import("@/engine/endorphins/endorphin-types").ActiveEndorphinRush | null;
+  // Sprint 36 Flow State system
+  flowState?: FlowState;
+  // Sprint 36 Cadence & Rhythm system
+  rhythmState?: RhythmState;
+  // Sprint 36 Breathing Control system
+  breathingState?: BreathingState;
+  // Sprint 36 Body Stress Visualization system
+  bodyStress?: BodyStressState;
 }
 
 export interface OpponentState {
