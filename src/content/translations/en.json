@@ -170,6 +170,11 @@
     }
   },
   "race_calendar": {
+    "encouragement": {
+      "start_now": "START NOW ⚡",
+      "ready_to_run": "Registered & Ready to Run! 🔥",
+      "race_day": "Race Day is Here! 🏃‍♂️"
+    },
     "tabs": {
       "today": "Race Day",
       "registered": "Registered",

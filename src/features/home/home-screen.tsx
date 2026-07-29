@@ -354,6 +354,7 @@ export function HomeScreen() {
           },
           entryFee: actualFee,
           region: selectedRaceOccurrence.locationId,
+          routeProfileId: selectedRaceOccurrence.routeProfileId,
         });
 
         // Add additional properties that aren't in the base scenario

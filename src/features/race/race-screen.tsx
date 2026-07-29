@@ -71,27 +71,41 @@ import type {
 } from "@/types/engine";
 
 // Helper for determining route profile based on challenge characteristics
-// This mimics looking up the routeProfileId from the race schedule
 function getRouteProfileForChallenge(challenge: DailyChallenge): string | undefined {
+  if (challenge.race.routeProfileId) {
+    return challenge.race.routeProfileId;
+  }
+
   const name = (challenge.race.title.en || "").toLowerCase();
-  const surface = challenge.race.surface; // Use surface as fallback indicator
-  
-  // World Major routes - based on race name patterns
-  if (name.includes("boston") || name.includes("heartbreak")) return "boston_marathon";
-  if (name.includes("berlin") || name.includes("fastest course")) return "berlin_marathon";
-  if (name.includes("london") || name.includes("thames") || name.includes("greenwich")) return "london_marathon";
-  if (name.includes("new york") || name.includes("ny") || name.includes("five boroughs") || name.includes("verrazzano")) return "nyc_marathon";
-  if (name.includes("tokyo") || name.includes("shinjuku") || name.includes("ginza")) return "tokyo_marathon";
-  if (name.includes("chicago") || name.includes("lakefront") || name.includes("windy city")) return "chicago_marathon";
-  
-  // For now, skip Indonesian Signature routes since we don't have access to description
-  // They will fall back to generic profiles which is acceptable for MVP
-  
-  // Generic fallback based on surface and context
-  if (surface == "track") return "generic_track";
-  if (surface == "trail") return "generic_forest_trail";
+  const desc = (challenge.race.description?.en || "").toLowerCase();
+  const surface = challenge.race.surface;
+
+  // World Major routes - based on race name/description patterns
+  if (name.includes("boston") || name.includes("heartbreak") || desc.includes("boston")) return "boston_marathon";
+  if (name.includes("berlin") || name.includes("fastest course") || desc.includes("berlin")) return "berlin_marathon";
+  if (name.includes("london") || name.includes("thames") || name.includes("greenwich") || desc.includes("london")) return "london_marathon";
+  if (name.includes("new york") || name.includes("ny") || name.includes("five boroughs") || name.includes("verrazzano") || desc.includes("new york")) return "nyc_marathon";
+  if (name.includes("tokyo") || name.includes("shinjuku") || name.includes("ginza") || desc.includes("tokyo")) return "tokyo_marathon";
+  if (name.includes("chicago") || name.includes("lakefront") || name.includes("windy city") || desc.includes("chicago")) return "chicago_marathon";
+
+  // Indonesian Signature routes
+  if (name.includes("bromo") || name.includes("tenos") || desc.includes("bromo")) return "bromo_ultra";
+  if (name.includes("rinjani") || name.includes("sembalun") || desc.includes("rinjani")) return "rinjani_skyrace";
+  if (name.includes("bandung") || name.includes("dago") || desc.includes("bandung")) return "bandung_hills";
+  if (name.includes("tahura") || name.includes("pine forest") || desc.includes("tahura")) return "tahura_forest";
+  if (name.includes("bali") || name.includes("kuta") || name.includes("sanur") || name.includes("beach") || desc.includes("bali")) return "bali_coastal";
+  if (name.includes("arjuno") || name.includes("welirang") || desc.includes("arjuno")) return "arjuno_ultra";
+
+  // Generic fallbacks based on surface & terrain keywords
+  if (surface === "track") return "generic_track";
+  if (surface === "trail") {
+    if (name.includes("mountain") || name.includes("peak") || desc.includes("mountain")) return "generic_mountain_trail";
+    return "generic_forest_trail";
+  }
+  if (name.includes("coastal") || name.includes("beach") || desc.includes("coastal")) return "generic_coastal";
+  if (name.includes("tea") || name.includes("plantation")) return "generic_plantation";
   if (name.includes("city") || name.includes("marathon") || name.includes("run")) return "generic_flat_city";
-  
+
   return undefined;
 }
 
@@ -676,14 +690,14 @@ export function RaceScreen() {
     // Ticker needs to advance (with subtle 5% slow-mo in The Zone)
     const isZoneActive = simState?.flowState?.isInTheZone ?? false;
     
-    // Base intervals per speed: strategic (slow) = more contemplative, fast = quicker but meaningful
-    // 1x: 10 seconds/km (strategic, thoughtful decisions) - UPDATED per sprint requirement
-    // 2x: 10 seconds/km (balanced pace)  
-    // 5x: 5 seconds/km (fast-paced, reactive)
+    // Base intervals per speed: 10 seconds per KM for slowest speed (1x)
+    // 1x: 10 seconds/km (slowest speed)
+    // 2x: 5 seconds/km (balanced pace)  
+    // 5x: 2 seconds/km (fast-paced)
     const SPEED_INTERVALS: Record<1 | 2 | 5, number> = {
-      1: 10000,  // 10 sec/km - UPDATED from 20s
-      2: 10000,  // 10 sec/km
-      5: 5000,   // 5 sec/km
+      1: 10000,  // 10 sec/km (slowest speed)
+      2: 5000,   // 5 sec/km
+      5: 2000,   // 2 sec/km
     };
     
     const baseInterval = SPEED_INTERVALS[simSpeed] || 10000;
@@ -702,8 +716,13 @@ export function RaceScreen() {
 
       const matchedEvents = events.filter((e) => e.km === nextKmValue);
       if (matchedEvents.length > 0) {
-        // Limit running events to avoid too many popups/actions
-        const maxEvents = 15;
+        // Limit running events based on speed to avoid popup/action noise
+        const maxEventsConfig: Record<1 | 2 | 5, number> = {
+          1: 5,
+          2: 3,
+          5: 1,
+        };
+        const maxEvents = maxEventsConfig[simSpeed] || 3;
         setRunningEvents((prev) => {
           const newEvents = [...prev, ...matchedEvents];
           return newEvents.length > maxEvents ? newEvents.slice(newEvents.length - maxEvents) : newEvents;
@@ -724,12 +743,12 @@ export function RaceScreen() {
         }
 
         // ── Split Callout trigger ─────────────────────────────────────────
-        // Trigger split callout for each completed kilometer
-        if (nextKmValue > 0 && elapsedSeconds > 0) {
-          // TODO: Get PB comparison time from player stats (if available)
-          // For now, we'll pass undefined and the component will show neutral status
-          const comparisonTime = undefined; // Future: Get from player's best time for this distance
-          
+        // Throttle frequency by simSpeed: 1x (every 1 km), 2x (every 2 km), 5x (every 5 km / final km)
+        const splitInterval = simSpeed === 5 ? 5 : simSpeed === 2 ? 2 : 1;
+        const isKmForSplit = nextKmValue % splitInterval === 0 || nextKmValue === Math.floor(challenge.race.distance);
+
+        if (nextKmValue > 0 && elapsedSeconds > 0 && isKmForSplit) {
+          const comparisonTime = undefined;
           triggerSplitCallout(
             nextKmValue,
             elapsedSeconds,
@@ -738,21 +757,21 @@ export function RaceScreen() {
           );
         }
 
-          dispatchStats({
-            type: 'UPDATE',
-            payload: {
-              energy: Math.max(0, Math.round(snapshot.energy)),
-              hydration: Math.max(0, Math.round(snapshot.hydration)),
-              focus: Math.max(0, Math.round(snapshot.focus)),
-              confidence: Math.max(0, Math.round(snapshot.confidence)),
-              muscleFatigue: Math.round(snapshot.muscleFatigue ?? 0),
-              mentalFatigue: Math.round(snapshot.mentalFatigue ?? 0),
-              momentum: Math.round(snapshot.momentum ?? 50),
-              paceStability: Math.round(snapshot.paceStability ?? 80),
-              riskLevel: Math.round(snapshot.riskLevel ?? 20),
-              pace: elapsedSeconds,
-            }
-          });
+        dispatchStats({
+          type: 'UPDATE',
+          payload: {
+            energy: Math.max(0, Math.round(snapshot.energy)),
+            hydration: Math.max(0, Math.round(snapshot.hydration)),
+            focus: Math.max(0, Math.round(snapshot.focus)),
+            confidence: Math.max(0, Math.round(snapshot.confidence)),
+            muscleFatigue: Math.round(snapshot.muscleFatigue ?? 0),
+            mentalFatigue: Math.round(snapshot.mentalFatigue ?? 0),
+            momentum: Math.round(snapshot.momentum ?? 50),
+            paceStability: Math.round(snapshot.paceStability ?? 80),
+            riskLevel: Math.round(snapshot.riskLevel ?? 20),
+            pace: elapsedSeconds,
+          }
+        });
 
         // ── Achievement detection ──────────────────────────────────────────
         // Compute current player position by sorting all runners together
@@ -766,19 +785,18 @@ export function RaceScreen() {
         const prevPos = prevPlayerPositionRef.current;
 
         // ── Rival overtake detection ────────────────────────────────────────
-        // Check if player overtook any rival or was overtaken by any rival
-        if (snapshot.opponents && prevSnapshot?.opponents) {
+        // Suppress popups at 5x fast speed to avoid dialog clutter
+        const allowRivalPopups = simSpeed === 1;
+        if (allowRivalPopups && snapshot.opponents && prevSnapshot?.opponents) {
           const currentOpponents = snapshot.opponents;
           const prevOpponents = prevSnapshot.opponents;
           
-          // Build position maps for current and previous km
           const currentPositions = [...currentOpponents, { id: "player_local", distanceCovered: snapshot.distanceCovered, accumulatedTime: snapshot.accumulatedTime }]
             .sort((a, b) => b.distanceCovered - a.distanceCovered || a.accumulatedTime - b.accumulatedTime);
           
           const prevPositions = [...prevOpponents, { id: "player_local", distanceCovered: prevSnapshot.distanceCovered, accumulatedTime: prevSnapshot.accumulatedTime }]
             .sort((a, b) => b.distanceCovered - a.distanceCovered || a.accumulatedTime - b.accumulatedTime);
           
-          // Find rivals that the player overtook (rival was ahead, now behind)
           for (const rival of raceRivals) {
             const rivalId = rival.id;
             const currentRivalIndex = currentPositions.findIndex(r => r.id === rivalId);
@@ -786,11 +804,9 @@ export function RaceScreen() {
             const currentPlayerIndex = currentPositions.findIndex(r => r.id === "player_local");
             const prevPlayerIndex = prevPositions.findIndex(r => r.id === "player_local");
             
-            // Player overtook this rival
             if (prevRivalIndex !== -1 && currentRivalIndex !== -1 && 
                 prevPlayerIndex !== -1 && currentPlayerIndex !== -1) {
               if (prevRivalIndex < prevPlayerIndex && currentRivalIndex > currentPlayerIndex) {
-                // Player overtook rival - trigger dialog
                 if (!overtakenRivalsRef.current.has(rivalId)) {
                   const dialog = generateRivalDialog(rival, "overtake_player", {
                     km: nextKmValue,
@@ -803,15 +819,12 @@ export function RaceScreen() {
                   });
                   overtakenRivalsRef.current.add(rivalId);
                   
-                  // Trigger mental commentary
                   if (snapshot) {
                     triggerCommentary("overtake_rival", nextKmValue, snapshot);
                   }
                 }
               }
-              // Rival overtook player
               else if (prevRivalIndex > prevPlayerIndex && currentRivalIndex < currentPlayerIndex) {
-                // Rival overtook player - trigger dialog
                 if (!overtakenRivalsRef.current.has(rivalId)) {
                   const dialog = generateRivalDialog(rival, "overtaken_by_player", {
                     km: nextKmValue,
@@ -824,7 +837,6 @@ export function RaceScreen() {
                   });
                   overtakenRivalsRef.current.add(rivalId);
                   
-                  // Trigger mental commentary
                   if (snapshot) {
                     triggerCommentary("being_overtaken", nextKmValue, snapshot);
                   }
@@ -844,7 +856,7 @@ export function RaceScreen() {
             playerPosition: playerPos,
             prevPlayerPosition: prevPos,
             totalRunners: (snapshot.opponents?.length ?? 0) + 1,
-            isFirstTime: true, // refined inside checkRaceAchievements
+            isFirstTime: true,
             events: matchedEvents,
             kmPaces: kmPacesRef.current,
           },
@@ -852,19 +864,20 @@ export function RaceScreen() {
         );
 
         if (newAchievements.length > 0) {
-          const queueItems: AchievementQueueItem[] = newAchievements.map((a) => ({
+          // Limit achievement popup queue size based on speed to prevent clutter
+          const maxQueueSize = simSpeed === 5 ? 1 : simSpeed === 2 ? 2 : 3;
+          const queueItems: AchievementQueueItem[] = newAchievements.slice(0, maxQueueSize).map((a) => ({
             ...a,
             isFirstTime: !earnedSet.has(a.id),
             instanceId: `${a.id}-${nextKmValue}-${Date.now()}`,
           }));
           newAchievements.forEach((a) => earnedSet.add(a.id));
-          setAchievementQueue((prev) => [...prev, ...queueItems]);
+          setAchievementQueue((prev) => [...prev.slice(-(maxQueueSize - 1)), ...queueItems]);
         }
 
         prevPlayerPositionRef.current = playerPos;
 
         // ── Weather Transition detection (Sprint 34 – Task 5) ────────────────
-        // Check if any pre-rolled transition fires at this km
         if (challenge.weatherTransitions && challenge.weatherTransitions.length > 0) {
           for (const wt of challenge.weatherTransitions) {
             if (wt.km === nextKmValue && !firedTransitionIdsRef.current.has(wt.id)) {
@@ -879,50 +892,34 @@ export function RaceScreen() {
         const tickerMetersRemaining = (challenge.race.distance - snapshot.distanceCovered) * 1000;
         if (tickerMetersRemaining <= 500 && !isFinalKick) {
           setIsFinalKick(true);
-          // Trigger final kick commentary
           triggerCommentary("final_kick", nextKmValue, snapshot);
         }
         
-        // ── Mental Commentary triggers ───────────────────────────────────────
-        // Race start
-        if (nextKmValue <= 0.1) {
-          triggerCommentary("race_start", nextKmValue, snapshot);
-        }
-        
-        // Halfway point
+        // ── Mental Commentary triggers (Speed Throttled) ───────────────────────
         const halfwayPoint = challenge.race.distance / 2;
-        if (Math.abs(nextKmValue - halfwayPoint) < 0.1) {
-          triggerCommentary("halfway", nextKmValue, snapshot);
+        if (simSpeed === 1) {
+          if (nextKmValue <= 0.1) triggerCommentary("race_start", nextKmValue, snapshot);
+          if (Math.abs(nextKmValue - halfwayPoint) < 0.1) triggerCommentary("halfway", nextKmValue, snapshot);
+          if (snapshot.energy < 30 && snapshot.energy > 15) triggerCommentary("low_energy", nextKmValue, snapshot);
+          if (snapshot.muscleFatigue > 70) triggerCommentary("high_fatigue", nextKmValue, snapshot);
+          if (snapshot.distanceCovered >= challenge.race.distance - 2.1 && snapshot.distanceCovered <= challenge.race.distance - 1.9) triggerCommentary("final_2km", nextKmValue, snapshot);
+        } else if (simSpeed === 2) {
+          if (nextKmValue <= 0.1) triggerCommentary("race_start", nextKmValue, snapshot);
+          if (Math.abs(nextKmValue - halfwayPoint) < 0.1) triggerCommentary("halfway", nextKmValue, snapshot);
+          if (snapshot.distanceCovered >= challenge.race.distance - 2.1 && snapshot.distanceCovered <= challenge.race.distance - 1.9) triggerCommentary("final_2km", nextKmValue, snapshot);
+        } else {
+          // 5x speed: Critical milestones only
+          if (nextKmValue <= 0.1) triggerCommentary("race_start", nextKmValue, snapshot);
+          if (snapshot.distanceCovered >= challenge.race.distance - 2.1 && snapshot.distanceCovered <= challenge.race.distance - 1.9) triggerCommentary("final_2km", nextKmValue, snapshot);
         }
         
-        // Low energy
-        if (snapshot.energy < 30 && snapshot.energy > 15) {
-          triggerCommentary("low_energy", nextKmValue, snapshot);
-        }
-        
-        // High fatigue
-        if (snapshot.muscleFatigue > 70) {
-          triggerCommentary("high_fatigue", nextKmValue, snapshot);
-        }
-        
-        // Final 2km
-        if (snapshot.distanceCovered >= challenge.race.distance - 2.1 && 
-            snapshot.distanceCovered <= challenge.race.distance - 1.9) {
-          triggerCommentary("final_2km", nextKmValue, snapshot);
-        }
-        
-        // Breaking point
         if (snapshot.activeBreakingPoint && !snapshot.activeBreakingPoint.resolved) {
           triggerCommentary("breaking_point", nextKmValue, snapshot);
         }
-        
-        // Desperation mode
         if (snapshot.desperationMode && !snapshot.hasTriggeredDesperation) {
           triggerCommentary("desperation", nextKmValue, snapshot);
         }
-        
-        // Runner's high
-        if (snapshot.isRunnersHighActive) {
+        if (snapshot.isRunnersHighActive && simSpeed < 5) {
           triggerCommentary("runners_high", nextKmValue, snapshot);
         }
       }

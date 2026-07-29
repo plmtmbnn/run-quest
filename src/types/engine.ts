@@ -111,6 +111,7 @@ export interface Race {
   surface: Surface;
   elevation: Elevation;
   checkpoints: Checkpoint[];
+  routeProfileId?: string;
 }
 
 export interface Objective {

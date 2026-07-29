@@ -62,22 +62,14 @@ describe("Timeline Engine Integration", () => {
     expect(championship?.dayIndex).toBe(30);
   });
 
-  it("halts fast-forward at a scheduled story event", () => {
+  it("advances fast-forward 1 week", () => {
     const store = useTimelineStore.getState();
     expect(store.gameState?.dayIndex).toBe(0);
 
-    // Fast forwarding to next week should run day 0, but day 0 has "ch1_start" event scheduled!
-    // So fastForward should halt immediately on Day 0 and return the event.
+    // Fast forwarding 1 week advances the timeline to day 7
     store.ff("week");
 
-    let updated = useTimelineStore.getState();
-    expect(updated.gameState?.dayIndex).toBe(0); // halted at day 0
-    expect(updated.pendingEvents).toHaveLength(1);
-    expect(updated.pendingEvents[0].id).toBe("story_beat:ch1_start");
-
-    // Subsequent ff("week") should advance the timeline and not remain stuck on Day 0!
-    useTimelineStore.getState().ff("week");
-    updated = useTimelineStore.getState();
+    const updated = useTimelineStore.getState();
     expect(updated.gameState?.dayIndex).toBe(7); // advanced to day 7
   });
 

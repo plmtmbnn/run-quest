@@ -515,6 +515,7 @@ export function generateRaceChallenge(params: {
   raceName: { en: string; id: string };
   entryFee: number;
   region?: string;
+  routeProfileId?: string;
 }): Scenario {
   const {
     scheduleId,
@@ -526,6 +527,7 @@ export function generateRaceChallenge(params: {
     raceName,
     entryFee,
     region,
+    routeProfileId,
   } = params;
 
   // Generate race-specific weather using the new weather engine
@@ -631,6 +633,7 @@ export function generateRaceChallenge(params: {
       surface,
       elevation,
       checkpoints,
+      routeProfileId,
     },
     objective: {
       targetTime,

@@ -170,6 +170,11 @@
     }
   },
   "race_calendar": {
+    "encouragement": {
+      "start_now": "MULAI SEKARANG ⚡",
+      "ready_to_run": "Terdaftar & Siap Lari! 🔥",
+      "race_day": "Hari Balap Telah Tiba! 🏃‍♂️"
+    },
     "tabs": {
       "today": "Hari Race",
       "registered": "Terdaftar",

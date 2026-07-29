@@ -820,4 +820,5 @@ export interface Dictionary {
       };
     };
   };
+  race_calendar?: Record<string, any>;
 }
