@@ -761,4 +761,63 @@ export interface Dictionary {
     injuries?: Record<string, string>;
     [key: string]: any;
   };
+  tour?: {
+    button: string;
+    start: string;
+    back: string;
+    next: string;
+    finish: string;
+    step_progress: string;
+    welcome: { title: string; content: string };
+    clock: { title: string; content: string };
+    health: { title: string; content: string };
+    expenses: { title: string; content: string };
+    training: { title: string; content: string };
+    races: { title: string; content: string };
+    rest: { title: string; content: string };
+    screens?: {
+      training?: {
+        welcome?: { title: string; content: string };
+        calendar?: { title: string; content: string };
+        templates?: { title: string; content: string };
+        coach?: { title: string; content: string };
+      };
+      preparation?: {
+        welcome?: { title: string; content: string };
+        shoes?: { title: string; content: string };
+        nutrition?: { title: string; content: string };
+        gear?: { title: string; content: string };
+        warmup?: { title: string; content: string };
+        pacing?: { title: string; content: string };
+      };
+      shop?: {
+        welcome?: { title: string; content: string };
+        categories?: { title: string; content: string };
+        items?: { title: string; content: string };
+      };
+      result?: {
+        welcome?: { title: string; content: string };
+        summary?: { title: string; content: string };
+        stats?: { title: string; content: string };
+        share?: { title: string; content: string };
+      };
+      medical?: {
+        welcome?: { title: string; content: string };
+        status?: { title: string; content: string };
+        treatments?: { title: string; content: string };
+      };
+      briefing?: {
+        welcome?: { title: string; content: string };
+        course?: { title: string; content: string };
+        weather?: { title: string; content: string };
+        start?: { title: string; content: string };
+      };
+      race?: {
+        welcome?: { title: string; content: string };
+        simulation?: { title: string; content: string };
+        stats?: { title: string; content: string };
+        decisions?: { title: string; content: string };
+      };
+    };
+  };
 }

@@ -21,10 +21,12 @@ import { type GhostRun, loadGhostRun } from "@/social/ghost-engine";
 import { useGameStore } from "@/store/game-store";
 import { useTimelineStore } from "@/store/timeline-store";
 import { makeRegistrationKey } from "@/scheduling/race-calendar-engine";
+import { ScreenTour } from "@/components/tour/screen-tour";
 
 export function BriefingScreen() {
   const router = useRouter();
   const { t, language } = useTranslation();
+  const [runTour, setRunTour] = useState(false);
   const lang = (language === "id" ? "id" : "en") as "en" | "id";
 
   const { currentChallenge, setActiveGhost } = useGameStore();
@@ -110,7 +112,7 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
           >
             <ArrowLeft className="h-5 w-5 text-slate-600 dark:text-slate-300" />
           </button>
-          <div>
+          <div className="flex-1 min-w-0">
             <h1 className="font-heading font-black text-lg sm:text-xl md:text-2xl text-slate-800 dark:text-white">
               {t("challenge.briefing.title" as TranslationKey)}
             </h1>
@@ -118,6 +120,15 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
               {t("challenge.briefing.subtitle" as TranslationKey)}
             </p>
           </div>
+          <button
+            type="button"
+            onClick={() => setRunTour(true)}
+            className="rounded-full min-h-[38px] px-3 bg-amber-500/10 dark:bg-amber-500/20 border border-amber-400/50 text-amber-700 dark:text-amber-300 font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95 shrink-0"
+            aria-label="Start Briefing Tour"
+          >
+            <span>🧭</span>
+            <span>{t("tour.button" as TranslationKey)}</span>
+          </button>
         </div>
       </header>
 
@@ -138,7 +149,7 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
           </p>
 
           {/* 4 Metric Mini Cards Grid */}
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 border-t border-b border-[#E5E7EB] dark:border-slate-800/80 py-6 mb-6">
+          <div id="tour-briefing-course" className="grid grid-cols-2 gap-3 sm:gap-4 border-t border-b border-[#E5E7EB] dark:border-slate-800/80 py-6 mb-6">
             <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800 p-3.5 sm:p-4 rounded-2xl flex items-center gap-3">
               <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shrink-0">
                 <MapPin className="h-4.5 w-4.5" />
@@ -322,6 +333,7 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
             }
             router.push("/preparation");
           }}
+          id="tour-briefing-start"
           className="flex-1 py-3.5 px-4 rounded-2xl text-xs sm:text-sm font-black uppercase tracking-wider transition-all duration-200 shadow-md bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white shadow-indigo-500/20 flex items-center justify-center gap-2 min-h-[44px]"
         >
           <span>{t("challenge.briefing.start_prep" as TranslationKey)}</span>
@@ -353,6 +365,31 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
           date={challenge.date}
         />
       </ShareModal>
+
+      {/* Screen Tour */}
+      <ScreenTour
+        run={runTour}
+        onFinish={() => setRunTour(false)}
+        steps={[
+          {
+            target: "body",
+            placement: "center",
+            title: t("tour.screens.briefing.welcome.title" as TranslationKey),
+            content: t("tour.screens.briefing.welcome.content" as TranslationKey),
+            skipBeacon: true,
+          },
+          {
+            target: "#tour-briefing-course",
+            title: t("tour.screens.briefing.course.title" as TranslationKey),
+            content: t("tour.screens.briefing.course.content" as TranslationKey),
+          },
+          {
+            target: "#tour-briefing-start",
+            title: t("tour.screens.briefing.start.title" as TranslationKey),
+            content: t("tour.screens.briefing.start.content" as TranslationKey),
+          },
+        ]}
+      />
     </motion.div>
   );
 }

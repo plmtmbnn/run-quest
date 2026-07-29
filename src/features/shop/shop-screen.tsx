@@ -31,10 +31,12 @@ import { useShopStore } from "@/shop/shop-store";
 import type { ShopCategory, ShopItem } from "@/shop/shop-types";
 import { useSettingsStore } from "@/store/settings-store";
 import { useTimelineStore } from "@/store/timeline-store";
+import { ScreenTour } from "@/components/tour/screen-tour";
 
 export function ShopScreen() {
   const router = useRouter();
   const { t, language } = useTranslation();
+  const [runTour, setRunTour] = useState(false);
   const lang = (language === "id" ? "id" : "en") as "en" | "id";
   const { playSound } = useSound();
 
@@ -198,7 +200,16 @@ export function ShopScreen() {
           </div>
 
           {/* Level & Balance Pill */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div id="tour-shop-balance" className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => setRunTour(true)}
+              className="rounded-full min-h-[38px] px-3 bg-amber-500/10 dark:bg-amber-500/20 border border-amber-400/50 text-amber-700 dark:text-amber-300 font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95"
+              aria-label="Start Shop Tour"
+            >
+              <span>🧭</span>
+              <span>{t("tour.button" as TranslationKey)}</span>
+            </button>
             <span className="hidden xs:inline-flex px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
               Lvl {playerLevel}
             </span>
@@ -296,7 +307,7 @@ export function ShopScreen() {
         )}
 
         {/* Category Navigation Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none border-b border-slate-200 dark:border-slate-800">
+        <div id="tour-shop-categories" className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none border-b border-slate-200 dark:border-slate-800">
           {(["shoes", "nutrition", "gear"] as ShopCategory[]).map((cat) => {
             const isActive = activeCategory === cat;
             return (
@@ -325,7 +336,7 @@ export function ShopScreen() {
         </div>
 
         {/* Item Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+        <div id="tour-shop-items" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
           {items.map((item) => {
             const isOwned =
               isMounted &&
@@ -506,6 +517,36 @@ export function ShopScreen() {
           })}
         </div>
       </main>
+
+      {/* Screen Tour */}
+      <ScreenTour
+        run={runTour}
+        onFinish={() => setRunTour(false)}
+        steps={[
+          {
+            target: "body",
+            placement: "center",
+            title: t("tour.screens.shop.welcome.title" as TranslationKey),
+            content: t("tour.screens.shop.welcome.content" as TranslationKey),
+            skipBeacon: true,
+          },
+          {
+            target: "#tour-shop-balance",
+            title: t("tour.screens.shop.welcome.title" as TranslationKey),
+            content: t("tour.screens.shop.welcome.content" as TranslationKey),
+          },
+          {
+            target: "#tour-shop-categories",
+            title: t("tour.screens.shop.categories.title" as TranslationKey),
+            content: t("tour.screens.shop.categories.content" as TranslationKey),
+          },
+          {
+            target: "#tour-shop-items",
+            title: t("tour.screens.shop.items.title" as TranslationKey),
+            content: t("tour.screens.shop.items.content" as TranslationKey),
+          },
+        ]}
+      />
     </motion.div>
   );
 }

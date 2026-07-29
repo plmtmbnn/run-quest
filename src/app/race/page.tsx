@@ -1,9 +1,5 @@
 import type { Metadata } from "next";
-import dynamic from "next/dynamic";
-
-const RaceScreen = dynamic(() =>
-  import("@/features/race/race-screen").then((mod) => mod.RaceScreen),
-);
+import { RaceScreenClient } from "@/features/race/race-client-wrapper";
 
 export const metadata: Metadata = {
   title: "Live Simulation | RunQuest",
@@ -11,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <RaceScreen />;
+  return <RaceScreenClient />;
 }

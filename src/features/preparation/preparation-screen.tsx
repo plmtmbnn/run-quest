@@ -28,10 +28,12 @@ import { usePreparationStore } from "@/store/preparation-store";
 import { useShopStore } from "@/shop/shop-store";
 import { useTimelineStore } from "@/store/timeline-store";
 import { useGhostStore } from "@/store/ghost-store";
+import { ScreenTour } from "@/components/tour/screen-tour";
 
 export function PreparationScreen() {
   const router = useRouter();
   const { t, language } = useTranslation();
+  const [runTour, setRunTour] = useState(false);
   const lang = (language === "id" ? "id" : "en") as "en" | "id";
   const { currentChallenge } = useGameStore();
   const dayIndex = useTimelineStore((state) => state.gameState?.dayIndex ?? 0);
@@ -277,7 +279,7 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
           >
             <ArrowLeft className="h-5 w-5 text-slate-600 dark:text-slate-300" />
           </button>
-          <div>
+          <div className="flex-1 min-w-0">
             <h1 className="font-heading font-black text-lg sm:text-xl md:text-2xl text-slate-800 dark:text-white">
               {t("preparation.title" as TranslationKey)}
             </h1>
@@ -285,9 +287,18 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
               {t("preparation.subtitle" as TranslationKey)}
             </p>
           </div>
+          <button
+            type="button"
+            onClick={() => setRunTour(true)}
+            className="rounded-full min-h-[38px] px-3 bg-amber-500/10 dark:bg-amber-500/20 border border-amber-400/50 text-amber-700 dark:text-amber-300 font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95 shrink-0"
+            aria-label="Start Preparation Tour"
+          >
+            <span>🧭</span>
+            <span>{t("tour.button" as TranslationKey)}</span>
+          </button>
         </div>
 
-        <div className="border-t border-slate-100 dark:border-slate-800/80 px-4 sm:px-6 py-2 overflow-x-auto scrollbar-none flex gap-2">
+        <div id="tour-prep-tabs" className="border-t border-slate-100 dark:border-slate-800/80 px-4 sm:px-6 py-2 overflow-x-auto scrollbar-none flex gap-2">
           {CATEGORY_TABS.map((tab) => (
             <button
               key={tab.id}
@@ -968,7 +979,50 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
         >
           <Share2 className="h-5 w-5 text-slate-500 dark:text-slate-400" />
         </button>
-      </div>
+      <ScreenTour
+        run={runTour}
+        onFinish={() => setRunTour(false)}
+        steps={[
+          {
+            target: "body",
+            placement: "center",
+            title: t("tour.screens.preparation.welcome.title" as TranslationKey),
+            content: t("tour.screens.preparation.welcome.content" as TranslationKey),
+            skipBeacon: true,
+          },
+          {
+            target: "#tour-prep-tabs",
+            title: t("tour.screens.preparation.shoes.title" as TranslationKey),
+            content: t("tour.screens.preparation.shoes.content" as TranslationKey),
+          },
+          {
+            target: "#section-shoes",
+            title: t("tour.screens.preparation.shoes.title" as TranslationKey),
+            content: t("tour.screens.preparation.shoes.content" as TranslationKey),
+          },
+          {
+            target: "#section-nutrition",
+            title: t("tour.screens.preparation.nutrition.title" as TranslationKey),
+            content: t("tour.screens.preparation.nutrition.content" as TranslationKey),
+          },
+          {
+            target: "#section-gear",
+            title: t("tour.screens.preparation.gear.title" as TranslationKey),
+            content: t("tour.screens.preparation.gear.content" as TranslationKey),
+          },
+          {
+            target: "#section-warmup",
+            title: t("tour.screens.preparation.warmup.title" as TranslationKey),
+            content: t("tour.screens.preparation.warmup.content" as TranslationKey),
+          },
+          {
+            target: "#ready-race-cta",
+            title: t("tour.screens.preparation.pacing.title" as TranslationKey),
+            content: t("tour.screens.preparation.pacing.content" as TranslationKey),
+          },
+        ]}
+      />
+    </div>
 
       <ShareModal
         isOpen={isShareOpen}

@@ -6,7 +6,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AlertTriangle, CheckCircle, Clock, Heart, Hospital, X, Plus, Minus } from 'lucide-react';
-import { useTranslation } from '@/i18n/use-translation';
+import { useTranslation, type TranslationKey } from '@/i18n/use-translation';
 import { useHealthStore } from '@/health/health-store';
 import { useTimelineStore } from '@/store/timeline-store';
 import { useRunnerStore } from '@/runner/runner-store';
@@ -14,10 +14,12 @@ import { useSettingsStore } from '@/store/settings-store';
 import { TREATMENTS, getAvailableTreatments, getTreatmentById } from '@/health/medical-treatments';
 import { formatCurrency } from '@/economy/currency-converter';
 import type { InjurySeverity } from '@/health/injury-types';
+import { ScreenTour } from '@/components/tour/screen-tour';
 
 export function MedicalScreen() {
   const { t } = useTranslation();
   const router = useRouter();
+  const [runTour, setRunTour] = useState(false);
   const healthStore = useHealthStore();
   const timelineStore = useTimelineStore();
   const runnerStore = useRunnerStore();
@@ -167,7 +169,16 @@ export function MedicalScreen() {
             </div>
           </div>
           
-          <div className="flex items-center gap-6 self-end sm:self-center">
+          <div className="flex items-center gap-4 self-end sm:self-center">
+            <button
+              type="button"
+              onClick={() => setRunTour(true)}
+              className="rounded-full min-h-[38px] px-3 bg-amber-500/10 dark:bg-amber-500/20 border border-amber-400/50 text-amber-700 dark:text-amber-300 font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95"
+              aria-label="Start Medical Tour"
+            >
+              <span>🧭</span>
+              <span>{t("tour.button" as TranslationKey)}</span>
+            </button>
             <div className="text-right">
               <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{t('common.level')}</div>
               <div className="font-heading font-black text-base text-slate-800 dark:text-white">{runnerLevel}</div>
@@ -182,7 +193,7 @@ export function MedicalScreen() {
         </div>
 
         {/* Health Status Overview */}
-        <div className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-6 shadow-sm">
+        <div id="tour-medical-status" className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-6 shadow-sm">
           <h2 className="font-heading font-black text-base text-slate-800 dark:text-white mb-4">
             {t('health.health_status')}
           </h2>
@@ -522,6 +533,26 @@ export function MedicalScreen() {
           </div>
         )}
       </div>
+
+      {/* Screen Tour */}
+      <ScreenTour
+        run={runTour}
+        onFinish={() => setRunTour(false)}
+        steps={[
+          {
+            target: "body",
+            placement: "center",
+            title: t("tour.screens.medical.welcome.title" as TranslationKey),
+            content: t("tour.screens.medical.welcome.content" as TranslationKey),
+            skipBeacon: true,
+          },
+          {
+            target: "#tour-medical-status",
+            title: t("tour.screens.medical.status.title" as TranslationKey),
+            content: t("tour.screens.medical.status.content" as TranslationKey),
+          },
+        ]}
+      />
     </div>
   );
 }

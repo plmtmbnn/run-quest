@@ -34,10 +34,12 @@ import { usePreparationStore } from "@/store/preparation-store";
 import { useTimelineStore } from "@/store/timeline-store";
 import type { RaceEvent } from "@/types/engine";
 import { isHighlightShareable } from "@/utils/highlight-utils";
+import { ScreenTour } from "@/components/tour/screen-tour";
 
 export function ResultScreen() {
   const router = useRouter();
   const { t, language } = useTranslation();
+  const [runTour, setRunTour] = useState(false);
   const lang = (language === "id" ? "id" : "en") as "en" | "id";
   const { playSound } = useSound();
 
@@ -491,20 +493,31 @@ export function ResultScreen() {
           <h1 className="font-heading text-xl font-bold text-gray-900 dark:text-white">
             {t("challenge.result.title" as TranslationKey)}
           </h1>
-          <button
-            type="button"
-            onClick={handleBackHome}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 transition hover:bg-gray-50 dark:hover:bg-slate-800 active:scale-95"
-            aria-label="Go Home"
-          >
-            <Home className="h-4.5 w-4.5 text-gray-600 dark:text-gray-300" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setRunTour(true)}
+              className="rounded-full min-h-[38px] px-3 bg-amber-500/10 dark:bg-amber-500/20 border border-amber-400/50 text-amber-700 dark:text-amber-300 font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95"
+              aria-label="Start Result Tour"
+            >
+              <span>🧭</span>
+              <span>{t("tour.button" as TranslationKey)}</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleBackHome}
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 transition hover:bg-gray-50 dark:hover:bg-slate-800 active:scale-95"
+              aria-label="Go Home"
+            >
+              <Home className="h-4.5 w-4.5 text-gray-600 dark:text-gray-300" />
+            </button>
+          </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-3xl px-6 py-8 flex flex-col gap-8">
         {/* Core Stats Overview */}
-        <div className="rounded-[2rem] border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col md:flex-row items-center gap-8 justify-around">
+        <div id="tour-result-summary" className="rounded-[2rem] border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col md:flex-row items-center gap-8 justify-around">
           {/* Medal / DNF Icon */}
           <div
             className={`flex flex-col items-center p-6 rounded-2xl border ${getOutcomeColor()}`}
@@ -1122,6 +1135,26 @@ Experience the run at https://runquest.game`;
           />
         )}
       </ShareModal>
+
+      {/* Screen Tour */}
+      <ScreenTour
+        run={runTour}
+        onFinish={() => setRunTour(false)}
+        steps={[
+          {
+            target: "body",
+            placement: "center",
+            title: t("tour.screens.result.welcome.title" as TranslationKey),
+            content: t("tour.screens.result.welcome.content" as TranslationKey),
+            skipBeacon: true,
+          },
+          {
+            target: "#tour-result-summary",
+            title: t("tour.screens.result.summary.title" as TranslationKey),
+            content: t("tour.screens.result.summary.content" as TranslationKey),
+          },
+        ]}
+      />
     </motion.div>
   );
 }

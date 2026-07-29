@@ -18,6 +18,7 @@ import { GameStats } from "@/components/ui/game-clock";
 import { RestControls } from "@/components/ui/rest-controls";
 import { HealthStatusWidget } from "@/components/health/health-status-widget";
 import { ExpenseWidget } from "@/components/home/expense-widget";
+import { ProductTour } from "@/components/tour/product-tour";
 // Sprint 33 Imports
 import { RaceDayAlert } from "@/components/alerts/race-day-alert";
 import { getCountryByCode } from "@/config/countries-data";
@@ -97,6 +98,9 @@ export function HomeScreen() {
   // Sprint 33: Race Day Alert State
   const [showRaceAlert, setShowRaceAlert] = useState(false);
   const [todaysRace, setTodaysRace] = useState<RaceOccurrence | null>(null);
+
+  // Tour State
+  const [runTour, setRunTour] = useState(false);
 
   // Work selector modal state
   const [isWorkModalOpen, setIsWorkModalOpen] = useState(false);
@@ -402,28 +406,51 @@ export function HomeScreen() {
             {t("home.subtitle" as TranslationKey)}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            playSound("click");
-            router.push("/settings");
-          }}
-          className="rounded-full min-h-[44px] min-w-[44px] flex items-center justify-center p-2 md:p-2.5 bg-white dark:bg-slate-900 border-2 border-[#E5E7EB] dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm transition-all active:scale-95 mt-2 shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40"
-          aria-label={t("settings.title" as TranslationKey)}
-        >
-          <Settings className="h-4.5 w-4.5 md:h-5 md:w-5" />
-        </button>
+        <div className="flex items-center gap-2 mt-2 shrink-0">
+          <button
+            type="button"
+            onClick={() => {
+              playSound("click");
+              setRunTour(true);
+            }}
+            className={`rounded-full min-h-[44px] px-3.5 bg-amber-500/10 dark:bg-amber-500/20 border-2 border-amber-400/50 dark:border-amber-500/40 hover:bg-amber-500/20 dark:hover:bg-amber-500/30 text-amber-700 dark:text-amber-300 font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40 ${
+              (player?.statistics?.totalRuns ?? 0) === 0 ? "animate-pulse ring-2 ring-amber-400/50" : ""
+            }`}
+            aria-label="Start Tour"
+            title="Start Feature Tour"
+          >
+            <span className="text-sm">🧭</span>
+            <span>{t("tour.button" as TranslationKey)}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              playSound("click");
+              router.push("/settings");
+            }}
+            className="rounded-full min-h-[44px] min-w-[44px] flex items-center justify-center p-2 md:p-2.5 bg-white dark:bg-slate-900 border-2 border-[#E5E7EB] dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800 text-gray-700 dark:text-gray-200 shadow-sm transition-all active:scale-95 shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40"
+            aria-label={t("settings.title" as TranslationKey)}
+          >
+            <Settings className="h-4.5 w-4.5 md:h-5 md:w-5" />
+          </button>
+        </div>
       </header>
 
       {/* Main Container */}
       <main className="flex-1 px-4 md:px-6 py-3 md:py-4 flex flex-col gap-4 md:gap-6">
-        <GameStats />
-        <HealthStatusWidget />
-        <ExpenseWidget />
+        <div id="tour-game-stats">
+          <GameStats />
+        </div>
+        <div id="tour-health-status">
+          <HealthStatusWidget />
+        </div>
+        <div id="tour-expenses">
+          <ExpenseWidget />
+        </div>
 
         {/* Today's Training Card & Coach Tip */}
         {todaysActivity && (
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl md:rounded-[2rem] p-4 md:p-5 shadow-sm flex flex-col gap-3">
+          <div id="tour-daily-training" className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl md:rounded-[2rem] p-4 md:p-5 shadow-sm flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-lg shadow-sm">
@@ -697,6 +724,20 @@ export function HomeScreen() {
                 >
                   📖 {t("how_to_play.title" as TranslationKey)} →
                 </button>
+
+                {(player?.statistics?.totalRuns ?? 0) === 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playSound("click");
+                      setRunTour(true);
+                    }}
+                    aria-label="Start Tour"
+                    className="inline-flex items-center gap-1.5 text-[10px] uppercase font-black tracking-wider bg-amber-500/30 hover:bg-amber-500/40 active:scale-95 px-3 py-2 rounded-xl transition-all border border-amber-400/40 min-h-[38px] focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60 animate-pulse"
+                  >
+                    🧭 {t("tour.button" as TranslationKey)}
+                  </button>
+                )}
               </nav>
             </div>
           </div>
@@ -704,12 +745,14 @@ export function HomeScreen() {
 
         {/* Race Calendar */}
         {gameState && (
-          <RaceCalendar
-            todayRaces={todaysRaces}
-            upcomingRaces={upcomingRaces}
-            registeredRaces={registeredRaces}
-            onRaceClick={handleRaceSelect}
-          />
+          <div id="tour-race-calendar">
+            <RaceCalendar
+              todayRaces={todaysRaces}
+              upcomingRaces={upcomingRaces}
+              registeredRaces={registeredRaces}
+              onRaceClick={handleRaceSelect}
+            />
+          </div>
         )}
 
         {/* Race Entry Modal */}
@@ -772,7 +815,9 @@ export function HomeScreen() {
       )}
 
       {/* Floating Rest Controls */}
-      <RestControls />
+      <div id="tour-rest-controls">
+        <RestControls />
+      </div>
 
       {/* Sprint 33: Race Day Alert */}
       {todaysRace && (
@@ -787,6 +832,9 @@ export function HomeScreen() {
           autoCloseDelay={5000}
         />
       )}
+
+      {/* Product Tour */}
+      <ProductTour run={runTour} onFinish={() => setRunTour(false)} />
     </motion.div>
   );
 }

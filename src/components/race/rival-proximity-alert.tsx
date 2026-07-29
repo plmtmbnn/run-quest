@@ -75,21 +75,21 @@ export function RivalProximityAlert({ playerDistanceKm, rivals, isRaceActive }: 
   const soundEnabled = useSettingsStore((s) => s.settings.sound);
   const lastAlertTimeRef = useRef(0);
 
-  if (!isRaceActive || !rivals || rivals.length === 0) return null;
+  const activeRivals = isRaceActive && rivals && rivals.length > 0 ? rivals : null;
 
   // Find nearest rival
-  const targetRival = (rivals as RivalProximityData[]).reduce<RivalProximityData | null>((acc, r) => {
-    const gapMeters = (r.distanceKm - playerDistanceKm) * 1000;
-    if (!acc) return r;
-    const accGap = (acc.distanceKm - playerDistanceKm) * 1000;
-    return Math.abs(gapMeters) < Math.abs(accGap) ? r : acc;
-  }, null);
+  const targetRival = activeRivals
+    ? (activeRivals as RivalProximityData[]).reduce<RivalProximityData | null>((acc, r) => {
+        const gapMeters = (r.distanceKm - playerDistanceKm) * 1000;
+        if (!acc) return r;
+        const accGap = (acc.distanceKm - playerDistanceKm) * 1000;
+        return Math.abs(gapMeters) < Math.abs(accGap) ? r : acc;
+      }, null)
+    : null;
 
-  if (!targetRival) return null;
-
-  const minGapMeters = (targetRival.distanceKm - playerDistanceKm) * 1000;
+  const minGapMeters = targetRival ? (targetRival.distanceKm - playerDistanceKm) * 1000 : 0;
   const absGapMeters = Math.abs(Math.round(minGapMeters));
-  if (absGapMeters > 200) return null; // Out of range
+  const isOutOfRange = !targetRival || absGapMeters > 200;
 
   let zone: ProximityZone = "far";
   if (absGapMeters <= 30) zone = "close";
@@ -102,6 +102,7 @@ export function RivalProximityAlert({ playerDistanceKm, rivals, isRaceActive }: 
 
   // Sound triggers
   useEffect(() => {
+    if (isOutOfRange) return;
     const now = Date.now();
     if (now - lastAlertTimeRef.current > 3000) {
       lastAlertTimeRef.current = now;
@@ -109,7 +110,9 @@ export function RivalProximityAlert({ playerDistanceKm, rivals, isRaceActive }: 
         playProximityTone(isBehind ? "warning" : "chime", !soundEnabled);
       }
     }
-  }, [zone, isBehind, soundEnabled]);
+  }, [zone, isBehind, soundEnabled, isOutOfRange]);
+
+  if (isOutOfRange || !targetRival) return null;
 
   return (
     <div className="fixed bottom-24 left-4 z-40">

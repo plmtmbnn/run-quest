@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Weather, Wind } from "@/types/engine";
 import { getWeatherParticleConfig } from "@/engine/weather/weather-particle-params";
 import { useSettingsStore } from "@/store/settings-store";
@@ -34,11 +34,16 @@ export function WeatherParticles({
     (state) => state.settings,
   );
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (weatherEffectsEnabled === false || reducedMotion === true) {
+    if (!mounted || weatherEffectsEnabled === false || reducedMotion === true) {
       return;
     }
 
@@ -193,7 +198,7 @@ export function WeatherParticles({
     };
   }, [weather, temperature, wind, weatherEffectsEnabled, reducedMotion]);
 
-  if (weatherEffectsEnabled === false || reducedMotion === true) {
+  if (!mounted || weatherEffectsEnabled === false || reducedMotion === true) {
     return null;
   }
 

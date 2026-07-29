@@ -7,7 +7,8 @@ import { getUpcomingMilestoneMarkers } from "../achievements/race-achievements";
 import { getComboMultiplier } from "../../components/race/combo-streak";
 import { earnRacePrize } from "../../economy/earning-engine";
 import type { EconomyState } from "../../economy/economy-types";
-import type { GameState } from "../timeline/time-types";
+import { DEFAULT_SPONSORSHIP_STATE } from "../../economy/sponsorship-types";
+import { DEFAULT_GAME_STATE, type GameState } from "../timeline/time-types";
 
 describe("Sprint 37: Social Competition & Community Engagement Tests", () => {
   // ── 1. Ghost Runner Interpolation Tests ────────────────────────────────────
@@ -117,24 +118,8 @@ describe("Sprint 37: Social Competition & Community Engagement Tests", () => {
     };
 
     const mockGameState: GameState = {
+      ...DEFAULT_GAME_STATE,
       dayIndex: 10,
-      phase: "active_day",
-      calendar: [],
-      schedules: {},
-      runners: [],
-      sponsorship: {
-        availableSponsors: [],
-        currentSponsor: undefined,
-        reputationScore: 50,
-        contractDayRemaining: 0,
-        completedRacesCount: 0,
-      },
-      expenses: {
-        activeExpenses: [],
-        paymentHistory: [],
-        unpaidMandatoryCount: 0,
-        lastExpenseProcessedDay: 0,
-      },
       economy: mockEconomy,
     };
 

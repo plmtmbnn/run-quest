@@ -1247,5 +1247,85 @@
       "name": "Nutritionist Consultation",
       "description": "Boosts stamina recovery and nutrition item efficiency"
     }
+  },
+  "tour": {
+    "button": "Tour",
+    "start": "Start Tour",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish",
+    "step_progress": "Step {current} / {total}",
+    "welcome": {
+      "title": "Welcome to RunQuest! 🏃",
+      "content": "Let's take a quick tour to help you become a champion runner. We'll walk through the core features of the game."
+    },
+    "clock": {
+      "title": "Time is Money (and Fitness) ⏱️",
+      "content": "This is the game clock. Every action you take moves time forward. Pay attention to the current Day, Week, Month, and Year."
+    },
+    "health": {
+      "title": "Health & Energy ⚡",
+      "content": "Your Energy Points (EP) determine what you can do. Training and racing cost EP. Keep your health up to perform better!"
+    },
+    "expenses": {
+      "title": "Economy & Expenses 💰",
+      "content": "You need money to survive and thrive. Keep an eye on your balance and upcoming expenses. You can work to earn more."
+    },
+    "training": {
+      "title": "Daily Training 📋",
+      "content": "This is your recommended training for today. Completing workouts builds your fitness and earns you XP."
+    },
+    "races": {
+      "title": "Race Calendar 🏆",
+      "content": "Find and register for upcoming races here. Winning races earns you prize money and reputation!"
+    },
+    "rest": {
+      "title": "Rest & Advance Time 🌙",
+      "content": "Out of energy or ready for the next day? Use the Rest controls to recover and advance the timeline."
+    },
+    "screens": {
+      "training": {
+        "welcome": { "title": "Training Planner 🏃", "content": "Plan your weekly workouts to build fitness, manage fatigue, and prepare for upcoming races." },
+        "calendar": { "title": "Weekly Calendar 📅", "content": "View and manage planned activities for each day of the week." },
+        "templates": { "title": "Plan Templates 📑", "content": "Choose preset training plans tailored for 5K, 10K, Half, or Full Marathon goals." },
+        "coach": { "title": "Coach Recommendations 💡", "content": "Get personalized feedback and tactical advice from your virtual coach." }
+      },
+      "preparation": {
+        "welcome": { "title": "Race Preparation 🎽", "content": "Gear up and configure your race strategy before stepping up to the starting line." },
+        "shoes": { "title": "Running Shoes 👟", "content": "Select shoes that match the race surface and terrain to optimize performance." },
+        "nutrition": { "title": "Race Nutrition 🍌", "content": "Pack gels, water, and electrolytes to manage stamina during the run." },
+        "gear": { "title": "Weather & Gear 🧢", "content": "Equip jackets, caps, or vest based on course weather conditions." },
+        "warmup": { "title": "Warmup Routine 🔥", "content": "Perform warmups to reduce injury risk and start at peak readiness." },
+        "pacing": { "title": "Pacing Strategy ⏱️", "content": "Set negative split, steady, or aggressive pacing strategies." }
+      },
+      "shop": {
+        "welcome": { "title": "RunQuest Pro Shop 🏪", "content": "Upgrade your gear, buy shoes, and stock up on nutrition supplies." },
+        "categories": { "title": "Shop Categories 🏷️", "content": "Filter items by Shoes, Nutrition, or Accessories & Gear." },
+        "items": { "title": "Equipment Catalog 🛒", "content": "Check requirements, level restrictions, and prices to purchase gear." }
+      },
+      "result": {
+        "welcome": { "title": "Race Results 🏁", "content": "Review your finish time, placement, and performance metrics." },
+        "summary": { "title": "Performance Summary 🥇", "content": "Check your official finish grade, time, and earned prizes/XP." },
+        "stats": { "title": "Splits & Analysis 📊", "content": "Analyze your pace breakdown, heart rate, and strategic decisions." },
+        "share": { "title": "Share Card 📸", "content": "Generate a visual card to share your achievements with friends!" }
+      },
+      "medical": {
+        "welcome": { "title": "Medical Center 🏥", "content": "Monitor athlete health, manage fatigue, and treat injuries." },
+        "status": { "title": "Health & Fatigue Status 🩺", "content": "Keep an eye on injury risk levels and overtraining warnings." },
+        "treatments": { "title": "Treatments & Therapy 💊", "content": "Apply therapies and treatments to speed up recovery times." }
+      },
+      "briefing": {
+        "welcome": { "title": "Pre-Race Briefing 📜", "content": "Analyze course details, weather conditions, and opponent lineups." },
+        "course": { "title": "Course Elevation & Surface ⛰️", "content": "Review hills, surface types, and segment profiles." },
+        "weather": { "title": "Weather Forecast 🌤️", "content": "Check temperature, wind, and rain alerts before starting." },
+        "start": { "title": "Proceed to Start Line 🚀", "content": "Ready to run? Head straight to race preparation or start line." }
+      },
+      "race": {
+        "welcome": { "title": "Live Race Simulation ⚡", "content": "Watch the race unfold in real-time physics and pacing simulation!" },
+        "simulation": { "title": "Track View 🏃‍♂️", "content": "See your position relative to rival runners along the course." },
+        "stats": { "title": "Live Metrics 📊", "content": "Track heart rate, stamina reserve, pace, and gap to leader." },
+        "decisions": { "title": "Tactical Decisions 🎯", "content": "Make split-second calls to surge, hold pace, or consume nutrition!" }
+      }
+    }
   }
 }

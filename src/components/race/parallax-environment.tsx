@@ -55,12 +55,17 @@ export function ParallaxEnvironment({
   };
 
   const speedMultiplier = getSpeedMultiplier(pacing);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const [offset, setOffset] = useState(0);
   const animFrameRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(Date.now());
 
   useEffect(() => {
-    if (parallaxEnabled === false || reducedMotion === true) {
+    if (!mounted || parallaxEnabled === false || reducedMotion === true) {
       return;
     }
 
@@ -84,7 +89,7 @@ export function ParallaxEnvironment({
         cancelAnimationFrame(animFrameRef.current);
       }
     };
-  }, [parallaxEnabled, reducedMotion, speedMultiplier]);
+  }, [mounted, parallaxEnabled, reducedMotion, speedMultiplier]);
 
   // Time of Day lighting overlay styling
   const getTimeOfDayOverlay = () => {
@@ -100,7 +105,7 @@ export function ParallaxEnvironment({
     }
   };
 
-  if (parallaxEnabled === false || reducedMotion === true) {
+  if (!mounted || parallaxEnabled === false || reducedMotion === true) {
     return (
       <div
         className={`absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-20 dark:opacity-15 bg-gradient-to-b from-slate-200 to-slate-400 dark:from-slate-800 dark:to-slate-950 ${className}`}

@@ -22,6 +22,7 @@ import { recordTrainingActivity } from "../../training/training-engine";
 import { loadRunnerState } from "../../runner/runner-persistence";
 import { CustomPlanBuilder } from "../../components/training/custom-plan-builder";
 import { TrainingResultsOverlay, type WorkoutStatDiff } from "../../components/training/training-results-overlay";
+import { ScreenTour } from "../../components/tour/screen-tour";
 
 /**
  * Weekly Training Planner Screen (Sprint 30 - Task 9)
@@ -30,6 +31,7 @@ import { TrainingResultsOverlay, type WorkoutStatDiff } from "../../components/t
 export function TrainingScreen() {
   const router = useRouter();
   const { t } = useTranslation();
+  const [runTour, setRunTour] = useState(false);
   const { runnerState } = useRunnerStore();
   const { trainingState, currentWeeklyPlan, planHistory, lastPlanGenerated, 
           setCurrentPlan, generateNewPlan, completeActivity, swapActivity, 
@@ -225,9 +227,20 @@ export function TrainingScreen() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 bg-orange-500/10 border border-orange-500/20 px-3 py-1.5 rounded-full text-xs font-black text-orange-400 font-mono shadow-sm">
-            <span>⚡</span>
-            <span>{energy} EP</span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setRunTour(true)}
+              className="rounded-full min-h-[38px] px-3 bg-amber-500/10 dark:bg-amber-500/20 border border-amber-400/50 text-amber-700 dark:text-amber-300 font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95"
+              aria-label="Start Training Tour"
+            >
+              <span>🧭</span>
+              <span>{t("tour.button" as TranslationKey)}</span>
+            </button>
+            <div className="flex items-center gap-1.5 bg-orange-500/10 border border-orange-500/20 px-3 py-1.5 rounded-full text-xs font-black text-orange-400 font-mono shadow-sm">
+              <span>⚡</span>
+              <span>{energy} EP</span>
+            </div>
           </div>
         </div>
       </header>
@@ -262,7 +275,7 @@ export function TrainingScreen() {
         {currentWeeklyPlan && !isGeneratingPlan && (
           <>
             {/* Template Selector */}
-            <div className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-4 md:p-6 shadow-sm">
+            <div id="tour-training-templates" className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-4 md:p-6 shadow-sm">
               <PlanTemplateSelector
                 currentFitness={runnerState.profile.currentFitness}
                 currentFatigue={runnerState.profile.currentFatigue}
@@ -312,7 +325,7 @@ export function TrainingScreen() {
             </div>
 
             {/* Weekly Calendar Grid */}
-            <div className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-4 md:p-6 shadow-sm">
+            <div id="tour-training-calendar" className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-4 md:p-6 shadow-sm">
               <WeeklyCalendarGrid
                 plan={currentWeeklyPlan}
                 currentDayIndex={dayIndex}
@@ -325,7 +338,7 @@ export function TrainingScreen() {
             {/* Coach Feedback & Stats */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
               {/* Coach Feedback */}
-              <div className="lg:col-span-1">
+              <div id="tour-training-coach" className="lg:col-span-1">
                 <CoachFeedbackPanel
                   feedback={coachFeedback}
                   isExpanded={isFeedbackExpanded}
@@ -483,6 +496,36 @@ export function TrainingScreen() {
           statsDiff={workoutOverlay.statsDiff}
         />
       )}
+
+      {/* Screen Tour */}
+      <ScreenTour
+        run={runTour}
+        onFinish={() => setRunTour(false)}
+        steps={[
+          {
+            target: "body",
+            placement: "center",
+            title: t("tour.screens.training.welcome.title" as TranslationKey),
+            content: t("tour.screens.training.welcome.content" as TranslationKey),
+            skipBeacon: true,
+          },
+          {
+            target: "#tour-training-calendar",
+            title: t("tour.screens.training.calendar.title" as TranslationKey),
+            content: t("tour.screens.training.calendar.content" as TranslationKey),
+          },
+          {
+            target: "#tour-training-templates",
+            title: t("tour.screens.training.templates.title" as TranslationKey),
+            content: t("tour.screens.training.templates.content" as TranslationKey),
+          },
+          {
+            target: "#tour-training-coach",
+            title: t("tour.screens.training.coach.title" as TranslationKey),
+            content: t("tour.screens.training.coach.content" as TranslationKey),
+          },
+        ]}
+      />
     </motion.div>
   );
 }

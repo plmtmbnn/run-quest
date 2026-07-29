@@ -26,6 +26,7 @@ import { WeatherParticles } from "@/components/race/weather-particles";
 import { BreathingControl } from "@/components/race/breathing-control";
 import { BodyStressAvatar } from "@/components/race/body-stress-avatar";
 import { useSound } from "@/hooks/use-sound";
+import { ScreenTour } from "@/components/tour/screen-tour";
 
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { getRunnerState, useRunnerStore } from "@/runner/runner-store";
@@ -83,6 +84,7 @@ export function RaceScreen() {
     import("@/types/engine").PacingPlan
   >(preparation.pacing);
   const [simSpeed, setSimSpeed] = useState<1 | 2 | 5>(1);
+  const [runTour, setRunTour] = useState(false);
 
   const selectedPacingRef = useRef(selectedPacing);
   useEffect(() => {
@@ -1312,6 +1314,15 @@ export function RaceScreen() {
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3 shrink-0">
+            <button
+              type="button"
+              onClick={() => setRunTour(true)}
+              className="rounded-full min-h-[38px] px-3 bg-amber-500/10 dark:bg-amber-500/20 border border-amber-400/50 text-amber-700 dark:text-amber-300 font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95"
+              aria-label="Start Race Tour"
+            >
+              <span>🧭</span>
+              <span>{t("tour.button" as TranslationKey)}</span>
+            </button>
             {/* Speed Controls */}
             <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-full p-0.5 border border-slate-200 dark:border-slate-700">
               {([1, 2, 5] as const).map((speed) => (
@@ -1342,7 +1353,7 @@ export function RaceScreen() {
       {/* Main content area */}
       <main className="flex-grow max-w-4xl w-full mx-auto px-4 md:px-6 py-4 md:py-8 flex flex-col justify-center gap-4 md:gap-6 relative">
         {/* Distance Tracker & Visual Track Progress */}
-        <div className="flex flex-col gap-4 md:gap-5 items-center justify-center bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[2rem] p-4 md:p-6 shadow-sm">
+        <div id="tour-race-simulation" className="flex flex-col gap-4 md:gap-5 items-center justify-center bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[2rem] p-4 md:p-6 shadow-sm">
           {/* Distance Circular Tracker */}
           <div className="relative w-40 h-40 md:w-48 md:h-48 flex items-center justify-center group">
             <div className="absolute inset-0 rounded-full border-[6px] border-orange-500/5 dark:border-orange-500/10 scale-105" />
@@ -2206,6 +2217,26 @@ export function RaceScreen() {
           }}
         />
       )}
+
+      {/* Screen Tour */}
+      <ScreenTour
+        run={runTour}
+        onFinish={() => setRunTour(false)}
+        steps={[
+          {
+            target: "body",
+            placement: "center",
+            title: t("tour.screens.race.welcome.title" as TranslationKey),
+            content: t("tour.screens.race.welcome.content" as TranslationKey),
+            skipBeacon: true,
+          },
+          {
+            target: "#tour-race-simulation",
+            title: t("tour.screens.race.simulation.title" as TranslationKey),
+            content: t("tour.screens.race.simulation.content" as TranslationKey),
+          },
+        ]}
+      />
     </div>
   );
 }
