@@ -28,6 +28,7 @@ import { BodyStressAvatar } from "@/components/race/body-stress-avatar";
 import { useSound } from "@/hooks/use-sound";
 import { ScreenTour } from "@/components/tour/screen-tour";
 
+import { DailyChallenge } from "@/types/engine";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { getRunnerState, useRunnerStore } from "@/runner/runner-store";
 import { getEnergyCostForDistance } from "@/economy/race-entry-engine";
@@ -68,6 +69,31 @@ import type {
   SimulationState,
   SimulationStepResult,
 } from "@/types/engine";
+
+// Helper for determining route profile based on challenge characteristics
+// This mimics looking up the routeProfileId from the race schedule
+function getRouteProfileForChallenge(challenge: DailyChallenge): string | undefined {
+  const name = (challenge.race.title.en || "").toLowerCase();
+  const surface = challenge.race.surface; // Use surface as fallback indicator
+  
+  // World Major routes - based on race name patterns
+  if (name.includes("boston") || name.includes("heartbreak")) return "boston_marathon";
+  if (name.includes("berlin") || name.includes("fastest course")) return "berlin_marathon";
+  if (name.includes("london") || name.includes("thames") || name.includes("greenwich")) return "london_marathon";
+  if (name.includes("new york") || name.includes("ny") || name.includes("five boroughs") || name.includes("verrazzano")) return "nyc_marathon";
+  if (name.includes("tokyo") || name.includes("shinjuku") || name.includes("ginza")) return "tokyo_marathon";
+  if (name.includes("chicago") || name.includes("lakefront") || name.includes("windy city")) return "chicago_marathon";
+  
+  // For now, skip Indonesian Signature routes since we don't have access to description
+  // They will fall back to generic profiles which is acceptable for MVP
+  
+  // Generic fallback based on surface and context
+  if (surface == "track") return "generic_track";
+  if (surface == "trail") return "generic_forest_trail";
+  if (name.includes("city") || name.includes("marathon") || name.includes("run")) return "generic_flat_city";
+  
+  return undefined;
+}
 
 export function RaceScreen() {
   const router = useRouter();
@@ -450,7 +476,18 @@ export function RaceScreen() {
         return;
       } else if (pendingPrompt) {
         setActiveDecision(pendingPrompt.decisionCard);
-        setCountdown(30);
+        
+        // Variable countdown based on speed for different playstyles
+        // Strategic (1x): longer time to think deliberately (40s)
+        // Balanced (2x): moderate time (28s)
+        // Fast (5x): quick reactions needed (16s)
+        const countdownConfig: Record<1 | 2 | 5, number> = {
+          1: 40,   // Strategic - contemplative decisions
+          2: 28,   // Balanced - standard
+          5: 16,   // Fast - urgent, reactive
+        };
+        setCountdown(countdownConfig[simSpeed] || 30);
+        
         setPendingPrompt(null); // Clear prompt to avoid trigger loop
         return;
       } else if (
@@ -638,7 +675,19 @@ export function RaceScreen() {
 
     // Ticker needs to advance (with subtle 5% slow-mo in The Zone)
     const isZoneActive = simState?.flowState?.isInTheZone ?? false;
-    const intervalMs = (1500 / simSpeed) * (isZoneActive ? 1.05 : 1.0);
+    
+    // Base intervals per speed: strategic (slow) = more contemplative, fast = quicker but meaningful
+    // 1x: 10 seconds/km (strategic, thoughtful decisions) - UPDATED per sprint requirement
+    // 2x: 10 seconds/km (balanced pace)  
+    // 5x: 5 seconds/km (fast-paced, reactive)
+    const SPEED_INTERVALS: Record<1 | 2 | 5, number> = {
+      1: 10000,  // 10 sec/km - UPDATED from 20s
+      2: 10000,  // 10 sec/km
+      5: 5000,   // 5 sec/km
+    };
+    
+    const baseInterval = SPEED_INTERVALS[simSpeed] || 10000;
+    const intervalMs = baseInterval * (isZoneActive ? 1.05 : 1.0);
     const timer = setTimeout(() => {
       const nextKmValue = currentKm + 1;
       setCurrentKm(nextKmValue);
@@ -653,7 +702,12 @@ export function RaceScreen() {
 
       const matchedEvents = events.filter((e) => e.km === nextKmValue);
       if (matchedEvents.length > 0) {
-        setRunningEvents((prev) => [...prev, ...matchedEvents]);
+        // Limit running events to avoid too many popups/actions
+        const maxEvents = 15;
+        setRunningEvents((prev) => {
+          const newEvents = [...prev, ...matchedEvents];
+          return newEvents.length > maxEvents ? newEvents.slice(newEvents.length - maxEvents) : newEvents;
+        });
       }
 
       // Read actual stats from log snapshot
@@ -1325,21 +1379,31 @@ export function RaceScreen() {
             </button>
             {/* Speed Controls */}
             <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-full p-0.5 border border-slate-200 dark:border-slate-700">
-              {([1, 2, 5] as const).map((speed) => (
-                <button
-                  key={speed}
-                  onClick={() => {
-                    setSimSpeed(speed);
-                  }}
-                  className={`flex items-center justify-center w-6 h-6 md:w-7 md:h-7 rounded-full text-[10px] md:text-xs font-bold transition-all ${
-                    simSpeed === speed 
-                      ? "bg-white dark:bg-slate-600 text-slate-800 dark:text-white shadow-sm" 
-                      : "text-slate-400 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
-                  }`}
-                >
-                  {speed}x
-                </button>
-              ))}
+              {([1, 2, 5] as const).map((speed) => {
+                const speedLabels: Record<1 | 2 | 5, { label: string; desc: string }> = {
+                  1: { label: "🐢 Strategic", desc: "20s/km - Deep strategy" },
+                  2: { label: "⚖️ Balanced", desc: "10s/km - Paced gameplay" },
+                  5: { label: "⚡ Fast", desc: "5s/km - Reactive intensity" },
+                };
+                const config = speedLabels[speed];
+                
+                return (
+                  <button
+                    key={speed}
+                    onClick={() => {
+                      setSimSpeed(speed);
+                    }}
+                    className={`flex items-center justify-center w-6 h-6 md:w-7 md:h-7 rounded-full text-[10px] md:text-xs font-bold transition-all relative ${
+                      simSpeed === speed 
+                        ? "bg-white dark:bg-slate-600 text-slate-800 dark:text-white shadow-sm" 
+                        : "text-slate-400 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                    }`}
+                    title={config.desc}
+                  >
+                    {speed === 5 ? "5x" : speed.toString()}
+                  </button>
+                );
+              })}
             </div>
             <div className="flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1 md:py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-600 dark:text-orange-400 text-[10px] md:text-xs font-semibold">
               <Activity className="h-3.5 md:h-4.5 w-3.5 md:w-4.5 animate-pulse" />
@@ -1414,6 +1478,11 @@ export function RaceScreen() {
           {/* Visual Race Track Progress */}
           <div className="w-full flex flex-col gap-2 mt-4 md:mt-6 border-t border-slate-100 dark:border-gray-800 pt-4 md:pt-6 relative">
 
+            {/* Determine route profile ID based on race characteristics */}
+            {/** 
+             * In a full implementation, this would come from the race schedule's routeProfileId,
+             * but currently extracted from challenge for simplicity.
+             */}
             <TrackPositionVisualizer
               runners={runners}
               currentKm={currentKm}
@@ -1423,6 +1492,7 @@ export function RaceScreen() {
               surface={challenge.race.surface}
               playerEnergy={stats.energy}
               isPaused={isPaused}
+              routeProfileId={getRouteProfileForChallenge(challenge)}
             />
           </div>
 

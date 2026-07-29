@@ -34,6 +34,8 @@ export interface RaceCategory {
   fee: number;
   prizeInfo: string;
   maxEntrants?: number;
+  /** Optional unique route profile ID for this specific category */
+  routeProfileId?: string;
 }
 
 /**
@@ -80,6 +82,9 @@ export interface RaceSchedule {
   /** Visual identity */
   icon: string;
   color: string;
+  
+  /** Default route profile ID for this race (can be overridden per category) */
+  routeProfileId?: string;
 }
 
 /**
@@ -148,6 +153,9 @@ export interface RaceOccurrence {
   isRegistered: boolean;
   isCompleted: boolean;
   isFull: boolean;
+  
+  /** Route profile for terrain visualization */
+  routeProfileId?: string;
 }
 
 export const DEFAULT_SCHEDULING_STATE: SchedulingState = {

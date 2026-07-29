@@ -86,6 +86,7 @@ export function getRaceSchedules(): RaceSchedule[] {
       maxEntrants: 480,
       icon: "🏅",
       color: "text-blue-500",
+      routeProfileId: "generic_rolling_hills",
       prizeInfo: `Champion gets ${formatCurrency(1200, preferredCurrency, { compact: true })}`,
     },
     {
@@ -136,6 +137,7 @@ export function getRaceSchedules(): RaceSchedule[] {
       maxEntrants: 280,
       icon: "🌲",
       color: "text-emerald-600",
+      routeProfileId: "tahura_forest",
       prizeInfo: `Champion gets ${formatCurrency(750, preferredCurrency, { compact: true })}`,
     },
     {
@@ -194,6 +196,7 @@ export function getRaceSchedules(): RaceSchedule[] {
       maxEntrants: 330,
       icon: "🍃",
       color: "text-green-500",
+      routeProfileId: "generic_plantation",
       prizeInfo: `Champion gets ${formatCurrency(1800, preferredCurrency, { compact: true })}`,
     },
 
@@ -260,6 +263,7 @@ export function getRaceSchedules(): RaceSchedule[] {
       maxEntrants: 6000,
       icon: "💧",
       color: "text-blue-400",
+      routeProfileId: "bandung_hills",
       prizeInfo: `Champion gets ${formatCurrency(5000, preferredCurrency, { compact: true })}`,
     },
     {
@@ -322,6 +326,7 @@ export function getRaceSchedules(): RaceSchedule[] {
       maxEntrants: 8000,
       icon: "🌴",
       color: "text-amber-500",
+      routeProfileId: "bali_coastal",
       prizeInfo: `Champion gets ${formatCurrency(6000, preferredCurrency, { compact: true })}`,
     },
     {
@@ -384,6 +389,7 @@ export function getRaceSchedules(): RaceSchedule[] {
       maxEntrants: 12500,
       icon: "🏙️",
       color: "text-red-500",
+      routeProfileId: "generic_flat_city",
       prizeInfo: `Champion gets ${formatCurrency(7000, preferredCurrency, { compact: true })}`,
     },
     {
@@ -446,6 +452,7 @@ export function getRaceSchedules(): RaceSchedule[] {
       maxEntrants: 8500,
       icon: "🛕",
       color: "text-orange-500",
+      routeProfileId: "generic_rolling_hills",
       prizeInfo: `Champion gets ${formatCurrency(6500, preferredCurrency, { compact: true })}`,
     },
     {
@@ -508,6 +515,7 @@ export function getRaceSchedules(): RaceSchedule[] {
       maxEntrants: 6000,
       icon: "🏃",
       color: "text-blue-600",
+      routeProfileId: "generic_flat_city",
       prizeInfo: `Champion gets ${formatCurrency(5500, preferredCurrency, { compact: true })}`,
     },
     {
@@ -570,6 +578,7 @@ export function getRaceSchedules(): RaceSchedule[] {
       maxEntrants: 6500,
       icon: "⚡",
       color: "text-slate-800",
+      routeProfileId: "generic_flat_city",
       prizeInfo: `Champion gets ${formatCurrency(5800, preferredCurrency, { compact: true })}`,
     },
 
@@ -646,6 +655,7 @@ export function getRaceSchedules(): RaceSchedule[] {
       maxEntrants: 1900,
       icon: "🥾",
       color: "text-emerald-700",
+      routeProfileId: "arjuno_ultra",
       prizeInfo: `100M Champion gets ${formatCurrency(50000, preferredCurrency, { compact: true })}`,
     },
     {
@@ -708,6 +718,7 @@ export function getRaceSchedules(): RaceSchedule[] {
       maxEntrants: 1300,
       icon: "🌋",
       color: "text-orange-600",
+      routeProfileId: "bromo_ultra",
       prizeInfo: `100K Champion gets ${formatCurrency(12000, preferredCurrency, { compact: true })}`,
     },
     {
@@ -778,6 +789,7 @@ export function getRaceSchedules(): RaceSchedule[] {
       maxEntrants: 1300,
       icon: "⛰️",
       color: "text-rose-600",
+      routeProfileId: "rinjani_skyrace",
       prizeInfo: `100K Champion gets ${formatCurrency(16000, preferredCurrency, { compact: true })}`,
     },
     {
@@ -840,6 +852,7 @@ export function getRaceSchedules(): RaceSchedule[] {
       maxEntrants: 1000,
       icon: "🌿",
       color: "text-emerald-600",
+      routeProfileId: "generic_forest_trail",
       prizeInfo: `50K Champion gets ${formatCurrency(6000, preferredCurrency, { compact: true })}`,
     },
     {
@@ -910,6 +923,7 @@ export function getRaceSchedules(): RaceSchedule[] {
       maxEntrants: 1750,
       icon: "🌾",
       color: "text-emerald-500",
+      routeProfileId: "generic_mountain_trail",
       prizeInfo: `100K Champion gets ${formatCurrency(14000, preferredCurrency, { compact: true })}`,
     },
     {
@@ -970,8 +984,9 @@ export function getRaceSchedules(): RaceSchedule[] {
         },
       ],
       maxEntrants: 1100,
-      icon: "🌋",
+      icon: "🔥",
       color: "text-red-600",
+      routeProfileId: "generic_mountain_trail",
       prizeInfo: `50K Champion gets ${formatCurrency(7000, preferredCurrency, { compact: true })}`,
     },
 
@@ -1039,6 +1054,7 @@ export function getRaceSchedules(): RaceSchedule[] {
       maxEntrants: 35000,
       icon: "🌸",
       color: "text-pink-500",
+      routeProfileId: "tokyo_marathon",
       prizeInfo: `World Major purse: ${formatCurrency(18000, preferredCurrency, { compact: true })} to champion`,
     },
     {
@@ -1101,6 +1117,7 @@ export function getRaceSchedules(): RaceSchedule[] {
       maxEntrants: 33000,
       icon: "🦁",
       color: "text-red-500",
+      routeProfileId: "generic_flat_city",
       prizeInfo: `Champion gets ${formatCurrency(12000, preferredCurrency, { compact: true })}`,
     },
     {
@@ -1163,6 +1180,7 @@ export function getRaceSchedules(): RaceSchedule[] {
       maxEntrants: 25000,
       icon: "🐯",
       color: "text-red-500",
+      routeProfileId: "generic_flat_city",
       prizeInfo: `Champion gets ${formatCurrency(11000, preferredCurrency, { compact: true })}`,
     },
 
@@ -1230,6 +1248,7 @@ export function getRaceSchedules(): RaceSchedule[] {
       maxEntrants: 35000,
       icon: "🦄",
       color: "text-blue-600",
+      routeProfileId: "boston_marathon",
       prizeInfo: `World Major purse: ${formatCurrency(25000, preferredCurrency, { compact: true })} to champion`,
     },
     {
@@ -1293,6 +1312,7 @@ export function getRaceSchedules(): RaceSchedule[] {
       maxEntrants: 42000,
       icon: "🇬🇧",
       color: "text-blue-700",
+      routeProfileId: "london_marathon",
       prizeInfo: `World Major purse: ${formatCurrency(25000, preferredCurrency, { compact: true })} to champion`,
     },
     {
@@ -1356,6 +1376,7 @@ export function getRaceSchedules(): RaceSchedule[] {
       maxEntrants: 45000,
       icon: "🇩🇪",
       color: "text-yellow-600",
+      routeProfileId: "berlin_marathon",
       prizeInfo: `World Major purse: ${formatCurrency(25000, preferredCurrency, { compact: true })} to champion`,
     },
     {
@@ -1419,6 +1440,7 @@ export function getRaceSchedules(): RaceSchedule[] {
       maxEntrants: 45000,
       icon: "🏙️",
       color: "text-sky-500",
+      routeProfileId: "chicago_marathon",
       prizeInfo: `World Major purse: ${formatCurrency(25000, preferredCurrency, { compact: true })} to champion`,
     },
     {
@@ -1482,6 +1504,7 @@ export function getRaceSchedules(): RaceSchedule[] {
       maxEntrants: 50000,
       icon: "🗽",
       color: "text-emerald-500",
+      routeProfileId: "nyc_marathon",
       prizeInfo: `World Major purse: ${formatCurrency(25000, preferredCurrency, { compact: true })} to champion`,
     },
 
@@ -1519,6 +1542,7 @@ export function getRaceSchedules(): RaceSchedule[] {
       ],
       icon: "🌟",
       color: "text-yellow-500",
+      routeProfileId: "generic_flat_city",
       prizeInfo: "Participation Medal & Career Entry",
     },
     {
@@ -1556,6 +1580,7 @@ export function getRaceSchedules(): RaceSchedule[] {
       maxEntrants: 30,
       icon: "📖",
       color: "text-indigo-500",
+      routeProfileId: "generic_coastal",
       prizeInfo: "Story Milestone Trophy",
     },
   ];

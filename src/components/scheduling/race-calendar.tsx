@@ -434,14 +434,28 @@ function RaceCard({
           ? "bg-slate-50/70 dark:bg-slate-950/40 opacity-60"
           : race.isFull
             ? `bg-amber-50/40 dark:bg-amber-950/10 ${tier.border} ${tier.glow}`
-            : `${tier.bg} ${tier.border} hover:${tier.glow} hover:shadow-md`
-        }
+            : isRaceDay
+              ? `bg-emerald-50/40 dark:bg-emerald-950/10 ${tier.border} ${tier.glow} ring-2 ring-emerald-400/30 dark:ring-emerald-400/20 animate-pulse-ring`
+              : `${tier.bg} ${tier.border} hover:${tier.glow} hover:shadow-md`}
         focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40
       `}
     >
       {/* Header Row */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-start gap-3 sm:gap-4 min-w-0 flex-1">
+      <div className="flex items-start justify-between gap-4 relative">
+        {/* Start Now Badge Overlay (for today's races only) */}
+        {isRaceDay && !isDisabled && (
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="absolute -top-2 -right-2 z-10"
+          >
+            <div className="bg-emerald-500 text-white text-[10px] font-black uppercase px-2 py-1 rounded-full shadow-lg shadow-emerald-500/50 animate-pulse">
+              {t("race_calendar.encouragement.start_now" as TranslationKey)}
+            </div>
+          </motion.div>
+        )}
+        <div className="flex items-start gap-3 sm:gap-4 min-w-0 flex-1 relative">
           <span
             className={`text-2xl md:text-3xl shrink-0 p-2.5 bg-white/50 dark:bg-slate-950/20 rounded-2xl border border-slate-200/50 dark:border-slate-800/40 ${race.color}`}
           >
@@ -451,9 +465,19 @@ function RaceCard({
             <h3 className="font-heading font-black text-sm md:text-base text-slate-800 dark:text-white tracking-tight truncate">
               {race.name}
             </h3>
-            <p className="text-[10px] text-gray-500 dark:text-gray-400 line-clamp-2 mt-1">
-              {race.description || "No description available"}
-            </p>
+            
+            {/* Encouraging message for today's races */}
+            {isRaceDay && !isDisabled ? (
+              <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-1 italic">
+                {race.isRegistered
+                  ? t("race_calendar.encouragement.ready_to_run" as TranslationKey)
+                  : t("race_calendar.encouragement.race_day" as TranslationKey)}
+              </p>
+            ) : (
+              <p className="text-[10px] text-gray-500 dark:text-gray-400 line-clamp-2 mt-1">
+                {race.description || "No description available"}
+              </p>
+            )}
           </div>
         </div>
 
