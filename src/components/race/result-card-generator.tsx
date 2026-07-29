@@ -22,6 +22,8 @@ interface ResultCardGeneratorProps {
   betResults?: Array<PlacedBet & { payout: number; won: boolean }>;
   /** Achievements earned during the race */
   earnedAchievements?: RaceAchievement[];
+  /** Spectators watching the race */
+  spectatorCount?: number;
   /** Callback when card is downloaded */
   onDownloadComplete?: () => void;
   /** Callback when card is copied to clipboard */
@@ -53,6 +55,7 @@ export function ResultCardGenerator({
   lang,
   betResults = [],
   earnedAchievements = [],
+  spectatorCount,
   onDownloadComplete,
   onCopyComplete,
 }: ResultCardGeneratorProps) {
@@ -343,6 +346,14 @@ export function ResultCardGenerator({
               {cardData.pbInfo}
             </p>
           </motion.div>
+        )}
+
+        {/* Spectator Badge */}
+        {spectatorCount !== undefined && (
+          <div className="flex items-center justify-center gap-1.5 mb-4 py-1.5 px-3 rounded-full bg-sky-950/60 border border-sky-500/40 text-sky-300 text-xs font-mono font-bold w-fit mx-auto">
+            <span>👀</span>
+            <span>{spectatorCount} Spectators Joined Live</span>
+          </div>
         )}
 
         {/* Achievements */}

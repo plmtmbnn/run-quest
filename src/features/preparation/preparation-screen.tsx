@@ -27,6 +27,7 @@ import { useGameStore } from "@/store/game-store";
 import { usePreparationStore } from "@/store/preparation-store";
 import { useShopStore } from "@/shop/shop-store";
 import { useTimelineStore } from "@/store/timeline-store";
+import { useGhostStore } from "@/store/ghost-store";
 
 export function PreparationScreen() {
   const router = useRouter();
@@ -38,6 +39,7 @@ export function PreparationScreen() {
     (state) => state.gameState?.scheduling,
   );
   const { hasItem, getItemQuantity } = useShopStore();
+  const { storedGhosts, selectedGhostIds, toggleSelectGhost } = useGhostStore();
 
   const challenge =
     currentChallenge || generateDailyChallenge(dayIndex.toString());
@@ -769,6 +771,59 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                   },
                 ]}
               />
+            </div>
+          </section>
+
+          <section id="section-ghosts" className="flex flex-col gap-4 scroll-mt-28">
+            <div className="flex items-center gap-2.5 border-b border-[#E5E7EB] dark:border-slate-800 pb-2.5">
+              <span className="text-xl">👻</span>
+              <h2 className="font-heading font-black text-base md:text-lg text-slate-800 dark:text-white">
+                Ghost Runners ({selectedGhostIds.length}/3)
+              </h2>
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 ml-auto">
+                Live Comparison
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Select up to 3 translucent ghost runners to visually race against during your run.
+            </p>
+            <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
+              {storedGhosts.map((ghost) => {
+                const isSelected = selectedGhostIds.includes(ghost.id);
+                return (
+                  <button
+                    key={ghost.id}
+                    type="button"
+                    onClick={() => toggleSelectGhost(ghost.id)}
+                    className={`p-4 rounded-2xl border text-left transition-all active:scale-95 flex flex-col gap-2 ${
+                      isSelected
+                        ? "bg-indigo-500/10 border-indigo-500 text-slate-800 dark:text-white shadow-sm"
+                        : "bg-white dark:bg-slate-900 border-[#E5E7EB] dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: ghost.avatarColor }}
+                        />
+                        <span className="font-heading font-black text-xs md:text-sm">
+                          {ghost.name}
+                        </span>
+                      </div>
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                        {ghost.type}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-500 dark:text-slate-400">
+                      <span>Target: {Math.floor(ghost.finalTime / 60)}m {ghost.finalTime % 60}s</span>
+                      <span className="text-indigo-600 dark:text-indigo-400">
+                        {isSelected ? "Selected ✓" : "+ Add"}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </section>
         </div>

@@ -221,3 +221,57 @@ export function checkRaceAchievements(
 
   return newlyEarned;
 }
+
+export interface MilestoneMarkerItem {
+  id: string;
+  title: string;
+  distanceKm: number;
+  icon: string;
+  type: "achievement" | "pb" | "rival" | "level" | "streak";
+}
+
+export function getUpcomingMilestoneMarkers(
+  currentKm: number,
+  totalDistance: number,
+  playerRank: number,
+  winStreak: number = 0
+): MilestoneMarkerItem[] {
+  const markers: MilestoneMarkerItem[] = [];
+
+  // Halfway mark
+  const halfwayKm = Math.round((totalDistance / 2) * 10) / 10;
+  if (currentKm < halfwayKm) {
+    markers.push({
+      id: "ms_halfway",
+      title: "Halfway Point",
+      distanceKm: halfwayKm,
+      icon: "🎯",
+      type: "achievement",
+    });
+  }
+
+  // Finish line level up / achievement
+  if (currentKm < totalDistance) {
+    markers.push({
+      id: "ms_finish",
+      title: winStreak > 0 ? `${winStreak + 1}-Win Streak Finish!` : "Race Finish & XP Bonus",
+      distanceKm: totalDistance,
+      icon: winStreak > 0 ? "🔥" : "🏆",
+      type: winStreak > 0 ? "streak" : "level",
+    });
+  }
+
+  // Rival overtake milestone if close behind rank 1
+  if (playerRank > 1 && currentKm + 1.5 < totalDistance) {
+    markers.push({
+      id: "ms_rival_pass",
+      title: "Rival Pass Zone",
+      distanceKm: Math.min(totalDistance - 0.5, currentKm + 1.5),
+      icon: "⚔️",
+      type: "rival",
+    });
+  }
+
+  return markers.filter((m) => m.distanceKm > currentKm).slice(0, 3);
+}
+

@@ -48,6 +48,15 @@ import { selectRivalsForRace, generateRivalDialog, getRivalMilestoneText, update
 
 import { formatCurrency } from "@/economy/currency-converter";
 import { recordTransaction } from "@/economy/earning-engine";
+import { useGhostStore } from "@/store/ghost-store";
+import { calculateGhostDistanceAtTime, getGhostGapMeters } from "@/components/race/ghost-runner";
+import { LiveActivityFeed } from "@/components/race/live-activity-feed";
+import { RivalProximityAlert } from "@/components/race/rival-proximity-alert";
+import { SpectatorMode } from "@/components/race/spectator-mode";
+import { MilestoneMarkers } from "@/components/race/milestone-markers";
+import { getUpcomingMilestoneMarkers } from "@/engine/achievements/race-achievements";
+import { ComboStreak, getComboMultiplier } from "@/components/race/combo-streak";
+import { LiveRewardTicker, type RewardPopupItem } from "@/components/race/live-reward-ticker";
 import type {
   ActiveBreakingPoint,
   DecisionCard,
@@ -1201,17 +1210,21 @@ export function RaceScreen() {
     }
   }
 
-  // Only use 0 distance fallback if we have no state at all
-  if (runners.length === 0) {
+  // Add active selected ghosts from useGhostStore
+  const activeGhosts = useGhostStore.getState().getActiveGhosts();
+  const currentElapsedSec = currentSnapshot?.accumulatedTime ?? 0;
+  activeGhosts.forEach((ghost) => {
+    const gDist = calculateGhostDistanceAtTime(ghost, currentElapsedSec);
     runners.push({
-      id: "player_local",
-      name: "You",
-      isPlayer: true,
-      distance: 0,
-      accumulatedTime: 0,
+      id: `ghost_${ghost.id}`,
+      name: ghost.name,
+      isPlayer: false,
+      isGhost: true,
+      distance: Math.round(gDist * 100) / 100,
+      accumulatedTime: currentElapsedSec,
       isDNF: false,
     });
-  }
+  });
 
   // Sort: DNF runners last, then by distance desc, then by time asc
   runners.sort((a, b) => {
@@ -1251,6 +1264,26 @@ export function RaceScreen() {
           }`}
         />
       )}
+      {/* Sprint 37 Social Competition & Community Overlays */}
+      <LiveActivityFeed isRaceActive={!isFinished} />
+      <RivalProximityAlert
+        playerDistanceKm={currentKm}
+        rivals={runners.filter((r) => !r.isPlayer && !r.isGhost).map((r) => ({ id: r.id, name: r.name, distanceKm: r.distance }))}
+        isRaceActive={!isFinished}
+      />
+      <SpectatorMode
+        playerLevel={runnerState?.profile?.level ?? 1}
+        currentKm={currentKm}
+        isRaceActive={!isFinished}
+      />
+      <MilestoneMarkers
+        currentKm={currentKm}
+        markers={getUpcomingMilestoneMarkers(currentKm, challenge.race.distance, 1, player?.statistics?.currentStreak ?? 0)}
+        isRaceActive={!isFinished}
+      />
+      <ComboStreak comboCount={0} winStreak={player?.statistics?.currentStreak ?? 0} />
+      <LiveRewardTicker totalXpGained={0} totalMoneyGained={0} popups={[]} isRaceActive={!isFinished} />
+
       {/* Header */}
       <header className="px-4 md:px-6 py-4 md:py-6 border-b border-slate-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/50 backdrop-blur-md">
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0">
@@ -2022,6 +2055,7 @@ export function RaceScreen() {
               lang={lang}
               betResults={betResults}
               earnedAchievements={[]}
+              spectatorCount={Math.max(12, (runnerState?.profile?.level ?? 1) * 6)}
               onDownloadComplete={() => setShowResultCard(false)}
               onCopyComplete={() => setShowResultCard(false)}
             />

@@ -353,7 +353,7 @@ export function TrackPositionVisualizer({
                     r.isPlayer
                       ? "bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 border-white dark:border-slate-900 z-30 scale-110 ring-2 ring-orange-500/40"
                       : r.isGhost
-                        ? "bg-gradient-to-br from-indigo-500 to-purple-600 border-indigo-200 z-20 opacity-90"
+                        ? "bg-gradient-to-br from-indigo-500 to-purple-600 border-indigo-200 z-20 opacity-40 hover:opacity-100 transition-opacity"
                         : r.isDNF
                           ? "bg-slate-600 border-slate-400 opacity-50 grayscale z-0"
                           : "bg-gradient-to-br from-slate-700 to-slate-900 border-slate-300 dark:border-slate-700 z-10"

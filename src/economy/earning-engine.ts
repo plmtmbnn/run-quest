@@ -117,6 +117,7 @@ export function earnRacePrize(
   totalEntrants: number,
   position: number,
   raceName: string,
+  winStreak: number = 0,
 ): { economy: EconomyState; prize: number } {
   const prizePool =
     entryFee * totalEntrants * (ECONOMIC_BALANCE.prizePoolPercentage ?? 0.7);
@@ -136,14 +137,23 @@ export function earnRacePrize(
     prize = Math.floor(remainingPool / remainingFinishers);
   }
 
+  // Apply Win Streak Multiplier Bonus
+  let streakMultiplier = 1.0;
+  if (winStreak >= 10) streakMultiplier = 2.0; // +100%
+  else if (winStreak >= 5) streakMultiplier = 1.5; // +50%
+  else if (winStreak >= 3) streakMultiplier = 1.2; // +20%
+  else if (winStreak >= 2) streakMultiplier = 1.1; // +10%
+
+  prize = Math.round(prize * streakMultiplier);
+
   const { economy: updatedEconomy } = recordTransaction(
     economy,
     "earn",
     "race_prize",
     prize,
     gameState.dayIndex,
-    `Prize money: ${position ? `${positionText(position)}` : "Finished"} in ${raceName}`,
-    { position, entryFee, totalEntrants },
+    `Prize money: ${position ? `${positionText(position)}` : "Finished"} in ${raceName}${winStreak >= 2 ? ` (${winStreak} Streak Bonus)` : ""}`,
+    { position, entryFee, totalEntrants, winStreak, streakMultiplier },
   );
 
   return { economy: updatedEconomy, prize };

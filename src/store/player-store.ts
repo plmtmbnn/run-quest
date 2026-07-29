@@ -239,6 +239,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       let prize = 0;
 
       if (result.outcome !== "dnf" && result.outcome !== "dns") {
+        const currentStreak = player?.statistics?.currentStreak ?? 0;
         const racePrizeResult = earnRacePrize(
           gameState.economy,
           gameState,
@@ -246,6 +247,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
           totalEntrants,
           position,
           raceName,
+          currentStreak,
         );
         updatedEconomy = racePrizeResult.economy;
         prize = racePrizeResult.prize;
