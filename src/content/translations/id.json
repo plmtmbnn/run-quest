@@ -1051,7 +1051,32 @@
       "conditions_improved": "Kondisi membaik!",
       "energy_increased": "Biaya energi meningkat.",
       "conditions_stable": "Kondisi stabil."
-    }
+    },
+      "mobile_navbar": {
+        "energy": "Energi",
+        "hydration": "Hidrasi",
+        "focus": "Fokus",
+        "heart_rate": "Detak Jantung",
+        "bpm": "dpm",
+        "current_pace": "Pace Saat Ini",
+        "pacing_strategy": "Strategi Pacing",
+        "simulation_speed": "Kecepatan Simulasi",
+        "pacing": {
+          "jog": "Joging",
+          "cruise": "Santai",
+          "push": "Tekan",
+          "sprint": "Sprint",
+          "negative_split": "Split Negatif",
+          "steady": "Steady",
+          "aggressive": "Agresif",
+          "conservative": "Konservatif"
+        },
+        "nutrition": "Nutrisi",
+        "live_standings": "Peringkat Langsung",
+        "stats": "Statistik",
+        "actions": "Aksi",
+        "board": "Papan"
+      }
   },
   "disclaimer": {
     "title": "Informasi Offline & Penafian Resmi",

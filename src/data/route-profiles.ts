@@ -499,6 +499,175 @@ export const GENERIC_PLANTATION: RouteProfile = {
 };
 
 // ═══════════════════════════════════════════════════════
+// UNIQUE RACE PROFILES - Sprint 40 Additions
+// ═══════════════════════════════════════════════════════
+
+export const JAKARTA_CITY_FLAT: RouteProfile = {
+  id: "jakarta_city_flat",
+  name: "Jakarta City Circuit",
+  surface: "road",
+  profileType: "flat",
+  elevationPoints: [
+    { distance: 0, elevation: 0.50 },
+    { distance: 0.2, elevation: 0.51 },
+    { distance: 0.4, elevation: 0.49 },
+    { distance: 0.6, elevation: 0.50 },
+    { distance: 0.8, elevation: 0.52 },
+    { distance: 1.0, elevation: 0.50 },
+  ],
+  characteristics: {
+    maxGrade: 2.0,
+    totalElevationGain: 20,
+    technicalDifficulty: 1,
+  },
+  environment: {
+    biome: "urban",
+    landmarks: ["Monas", "Bundaran HI", "Sudirman", "Thamrin"],
+  },
+};
+
+export const BOROBUDUR_HERITAGE: RouteProfile = {
+  id: "borobudur_heritage",
+  name: "Borobudur Heritage Trail",
+  surface: "road",
+  profileType: "rolling",
+  elevationPoints: [
+    { distance: 0, elevation: 0.45 },
+    { distance: 0.15, elevation: 0.52 },
+    { distance: 0.35, elevation: 0.58 },
+    { distance: 0.6, elevation: 0.50 },
+    { distance: 0.8, elevation: 0.48 },
+    { distance: 1.0, elevation: 0.46 },
+  ],
+  characteristics: {
+    maxGrade: 6.5,
+    totalElevationGain: 160,
+    technicalDifficulty: 2,
+  },
+  environment: {
+    biome: "tropical",
+    landmarks: ["Borobudur Temple", "Mendut Temple", "Rice Paddies", "Elo River"],
+  },
+};
+
+export const PRAMBANAN_TEMPLES: RouteProfile = {
+  id: "prambanan_temples",
+  name: "Prambanan Temple Circuit",
+  surface: "road",
+  profileType: "rolling",
+  elevationPoints: [
+    { distance: 0, elevation: 0.48 },
+    { distance: 0.25, elevation: 0.53 },
+    { distance: 0.5, elevation: 0.56 },
+    { distance: 0.75, elevation: 0.51 },
+    { distance: 1.0, elevation: 0.49 },
+  ],
+  characteristics: {
+    maxGrade: 5.5,
+    totalElevationGain: 140,
+    technicalDifficulty: 2,
+  },
+  environment: {
+    biome: "tropical",
+    landmarks: ["Prambanan Temple", "Sewu Temple", "Ratu Boko", "Village Roads"],
+  },
+};
+
+export const DIENG_PLATEAU: RouteProfile = {
+  id: "dieng_plateau",
+  name: "Dieng Plateau Highland",
+  surface: "road",
+  profileType: "hilly",
+  elevationPoints: [
+    { distance: 0, elevation: 0.65 },
+    { distance: 0.2, elevation: 0.72 },
+    { distance: 0.4, elevation: 0.68 },
+    { distance: 0.6, elevation: 0.75 },
+    { distance: 0.8, elevation: 0.70 },
+    { distance: 1.0, elevation: 0.67 },
+  ],
+  characteristics: {
+    maxGrade: 9.0,
+    totalElevationGain: 250,
+    technicalDifficulty: 4,
+  },
+  environment: {
+    biome: "mountain",
+    landmarks: ["Telaga Warna", "Arjuna Temple", "Sikidang Crater", "Potato Fields"],
+  },
+};
+
+export const KOMODO_ISLAND: RouteProfile = {
+  id: "komodo_island",
+  name: "Komodo Island Adventure",
+  surface: "trail",
+  profileType: "hilly",
+  elevationPoints: [
+    { distance: 0, elevation: 0.40 },
+    { distance: 0.2, elevation: 0.55 },
+    { distance: 0.4, elevation: 0.68 },
+    { distance: 0.6, elevation: 0.58 },
+    { distance: 0.8, elevation: 0.52 },
+    { distance: 1.0, elevation: 0.45 },
+  ],
+  characteristics: {
+    maxGrade: 12.0,
+    totalElevationGain: 320,
+    technicalDifficulty: 4,
+  },
+  environment: {
+    biome: "tropical",
+    landmarks: ["Pink Beach", "Padar Viewpoint", "Savanna Hills", "Dragon Habitat"],
+  },
+};
+
+export const TOBA_LAKESIDE: RouteProfile = {
+  id: "toba_lakeside",
+  name: "Lake Toba Scenic Route",
+  surface: "road",
+  profileType: "rolling",
+  elevationPoints: [
+    { distance: 0, elevation: 0.52 },
+    { distance: 0.25, elevation: 0.48 },
+    { distance: 0.5, elevation: 0.50 },
+    { distance: 0.75, elevation: 0.46 },
+    { distance: 1.0, elevation: 0.51 },
+  ],
+  characteristics: {
+    maxGrade: 4.5,
+    totalElevationGain: 110,
+    technicalDifficulty: 2,
+  },
+  environment: {
+    biome: "tropical",
+    landmarks: ["Lake Toba", "Samosir Island", "Batak Villages", "Waterfront"],
+  },
+};
+
+export const WAKATOBI_COASTAL: RouteProfile = {
+  id: "wakatobi_coastal",
+  name: "Wakatobi Coral Coast",
+  surface: "road",
+  profileType: "flat",
+  elevationPoints: [
+    { distance: 0, elevation: 0.48 },
+    { distance: 0.3, elevation: 0.50 },
+    { distance: 0.6, elevation: 0.49 },
+    { distance: 0.9, elevation: 0.51 },
+    { distance: 1.0, elevation: 0.50 },
+  ],
+  characteristics: {
+    maxGrade: 3.0,
+    totalElevationGain: 35,
+    technicalDifficulty: 1,
+  },
+  environment: {
+    biome: "coastal",
+    landmarks: ["Coral Beaches", "Mangrove Forests", "Fishing Villages", "Marine Park"],
+  },
+};
+
+// ═══════════════════════════════════════════════════════
 // ROUTE PROFILE REGISTRY
 // ═══════════════════════════════════════════════════════
 
@@ -518,6 +687,15 @@ export const ROUTE_PROFILES: Record<string, RouteProfile> = {
   tahura_forest: TAHURA_FOREST,
   bali_coastal: BALI_COASTAL,
   arjuno_ultra: ARJUNO_ULTRA,
+  
+  // Unique Race Profiles
+  jakarta_city_flat: JAKARTA_CITY_FLAT,
+  borobudur_heritage: BOROBUDUR_HERITAGE,
+  prambanan_temples: PRAMBANAN_TEMPLES,
+  dieng_plateau: DIENG_PLATEAU,
+  komodo_island: KOMODO_ISLAND,
+  toba_lakeside: TOBA_LAKESIDE,
+  wakatobi_coastal: WAKATOBI_COASTAL,
   
   // Generic Templates
   generic_flat_city: GENERIC_FLAT_CITY,

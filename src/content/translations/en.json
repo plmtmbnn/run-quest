@@ -1051,6 +1051,31 @@
       "conditions_improved": "Conditions improved!",
       "energy_increased": "Energy cost increased.",
       "conditions_stable": "Conditions are stable."
+    },
+    "mobile_navbar": {
+      "energy": "Energy",
+      "hydration": "Hydration",
+      "focus": "Focus",
+      "heart_rate": "Heart Rate",
+      "bpm": "bpm",
+      "current_pace": "Current Pace",
+      "pacing_strategy": "Pacing Strategy",
+      "simulation_speed": "Speed",
+      "pacing": {
+        "jog": "Jog",
+        "cruise": "Cruise",
+        "push": "Push",
+        "sprint": "Sprint",
+        "negative_split": "Negative Split",
+        "steady": "Steady",
+        "aggressive": "Aggressive",
+        "conservative": "Conservative"
+      },
+      "nutrition": "Nutrition",
+      "live_standings": "Live Standings",
+      "stats": "Stats",
+      "actions": "Actions",
+      "board": "Board"
     }
   },
   "disclaimer": {

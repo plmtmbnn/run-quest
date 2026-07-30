@@ -17,6 +17,8 @@ import { MicroAchievementPopup } from "@/components/race/micro-achievement-popup
 import { PaceProjector } from "@/components/race/pace-projector";
 import { SplitCallout, useSplitCalloutQueue } from "@/components/race/split-callout";
 import { TrackPositionVisualizer } from "@/components/race/track-position-visualizer";
+import { HorizontalTrackProgress } from "@/components/race/horizontal-track-progress";
+import { MobileRaceNavbar } from "@/components/race/mobile-race-navbar";
 import { checkRaceAchievements, type RaceAchievement } from "@/engine/achievements/race-achievements";
 import { advanceSimulation } from "@/engine/simulation/engine";
 import { FlowStateMeter } from "@/components/race/flow-state-meter";
@@ -55,6 +57,7 @@ import { calculateGhostDistanceAtTime, getGhostGapMeters } from "@/components/ra
 import { LiveActivityFeed } from "@/components/race/live-activity-feed";
 import { RivalProximityAlert } from "@/components/race/rival-proximity-alert";
 import { SpectatorMode } from "@/components/race/spectator-mode";
+import { getRouteProfile } from "@/data/route-profiles";
 import { MilestoneMarkers } from "@/components/race/milestone-markers";
 import { getUpcomingMilestoneMarkers } from "@/engine/achievements/race-achievements";
 import { ComboStreak, getComboMultiplier } from "@/components/race/combo-streak";
@@ -1415,81 +1418,90 @@ export function RaceScreen() {
       <main className="flex-grow max-w-4xl w-full mx-auto px-4 md:px-6 py-4 md:py-8 flex flex-col justify-center gap-4 md:gap-6 relative">
         {/* Distance Tracker & Visual Track Progress */}
         <div id="tour-race-simulation" className="flex flex-col gap-4 md:gap-5 items-center justify-center bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[2rem] p-4 md:p-6 shadow-sm">
-          {/* Distance Circular Tracker */}
+          {/* Distance Circular Tracker - Sprint 40 Enhanced */}
           <div className="relative w-40 h-40 md:w-48 md:h-48 flex items-center justify-center group">
-            <div className="absolute inset-0 rounded-full border-[6px] border-orange-500/5 dark:border-orange-500/10 scale-105" />
+            {/* Background glow ring */}
+            <div className="absolute inset-0 rounded-full border-[6px] border-orange-500/10 dark:border-orange-500/20 scale-105 animate-pulse" />
+            
+            {/* Outer track (unfilled background) */}
             <svg
               className="w-full h-full transform -rotate-90 drop-shadow-sm"
               role="img"
               aria-label="Race progress circle"
             >
               <title>Race progress circle</title>
+              
+              {/* Track background */}
               <circle
                 cx="50%"
                 cy="50%"
-                r="44%"
-                className="stroke-slate-100 dark:stroke-slate-800/80 fill-none"
-                strokeWidth="8"
+                r="48%"
+                className="stroke-slate-100 dark:stroke-slate-800/40 fill-none"
+                strokeWidth="12"
               />
+              
+              {/* Progress track with gradient color based on player energy */}
               <motion.circle
                 cx="50%"
                 cy="50%"
-                r="44%"
-                className="stroke-orange-500 fill-none"
-                strokeWidth="8"
-                strokeDasharray="276"
-                initial={{ strokeDashoffset: 276 }}
-                animate={{
-                  strokeDashoffset: 276 - (276 * progressPercentage) / 100,
+                r="48%"
+                className={`
+                  stroke-orange-500 fill-none transition-all duration-300 drop-shadow-md
+                  ${stats.energy > 70 ? 'stroke-emerald-500' : stats.energy > 40 ? 'stroke-amber-500' : 'stroke-rose-500'}
+                `}
+                strokeWidth="12"
+                strokeDasharray="301.6"
+                strokeDashoffset={201.6 - (301.6 * progressPercentage) / 100}
+                initial={{ strokeDashoffset: 201.6 }}
+                animate={{ 
+                  strokeDashoffset: 201.6 - (301.6 * progressPercentage) / 100,
                 }}
-                transition={{ duration: (isPaused ? 0 : 1.5) / simSpeed, ease: "linear" }}
+                transition={{
+                  duration: (isPaused ? 0 : 1.5) / simSpeed,
+                  ease: "linear"
+                }}
                 strokeLinecap="round"
               />
             </svg>
-
-            {/* Inner Content */}
-            <div className="absolute flex flex-col items-center justify-center text-center">
-              <span className="text-[10px] md:text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-0.5 flex items-center gap-1">
-                <Flame className="w-3 h-3 text-orange-500" />
-                Distance
-              </span>
-              <div className="flex items-baseline gap-0.5">
-                <span className="text-4xl md:text-5xl font-extrabold tracking-tight font-heading text-slate-800 dark:text-white">
-                  {currentKm}
+            
+            {/* Inner content with enhanced info */}
+            <div className="absolute flex flex-col items-center justify-center text-center min-w-[120px]">
+              {/* Current Km */}
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="text-[4xl] md:text-[5xl] font-extrabold tracking-tight font-heading text-slate-800 dark:text-white drop-shadow-sm">
+                  {currentKm.toFixed(2)}
                 </span>
-                <span className="text-sm md:text-base font-bold text-slate-300 dark:text-slate-600">
+                <span className="text-xl md:text-2xl font-bold text-slate-300 dark:text-slate-600">
                   /{challenge.race.distance}
                 </span>
               </div>
-              <div className="mt-1 flex items-center gap-1 bg-slate-50 dark:bg-slate-800/50 px-2 py-0.5 rounded-full border border-slate-150 dark:border-slate-700">
-                <span className="text-[10px] md:text-[11px] font-bold text-slate-500 dark:text-slate-400">
-                  PACE
-                </span>
-                <span className="text-[10px] md:text-[11px] font-black text-orange-600 dark:text-orange-400 font-mono">
+              
+              {/* Km indicator */}
+              <p className="text-[10px] md:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                km
+              </p>
+              
+              {/* Pace display in inner circle */}
+              <div className="mt-1 flex items-center gap-1 bg-slate-100/60 dark:bg-slate-800/60 px-2 py-1 rounded-full border border-slate-200 dark:border-slate-700 backdrop-blur-sm">
+                <span className="text-[9px] font-bold text-slate-600 dark:text-slate-300">PACE</span>
+                <span className="text-[10px] font-black text-orange-600 dark:text-orange-400 font-mono">
                   {formatPace(stats.pace)}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Visual Race Track Progress */}
-          <div className="w-full flex flex-col gap-2 mt-4 md:mt-6 border-t border-slate-100 dark:border-gray-800 pt-4 md:pt-6 relative">
-
-            {/* Determine route profile ID based on race characteristics */}
-            {/** 
-             * In a full implementation, this would come from the race schedule's routeProfileId,
-             * but currently extracted from challenge for simplicity.
-             */}
-            <TrackPositionVisualizer
+          {/* Visual Race Track Progress - Sprint 40: Horizontal Flag Track */}
+          <div className="w-full mt-4 md:mt-6 border-t border-slate-100 dark:border-gray-800 pt-4 md:pt-6">
+            <HorizontalTrackProgress
               runners={runners}
               currentKm={currentKm}
               raceDistance={challenge.race.distance}
               simSpeed={simSpeed}
-              selectedPacing={selectedPacing}
+              isPaused={isPaused}
+              routeProfile={getRouteProfile(getRouteProfileForChallenge(challenge), challenge.race.surface)}
               surface={challenge.race.surface}
               playerEnergy={stats.energy}
-              isPaused={isPaused}
-              routeProfileId={getRouteProfileForChallenge(challenge)}
             />
           </div>
 
@@ -1545,8 +1557,8 @@ export function RaceScreen() {
         <div className="flex flex-col gap-4 md:gap-6 bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[2rem] p-4 md:p-6 shadow-sm">
           {/* Strategy Tactics & Leaderboard Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 border-b border-slate-100 dark:border-gray-800 pb-4 md:pb-6">
-            {/* Left Column: Real-Time Tactics (Pacing Buttons) */}
-            <div className="flex flex-col gap-3">
+            {/* Left Column: Real-Time Tactics (Pacing Buttons) - Hidden on mobile, moved to MobileRaceNavbar */}
+            <div className="hidden md:flex flex-col gap-3">
               {/* Bet on Yourself Panel */}
               <div className="mb-2">
                 <SelfBetPanel
@@ -1680,8 +1692,8 @@ export function RaceScreen() {
               </div>
             </div>
 
-            {/* Right Column: Live Leaderboard */}
-            <div className="flex flex-col gap-3">
+            {/* Right Column: Live Leaderboard - Hidden on mobile, moved to MobileRaceNavbar */}
+            <div className="hidden md:flex flex-col gap-3">
               <h4 className="text-xs md:text-sm uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
                 <span>🏆</span> Live Standings
               </h4>
@@ -2284,6 +2296,30 @@ export function RaceScreen() {
           }}
         />
       )}
+
+      {/* Mobile Race Navbar - Sprint 40: Collapsible floating navbar for mobile */}
+      <MobileRaceNavbar
+        stats={{
+          energy: stats.energy,
+          hydration: stats.hydration,
+          focus: stats.focus,
+          pace: stats.pace,
+          heartRate: simState 
+            ? Math.round(150 + (simState.muscleFatigue * 0.8) + (simState.mentalFatigue * 0.5))
+            : 140,
+        }}
+        currentKm={currentKm}
+        raceDistance={challenge.race.distance}
+        runners={runners}
+        activeConsumables={activeConsumables}
+        onConsumeItem={consumeItem}
+        onPacingChange={setSelectedPacing}
+        onSimSpeedChange={setSimSpeed}
+        isFinished={isFinished}
+        isPaused={isPaused}
+        currentPacing={selectedPacing}
+        simSpeed={simSpeed}
+      />
 
       {/* Screen Tour */}
       <ScreenTour
