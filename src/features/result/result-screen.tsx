@@ -9,6 +9,7 @@ import { EventHighlightCard } from "@/components/share/event-highlight-card";
 import { RaceReportCard } from "@/components/share/race-report-card";
 import { ShareModal } from "@/components/share/share-modal";
 import { PostRaceAnalytics } from "@/components/race/post-race-analytics";
+import { EnhancedStandings } from "@/components/race/enhanced-standings";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { saveRunToHistory } from "@/runner/run-history";
 import { useRunnerStore } from "@/runner/runner-store";
@@ -353,37 +354,42 @@ export function ResultScreen() {
   const fastestSplit =
     splits.length > 0 ? Math.min(...splits.map((s) => s.time)) : 0;
 
-  const getLeaderboard = () => {
+  const getRunners = () => {
     const finalState =
       lastResult.stateLog && lastResult.stateLog.length > 0
         ? lastResult.stateLog[lastResult.stateLog.length - 1]
         : null;
 
-    if (!finalState || !finalState.opponents) return [];
-
-    const entries = [
+    const list: Array<{
+      id: string;
+      name: string;
+      distance: number;
+      isPlayer: boolean;
+      isDNF: boolean;
+      dnfReason?: string;
+    }> = [
       {
+        id: "player",
         name: playerName,
-        time: lastResult.finishTime,
-        isDNF: outcome === "dnf",
+        distance: outcome === "dnf" ? (finalState?.distanceCovered ?? 0) : challenge.race.distance,
         isPlayer: true,
-        isNemesis: false,
+        isDNF: outcome === "dnf",
       },
-      ...finalState.opponents.map((opp) => ({
-        name: opp.name,
-        time: opp.accumulatedTime,
-        isDNF: opp.isDNF,
-        isPlayer: false,
-        isNemesis: opp.isNemesis || false,
-      })),
     ];
 
-    // Sort by DNF at the bottom, then by time ascending
-    return entries.sort((a, b) => {
-      if (a.isDNF && !b.isDNF) return 1;
-      if (!a.isDNF && b.isDNF) return -1;
-      return a.time - b.time;
-    });
+    if (finalState && finalState.opponents) {
+      for (const opp of finalState.opponents) {
+        list.push({
+          id: opp.id,
+          name: opp.name,
+          distance: opp.isDNF ? opp.distanceCovered : challenge.race.distance,
+          isPlayer: false,
+          isDNF: opp.isDNF,
+        });
+      }
+    }
+
+    return list;
   };
 
   const getMockComments = () => {
@@ -630,24 +636,37 @@ export function ResultScreen() {
         )}
 
         {/* Visual Share Card Preview */}
-        <div className="flex flex-col gap-3.5 bg-gradient-to-b from-slate-900/90 to-slate-950/90 border border-slate-800/80 rounded-[2.5rem] p-4 sm:p-6 shadow-2xl relative overflow-hidden backdrop-blur-md">
-          {/* Decorative Glow */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="flex flex-col gap-4 bg-gradient-to-b from-slate-900/95 via-slate-900/90 to-slate-950/95 border border-indigo-500/20 dark:border-indigo-500/30 rounded-[2.5rem] p-5 sm:p-7 shadow-2xl relative overflow-hidden backdrop-blur-xl hover:border-indigo-500/40 transition-all duration-300">
+          {/* Decorative Radial Ambient Glows */}
+          <div className="absolute top-0 right-0 w-72 h-72 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-72 h-72 bg-purple-500/15 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 
-          <div className="flex items-center justify-between gap-3 relative z-10 px-1">
-            <div className="flex items-center gap-2">
-              <Camera className="w-4 h-4 text-indigo-400" />
-              <h3 className="text-xs font-black uppercase tracking-wider text-slate-300">
-                {t("challenge.result.share_card" as TranslationKey)}
-              </h3>
+          {/* Header Row */}
+          <div className="flex items-center justify-between gap-3 relative z-10 px-1 border-b border-slate-800/80 pb-3.5">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-indigo-500/15 border border-indigo-400/20 text-indigo-400">
+                <Camera className="w-4.5 h-4.5" />
+              </div>
+              <div>
+                <h3 className="font-heading font-black text-xs md:text-sm uppercase tracking-wider text-slate-100">
+                  {t("result.share_card" as TranslationKey)}
+                </h3>
+                <p className="text-[10.5px] text-slate-400 font-medium">
+                  High-res official performance breakdown
+                </p>
+              </div>
             </div>
-            <span className="text-[10px] font-mono text-slate-400 bg-slate-800/60 px-2.5 py-0.5 rounded-full border border-slate-700/50">
-              800 × 450 PNG
-            </span>
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700/60 backdrop-blur-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[10px] font-mono font-extrabold text-slate-300">
+                800 × 450 PNG
+              </span>
+            </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-slate-950 p-2 sm:p-4 flex items-center justify-center shadow-inner relative z-10">
+          {/* Race Report Card Frame Preview */}
+          <div className="relative overflow-hidden rounded-2xl border border-white/15 bg-slate-950/90 p-3 sm:p-5 flex items-center justify-center shadow-inner relative z-10">
             <div className="scale-[0.55] sm:scale-[0.75] md:scale-[0.85] origin-center my-[-90px] sm:my-[-45px] pointer-events-none transition-transform duration-200">
               <RaceReportCard
                 challenge={challenge}
@@ -662,129 +681,102 @@ export function ResultScreen() {
           </div>
 
           {/* Action Buttons Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 relative z-10 pt-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 relative z-10 pt-1">
             <button
               type="button"
               onClick={() => {
                 playSound("click");
                 setIsReportShareOpen(true);
               }}
-              className="w-full flex items-center justify-center gap-2 px-5 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-2xl text-xs md:text-sm font-black transition-all active:scale-95 shadow-lg shadow-indigo-500/25 min-h-[44px]"
+              className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-2xl text-xs md:text-sm font-black transition-all active:scale-95 shadow-lg shadow-indigo-500/30 border border-indigo-400/30 min-h-[46px]"
             >
               <Share2 className="h-4 w-4" />
-              <span>{t("challenge.result.download_png" as TranslationKey)}</span>
+              <span>{t("result.download_png" as TranslationKey)}</span>
             </button>
 
             <button
               type="button"
               onClick={handleCopySummary}
-              className={`w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl text-xs md:text-sm font-black transition-all active:scale-95 border min-h-[44px] ${
+              className={`w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-xs md:text-sm font-black transition-all active:scale-95 border min-h-[46px] ${
                 isSummaryCopied
-                  ? "bg-emerald-600 text-white border-emerald-500 shadow-md shadow-emerald-500/20"
-                  : "bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 border-slate-700/80"
+                  ? "bg-emerald-600 text-white border-emerald-500 shadow-lg shadow-emerald-500/25"
+                  : "bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 border-slate-700/80 hover:border-slate-600"
               }`}
             >
               {isSummaryCopied ? (
                 <>
                   <Check className="h-4 w-4 text-white" />
-                  <span>Summary Copied!</span>
+                  <span>{t("result.summary_copied" as TranslationKey)}</span>
                 </>
               ) : (
                 <>
                   <Copy className="h-4 w-4 text-slate-300" />
-                  <span>Copy Stats Text</span>
+                  <span>{t("result.copy_stats_text" as TranslationKey)}</span>
                 </>
               )}
             </button>
           </div>
         </div>
 
-        {/* Rival Leaderboard */}
-        {getLeaderboard().length > 0 && (
+        {/* Rival Leaderboard - Enhanced Standings */}
+        {getRunners().length > 0 && (
           <section className="rounded-[2rem] border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-4">
-            <div className="flex items-center gap-2 border-b border-gray-200 dark:border-slate-800 pb-3">
-              <span className="text-lg">🏆</span>
-              <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
-                Rival Leaderboard
-              </h2>
-            </div>
-            <div className="flex flex-col gap-2">
-              {getLeaderboard().map((entry, idx) => {
-                const isWinner = idx === 0 && !entry.isDNF;
-                return (
-                  <div
-                    key={entry.name}
-                    className={`flex items-center justify-between p-3.5 rounded-2xl border transition-all duration-200 ${
-                      entry.isPlayer
-                        ? "bg-orange-500/10 border-orange-500/30 text-orange-900 dark:text-orange-200 dark:text-orange-350 font-semibold"
-                        : "bg-gray-50/40 dark:bg-gray-800/40 dark:bg-slate-900/30 border-gray-100 dark:border-slate-800/40"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3.5">
-                      <span className="font-heading font-black text-sm text-gray-400 dark:text-gray-500 dark:text-gray-500 min-w-[20px]">
-                        #{idx + 1}
-                      </span>
-                      <span className="text-xs font-bold flex items-center gap-1.5">
-                        {entry.name}
-                        {entry.isNemesis && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-500 font-extrabold uppercase tracking-wide">
-                            Nemesis
-                          </span>
-                        )}
-                        {entry.isPlayer && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-500 font-extrabold uppercase tracking-wide">
-                            You
-                          </span>
-                        )}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 font-mono text-xs">
-                      {entry.isDNF ? (
-                        <span className="text-red-500 font-black">DNF</span>
-                      ) : (
-                        <span className="font-bold">
-                          {formatTime(entry.time)}
-                        </span>
-                      )}
-                      {isWinner && <span className="text-sm">👑</span>}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            <EnhancedStandings
+              runners={getRunners()}
+              raceDistance={challenge.race.distance}
+              showMobileVersion={false}
+            />
           </section>
         )}
 
         {/* Narrative & Highlights Section */}
-        <section className="rounded-[2rem] border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-6">
-          <div className="flex items-center gap-2 border-b border-gray-200 dark:border-slate-800 pb-3">
-            <Sparkles className="h-5 w-5 text-amber-500 dark:text-amber-300" />
-            <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
-              {story.headline[lang]}
-            </h2>
+        <section className="rounded-[2rem] border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-5">
+          <div className="flex items-center justify-between border-b border-gray-200 dark:border-slate-800 pb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400">
+                <Sparkles className="h-5 w-5" />
+              </div>
+              <div>
+                <h2 className="font-heading font-black text-lg text-slate-900 dark:text-white">
+                  {story.headline[lang]}
+                </h2>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                  {t("result.story_summary" as TranslationKey)}
+                </p>
+              </div>
+            </div>
+            <span className="px-2.5 py-1 rounded-full bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px] font-extrabold uppercase tracking-wider">
+              {story.highlights.length} {t("result.story_headline" as TranslationKey)}
+            </span>
           </div>
-          <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
-            {story.summary[lang]}
-          </p>
 
+          {/* Story Summary Card */}
+          <div className="p-4 md:p-5 rounded-2xl bg-gradient-to-r from-amber-500/5 via-orange-500/5 to-amber-500/5 dark:from-amber-500/10 dark:via-orange-500/10 dark:to-amber-500/10 border border-amber-500/20 shadow-sm relative overflow-hidden">
+            <p className="text-xs md:text-sm leading-relaxed font-medium text-slate-700 dark:text-slate-200">
+              {story.summary[lang]}
+            </p>
+          </div>
+
+          {/* Highlights Dropdown */}
           <div className="flex flex-col gap-3">
             <button
               type="button"
               onClick={() => setIsHighlightsExpanded(!isHighlightsExpanded)}
-              className="flex items-center justify-between w-full text-left group hover:opacity-80 transition-opacity"
+              className="flex items-center justify-between w-full px-4 py-2.5 rounded-xl bg-slate-100/80 hover:bg-slate-200/70 dark:bg-slate-800/60 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700/60 transition-all active:scale-[0.99]"
             >
-              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                {t("challenge.result.story_headline" as TranslationKey)} ({story.highlights.length})
-              </h3>
+              <span className="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300 flex items-center gap-2">
+                <span>⚡</span>
+                <span>{t("result.story_headline" as TranslationKey)} ({story.highlights.length})</span>
+              </span>
               <ChevronDown 
-                className={`h-4 w-4 text-gray-400 dark:text-gray-500 transition-transform ${
-                  isHighlightsExpanded ? 'rotate-180' : ''
+                className={`h-4 w-4 text-slate-500 dark:text-slate-400 transition-transform duration-200 ${
+                  isHighlightsExpanded ? "rotate-180" : ""
                 }`}
               />
             </button>
             
             {isHighlightsExpanded && (
-              <ul className="flex flex-col gap-2.5">
+              <div className="flex flex-col gap-2.5">
                 {story.highlights.map((h, idx) => {
                   const event = lastResult.events.find(
                     (e) =>
@@ -794,11 +786,14 @@ export function ResultScreen() {
                   const isShareable = isHighlightShareable(h, idx);
 
                   return (
-                    <li
+                    <div
                       key={`highlight-${idx}-${h.en}`}
-                      className="text-xs text-gray-700 dark:text-gray-200 dark:text-gray-300 bg-gray-50 dark:bg-slate-900 border border-gray-100 dark:border-slate-800/40 rounded-xl p-3 flex items-center justify-between gap-4"
+                      className="text-xs text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-950/50 border border-slate-200/70 dark:border-slate-800 hover:border-amber-400/50 dark:hover:border-amber-600/50 rounded-xl p-3.5 flex items-center justify-between gap-3 transition-all shadow-sm"
                     >
-                      <span className="flex-grow leading-relaxed">{h[lang]}</span>
+                      <div className="flex items-start gap-2.5 flex-1 min-w-0">
+                        <span className="text-amber-500 font-bold shrink-0 mt-0.5">⚡</span>
+                        <span className="leading-relaxed font-medium">{h[lang]}</span>
+                      </div>
                       {isShareable && (
                         <button
                           type="button"
@@ -809,49 +804,58 @@ export function ResultScreen() {
                               setActiveCoachQuote(h[lang]);
                             }
                           }}
-                          className="p-1.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-700 dark:text-slate-300 transition active:scale-90 flex-shrink-0"
+                          className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-amber-500/10 hover:border-amber-400/50 text-slate-500 hover:text-amber-600 dark:text-slate-400 dark:hover:text-amber-400 transition active:scale-95 shrink-0 shadow-xs"
                           aria-label="Share race moment"
                         >
                           <Share2 className="h-3.5 w-3.5" />
                         </button>
                       )}
-                    </li>
+                    </div>
                   );
                 })}
-              </ul>
+              </div>
             )}
           </div>
         </section>
 
         {/* Coaching Lessons learned */}
         <section className="rounded-[2rem] border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col gap-4">
-          <div className="flex items-center gap-2 border-b border-gray-200 dark:border-slate-800 pb-3">
-            <BookOpen className="h-5 w-5 text-blue-500" />
-            <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
-              {t("challenge.result.lessons_learned" as TranslationKey)}
-            </h2>
+          <div className="flex items-center justify-between border-b border-gray-200 dark:border-slate-800 pb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400">
+                <BookOpen className="h-5 w-5" />
+              </div>
+              <div>
+                <h2 className="font-heading font-black text-lg text-gray-800 dark:text-gray-100">
+                  {t("result.lessons_learned" as TranslationKey)}
+                </h2>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                  {t("result.tactical_advice" as TranslationKey)}
+                </p>
+              </div>
+            </div>
+            <span className="px-2.5 py-1 rounded-full bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 text-[10px] font-extrabold uppercase tracking-wider">
+              {story.lessons.length} {t("result.takeaways" as TranslationKey)}
+            </span>
           </div>
-          <ul className="flex flex-col gap-3">
+
+          <div className="grid grid-cols-1 gap-3">
             {story.lessons.map((lesson, idx) => (
-              <li
+              <div
                 key={`lesson-${idx}-${lesson.en}`}
-                className="text-xs leading-relaxed text-gray-600 dark:text-gray-300 flex items-center justify-between gap-4 bg-gray-50 dark:bg-slate-900 border border-gray-100 dark:border-slate-800/40 p-3 rounded-xl"
+                className="p-4 rounded-2xl bg-gradient-to-r from-slate-50 to-blue-50/30 dark:from-slate-800/40 dark:to-blue-950/20 border border-slate-200/80 dark:border-slate-800 hover:border-blue-300 dark:hover:border-blue-700/60 transition-all duration-200 shadow-sm flex items-start gap-3.5"
               >
-                <div className="flex items-start gap-2 flex-grow">
-                  <span className="text-blue-500 font-bold mt-0.5">•</span>
-                  <span>{lesson[lang]}</span>
+                <div className="flex items-center justify-center w-7 h-7 rounded-xl bg-blue-500/10 dark:bg-blue-500/25 border border-blue-400/30 text-blue-600 dark:text-blue-300 font-mono font-black text-xs shrink-0 mt-0.5">
+                  {idx + 1}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setActiveCoachQuote(lesson[lang])}
-                  className="p-1.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-700 dark:text-slate-300 transition active:scale-90 flex-shrink-0"
-                  aria-label="Share coaching tip"
-                >
-                  <Share2 className="h-3.5 w-3.5" />
-                </button>
-              </li>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs md:text-sm leading-relaxed text-slate-700 dark:text-slate-200 font-medium">
+                    {lesson[lang]}
+                  </p>
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         </section>
 
         {/* Interactive Splits Analysis */}
@@ -860,7 +864,7 @@ export function ResultScreen() {
             <div className="flex items-center gap-2 border-b border-gray-200 dark:border-slate-800 pb-3">
               <Clock className="h-5 w-5 text-orange-500" />
               <h2 className="font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
-                Interactive Splits Analysis
+                {t("result.interactive_splits" as TranslationKey)}
               </h2>
             </div>
 

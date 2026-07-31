@@ -581,4 +581,74 @@ export const DECISION_DATABASE: Record<string, DecisionCard> = {
       },
     ],
   },
+  intense_sun_glare: {
+    id: "intense_sun_glare",
+    category: "environment",
+    rarity: "uncommon",
+    title: {
+      en: "Blinding Sun Glare",
+      id: "Silau Matahari Membutakan",
+    },
+    description: {
+      en: "Direct sunlight and road reflection are causing severe eye strain.",
+      id: "Sinar matahari langsung dan pantulan jalan menyebabkan ketegangan mata.",
+    },
+    choices: [
+      {
+        id: "glare_squint",
+        label: { en: "Squint & Push On", id: "Picingkan Mata & Terus Lari" },
+        description: {
+          en: "Endure the harsh glare, sacrificing mental focus.",
+          id: "Tahan silau terik, mengorbankan fokus mental.",
+        },
+        behavior: "aggressive",
+        effects: { stamina: -5, hydration: -10, morale: -10, pace: -5 },
+      },
+      {
+        id: "glare_shade",
+        label: { en: "Lower Head & Pacing", id: "Menunduk & Jaga Ritme" },
+        description: {
+          en: "Look down at the road, running conservatively.",
+          id: "Lihat ke bawah jalan, lari dengan konformatif.",
+        },
+        behavior: "conservative",
+        effects: { stamina: 10, hydration: 5, morale: 0, pace: 10 },
+      },
+    ],
+  },
+  nitrate_endurance_boost: {
+    id: "nitrate_endurance_boost",
+    category: "tactical",
+    rarity: "rare",
+    title: {
+      en: "Peak Oxygen Flow",
+      id: "Aliran Oksigen Maksimal",
+    },
+    description: {
+      en: "Your pre-race fueling is paying off. Oxygen efficiency is at an all-time high.",
+      id: "Asupan nutrisi pra-lomba membuahkan hasil. Efisiensi oksigen berada di puncak.",
+    },
+    choices: [
+      {
+        id: "nitrate_surge",
+        label: { en: "Capitalize with Tempo Surge", id: "Manfaatkan Lonjakan Tempo" },
+        description: {
+          en: "Increase speed while oxygen utilization is optimal.",
+          id: "Tingkatkan kecepatan saat penggunaan oksigen optimal.",
+        },
+        behavior: "aggressive",
+        effects: { stamina: 10, hydration: -5, morale: 20, pace: -20 },
+      },
+      {
+        id: "nitrate_cruise",
+        label: { en: "Smooth Cruise", id: "Jelajah Halus" },
+        description: {
+          en: "Maintain effort easily, banking energy for the final stretch.",
+          id: "Pertahankan usaha dengan mudah, menyimpan energi untuk kilometer akhir.",
+        },
+        behavior: "balanced",
+        effects: { stamina: 25, hydration: 5, morale: 10, pace: 0 },
+      },
+    ],
+  },
 };

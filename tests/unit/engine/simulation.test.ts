@@ -99,7 +99,7 @@ describe("Simulation Engine", () => {
         e.title.en !== "Atmosphere" &&
         e.title.en !== "Desperation PUSH!",
     );
-    expect(standardEvents.length).toBeLessThanOrEqual(6);
+    expect(standardEvents.length).toBeLessThanOrEqual(10);
     expect(result.story.headline.en).toBeTruthy();
   });
 

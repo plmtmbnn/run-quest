@@ -3,11 +3,13 @@
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
+  Brain, // Coach icon
   Clock,
   Flame,
   MapPin,
   Share2,
   Sparkles,
+  Trophy,
   Wind,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -17,11 +19,15 @@ import { ShareModal } from "@/components/share/share-modal";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { generateDailyChallenge } from "@/services/challenge/generator";
-import { type GhostRun, loadGhostRun } from "@/social/ghost-engine";
+import { loadGhostRun, type GhostRun } from "@/social/ghost-engine";
 import { useGameStore } from "@/store/game-store";
+import { usePreparationStore } from "@/store/preparation-store";
 import { useTimelineStore } from "@/store/timeline-store";
 import { makeRegistrationKey } from "@/scheduling/race-calendar-engine";
 import { ScreenTour } from "@/components/tour/screen-tour";
+import { predictRaceOutcome, formatPace } from "@/coach/race-prediction";
+import { loadRunnerState } from "@/runner/runner-persistence";
+import { CoachPredictionPanel } from "@/components/race/coach-prediction-panel";
 
 export function BriefingScreen() {
   const router = useRouter();
@@ -30,6 +36,7 @@ export function BriefingScreen() {
   const lang = (language === "id" ? "id" : "en") as "en" | "id";
 
   const { currentChallenge, setActiveGhost } = useGameStore();
+  const { preparation } = usePreparationStore();
   const { playSound } = useSound();
   const dayIndex = useTimelineStore((state) => state.gameState?.dayIndex ?? 0);
   const schedulingState = useTimelineStore(
@@ -215,7 +222,8 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
           </div>
 
           {/* Highlight Stat Banners */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 mb-6">
+            {/* Target Time (Keep existing) */}
             <div className="bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-900/50 rounded-2xl p-4 sm:p-5 flex items-center justify-between shadow-sm">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300 block mb-1">
@@ -230,6 +238,7 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
               </div>
             </div>
 
+            {/* Wind Speed (Keep existing) */}
             <div className="bg-sky-50/80 dark:bg-sky-950/30 border border-sky-200/80 dark:border-sky-900/50 rounded-2xl p-4 sm:p-5 flex items-center justify-between shadow-sm">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-sky-800 dark:text-sky-300 block mb-1">
@@ -244,6 +253,29 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
                 </div>
               </div>
             </div>
+
+            {/* New: Coach Win Probability Banner */}
+            <div className="bg-gradient-to-r from-indigo-50/80 to-purple-50/80 dark:bg-indigo-950/30 dark:border-indigo-800/50 rounded-2xl p-4 sm:p-5 flex items-center justify-between shadow-sm">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-400 block mb-1 flex items-center gap-2">
+                  <Brain className="w-4 h-4 text-indigo-600" />
+                  {t("coach.prediction" as TranslationKey)}
+                </span>
+                <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-300 font-mono font-bold text-lg sm:text-xl">
+                  <Trophy className="w-5 h-5 text-indigo-600" />
+                  <span id="win-prob-text">Calculating...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Coach Prediction Panel - Below the stat banners */}
+          <div className="mb-6">
+            <CoachPredictionPanel 
+              challenge={challenge}
+              preparation={preparation}
+              runnerProfile={loadRunnerState().profile}
+            />
           </div>
 
           {/* PB Ghost Card */}

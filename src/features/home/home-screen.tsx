@@ -310,6 +310,11 @@ export function HomeScreen() {
           selectedCategory?.id,
         );
         setGameState((prev) => ({ ...prev!, scheduling: updatedScheduling }));
+        
+        // ✅ Award XP for race registration
+        import("@/runner/xp-rewards").then(({ awardRegistrationXP }) => {
+          awardRegistrationXP(selectedRaceOccurrence.tier);
+        });
       }
 
       if (onlyRegister) {

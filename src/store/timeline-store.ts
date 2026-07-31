@@ -25,7 +25,7 @@ import { useSocialStore } from "@/social/social-store";
 import { storageRepository } from "@/storage/storage-repository";
 import { useHealthStore } from "@/health/health-store";
 import { useExpenseStore } from "@/store/expense-store";
-import { loadRunnerState } from "@/runner/runner-persistence";
+import { loadRunnerState, saveRunnerState } from "@/runner/runner-persistence";
 import type { StoredGameState } from "@/storage/types";
 import { markStoryBeatViewed } from "@/story/story-engine";
 import { useStoryStore } from "@/story/story-store";
@@ -127,6 +127,16 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
   doAction(actionId: ActionId, customEnergyCost?: number) {
     const { gameState } = get();
     if (!gameState) return;
+    
+    // ✅ PRESERVE runner state before action
+    const runnerStateBefore = loadRunnerState();
+    console.log('📊 [XP-DEBUG] Before doAction:', {
+      actionId,
+      xp: runnerStateBefore.profile.xp,
+      level: runnerStateBefore.profile.level,
+      dayIndex: gameState.dayIndex
+    });
+    
     const baseAction = getAction(actionId);
     const action = customEnergyCost !== undefined ? { ...baseAction, energyCost: customEnergyCost } : baseAction;
     const next = applyAction(gameState, action);
@@ -147,6 +157,31 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     }
 
     const updatedState = processMonthlySalary(next);
+    
+    // ✅ VERIFY runner state after action
+    const runnerStateAfter = loadRunnerState();
+    console.log('📊 [XP-DEBUG] After doAction:', {
+      actionId,
+      xp: runnerStateAfter.profile.xp,
+      level: runnerStateAfter.profile.level,
+      dayIndex: next.dayIndex
+    });
+    
+    // ✅ RESTORE XP if it was lost
+    if (runnerStateAfter.profile.xp < runnerStateBefore.profile.xp) {
+      console.error('⚠️ XP LOSS DETECTED in doAction! Restoring...');
+      const restoredState = {
+        ...runnerStateAfter,
+        profile: {
+          ...runnerStateAfter.profile,
+          xp: runnerStateBefore.profile.xp,
+          level: runnerStateBefore.profile.level,
+          skillPoints: runnerStateBefore.profile.skillPoints,
+        },
+      };
+      saveRunnerState(restoredState);
+    }
+    
     const runnerLevel = loadRunnerState().profile.level || 1;
     const expenseResult = useExpenseStore.getState().processScheduledExpenses(
       updatedState.dayIndex,
@@ -168,6 +203,15 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
   ff(mode: FastForwardMode) {
     const { gameState } = get();
     if (!gameState) return;
+    
+    // ✅ PRESERVE runner state before fast-forward
+    const runnerStateBefore = loadRunnerState();
+    console.log('🚀 [FF-DEBUG] Before fast-forward:', {
+      mode,
+      xp: runnerStateBefore.profile.xp,
+      level: runnerStateBefore.profile.level,
+      dayIndex: gameState.dayIndex
+    });
 
     const storyProgress = useStoryStore.getState().storyProgress;
     const currentChapterNum = storyProgress.currentChapter;
@@ -248,6 +292,30 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
       const healthStore = useHealthStore.getState();
       healthStore.updateInjuryRecovery(daysAdvanced);
       healthStore.saveToStorage();
+    }
+    
+    // ✅ VERIFY runner state after fast-forward
+    const runnerStateAfter = loadRunnerState();
+    console.log('🚀 [FF-DEBUG] After fast-forward:', {
+      mode,
+      xp: runnerStateAfter.profile.xp,
+      level: runnerStateAfter.profile.level,
+      dayIndex: finalState.dayIndex
+    });
+    
+    // ✅ RESTORE XP if it was lost during fast-forward
+    if (runnerStateAfter.profile.xp < runnerStateBefore.profile.xp) {
+      console.error('⚠️ XP LOSS DETECTED in fast-forward! Restoring...');
+      const restoredState = {
+        ...runnerStateAfter,
+        profile: {
+          ...runnerStateAfter.profile,
+          xp: runnerStateBefore.profile.xp,
+          level: runnerStateBefore.profile.level,
+          skillPoints: runnerStateBefore.profile.skillPoints,
+        },
+      };
+      saveRunnerState(restoredState);
     }
 
     set({ gameState: finalState, pendingEvents: events });

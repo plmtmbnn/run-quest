@@ -15,6 +15,7 @@ import type { EntryValidation } from "../../economy/race-entry-engine";
 import { useEffect, useState } from "react";
 import { getEnergyCostForDistance } from "../../economy/race-entry-engine";
 import type { CategoryId, RaceCategory, RaceOccurrence } from "../../scheduling/race-calendar-types";
+import { calculateDynamicEntrants, getFillRatePercentage, isRaceNearlyFull, isRaceFull } from "../../scheduling/race-entrants-engine";
 
 // Interpolate {placeholder} tokens in translation strings.
 function interpolate(
@@ -80,6 +81,9 @@ export function RaceEntryModal({
   const hasAllPrereqs = validation.blockers.length === 0;
   const isRaceDay = race.dayIndex === currentDayIndex;
 
+  const dynamicEntrants = calculateDynamicEntrants(race, currentDayIndex, race.dayIndex, selectedCatId);
+  const isFull = isRaceFull(race, currentDayIndex, race.dayIndex, selectedCatId) || (typeof activeMaxEntrants === "number" && dynamicEntrants >= activeMaxEntrants);
+
   const getButtonState = () => {
     if (race.isCompleted) return { disabled: true, text: t("race_entry.button.completed" as TranslationKey), color: "" };
     if (race.isRegistered) {
@@ -89,7 +93,7 @@ export function RaceEntryModal({
         return { disabled: true, text: t("race_entry.button.already_registered" as TranslationKey), color: "" };
       }
     }
-    if (race.isFull) return { disabled: true, text: t("race_entry.button.race_full" as TranslationKey), color: "" };
+    if (isFull) return { disabled: true, text: t("race_entry.button.race_full" as TranslationKey), color: "" };
     if (!canAfford) return { disabled: true, text: interpolate(t("race_entry.need_more" as TranslationKey), { amount: formatCurrency(activeEntryFee - currentBalance, preferredCurrency, { compact: true }) }), color: "" };
     if (!hasAllPrereqs) return { disabled: true, text: t("race_entry.button.requirements_not_met" as TranslationKey), color: "" };
 
@@ -205,19 +209,48 @@ export function RaceEntryModal({
             </div>
 
             {activeMaxEntrants && (
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-500 dark:text-gray-400">
-                  {t("race_entry.entrants" as TranslationKey)}
-                </span>
-                <span
-                  className={
-                    race.isFull ? "text-red-500 dark:text-red-400 font-bold" : "text-slate-600 dark:text-gray-300"
-                  }
-                >
-                  {race.entrants ?? 0}/{activeMaxEntrants}
-                  {race.isFull ? ` (${t("race_entry.full" as TranslationKey)})` : ""}
-                </span>
-              </div>
+              <>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500 dark:text-gray-400">
+                    {t("race_entry.entrants" as TranslationKey)}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={
+                        isFull ? "text-red-500 dark:text-red-400 font-bold" : "text-slate-600 dark:text-gray-300 font-mono font-bold"
+                      }
+                    >
+                      {dynamicEntrants}/{activeMaxEntrants}
+                    </span>
+                    {isRaceNearlyFull(race, currentDayIndex, race.dayIndex, selectedCatId) && !isFull && (
+                      <span className="px-2 py-0.5 bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 text-[9px] font-bold uppercase tracking-wider rounded">
+                        {t("race_entry.almost_full" as TranslationKey)}
+                      </span>
+                    )}
+                    {isFull && (
+                      <span className="px-2 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-[9px] font-bold uppercase tracking-wider rounded">
+                        {t("race_entry.full" as TranslationKey)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                {/* Fill Rate Visual Bar */}
+                <div className="pt-1">
+                  <div className="h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full transition-all duration-500 ${
+                        getFillRatePercentage(race, currentDayIndex, race.dayIndex, selectedCatId) >= 90 ? "bg-rose-500" :
+                        getFillRatePercentage(race, currentDayIndex, race.dayIndex, selectedCatId) >= 70 ? "bg-amber-500" :
+                        "bg-emerald-500"
+                      }`}
+                      style={{ width: `${getFillRatePercentage(race, currentDayIndex, race.dayIndex, selectedCatId)}%` }}
+                    />
+                  </div>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 text-center font-mono font-bold">
+                    {getFillRatePercentage(race, currentDayIndex, race.dayIndex, selectedCatId)}% {t("race_entry.registered" as TranslationKey)}
+                  </p>
+                </div>
+              </>
             )}
           </div>
 

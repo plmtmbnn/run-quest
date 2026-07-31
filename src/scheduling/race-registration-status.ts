@@ -6,6 +6,7 @@
  */
 
 import type { RaceOccurrence } from "./race-calendar-types";
+import { isRaceFull } from "./race-entrants-engine";
 
 export type RegistrationStatus =
   | 'completed'        // Race is finished
@@ -82,7 +83,7 @@ export function getRegistrationStatus(
   }
   
   // 3. Race is full
-  if (race.isFull) {
+  if (isRaceFull(race, currentDay, race.dayIndex)) {
     return {
       status: 'full',
       canRegister: false,

@@ -19,6 +19,7 @@ import { SplitCallout, useSplitCalloutQueue } from "@/components/race/split-call
 import { TrackPositionVisualizer } from "@/components/race/track-position-visualizer";
 import { HorizontalTrackProgress } from "@/components/race/horizontal-track-progress";
 import { MobileRaceNavbar } from "@/components/race/mobile-race-navbar";
+import { EnhancedStandings } from "@/components/race/enhanced-standings";
 import { checkRaceAchievements, type RaceAchievement } from "@/engine/achievements/race-achievements";
 import { advanceSimulation } from "@/engine/simulation/engine";
 import { FlowStateMeter } from "@/components/race/flow-state-meter";
@@ -144,6 +145,11 @@ export function RaceScreen() {
     caffeine: { label: "Caffeine Shot", icon: "🧠", boostType: "+25 Focus" },
     hydration_mix: { label: "Pro Hydration", icon: "🥤", boostType: "+40 Hydration" },
     caffeine_gum: { label: "Caffeine Gum", icon: "⚡", boostType: "+20 Focus" },
+    beetroot_juice: { label: "Beetroot Juice", icon: "🧃", boostType: "+20 Stamina" },
+    isotonic_drink: { label: "Isotonic", icon: "🥤", boostType: "+30 Hydration" },
+    protein_bar: { label: "Protein Bar", icon: "🍫", boostType: "+25 Stamina" },
+    carb_chews: { label: "Carb Chews", icon: "🍬", boostType: "+30 Energy" },
+    endurance_gel_plus: { label: "Enduro Gel+", icon: "⚡", boostType: "+35 Stamina" },
   };
 
   // Active Consumables state initialized directly from player's preparation selection
@@ -242,6 +248,7 @@ export function RaceScreen() {
 
   // -- Photo Finish & Result Card system
   const [isPhotoFinishMode, setIsPhotoFinishMode] = useState(false);
+  const prevDistancesRef = useRef<Map<string, number>>(new Map());
   const [showResultCard, setShowResultCard] = useState(false);
   const playerName = player?.name || `Runner #${player?.id.slice(0, 5).toUpperCase() || "00000"}`;
 
@@ -441,6 +448,22 @@ export function RaceScreen() {
         updateStateLog(nextStep.result.stateLog || []);
         setTargetKm(nextStep.result.stateLog.length - 1);
         setPendingPrompt(null);
+        
+        // ✅ Award XP for race completion
+        import("@/runner/xp-rewards").then(({ awardRaceCompletionXPFromSimulation }) => {
+          const totalEntrants = challenge.totalEntrants || 100;
+          const distance = challenge.race.distance;
+          const tier = challenge.tier || "local";
+          const isChampionship = challenge.isChampionship || false;
+          
+          awardRaceCompletionXPFromSimulation(
+            nextStep.result,
+            totalEntrants,
+            distance,
+            tier,
+            isChampionship
+          );
+        });
       }
     },
     [challenge, preparation, router, runnerState, activeGhost],
@@ -1293,6 +1316,15 @@ export function RaceScreen() {
     return a.accumulatedTime - b.accumulatedTime;
   });
 
+  const runnersWithPreviousDistance = runners.map((r) => {
+    const prevDist = prevDistancesRef.current.get(r.id);
+    prevDistancesRef.current.set(r.id, r.distance);
+    return {
+      ...r,
+      previousDistance: prevDist,
+    };
+  });
+
 
 
   return (
@@ -1692,68 +1724,19 @@ export function RaceScreen() {
               </div>
             </div>
 
-            {/* Right Column: Live Leaderboard - Hidden on mobile, moved to MobileRaceNavbar */}
+            {/* Right Column: Enhanced Live Standings - Hidden on mobile, moved to MobileRaceNavbar */}
             <div className="hidden md:flex flex-col gap-3">
               <h4 className="text-xs md:text-sm uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
                 <span>🏆</span> Live Standings
               </h4>
-              <div className="bg-slate-50 dark:bg-slate-950/40 rounded-[1.5rem] border border-slate-150 dark:border-gray-800 overflow-hidden text-xs md:text-sm">
-                <div className="grid grid-cols-12 gap-1 px-2 md:px-3 py-1.5 md:py-2 bg-slate-100 dark:bg-gray-800/40 border-b border-slate-200 dark:border-gray-800 font-extrabold text-[9px] md:text-[10px] text-slate-400 dark:text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  <span className="col-span-2 text-center">Pos</span>
-                  <span className="col-span-6">Runner</span>
-                  <span className="col-span-4 text-right">Gap</span>
-                </div>
-                <div className="divide-y divide-slate-100 dark:divide-gray-850">
-                  {runners.map((r, idx) => {
-                    const medals = ["🥇", "🥈", "🥉"];
-                    const isLeader = idx === 0;
-                    const leaderTime = runners[0]?.accumulatedTime || 0;
-                    const gap = r.accumulatedTime - leaderTime;
-
-                    return (
-                      <div
-                        key={r.id}
-                        className={`grid grid-cols-12 gap-1 px-2 md:px-3 py-2 md:py-2.5 items-center font-medium text-xs md:text-sm
-                          ${r.isPlayer ? "bg-orange-50/50 dark:bg-orange-950/20 text-orange-900 dark:text-orange-100 font-bold" : r.isGhost ? "bg-indigo-50/50 dark:bg-indigo-950/20 text-indigo-900 dark:text-indigo-100 font-semibold" : "text-slate-700 dark:text-gray-300"}
-                          ${r.isDNF ? "opacity-50" : ""}
-                        `}
-                      >
-                        <span className="col-span-2 text-center text-sm md:text-base">
-                          {idx < 3 && !r.isDNF
-                            ? r.isGhost
-                              ? "👻"
-                              : medals[idx]
-                            : `${idx + 1}`}
-                        </span>
-                        <span className="col-span-6 truncate flex items-center gap-1.5">
-                          <span>{r.name}</span>
-                          {r.isPlayer && (
-                            <span className="text-[8px] bg-orange-100 dark:bg-orange-900/60 text-orange-605 dark:text-orange-400 font-bold px-1.5 py-0.5 rounded uppercase">
-                              You
-                            </span>
-                          )}
-                          {r.isGhost && (
-                            <span className="text-[8px] bg-indigo-100 dark:bg-indigo-900/60 text-indigo-650 dark:text-indigo-400 font-bold px-1.5 py-0.5 rounded uppercase">
-                              Ghost
-                            </span>
-                          )}
-                          {r.isDNF && (
-                            <span className="text-[8px] bg-red-100 dark:bg-red-950/60 text-red-655 dark:text-red-400 font-bold px-1.5 py-0.5 rounded uppercase">
-                              DNF
-                            </span>
-                          )}
-                        </span>
-                        <span className="col-span-4 text-right font-mono text-[11px] font-bold text-slate-500 dark:text-gray-400">
-                          {r.isDNF
-                            ? "Exhausted"
-                            : isLeader
-                              ? formatPace(r.accumulatedTime)
-                              : `+${gap.toFixed(1)}s`}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
+              
+              {/* Enhanced Standings Component */}
+              <div className="bg-slate-50 dark:bg-slate-950/40 rounded-[1.5rem] border border-slate-150 dark:border-gray-800 overflow-hidden">
+                <EnhancedStandings 
+                  runners={runnersWithPreviousDistance} 
+                  raceDistance={challenge.race.distance}
+                  showMobileVersion={false}
+                />
               </div>
 
               {/* Sprint 36 Body Stress Avatar Component */}

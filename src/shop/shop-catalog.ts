@@ -100,6 +100,54 @@ export const SHOES_CATALOG: ShopItem[] = [
     unlockLevel: 8,
     stats: { paceBonus: 2, staminaBonus: 1 },
   },
+  {
+    id: "marathon_racer",
+    category: "shoes",
+    name: { en: "Marathon Racer", id: "Sepatu Marathon Racer" },
+    description: {
+      en: "Balanced race shoe optimized for 26.2-mile efforts with cushioning.",
+      id: "Sepatu balap seimbang dioptimalkan untuk maraton dengan bantalan.",
+    },
+    price: 220,
+    unlockLevel: 5,
+    stats: { paceBonus: 2, staminaBonus: 1 },
+  },
+  {
+    id: "ultra_trail",
+    category: "shoes",
+    name: { en: "Ultra Trail Beast", id: "Sepatu Ultra Trail" },
+    description: {
+      en: "Maximum grip and protection for extreme mountain ultras.",
+      id: "Cengkeraman dan perlindungan maksimal untuk ultra gunung ekstrem.",
+    },
+    price: 240,
+    unlockLevel: 8,
+    stats: { paceBonus: 1, staminaBonus: 3 },
+  },
+  {
+    id: "speed_flats",
+    category: "shoes",
+    name: { en: "Speed Flats", id: "Sepatu Speed Flats" },
+    description: {
+      en: "Minimal racing flats for 5K-10K speed demons.",
+      id: "Sepatu balap minimal untuk pelari cepat 5K-10K.",
+    },
+    price: 140,
+    unlockLevel: 4,
+    stats: { paceBonus: 3 },
+  },
+  {
+    id: "plated_supershoe",
+    category: "shoes",
+    name: { en: "Carbon Plated Supershoe", id: "Sepatu Super Carbon" },
+    description: {
+      en: "Elite racing shoe with dual carbon plates for maximum energy return.",
+      id: "Sepatu balap elit dengan pelat karbon ganda untuk pengembalian energi maksimal.",
+    },
+    price: 350,
+    unlockLevel: 10,
+    stats: { paceBonus: 4, staminaBonus: 1 },
+  },
 ];
 
 export const NUTRITION_CATALOG: ShopItem[] = [
@@ -199,6 +247,66 @@ export const NUTRITION_CATALOG: ShopItem[] = [
     unlockLevel: 1,
     stats: { paceBonus: 1, willpowerBonus: 1 },
   },
+  {
+    id: "beetroot_juice",
+    category: "nutrition",
+    name: { en: "Beetroot Juice", id: "Jus Bit" },
+    description: {
+      en: "Natural nitrate booster improves oxygen efficiency and endurance.",
+      id: "Peningkat nitrat alami untuk efisiensi oksigen dan daya tahan.",
+    },
+    price: 45,
+    unlockLevel: 6,
+    stats: { staminaBonus: 2, paceBonus: 1 },
+  },
+  {
+    id: "isotonic_drink",
+    category: "nutrition",
+    name: { en: "Isotonic Sports Drink", id: "Minuman Isotonik" },
+    description: {
+      en: "Fast-absorbing electrolytes with optimal carb balance for sustained effort.",
+      id: "Elektrolit cepat serap dengan keseimbangan karbo optimal.",
+    },
+    price: 35,
+    unlockLevel: 3,
+    stats: { hydrationBonus: 2, staminaBonus: 1 },
+  },
+  {
+    id: "protein_bar",
+    category: "nutrition",
+    name: { en: "Protein Energy Bar", id: "Protein Bar" },
+    description: {
+      en: "High-protein snack for muscle support during ultra-distance efforts.",
+      id: "Camilan tinggi protein untuk dukungan otot jarak ultra.",
+    },
+    price: 40,
+    unlockLevel: 7,
+    stats: { staminaBonus: 2, willpowerBonus: 1 },
+  },
+  {
+    id: "carb_chews",
+    category: "nutrition",
+    name: { en: "Fast Carb Chews", id: "Permen Karbohidrat" },
+    description: {
+      en: "Quick-digesting glucose chews for instant energy mid-race.",
+      id: "Permen glukosa cepat cerna untuk energi instan saat lomba.",
+    },
+    price: 30,
+    unlockLevel: 4,
+    stats: { staminaBonus: 3 },
+  },
+  {
+    id: "endurance_gel_plus",
+    category: "nutrition",
+    name: { en: "Endurance Gel Plus", id: "Gel Daya Tahan Plus" },
+    description: {
+      en: "Premium gel with BCAAs and electrolytes for marathons and ultras.",
+      id: "Gel premium dengan BCAA dan elektrolit untuk maraton dan ultra.",
+    },
+    price: 55,
+    unlockLevel: 8,
+    stats: { staminaBonus: 2, hydrationBonus: 1 },
+  },
 ];
 
 export const GEAR_CATALOG: ShopItem[] = [
@@ -297,6 +405,54 @@ export const GEAR_CATALOG: ShopItem[] = [
     price: 120,
     unlockLevel: 5,
     stats: { staminaBonus: 2 },
+  },
+  {
+    id: "running_belt",
+    category: "gear",
+    name: { en: "Race Belt with Pockets", id: "Sabuk Lari dengan Kantong" },
+    description: {
+      en: "Lightweight belt for carrying gels, phone, and essentials bounce-free.",
+      id: "Sabuk ringan untuk membawa gel, ponsel tanpa bounce.",
+    },
+    price: 35,
+    unlockLevel: 2,
+    stats: { willpowerBonus: 1 },
+  },
+  {
+    id: "headband",
+    category: "gear",
+    name: { en: "Performance Headband", id: "Bandana Performa" },
+    description: {
+      en: "Sweat-wicking headband keeps vision clear in hot conditions.",
+      id: "Bandana penyerap keringat menjaga penglihatan jernih di kondisi panas.",
+    },
+    price: 25,
+    unlockLevel: 2,
+    stats: { willpowerBonus: 1, hydrationBonus: 1 },
+  },
+  {
+    id: "running_backpack",
+    category: "gear",
+    name: { en: "Ultra Running Backpack", id: "Tas Lari Ultra" },
+    description: {
+      en: "High-capacity hydration pack for ultras with storage for nutrition and gear.",
+      id: "Tas hidrasi kapasitas tinggi untuk ultra dengan penyimpanan nutrisi.",
+    },
+    price: 140,
+    unlockLevel: 7,
+    stats: { hydrationBonus: 4, staminaBonus: 1 },
+  },
+  {
+    id: "gps_watch",
+    category: "gear",
+    name: { en: "GPS Running Watch", id: "Jam Lari GPS" },
+    description: {
+      en: "Tracks real-time pace, distance, and heart rate metrics.",
+      id: "Melacak kecepatan, jarak, dan detak jantung secara real-time.",
+    },
+    price: 150,
+    unlockLevel: 2,
+    stats: { paceBonus: 1, willpowerBonus: 1 },
   },
 ];
 

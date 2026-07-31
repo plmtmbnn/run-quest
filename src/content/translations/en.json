@@ -333,17 +333,39 @@
     "entrants": "Starting Field",
     "requirements_not_met": "Not Race Ready",
     "prize_distribution": "Prize Distribution",
-    "full": "CORRAL FULL",
+    "full": "SOLD OUT",
+    "almost_full": "Almost Full",
+    "registered": "registered",
     "need_more": "Need {amount} More",
     "button": {
       "cancel": "Cancel",
       "completed": "Race Complete",
       "start_race": "Head to Start Line",
       "already_registered": "Already Registered",
-      "race_full": "Registration Closed",
+      "race_full": "Sold Out",
       "requirements_not_met": "Not Race Ready",
       "enter_race": "Register - {fee}"
     }
+  },
+  "coach": {
+    "title": "Coach's Race Analysis",
+    "subtitle": "Based on your current form and competition level",
+    "win_probability": "Win Probability",
+    "recommended_strategy": "Recommended Strategy",
+    "pacing_range": "Competitive Pace Range",
+    "pacing_suggestion": "to stay competitive",
+    "competitors": "Key Competitors to Watch",
+    "condition_factors": "Race Conditions",
+    "fitness": "Fitness Level",
+    "fatigue": "Current Fatigue",
+    "experience": "Racing Experience",
+    "conditions": "Race Conditions",
+    "your_coach": "— Your Coach",
+    "probability_very_high": "Very High chance of winning",
+    "probability_high": "High win probability",
+    "probability_medium": "Medium win probability",
+    "probability_low": "Low win probability",
+    "probability_very_low": "Very low win probability"
   },
   "economy": {
     "page_title": "Economy & Career",
@@ -537,6 +559,22 @@
       "minimalist_trail": {
         "name": "Minimalist Trail Shoe",
         "desc": "Low stack height for ground feel and nimble footwork on trails."
+      },
+      "marathon_racer": {
+        "name": "Marathon Racer",
+        "desc": "Balanced race shoe optimized for 26.2-mile efforts with cushioning."
+      },
+      "ultra_trail": {
+        "name": "Ultra Trail Beast",
+        "desc": "Maximum grip and protection for extreme mountain ultras."
+      },
+      "speed_flats": {
+        "name": "Speed Flats",
+        "desc": "Minimal racing flats for 5K-10K speed demons."
+      },
+      "plated_supershoe": {
+        "name": "Carbon Plated Supershoe",
+        "desc": "Elite racing shoe with dual carbon plates for maximum energy return."
       }
     },
     "nutrition": {
@@ -574,6 +612,26 @@
       "caffeine_gum": {
         "name": "Caffeine Chews",
         "desc": "Fast-acting mental boost to sharpen focus."
+      },
+      "beetroot_juice": {
+        "name": "Beetroot Juice",
+        "desc": "Natural nitrate booster improves oxygen efficiency and endurance."
+      },
+      "isotonic_drink": {
+        "name": "Isotonic Sports Drink",
+        "desc": "Fast-absorbing electrolytes with optimal carb balance for sustained effort."
+      },
+      "protein_bar": {
+        "name": "Protein Energy Bar",
+        "desc": "High-protein snack for muscle support during ultra-distance efforts."
+      },
+      "carb_chews": {
+        "name": "Fast Carb Chews",
+        "desc": "Quick-digesting glucose chews for instant energy mid-race."
+      },
+      "endurance_gel_plus": {
+        "name": "Endurance Gel Plus",
+        "desc": "Premium gel with BCAAs and electrolytes for marathons and ultras."
       }
     },
     "gear": {
@@ -612,6 +670,18 @@
       "moisture_wicking_shirt": {
         "name": "Tech Tee",
         "desc": "Breathable moisture-wicking fabric to stay dry and chafe-free."
+      },
+      "running_belt": {
+        "name": "Race Belt with Pockets",
+        "desc": "Lightweight belt for carrying gels, phone, and essentials bounce-free."
+      },
+      "headband": {
+        "name": "Performance Headband",
+        "desc": "Sweat-wicking headband keeps vision clear in hot conditions."
+      },
+      "running_backpack": {
+        "name": "Ultra Running Backpack",
+        "desc": "High-capacity hydration pack for ultras with storage for nutrition and gear."
       }
     },
     "warmup": {
@@ -1027,9 +1097,30 @@
   },
   "result": {
     "highlights_collapsed": "Show {count} Highlights",
-    "highlights_expanded": "Hide Highlights"
+    "highlights_expanded": "Hide Highlights",
+    "lessons_learned": "Coaching Lessons Learned",
+    "tactical_advice": "Key takeaways & tactical advice from Coach Sarah",
+    "takeaways": "Takeaways",
+    "interactive_splits": "Interactive Splits Analysis",
+    "no_results_title": "No Race Result Found",
+    "no_results_desc": "Start a race from the race board to complete a distance.",
+    "go_home": "Go to Dashboard",
+    "download_png": "Share Race Certificate",
+    "share_card": "Official Race Certificate",
+    "copy_stats_text": "Copy Stats Text",
+    "summary_copied": "Summary Copied!",
+    "story_headline": "Race Highlights",
+    "story_summary": "Race Summary"
   },
   "race": {
+    "live_standings": "Live Standings",
+    "active": "active",
+    "dnf": "DNF",
+    "you": "YOU",
+    "gaining": "Gaining ground",
+    "losing": "Losing ground",
+    "runners": "runners",
+    "runner": "runner",
     "analytics": {
       "deep_dive": "🔍 Deep Dive Analytics",
       "deep_dive_desc": "Pace charts, energy analysis, what-if scenarios & more",

@@ -35,6 +35,20 @@ export const BREAKING_POINTS: BreakingPoint[] = [
     },
     recoveryOptions: [
       {
+        id: "fuel_endurance_plus",
+        action: {
+          en: "Take Endurance Gel Plus / Fast Carb Chews",
+          id: "Ambil Gel Daya Tahan Plus / Permen Karbohidrat",
+        },
+        effects: {
+          energy: 25,
+          pace: -10,
+          confidence: 10,
+        },
+        recoveryChance: 0.95,
+        risk: "low",
+      },
+      {
         id: "fuel_now",
         action: {
           en: "Take energy gel immediately",

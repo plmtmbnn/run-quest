@@ -562,8 +562,33 @@ export interface Dictionary {
     economy: string;
     how_to_play?: string;
   };
+  result?: {
+    highlights_collapsed?: string;
+    highlights_expanded?: string;
+    lessons_learned?: string;
+    tactical_advice?: string;
+    takeaways?: string;
+    interactive_splits?: string;
+    no_results_title?: string;
+    no_results_desc?: string;
+    go_home?: string;
+    download_png?: string;
+    share_card?: string;
+    copy_stats_text?: string;
+    summary_copied?: string;
+    story_headline?: string;
+    story_summary?: string;
+  };
   race?: {
-    analytics: {
+    live_standings?: string;
+    active?: string;
+    dnf?: string;
+    you?: string;
+    gaining?: string;
+    losing?: string;
+    runners?: string;
+    runner?: string;
+    analytics?: {
       deep_dive: string;
       deep_dive_desc: string;
       collapse: string;

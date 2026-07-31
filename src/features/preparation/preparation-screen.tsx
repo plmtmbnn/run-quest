@@ -101,12 +101,16 @@ export function PreparationScreen() {
       { id: "lightweight", disabled: false },
       { id: "stability", disabled: false },
       { id: "max_cushion", disabled: false },
+      { id: "marathon_racer", disabled: false },
+      { id: "speed_flats", disabled: false },
+      { id: "plated_supershoe", disabled: false },
     ];
     
     const trailShoes: { id: import("@/types/engine").Shoe; disabled: boolean }[] = [
       { id: "trail", disabled: false },
       { id: "aggressive_trail", disabled: false },
       { id: "minimalist_trail", disabled: false },
+      { id: "ultra_trail", disabled: false },
     ];
     
     const allOptions = isTrailRace ? [...roadShoes, ...trailShoes] : roadShoes;
@@ -424,6 +428,26 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                               color: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/40",
                             }
                           );
+                        } else if (shoe.id === "marathon_racer") {
+                          badges.push({
+                            text: t("preparation.badges.pace_up" as TranslationKey),
+                            color: "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-900/40",
+                          });
+                        } else if (shoe.id === "ultra_trail") {
+                          badges.push({
+                            text: t("preparation.badges.grip" as TranslationKey),
+                            color: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/40",
+                          });
+                        } else if (shoe.id === "speed_flats") {
+                          badges.push({
+                            text: t("preparation.badges.lightweight" as TranslationKey),
+                            color: "bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200/60 dark:border-sky-900/40",
+                          });
+                        } else if (shoe.id === "plated_supershoe") {
+                          badges.push({
+                            text: t("preparation.badges.pace_up" as TranslationKey),
+                            color: "bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200/60 dark:border-purple-900/40",
+                          });
                         }
                         
                         if (isDisabled) {
@@ -483,6 +507,11 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 { id: "hydration_mix" as const, nameKey: "preparation.nutrition.hydration_mix.name", descKey: "preparation.nutrition.hydration_mix.desc", badges: [{ text: t("preparation.badges.hydration" as TranslationKey), color: "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-900/40" }, { text: t("preparation.badges.energy" as TranslationKey), color: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/40" }] },
                 { id: "salt_tablets" as const, nameKey: "preparation.nutrition.salt_tablets.name", descKey: "preparation.nutrition.salt_tablets.desc", badges: [{ text: t("preparation.badges.cramp_prevention" as TranslationKey), color: "bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 border border-teal-200/60 dark:border-teal-900/40" }] },
                 { id: "caffeine_gum" as const, nameKey: "preparation.nutrition.caffeine_gum.name", descKey: "preparation.nutrition.caffeine_gum.desc", badges: [{ text: t("preparation.badges.focus" as TranslationKey), color: "bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200/60 dark:border-purple-900/40" }] },
+                { id: "beetroot_juice" as const, nameKey: "preparation.nutrition.beetroot_juice.name", descKey: "preparation.nutrition.beetroot_juice.desc", badges: [{ text: t("preparation.badges.pace_up" as TranslationKey), color: "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200/60 dark:border-rose-900/40" }] },
+                { id: "isotonic_drink" as const, nameKey: "preparation.nutrition.isotonic_drink.name", descKey: "preparation.nutrition.isotonic_drink.desc", badges: [{ text: t("preparation.badges.hydration" as TranslationKey), color: "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-900/40" }] },
+                { id: "protein_bar" as const, nameKey: "preparation.nutrition.protein_bar.name", descKey: "preparation.nutrition.protein_bar.desc", badges: [{ text: t("preparation.badges.energy" as TranslationKey), color: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/40" }] },
+                { id: "carb_chews" as const, nameKey: "preparation.nutrition.carb_chews.name", descKey: "preparation.nutrition.carb_chews.desc", badges: [{ text: t("preparation.badges.energy_boost" as TranslationKey), color: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/40" }] },
+                { id: "endurance_gel_plus" as const, nameKey: "preparation.nutrition.endurance_gel_plus.name", descKey: "preparation.nutrition.endurance_gel_plus.desc", badges: [{ text: t("preparation.badges.energy_boost" as TranslationKey), color: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-900/40" }] },
               ].filter((nut) => hasItem("nutrition", nut.id) && getItemQuantity("nutrition", nut.id) > 0)
               .map((nut) => {
                 const ownedQty = getItemQuantity("nutrition", nut.id);
@@ -560,6 +589,9 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 { id: "compression_socks" as const, nameKey: "preparation.gear.compression_socks.name", descKey: "preparation.gear.compression_socks.desc", badges: [{ text: t("preparation.badges.recovery" as TranslationKey), color: "bg-pink-50 dark:bg-pink-950/40 text-pink-700 dark:text-pink-300 border border-pink-200/60 dark:border-pink-900/40" }, { text: t("preparation.badges.comfort" as TranslationKey), color: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-900/40" }] },
                 { id: "trail_gaiters" as const, nameKey: "preparation.gear.trail_gaiters.name", descKey: "preparation.gear.trail_gaiters.desc", badges: [{ text: t("preparation.badges.debris_protection" as TranslationKey), color: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/40" }, { text: t("preparation.badges.trail_only" as TranslationKey), color: "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700" }] },
                 { id: "moisture_wicking_shirt" as const, nameKey: "preparation.gear.moisture_wicking_shirt.name", descKey: "preparation.gear.moisture_wicking_shirt.desc", badges: [{ text: t("preparation.badges.breathable" as TranslationKey), color: isHotWeather ? "bg-sky-100 dark:bg-sky-900/60 text-sky-900 dark:text-sky-100 border border-sky-300 dark:border-sky-700" : "bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200/60 dark:border-sky-900/40" }, { text: t("preparation.badges.hot_weather" as TranslationKey), color: isHotWeather ? "bg-rose-100 dark:bg-rose-900/60 text-rose-900 dark:text-rose-100 border border-rose-300 dark:border-rose-700" : "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200/60 dark:border-rose-900/40" }], className: isHotWeather ? "ring-2 ring-rose-500/50" : "" },
+                { id: "running_belt" as const, nameKey: "preparation.gear.running_belt.name", descKey: "preparation.gear.running_belt.desc", badges: [{ text: t("preparation.badges.capacity" as TranslationKey), color: "bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-900/40" }] },
+                { id: "headband" as const, nameKey: "preparation.gear.headband.name", descKey: "preparation.gear.headband.desc", badges: [{ text: t("preparation.badges.sun_rain" as TranslationKey), color: "bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200/60 dark:border-purple-900/40" }] },
+                { id: "running_backpack" as const, nameKey: "preparation.gear.running_backpack.name", descKey: "preparation.gear.running_backpack.desc", badges: [{ text: t("preparation.badges.capacity" as TranslationKey), color: "bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300 border border-cyan-200/60 dark:border-cyan-900/40" }, { text: t("preparation.badges.heavy" as TranslationKey), color: "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700" }] },
               ].filter((g) => hasItem("gear", g.id))
               .map((gear) => (
                 <OptionCard

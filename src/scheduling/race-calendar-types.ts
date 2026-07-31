@@ -5,6 +5,7 @@
  */
 
 import type { RaceTier } from "../economy/economy-types";
+export type { RaceTier };
 import type { RacePrerequisites } from "../economy/race-entry-engine";
 
 export type ScheduleFrequency =

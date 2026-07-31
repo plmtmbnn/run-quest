@@ -3,7 +3,7 @@
 
 import { analyzeTraining } from "@/coach/coach-analysis";
 import type { TrainingTelemetry } from "@/coach/coach-types";
-import { awardXP } from "@/runner/progression-engine";
+import { awardTrainingXP, XP_BY_TRAINING_ACTIVITY } from "@/runner/xp-rewards";
 import { loadRunnerState, saveRunnerState } from "@/runner/runner-persistence";
 import { queueAdaptation } from "./adaptation-engine";
 import {
@@ -51,18 +51,15 @@ export const recordTrainingActivity = (
   const updatedFatigue = Math.min(100, Math.max(0, runnerState.profile.currentFatigue + effect.fatigue));
   const updatedReadiness = Math.min(100, Math.max(0, runnerState.profile.currentReadiness + effect.readiness));
 
-  // Award 20 XP for training
-  const xpGained = 20;
-  const xpResult = awardXP(runnerState.profile, xpGained);
+  // Award proportional XP for training based on activity type
+  const activityKey = (activity in XP_BY_TRAINING_ACTIVITY ? activity : "easy_run") as keyof typeof XP_BY_TRAINING_ACTIVITY;
+  awardTrainingXP(activityKey);
   
-  const runnerProfileWithXP = {
-    ...runnerState.profile,
-    xp: xpResult.xp,
-    level: xpResult.level,
-    skillPoints: xpResult.skillPoints,
-  };
+  // Reload runner state after XP award to get updated values
+  const runnerStateWithXP = loadRunnerState();
+  const runnerProfileWithXP = runnerStateWithXP.profile;
 
-  const updatedRunnerState = {
+  const finalRunnerState = {
     ...runnerState,
     profile: {
       ...runnerProfileWithXP,
@@ -73,12 +70,12 @@ export const recordTrainingActivity = (
     },
     lastUpdated: new Date().toISOString(),
   };
-  saveRunnerState(updatedRunnerState);
+  saveRunnerState(finalRunnerState);
 
   // Notify reactive state listeners
   if (typeof window !== "undefined") {
     window.dispatchEvent(
-      new CustomEvent("runner-state-updated", { detail: updatedRunnerState })
+      new CustomEvent("runner-state-updated", { detail: finalRunnerState })
     );
   }
 

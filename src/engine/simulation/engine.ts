@@ -196,9 +196,10 @@ export function advanceSimulation(
         )
       : 100;
 
-    // Generate 3-5 AI Opponents deterministically from the seed
+    // Generate 20-30 AI Opponents deterministically from the seed for realistic field standings
     const random = new SeededRandom(seed);
-    const opponentsCount = Math.floor(random.nextRange(3, 6)); // 3 to 5 opponents
+    const desiredCount = challenge.tier === "international" ? 30 : challenge.tier === "national" ? 25 : challenge.tier === "state" ? 22 : 20;
+    const opponentsCount = Math.min(50, Math.max(20, desiredCount));
     const opponents: import("@/types/engine").OpponentState[] = [];
     const archetypes: ("frontrunner" | "splitter" | "steady")[] = [
       "frontrunner",

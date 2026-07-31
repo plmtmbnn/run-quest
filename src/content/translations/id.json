@@ -333,17 +333,39 @@
     "entrants": "Jumlah Peserta",
     "requirements_not_met": "Belum Siap Race",
     "prize_distribution": "Distribusi Hadiah",
-    "full": "KUOTA PENUH",
+    "full": "LUDES",
+    "almost_full": "Hampir Penuh",
+    "registered": "terdaftar",
     "need_more": "Kurang {amount}",
     "button": {
       "cancel": "Batal",
       "completed": "Race Selesai",
       "start_race": "Menuju Garis Start",
       "already_registered": "Sudah Terdaftar",
-      "race_full": "Pendaftaran Ditutup",
+      "race_full": "Ludes (Kuota Penuh)",
       "requirements_not_met": "Belum Siap Race",
       "enter_race": "Daftar - {fee}"
     }
+  },
+  "coach": {
+    "title": "Analisis Lomba dari Pelatih",
+    "subtitle": "Berdasarkan kondisi Anda dan kekuatan kompetitor",
+    "win_probability": "Peluang Menang",
+    "recommended_strategy": "Strategi Direkomendasikan",
+    "pacing_range": "Rentang Pace Kompetitif",
+    "pacing_suggestion": "untuk tetap kompetitif",
+    "competitors": "Kompetitor Kunci yang Perlu Diperhatikan",
+    "condition_factors": "Kondisi Race",
+    "fitness": "Kegbugaran",
+    "fatigue": "Kelelahan",
+    "experience": "Pengalaman Balap",
+    "conditions": "Cuaca/Tantangan",
+    "your_coach": "— Pelatih Anda",
+    "probability_very_high": "Peluang menang sangat tinggi",
+    "probability_high": "Peluang menang tinggi",
+    "probability_medium": "Peluang menang sedang",
+    "probability_low": "Peluang menang rendah",
+    "probability_very_low": "Peluang menang sangat rendah"
   },
   "economy": {
     "page_title": "Ekonomi & Karir",
@@ -537,6 +559,22 @@
       "minimalist_trail": {
         "name": "Sepatu Trail Minimalis",
         "desc": "Tapak tipis untuk sensasi tanah dan kelincahan di jalur trail."
+      },
+      "marathon_racer": {
+        "name": "Sepatu Marathon Racer",
+        "desc": "Sepatu balap seimbang dioptimalkan untuk maraton dengan bantalan."
+      },
+      "ultra_trail": {
+        "name": "Sepatu Ultra Trail",
+        "desc": "Cengkeraman dan perlindungan maksimal untuk ultra gunung ekstrem."
+      },
+      "speed_flats": {
+        "name": "Sepatu Speed Flats",
+        "desc": "Sepatu balap minimal untuk pelari cepat 5K-10K."
+      },
+      "plated_supershoe": {
+        "name": "Sepatu Super Carbon",
+        "desc": "Sepatu balap elit dengan pelat karbon ganda untuk pengembalian energi maksimal."
       }
     },
     "nutrition": {
@@ -574,6 +612,26 @@
       "caffeine_gum": {
         "name": "Permen Kafein",
         "desc": "Dongkrak energi mental cepat untuk mempertajam fokus."
+      },
+      "beetroot_juice": {
+        "name": "Jus Bit",
+        "desc": "Peningkat nitrat alami untuk efisiensi oksigen dan daya tahan."
+      },
+      "isotonic_drink": {
+        "name": "Minuman Isotonik",
+        "desc": "Elektrolit cepat serap dengan keseimbangan karbo optimal."
+      },
+      "protein_bar": {
+        "name": "Protein Bar",
+        "desc": "Camilan tinggi protein untuk dukungan otot jarak ultra."
+      },
+      "carb_chews": {
+        "name": "Permen Karbohidrat",
+        "desc": "Permen glukosa cepat cerna untuk energi instan saat lomba."
+      },
+      "endurance_gel_plus": {
+        "name": "Gel Daya Tahan Plus",
+        "desc": "Gel premium dengan BCAA dan elektrolit untuk maraton dan ultra."
       }
     },
     "gear": {
@@ -612,6 +670,18 @@
       "moisture_wicking_shirt": {
         "name": "Baju Lari Tech",
         "desc": "Bahan cepat kering dan bersirkulasi udara untuk mencegah lecet."
+      },
+      "running_belt": {
+        "name": "Sabuk Lari dengan Kantong",
+        "desc": "Sabuk ringan untuk membawa gel, ponsel tanpa bounce."
+      },
+      "headband": {
+        "name": "Bandana Performa",
+        "desc": "Bandana penyerap keringat menjaga penglihatan jernih di kondisi panas."
+      },
+      "running_backpack": {
+        "name": "Tas Lari Ultra",
+        "desc": "Tas hidrasi kapasitas tinggi untuk ultra dengan penyimpanan nutrisi."
       }
     },
     "warmup": {
@@ -1027,9 +1097,30 @@
   },
   "result": {
     "highlights_collapsed": "Tampilkan {count} Sorotan",
-    "highlights_expanded": "Sembunyikan Sorotan"
+    "highlights_expanded": "Sembunyikan Sorotan",
+    "lessons_learned": "Pelajaran dari Pelatih",
+    "tactical_advice": "Catatan utama & saran taktis dari Pelatih Sarah",
+    "takeaways": "Pelajaran Utama",
+    "interactive_splits": "Analisis Split Interaktif",
+    "no_results_title": "Hasil Race Tidak Ditemukan",
+    "no_results_desc": "Mulai race dari papan perlombaan untuk menyelesaikan jarak.",
+    "go_home": "Kembali ke Beranda",
+    "download_png": "Bagikan Sertifikat Race",
+    "share_card": "Sertifikat Resmi Race",
+    "copy_stats_text": "Salin Teks Statistik",
+    "summary_copied": "Teks Berhasil Disalin!",
+    "story_headline": "Sorotan Perlombaan",
+    "story_summary": "Ringkasan Perlombaan"
   },
   "race": {
+    "live_standings": "Klasemen Langsung",
+    "active": "aktif",
+    "dnf": "DNF",
+    "you": "ANDA",
+    "gaining": "Memimpin",
+    "losing": "Tertinggal",
+    "runners": "pelari",
+    "runner": "pelari",
     "analytics": {
       "deep_dive": "🔍 Analisis Mendalam",
       "deep_dive_desc": "Grafik pace, analisis energi, skenario pengandaian & lainnya",

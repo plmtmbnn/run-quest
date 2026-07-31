@@ -264,6 +264,14 @@ export function applyAction(state: GameState, action: Action): GameState {
       updatedState,
       workTypeId,
     );
+    
+    // ✅ Award XP for working (5 XP per work session)
+    if (typeof window !== "undefined") {
+      import("../../runner/xp-rewards").then(({ awardJobXP }) => {
+        awardJobXP("work");
+      });
+    }
+    
     updatedState = {
       ...updatedState,
       economy: newEconomy,

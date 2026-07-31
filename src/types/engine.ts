@@ -27,11 +27,11 @@ export type {
   ZoneStressInfo,
 };
 
-export type Shoe = "daily_trainer" | "carbon_racer" | "lightweight" | "trail" | "stability" | "max_cushion" | "aggressive_trail" | "minimalist_trail";
+export type Shoe = "daily_trainer" | "carbon_racer" | "lightweight" | "trail" | "stability" | "max_cushion" | "aggressive_trail" | "minimalist_trail" | "marathon_racer" | "ultra_trail" | "speed_flats" | "plated_supershoe";
 
-export type Nutrition = "water" | "electrolyte" | "energy_gel" | "caffeine" | "energy_bar" | "hydration_mix" | "salt_tablets" | "caffeine_gum";
+export type Nutrition = "water" | "electrolyte" | "energy_gel" | "caffeine" | "energy_bar" | "hydration_mix" | "salt_tablets" | "caffeine_gum" | "beetroot_juice" | "isotonic_drink" | "protein_bar" | "carb_chews" | "endurance_gel_plus";
 
-export type Gear = "cap" | "sunglasses" | "arm_sleeves" | "hydration_vest" | "lightweight_jacket" | "compression_socks" | "trail_gaiters" | "moisture_wicking_shirt";
+export type Gear = "cap" | "sunglasses" | "arm_sleeves" | "hydration_vest" | "lightweight_jacket" | "compression_socks" | "trail_gaiters" | "moisture_wicking_shirt" | "running_belt" | "headband" | "running_backpack" | "gps_watch";
 
 export type Warmup = "none" | "dynamic" | "full";
 

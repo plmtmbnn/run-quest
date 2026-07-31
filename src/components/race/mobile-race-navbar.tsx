@@ -1,10 +1,11 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Activity, Droplet, Brain, Heart, Gauge, ChevronDown, ChevronUp, Trophy, Apple, FastForward } from "lucide-react";
+import { Activity, Droplet, Brain, Heart, Gauge, ChevronDown, ChevronUp, Trophy, Apple, FastForward, TrendingUp, TrendingDown, AlertCircle } from "lucide-react";
 import { useState } from "react";
 import type { PacingPlan } from "@/types/engine";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+import { EnhancedStandings } from "./enhanced-standings";
 
 type NavSection = "stats" | "actions" | "leaderboard" | null;
 
@@ -14,6 +15,9 @@ interface Runner {
   distance: number;
   isPlayer: boolean;
   isDNF: boolean;
+  dnfReason?: string;
+  pace?: number;
+  previousDistance?: number;
 }
 
 interface MobileRaceNavbarProps {
@@ -81,6 +85,11 @@ export function MobileRaceNavbar({
     caffeine: { label: "Caffeine Shot", icon: "🧠" },
     hydration_mix: { label: "Pro Hydration", icon: "🥤" },
     caffeine_gum: { label: "Caffeine Gum", icon: "⚡" },
+    beetroot_juice: { label: "Beetroot Juice", icon: "🧃" },
+    isotonic_drink: { label: "Isotonic Drink", icon: "🥤" },
+    protein_bar: { label: "Protein Bar", icon: "🍫" },
+    carb_chews: { label: "Carb Chews", icon: "🍬" },
+    endurance_gel_plus: { label: "Endurance Gel+", icon: "⚡" },
   };
 
   // Get available nutrition items from activeConsumables with proper labels
@@ -339,42 +348,14 @@ export function MobileRaceNavbar({
                 </div>
               )}
 
-              {/* Leaderboard Panel */}
+              {/* Leaderboard Panel - Enhanced Standings */}
               {activeSection === "leaderboard" && (
                 <div className="space-y-2">
-                  <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-3">
-                    {t("race.mobile_navbar.live_standings" as TranslationKey)}
-                  </h4>
-                  <div className="space-y-1.5">
-                    {sortedRunners.slice(0, 10).map((runner, idx) => (
-                      <div
-                        key={runner.id}
-                        className={`
-                          flex items-center justify-between px-3 py-2 rounded-lg
-                          ${runner.isPlayer
-                            ? 'bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/30'
-                            : 'bg-slate-50 dark:bg-slate-800/50'
-                          }
-                          ${runner.isDNF ? 'opacity-50' : ''}
-                        `}
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className={`
-                            text-xs font-mono font-bold w-6 text-center
-                            ${idx === 0 ? 'text-amber-500' : idx === 1 ? 'text-slate-400' : idx === 2 ? 'text-orange-500' : 'text-slate-500 dark:text-slate-400'}
-                          `}>
-                            #{idx + 1}
-                          </span>
-                          <span className={`text-xs font-bold ${runner.isPlayer ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-700 dark:text-slate-300'}`}>
-                            {runner.name}
-                          </span>
-                        </div>
-                        <span className="text-xs font-mono font-bold text-slate-600 dark:text-slate-400">
-                          {runner.distance.toFixed(2)} km
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+                  <EnhancedStandings 
+                    runners={sortedRunners} 
+                    raceDistance={raceDistance}
+                    showMobileVersion={true}
+                  />
                 </div>
               )}
             </div>

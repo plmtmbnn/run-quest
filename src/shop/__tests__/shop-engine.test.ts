@@ -4,10 +4,10 @@ import { canAffordItem, processPurchase, validatePurchase } from "../shop-engine
 import type { PlayerInventory } from "../shop-types";
 
 describe("Shop Item Catalog", () => {
-  it("should contain 8 shoes, 8 nutrition, and 8 gear items", () => {
-    expect(getItemsByCategory("shoes").length).toBe(8);
-    expect(getItemsByCategory("nutrition").length).toBe(8);
-    expect(getItemsByCategory("gear").length).toBe(8);
+  it("should contain 12 shoes, 13 nutrition, and 12 gear items", () => {
+    expect(getItemsByCategory("shoes").length).toBe(12);
+    expect(getItemsByCategory("nutrition").length).toBe(13);
+    expect(getItemsByCategory("gear").length).toBe(12);
   });
 
   it("should retrieve items by ID correctly", () => {
@@ -20,6 +20,21 @@ describe("Shop Item Catalog", () => {
     expect(gel).toBeDefined();
     expect(gel?.category).toBe("nutrition");
     expect(gel?.price).toBe(3);
+
+    const beetroot = getItemById("beetroot_juice");
+    expect(beetroot).toBeDefined();
+    expect(beetroot?.category).toBe("nutrition");
+    expect(beetroot?.price).toBe(45);
+
+    const supershoe = getItemById("plated_supershoe");
+    expect(supershoe).toBeDefined();
+    expect(supershoe?.category).toBe("shoes");
+    expect(supershoe?.price).toBe(350);
+
+    const backpack = getItemById("running_backpack");
+    expect(backpack).toBeDefined();
+    expect(backpack?.category).toBe("gear");
+    expect(backpack?.price).toBe(140);
   });
 });
 
