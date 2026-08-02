@@ -68,6 +68,8 @@ export const CLUBS: Club[] = [
   },
 ];
 
+import { storageRepository } from "@/storage/storage-repository";
+
 const SOCIAL_STORAGE_KEY = "runquest.social";
 
 export function seedRegionalCompetitors(region: string): Competitor[] {
@@ -219,25 +221,21 @@ export const DEFAULT_SOCIAL_STATE: SocialStateData = {
  */
 export function loadSocialState(): SocialStateData {
   try {
-    if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
-      const stored = localStorage.getItem(SOCIAL_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored) as SocialStateData;
-        // Ensure lists aren't empty if loaded incorrectly
-        if (
-          !parsed.globalLeaderboard ||
-          parsed.globalLeaderboard.length === 0
-        ) {
-          parsed.globalLeaderboard = seedGlobalCompetitors();
-        }
-        if (!parsed.rivalActivities || parsed.rivalActivities.length === 0) {
-          parsed.rivalActivities = seedRivalActivities();
-        }
-        if (!parsed.clubMembers || parsed.clubMembers.length === 0) {
-          parsed.clubMembers = seedClubMembers();
-        }
-        return parsed;
+    const stored =
+      storageRepository.loadCustom<SocialStateData>(SOCIAL_STORAGE_KEY);
+    if (stored) {
+      const parsed = stored;
+      // Ensure lists aren't empty if loaded incorrectly
+      if (!parsed.globalLeaderboard || parsed.globalLeaderboard.length === 0) {
+        parsed.globalLeaderboard = seedGlobalCompetitors();
       }
+      if (!parsed.rivalActivities || parsed.rivalActivities.length === 0) {
+        parsed.rivalActivities = seedRivalActivities();
+      }
+      if (!parsed.clubMembers || parsed.clubMembers.length === 0) {
+        parsed.clubMembers = seedClubMembers();
+      }
+      return parsed;
     }
   } catch (error) {
     console.error("Failed to load social state:", error);
@@ -250,9 +248,7 @@ export function loadSocialState(): SocialStateData {
  */
 export function saveSocialState(state: SocialStateData): void {
   try {
-    if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
-      localStorage.setItem(SOCIAL_STORAGE_KEY, JSON.stringify(state));
-    }
+    storageRepository.saveCustom(SOCIAL_STORAGE_KEY, state);
   } catch (error) {
     console.error("Failed to save social state:", error);
   }

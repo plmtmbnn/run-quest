@@ -1443,10 +1443,88 @@
       },
       "race": {
         "welcome": { "title": "Live Race Simulation ⚡", "content": "Watch the race unfold in real-time physics and pacing simulation!" },
-        "simulation": { "title": "Track View 🏃‍♂️", "content": "See your position relative to rival runners along the course." },
+        "simulation": { "title": "Track View 🏃♂️", "content": "See your position relative to rival runners along the course." },
         "stats": { "title": "Live Metrics 📊", "content": "Track heart rate, stamina reserve, pace, and gap to leader." },
         "decisions": { "title": "Tactical Decisions 🎯", "content": "Make split-second calls to surge, hold pace, or consume nutrition!" }
       }
+    }
+  },
+  "profile": {
+    "subtitle": "Your long-term progression and career stats",
+    "level": {
+      "runner": "{level} Runner",
+      "xp_progress": "{current} / {needed} XP",
+      "skill_points_available": "⚡ You have {points} Skill Point{plural} available to spend below!"
+    },
+    "attributes": {
+      "title": "🏃 RPG Attributes",
+      "points_available": "{points} Points Available",
+      "value_label": "Value",
+      "speed": {
+        "name": "Speed (Aerobic Power)",
+        "desc": "Lowers base race pace directly. Run faster over all segments."
+      },
+      "stamina": {
+        "name": "Stamina (Endurance)",
+        "desc": "Reduces physical fatigue build-up rate during checkpoints."
+      },
+      "hydration": {
+        "name": "Hydration (Efficiency)",
+        "desc": "Reduces fluid depletion rate per kilometer."
+      },
+      "willpower": {
+        "name": "Willpower (Grit)",
+        "desc": "Mitigates penalties for exhaustion, dehydration, and fatigue."
+      }
+    },
+    "perks": {
+      "title": "✨ Runner Perks",
+      "subtitle": "Permanent passive buffs",
+      "points_available": "{points} Points Available",
+      "cost_label": "Cost:",
+      "unlocked": "✓ Unlocked",
+      "unlock_now": "Unlock Now",
+      "insufficient_sp": "Insufficient SP",
+      "hill_specialist": {
+        "name": "Hill Specialist",
+        "desc": "Nullifies climb penalties: no +20s/km pace penalty and no +1.5x fatigue increase on uphill segments.",
+        "effects": ["No pace penalty on climbs", "No fatigue increase on climbs"]
+      },
+      "iron_stomach": {
+        "name": "Iron Stomach",
+        "desc": "Energy gels restore +50 stamina instead of +30, and provide double momentum boost (+1.6 vs +0.8) during races.",
+        "effects": ["+20 extra stamina from gels", "Double momentum gain"]
+      }
+    },
+    "shop_banner": {
+      "title": "Centralized Shop System",
+      "desc": "Browse shoes, nutrition, and gear in the dedicated shop.",
+      "visit_button": "Visit Shop →"
+    },
+    "training": {
+      "title": "📅 Training History & Adaptation Status",
+      "open_planner": "Open Planner →",
+      "pending_adaptations": "⏳ Pending Delayed Adaptations ({count})",
+      "matures_on_day": "Matures on Day {day}",
+      "fitness_gain": "+{gain} Fitness",
+      "no_adaptations": "No pending fitness adaptations. Complete hard training sessions to queue delayed fitness gains!",
+      "recent_sessions": "Recent Training Sessions (Last 7 Days)",
+      "no_sessions": "No training sessions recorded yet."
+    },
+    "career": {
+      "title": "Runner Name",
+      "lifetime_distance": "Lifetime Distance",
+      "total_runs": "Total Runs",
+      "total_race_time": "Total Race Time",
+      "training_days": "Training Days",
+      "current_fitness": "Current Fitness",
+      "current_fatigue": "Current Fatigue",
+      "readiness": "Today's Race Readiness",
+      "running_streak": "Running Streak",
+      "preferred_surface": "Preferred Surface",
+      "preferred_distance": "Preferred Distance",
+      "preferred_strategy": "Preferred Strategy",
+      "not_set": "Not set"
     }
   }
 }

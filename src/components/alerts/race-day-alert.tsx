@@ -14,6 +14,7 @@ import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 interface RaceDayAlertProps {
   isOpen: boolean;
   onClose: () => void;
+  onStartRace: () => void; // New prop for starting the race
   raceTitle: string;
   raceDistance: number;
   autoCloseDelay?: number; // milliseconds
@@ -22,6 +23,7 @@ interface RaceDayAlertProps {
 export function RaceDayAlert({
   isOpen,
   onClose,
+  onStartRace,
   raceTitle,
   raceDistance,
   autoCloseDelay = 5000,
@@ -134,7 +136,10 @@ export function RaceDayAlert({
               {/* Action Button */}
               <button
                 type="button"
-                onClick={onClose}
+                onClick={() => {
+                  onClose();
+                  onStartRace();
+                }}
                 className="w-full bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
               >
                 {t("alert.race_today.button" as TranslationKey)}

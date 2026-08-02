@@ -7,20 +7,41 @@ import {
   type RunnerState,
 } from "./runner-types";
 
-const RUNNER_STORAGE_KEY = "runnerProfile";
+import { storageRepository } from "@/storage/storage-repository";
+
+const RUNNER_STORAGE_KEY = "runquest.runner";
+const OLD_RUNNER_STORAGE_KEY = "runnerProfile"; // Legacy key for migration
 
 let inMemoryRunnerState: RunnerState | null = null;
 
 /**
- * Loads the Runner Profile from local storage.
+ * Loads the Runner Profile from local storage with backward compatibility.
  * @returns The RunnerState, or the default state if not found.
  */
 export const loadRunnerState = (): RunnerState => {
   try {
+    // Try new key first
+    const storedState = storageRepository.loadCustom<RunnerState>(RUNNER_STORAGE_KEY);
+    if (storedState) {
+      inMemoryRunnerState = storedState;
+      return storedState;
+    }
+
+    // Migration: Check old key if new key doesn't exist
     if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
-      const storedState = localStorage.getItem(RUNNER_STORAGE_KEY);
-      if (storedState) {
-        return JSON.parse(storedState) as RunnerState;
+      const legacyData = localStorage.getItem(OLD_RUNNER_STORAGE_KEY);
+      if (legacyData) {
+        try {
+          const parsed = JSON.parse(legacyData) as RunnerState;
+          // Migrate to new key
+          saveRunnerState(parsed);
+          // Remove old key
+          localStorage.removeItem(OLD_RUNNER_STORAGE_KEY);
+          inMemoryRunnerState = parsed;
+          return parsed;
+        } catch (e) {
+          console.error("Failed to migrate legacy runner data:", e);
+        }
       }
     }
   } catch (error) {
@@ -36,12 +57,10 @@ export const loadRunnerState = (): RunnerState => {
 export const saveRunnerState = (state: RunnerState): void => {
   inMemoryRunnerState = state;
   try {
-    if (typeof window !== "undefined" && typeof localStorage !== "undefined") {
-      localStorage.setItem(RUNNER_STORAGE_KEY, JSON.stringify(state));
-      window.dispatchEvent(
-        new CustomEvent("runner-state-updated", { detail: state })
-      );
-    }
+    storageRepository.saveCustom(RUNNER_STORAGE_KEY, state);
+    window.dispatchEvent(
+      new CustomEvent("runner-state-updated", { detail: state })
+    );
   } catch (error) {
     console.error("Failed to save runner state to local storage:", error);
   }

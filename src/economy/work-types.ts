@@ -9,6 +9,7 @@ import { deriveDate } from "../engine/timeline/calendar";
 import type { GameState } from "../engine/timeline/time-types";
 
 export type WorkTypeId =
+  | "unemployed" // Sprint 41 - Full-time runner option
   | "part_time"
   | "full_time"
   | "freelance"
@@ -18,16 +19,21 @@ export type WorkTypeId =
   | "brand_ambassador"
   | "marathon_trainer"
   | "coach"
-  | "content_creator"      // Sprint 29 Task 6
-  | "personal_trainer"     // Sprint 29 Task 6
-  | "sports_nutritionist"  // Sprint 29 Task 6
-  | "running_store_staff"  // Sprint 29 Task 6
-  | "event_organizer"      // Sprint 29 Task 6
-  | "warehouse_worker"     // Sprint 30 - New jobs
-  | "delivery_driver"      // Sprint 30 - New jobs
+  | "content_creator" // Sprint 29 Task 6
+  | "personal_trainer" // Sprint 29 Task 6
+  | "sports_nutritionist" // Sprint 29 Task 6
+  | "running_store_staff" // Sprint 29 Task 6
+  | "event_organizer" // Sprint 29 Task 6
+  | "warehouse_worker" // Sprint 30 - New jobs
+  | "delivery_driver" // Sprint 30 - New jobs
   | "social_media_manager" // Sprint 30 - New jobs
-  | "physical_therapist"   // Sprint 30 - New jobs
-  | "race_official";       // Sprint 30 - New jobs
+  | "physical_therapist" // Sprint 30 - New jobs
+  | "race_official" // Sprint 30 - New jobs
+  | "night_security" // Sprint 41 - Low energy, low pay
+  | "ride_share_driver" // Sprint 41 - Medium energy, medium pay
+  | "construction_worker" // Sprint 41 - High energy, high pay
+  | "data_analyst" // Sprint 41 - Low energy, medium pay
+  | "fitness_influencer"; // Sprint 41 - Low energy, high pay with requirements
 
 export interface WorkType {
   id: WorkTypeId;
@@ -242,15 +248,16 @@ export const WORK_TYPES: Record<WorkTypeId, WorkType> = {
     icon: "🏃‍♀️",
     color: "#10b981",
   },
-  
+
   // ═══════════════════════════════════════════════════════
   // Sprint 29 Task 6: New Work Types
   // ═══════════════════════════════════════════════════════
-  
+
   content_creator: {
     id: "content_creator",
     name: "Content Creator",
-    description: "Create running content for social media. Build your brand while earning.",
+    description:
+      "Create running content for social media. Build your brand while earning.",
     pay: { min: 40, max: 80 },
     energyCost: 30,
     dayCost: 0,
@@ -268,11 +275,12 @@ export const WORK_TYPES: Record<WorkTypeId, WorkType> = {
     icon: "🎬",
     color: "#ec4899",
   },
-  
+
   personal_trainer: {
     id: "personal_trainer",
     name: "Personal Trainer",
-    description: "Train clients one-on-one. Use your running expertise to help others.",
+    description:
+      "Train clients one-on-one. Use your running expertise to help others.",
     pay: { min: 60, max: 120 },
     energyCost: 35,
     dayCost: 0,
@@ -290,11 +298,12 @@ export const WORK_TYPES: Record<WorkTypeId, WorkType> = {
     icon: "💪",
     color: "#f59e0b",
   },
-  
+
   sports_nutritionist: {
     id: "sports_nutritionist",
     name: "Sports Nutritionist",
-    description: "Advise athletes on nutrition and diet. Blend knowledge with running experience.",
+    description:
+      "Advise athletes on nutrition and diet. Blend knowledge with running experience.",
     pay: { min: 80, max: 150 },
     energyCost: 25,
     dayCost: 0,
@@ -314,11 +323,12 @@ export const WORK_TYPES: Record<WorkTypeId, WorkType> = {
     icon: "🥗",
     color: "#10b981",
   },
-  
+
   running_store_staff: {
     id: "running_store_staff",
     name: "Running Store Staff",
-    description: "Work at a specialty running store. Help customers find the right gear.",
+    description:
+      "Work at a specialty running store. Help customers find the right gear.",
     pay: { min: 35, max: 50 },
     energyCost: 25,
     dayCost: 0,
@@ -335,11 +345,12 @@ export const WORK_TYPES: Record<WorkTypeId, WorkType> = {
     icon: "👟",
     color: "#6366f1",
   },
-  
+
   event_organizer: {
     id: "event_organizer",
     name: "Event Organizer",
-    description: "Organize running events and races. Leadership and experience required.",
+    description:
+      "Organize running events and races. Leadership and experience required.",
     pay: { min: 100, max: 200 },
     energyCost: 40,
     dayCost: 0,
@@ -367,7 +378,8 @@ export const WORK_TYPES: Record<WorkTypeId, WorkType> = {
   warehouse_worker: {
     id: "warehouse_worker",
     name: "Warehouse Worker",
-    description: "Physical labor loading and unloading packages. Low requirements, decent pay.",
+    description:
+      "Physical labor loading and unloading packages. Low requirements, decent pay.",
     pay: { min: 40, max: 55 },
     energyCost: 35,
     dayCost: 0,
@@ -388,7 +400,8 @@ export const WORK_TYPES: Record<WorkTypeId, WorkType> = {
   delivery_driver: {
     id: "delivery_driver",
     name: "Delivery Driver",
-    description: "Deliver packages around the city. Flexible hours, moderate pay.",
+    description:
+      "Deliver packages around the city. Flexible hours, moderate pay.",
     pay: { min: 45, max: 70 },
     energyCost: 30,
     dayCost: 0,
@@ -410,7 +423,8 @@ export const WORK_TYPES: Record<WorkTypeId, WorkType> = {
   social_media_manager: {
     id: "social_media_manager",
     name: "Social Media Manager",
-    description: "Manage social media for local businesses. Charisma and creativity focused.",
+    description:
+      "Manage social media for local businesses. Charisma and creativity focused.",
     pay: { min: 60, max: 120 },
     energyCost: 25,
     dayCost: 0,
@@ -434,7 +448,8 @@ export const WORK_TYPES: Record<WorkTypeId, WorkType> = {
   physical_therapist: {
     id: "physical_therapist",
     name: "Physical Therapist",
-    description: "Help athletes recover from injuries. Running knowledge and intellect required.",
+    description:
+      "Help athletes recover from injuries. Running knowledge and intellect required.",
     pay: { min: 80, max: 150 },
     energyCost: 30,
     dayCost: 0,
@@ -459,7 +474,8 @@ export const WORK_TYPES: Record<WorkTypeId, WorkType> = {
   race_official: {
     id: "race_official",
     name: "Race Official",
-    description: "Officiate at running events. Requires race experience and professionalism.",
+    description:
+      "Officiate at running events. Requires race experience and professionalism.",
     pay: { min: 70, max: 110 },
     energyCost: 25,
     dayCost: 0,
@@ -481,6 +497,137 @@ export const WORK_TYPES: Record<WorkTypeId, WorkType> = {
     color: "#8b5cf6",
   },
   // End of Sprint 30 work types
+
+  // ═══════════════════════════════════════════════════════
+  // Sprint 41: Energy-based work variations & Unemployment
+  // ═══════════════════════════════════════════════════════
+
+  unemployed: {
+    id: "unemployed",
+    name: "Unemployed (Full-time Runner)",
+    description:
+      "Focus entirely on your running career. No income, but maximum energy for training.",
+    pay: { min: 0, max: 0 },
+    energyCost: 0,
+    dayCost: 0,
+    requirements: {
+      minAge: 16,
+    },
+    effects: {},
+    icon: "🏃",
+    color: "#10b981",
+  },
+
+  night_security: {
+    id: "night_security",
+    name: "Night Security Guard",
+    description:
+      "Guard duty during night shifts. Low stress, minimal energy drain, but modest pay.",
+    pay: { min: 35, max: 45 },
+    energyCost: 20,
+    dayCost: 0,
+    requirements: {
+      minAge: 18,
+    },
+    effects: {
+      health: -1,
+    },
+    icon: "🌙",
+    color: "#475569",
+  },
+
+  ride_share_driver: {
+    id: "ride_share_driver",
+    name: "Ride Share Driver",
+    description:
+      "Drive for ride-sharing services. Flexible schedule with moderate energy cost and pay.",
+    pay: { min: 55, max: 85 },
+    energyCost: 30,
+    dayCost: 0,
+    requirements: {
+      minAge: 21,
+    },
+    payScaling: {
+      charisma: 1.0,
+    },
+    effects: {
+      charisma: 1,
+      health: -1,
+    },
+    icon: "🚗",
+    color: "#6366f1",
+  },
+
+  construction_worker: {
+    id: "construction_worker",
+    name: "Construction Worker",
+    description:
+      "Heavy physical labor on construction sites. High energy cost but excellent pay for the requirements.",
+    pay: { min: 80, max: 120 },
+    energyCost: 55,
+    dayCost: 0,
+    requirements: {
+      minAge: 18,
+    },
+    payScaling: {
+      strength: 1.5,
+    },
+    effects: {
+      strength: 2,
+      health: -3,
+    },
+    icon: "🏗️",
+    color: "#f59e0b",
+  },
+
+  data_analyst: {
+    id: "data_analyst",
+    name: "Data Analyst",
+    description:
+      "Analyze data for businesses. Desk job with low energy cost and solid income.",
+    pay: { min: 70, max: 110 },
+    energyCost: 20,
+    dayCost: 0,
+    requirements: {
+      minAge: 20,
+      minIntellect: 30,
+    },
+    payScaling: {
+      intellect: 2.0,
+    },
+    effects: {
+      intellect: 2,
+      health: -1,
+    },
+    icon: "📊",
+    color: "#3b82f6",
+  },
+
+  fitness_influencer: {
+    id: "fitness_influencer",
+    name: "Fitness Influencer",
+    description:
+      "Create fitness content and build your brand. Low energy but requires charisma and running expertise.",
+    pay: { min: 100, max: 200 },
+    energyCost: 25,
+    dayCost: 0,
+    requirements: {
+      minAge: 18,
+      minCharisma: 30,
+      minRunningSkill: 25,
+    },
+    payScaling: {
+      charisma: 3.0,
+      running: 2.0,
+    },
+    effects: {
+      charisma: 2,
+      running: 1,
+    },
+    icon: "✨",
+    color: "#ec4899",
+  },
+  // End of Sprint 41 work types
 };
 
 /**

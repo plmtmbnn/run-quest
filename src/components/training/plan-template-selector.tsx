@@ -2,8 +2,8 @@
 
 import { motion } from "framer-motion";
 import { useTranslation } from "@/i18n/use-translation";
-import type { PlanTemplate } from "@/training/training-types";
 import { PLAN_TEMPLATES } from "@/training/plan-templates";
+import type { PlanTemplate } from "@/training/training-types";
 
 interface PlanTemplateSelectorProps {
   currentFitness: number;
@@ -42,7 +42,7 @@ export function PlanTemplateSelector({
         {t("training.quick_templates")}
       </h3>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
         {PLAN_TEMPLATES.map((template) => {
           const isSelected = selectedTemplateId === template.id;
           const isRecommended = recommendedTemplateId === template.id;
@@ -52,17 +52,18 @@ export function PlanTemplateSelector({
               key={template.id}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className={`flex flex-col gap-2 cursor-pointer ${isSelected ? 'lg:col-span-1' : ''}`}
+              className="flex flex-col gap-2 cursor-pointer"
             >
               <div
                 onClick={() => onSelectTemplate(template)}
                 className={`
                   p-4 rounded-2xl border-2 transition-all duration-200
-                  ${isSelected
-                    ? 'bg-indigo-50 dark:bg-indigo-950/20 border-indigo-500 dark:border-indigo-400'
-                    : isRecommended
-                      ? 'bg-blue-50/50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-700/30 hover:bg-blue-50 dark:hover:bg-blue-950/30'
-                      : 'bg-slate-50/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/70'
+                  ${
+                    isSelected
+                      ? "bg-indigo-50 dark:bg-indigo-950/20 border-indigo-500 dark:border-indigo-400"
+                      : isRecommended
+                        ? "bg-blue-50/50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-700/30 hover:bg-blue-50 dark:hover:bg-blue-950/30"
+                        : "bg-slate-50/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/70"
                   }
                 `}
               >

@@ -3,8 +3,15 @@
 
 import { analyzeTraining } from "@/coach/coach-analysis";
 import type { TrainingTelemetry } from "@/coach/coach-types";
-import { awardTrainingXP, XP_BY_TRAINING_ACTIVITY } from "@/runner/xp-rewards";
+import { useHealthStore } from "@/health/health-store";
+import {
+  calculateInjuryRisk,
+  canTrainWithInjuries,
+  createInjury,
+  rollForInjury,
+} from "@/health/injury-risk-engine";
 import { loadRunnerState, saveRunnerState } from "@/runner/runner-persistence";
+import { awardTrainingXP, XP_BY_TRAINING_ACTIVITY } from "@/runner/xp-rewards";
 import { queueAdaptation } from "./adaptation-engine";
 import {
   ACTIVITY_EFFECTS,
@@ -21,8 +28,6 @@ import type {
   TrainingDay,
   TrainingState,
 } from "./training-types";
-import { useHealthStore } from "@/health/health-store";
-import { calculateInjuryRisk, rollForInjury, createInjury, canTrainWithInjuries } from "@/health/injury-risk-engine";
 
 /**
  * Records today's training activity and updates the runner's state.
@@ -39,7 +44,7 @@ export const recordTrainingActivity = (
 
   // Check if runner can train due to injuries
   if (!canTrainWithInjuries(healthState)) {
-    throw new Error('Cannot train while injured');
+    throw new Error("Cannot train while injured");
   }
 
   // Get the effect of the activity.
@@ -47,14 +52,25 @@ export const recordTrainingActivity = (
 
   // Calculate immediate fitness gain (30% immediate, 70% delayed adaptation)
   const immediateFitness = (effect.fitness || 0) * 0.3;
-  const updatedFitness = Math.min(100, Math.max(0, runnerState.profile.currentFitness + immediateFitness));
-  const updatedFatigue = Math.min(100, Math.max(0, runnerState.profile.currentFatigue + effect.fatigue));
-  const updatedReadiness = Math.min(100, Math.max(0, runnerState.profile.currentReadiness + effect.readiness));
+  const updatedFitness = Math.min(
+    100,
+    Math.max(0, runnerState.profile.currentFitness + immediateFitness),
+  );
+  const updatedFatigue = Math.min(
+    100,
+    Math.max(0, runnerState.profile.currentFatigue + effect.fatigue),
+  );
+  const updatedReadiness = Math.min(
+    100,
+    Math.max(0, runnerState.profile.currentReadiness + effect.readiness),
+  );
 
   // Award proportional XP for training based on activity type
-  const activityKey = (activity in XP_BY_TRAINING_ACTIVITY ? activity : "easy_run") as keyof typeof XP_BY_TRAINING_ACTIVITY;
+  const activityKey = (
+    activity in XP_BY_TRAINING_ACTIVITY ? activity : "easy_run"
+  ) as keyof typeof XP_BY_TRAINING_ACTIVITY;
   awardTrainingXP(activityKey);
-  
+
   // Reload runner state after XP award to get updated values
   const runnerStateWithXP = loadRunnerState();
   const runnerProfileWithXP = runnerStateWithXP.profile;
@@ -75,7 +91,7 @@ export const recordTrainingActivity = (
   // Notify reactive state listeners
   if (typeof window !== "undefined") {
     window.dispatchEvent(
-      new CustomEvent("runner-state-updated", { detail: finalRunnerState })
+      new CustomEvent("runner-state-updated", { detail: finalRunnerState }),
     );
   }
 
@@ -134,6 +150,66 @@ export const recordTrainingActivity = (
     }
   }
 
+  // ✅ Task 2: Add injury risk for excessive hard training
+  // Check if player is doing too many consecutive hard sessions
+  if (consecutiveHardDays >= 3) {
+    const healthStore = useHealthStore.getState();
+
+    // Calculate injury risk based on consecutive hard days
+    const activityDetails = {
+      type: "training" as const,
+      distance: isLongRun(activity) ? 15 : 10,
+      intensity: isHardActivity(activity) ? 8 : 5,
+      daysSinceLastRest: consecutiveHardDays,
+      hasProperEquipment: true,
+      hasGoodNutrition: true,
+      didWarmup: true,
+      isFollowingTrainingPlan: false, // Excessive training = not following good plan
+    };
+
+    const injuryRisk = calculateInjuryRisk(
+      healthState,
+      runnerState.profile as any,
+      activityDetails,
+    );
+
+    // Higher risk of injury for 3+ consecutive hard days
+    // Risk increases: 3 days = 25%, 4 days = 40%, 5+ days = 60%
+    const overtrainingRiskMultiplier =
+      consecutiveHardDays === 3 ? 1.5 : consecutiveHardDays === 4 ? 2.0 : 2.5;
+    const adjustedRisk = Math.min(
+      0.8,
+      injuryRisk.totalRisk * overtrainingRiskMultiplier,
+    );
+
+    // Roll for injury
+    const injuryOccurred = rollForInjury(adjustedRisk);
+
+    if (injuryOccurred) {
+      // Create an overtraining-related injury
+      const severity =
+        adjustedRisk > 0.5
+          ? "moderate"
+          : adjustedRisk > 0.3
+            ? "minor"
+            : "minor";
+      const injury = createInjury(
+        "overuse" as any,
+        severity as any,
+        currentDayIndex,
+      );
+      healthStore.addInjury(injury);
+
+      // Update overtrain level
+      healthStore.updateOvertrainLevel(20);
+
+      console.warn(
+        `⚠️ Injury sustained from ${consecutiveHardDays} consecutive hard training days!`,
+        injury,
+      );
+    }
+  }
+
   const tomorrowDay = (currentDayIndex + 1) % 7;
   const isPreRaceDay = tomorrowDay === 0 || tomorrowDay === 6;
 
@@ -149,7 +225,12 @@ export const recordTrainingActivity = (
   };
 
   // Check for injury after training
-  checkForTrainingInjury(currentDayIndex, runnerState.profile, activity, healthState);
+  checkForTrainingInjury(
+    currentDayIndex,
+    runnerState.profile,
+    activity,
+    healthState,
+  );
 
   // Update health store with training day
   updateHealthAfterTraining(healthState, activity);
@@ -165,11 +246,11 @@ function checkForTrainingInjury(
   dayIndex: number,
   runnerProfile: any,
   activity: DailyActivity,
-  healthState: any
+  healthState: any,
 ): void {
   // Calculate injury risk based on training activity
   const activityDetails = {
-    type: 'training' as const,
+    type: "training" as const,
     distance: getActivityDistance(activity),
     intensity: getActivityIntensity(activity),
     duration: getActivityDuration(activity),
@@ -180,18 +261,22 @@ function checkForTrainingInjury(
     isFollowingTrainingPlan: true, // Assume following plan
   };
 
-  const injuryRisk = calculateInjuryRisk(healthState, runnerProfile, activityDetails);
-  
+  const injuryRisk = calculateInjuryRisk(
+    healthState,
+    runnerProfile,
+    activityDetails,
+  );
+
   // Roll for injury
   const injuryResult = rollForInjury(injuryRisk.totalRisk);
-  
+
   if (injuryResult.injured) {
     const injury = createInjury(
       injuryResult.injuryType!,
       injuryResult.severity!,
-      dayIndex
+      dayIndex,
     );
-    
+
     // Add injury to health state
     const healthStore = useHealthStore.getState();
     healthStore.addInjury(injury);
@@ -202,9 +287,12 @@ function checkForTrainingInjury(
 /**
  * Update health state after training.
  */
-function updateHealthAfterTraining(healthState: any, activity: DailyActivity): void {
+function updateHealthAfterTraining(
+  healthState: any,
+  activity: DailyActivity,
+): void {
   const healthStore = useHealthStore.getState();
-  
+
   // Increment consecutive training days
   if (!isRestDay(activity)) {
     healthStore.incrementConsecutiveTrainingDays();
@@ -213,16 +301,16 @@ function updateHealthAfterTraining(healthState: any, activity: DailyActivity): v
     healthStore.resetConsecutiveTrainingDays();
     healthStore.addRestDay();
   }
-  
+
   // Update overtraining level based on activity intensity
   const intensity = getActivityIntensity(activity);
   const overtrainDelta = intensity * 5; // More intense activities increase overtraining more
   healthStore.updateOvertrainLevel(overtrainDelta);
-  
+
   // Update fatigue level
   const fatigueDelta = intensity * 10; // More intense activities cause more fatigue
   healthStore.updateFatigueLevel(fatigueDelta);
-  
+
   healthStore.saveToStorage();
 }
 

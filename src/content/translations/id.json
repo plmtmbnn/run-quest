@@ -1443,10 +1443,88 @@
       },
       "race": {
         "welcome": { "title": "Simulasi Balapan Langsung ⚡", "content": "Saksikan balapan berlangsung dengan simulasi fisika dan pacing real-time!" },
-        "simulation": { "title": "Tampilan Lintasan 🏃‍♂️", "content": "Lihat posisi Anda relatif terhadap pelari lawan di sepanjang rute." },
+        "simulation": { "title": "Tampilan Lintasan 🏃♂️", "content": "Lihat posisi Anda relatif terhadap pelari lawan di sepanjang rute." },
         "stats": { "title": "Metrik Langsung 📊", "content": "Lacak detak jantung, cadangan stamina, pace, dan jarak ke pemimpin." },
         "decisions": { "title": "Keputusan Taktis 🎯", "content": "Ambil keputusan cepat untuk melakukan serangan, menjaga pace, atau mengonsumsi nutrisi!" }
       }
+    }
+  },
+  "profile": {
+    "subtitle": "Progres jangka panjang dan statistik karir Anda",
+    "level": {
+      "runner": "{level} Pelari",
+      "xp_progress": "{current} / {needed} XP",
+      "skill_points_available": "⚡ Anda memiliki {points} Poin Keahlian yang tersedia untuk digunakan di bawah!"
+    },
+    "attributes": {
+      "title": "🏃 Atribut RPG",
+      "points_available": "{points} Poin Tersedia",
+      "value_label": "Nilai",
+      "speed": {
+        "name": "Kecepatan (Daya Aerobik)",
+        "desc": "Mengurangi pace dasar balapan secara langsung. Lari lebih cepat di semua segmen."
+      },
+      "stamina": {
+        "name": "Stamina (Ketahanan)",
+        "desc": "Mengurangi laju akumulasi kelelahan fisik selama checkpoint."
+      },
+      "hydration": {
+        "name": "Hidrasi (Efisiensi)",
+        "desc": "Mengurangi tingkat kehilangan cairan per kilometer."
+      },
+      "willpower": {
+        "name": "Tekad (Ketangguhan)",
+        "desc": "Meredakan penalti untuk kelelahan ekstrem, dehidrasi, dan kelelahan."
+      }
+    },
+    "perks": {
+      "title": "✨ Kelebihan Pelari",
+      "subtitle": "Buff pasif permanen",
+      "points_available": "{points} Poin Tersedia",
+      "cost_label": "Biaya:",
+      "unlocked": "✓ Terbuka",
+      "unlock_now": "Buka Sekarang",
+      "insufficient_sp": "Poin Tidak Cukup",
+      "hill_specialist": {
+        "name": "Spesialis Bukit",
+        "desc": "Meniadakan penalti tanjakan: tidak ada penalti pace +20d/km dan tidak ada peningkatan kelelahan +1.5x pada segmen mendaki.",
+        "effects": ["Tidak ada penalti pace di tanjakan", "Tidak ada peningkatan kelelahan di tanjakan"]
+      },
+      "iron_stomach": {
+        "name": "Perut Besi",
+        "desc": "Gel energi memulihkan +50 stamina bukan +30, dan memberikan boost momentum ganda (+1.6 vs +0.8) saat balapan.",
+        "effects": ["+20 stamina tambahan dari gel", "Peningkatan momentum dua kali lipat"]
+      }
+    },
+    "shop_banner": {
+      "title": "Sistem Toko Terpusat",
+      "desc": "Telusuri sepatu, nutrisi, dan peralatan di toko khusus.",
+      "visit_button": "Kunjungi Toko →"
+    },
+    "training": {
+      "title": "📅 Riwayat Latihan & Status Adaptasi",
+      "open_planner": "Buka Perencana →",
+      "pending_adaptations": "⏳ Adaptasi Tertunda ({count})",
+      "matures_on_day": "Matang pada Hari {day}",
+      "fitness_gain": "+{gain} Kebugaran",
+      "no_adaptations": "Tidak ada adaptasi kebugaran tertunda. Selesaikan sesi latihan keras untuk mengantrian peningkatan kebugaran!",
+      "recent_sessions": "Sesi Latihan Terbaru (7 Hari Terakhir)",
+      "no_sessions": "Belum ada sesi latihan yang dicatat."
+    },
+    "career": {
+      "title": "Nama Pelari",
+      "lifetime_distance": "Jarak Sepanjang Hayat",
+      "total_runs": "Total Race",
+      "total_race_time": "Total Waktu Balap",
+      "training_days": "Hari Latihan",
+      "current_fitness": "Kebugaran Saat Ini",
+      "current_fatigue": "Kelelahan Saat Ini",
+      "readiness": "Kesiapan Race Hari Ini",
+      "running_streak": "Streak Berlari",
+      "preferred_surface": "Permukaan Preferensi",
+      "preferred_distance": "Jarak Preferensi",
+      "preferred_strategy": "Strategi Preferensi",
+      "not_set": "Belum diatur"
     }
   }
 }

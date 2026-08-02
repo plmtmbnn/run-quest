@@ -833,6 +833,10 @@ export function HomeScreen() {
             setShowRaceAlert(false);
             localStorage.setItem(`race_alert_shown_${currentDayIndex}`, 'true');
           }}
+          onStartRace={() => {
+            // Navigate directly to race when clicking the alert button
+            handleRaceSelect(todaysRace);
+          }}
           raceTitle={todaysRace.name}
           raceDistance={todaysRace.categories?.[0]?.distance || 5}
           autoCloseDelay={5000}

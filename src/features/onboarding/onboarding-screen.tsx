@@ -10,32 +10,31 @@ import {
   Compass,
   Dices,
   Flame,
+  Globe2,
   HelpCircle,
   ShoppingBag,
   Timer,
   User,
   Zap,
-  Globe2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useSound } from "@/hooks/use-sound";
-import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
-import { storageRepository } from "@/storage/storage-repository";
-import { usePlayerStore } from "@/store/player-store";
-import { useSettingsStore } from "@/store/settings-store";
-import { useShopStore } from "@/shop/shop-store";
-import { useTimelineStore } from "@/store/timeline-store";
-import { generateRunnerName } from "@/utils/name-generator";
-import { generateRandomDOB } from "@/utils/date-generator";
-
-import { detectDeviceCountry } from "@/utils/device-location";
+import { GlobalCommunityStats } from "@/components/stats/global-community-stats";
 import { SearchableCountrySelect } from "@/components/ui/searchable-country-select";
 import { type CountryData, getCountryByCode } from "@/config/countries-data";
 import type { CurrencyCode } from "@/economy/currency-config";
-import { GlobalCommunityStats } from "@/components/stats/global-community-stats";
+import { useSound } from "@/hooks/use-sound";
+import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { recordNewRunner } from "@/lib/firebaseService";
+import { useShopStore } from "@/shop/shop-store";
+import { storageRepository } from "@/storage/storage-repository";
 import { useFirebaseStore } from "@/store/firebaseStore";
+import { usePlayerStore } from "@/store/player-store";
+import { useSettingsStore } from "@/store/settings-store";
+import { useTimelineStore } from "@/store/timeline-store";
+import { generateDefaultDOB } from "@/utils/date-generator";
+import { detectDeviceCountry } from "@/utils/device-location";
+import { generateRunnerName } from "@/utils/name-generator";
 
 interface OnboardingScreenProps {
   onComplete: () => void;
@@ -56,18 +55,20 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
   const [nameInput, setNameInput] = useState("");
   const [hasInitializedName, setHasInitializedName] = useState(false);
   const [hasNameError, setHasNameError] = useState(false);
-  const [dobInput, setDobInput] = useState("");
-  const [useRandomDOB, setUseRandomDOB] = useState(false);
 
   // Dynamic device locale detection
   const [selectedNationality, setSelectedNationality] = useState(() =>
-    player?.nationality ? player.nationality : detectDeviceCountry()
+    player?.nationality ? player.nationality : detectDeviceCountry(),
   );
   const [selectedCurrency, setSelectedCurrency] = useState<CurrencyCode>(() => {
-    const initialCountry = getCountryByCode(player?.nationality || detectDeviceCountry());
+    const initialCountry = getCountryByCode(
+      player?.nationality || detectDeviceCountry(),
+    );
     return initialCountry.defaultCurrency;
   });
-  const [selectedGameMode, setSelectedGameMode] = useState<"career" | "easy">("career");
+  const [selectedGameMode, setSelectedGameMode] = useState<"career" | "easy">(
+    "career",
+  );
   const unlockAllItems = useShopStore((state) => state.unlockAllItems);
 
   useEffect(() => {
@@ -82,7 +83,9 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       titleKey: "onboarding.slide_1.title",
       subtitleKey: "onboarding.slide_1.subtitle",
       contentKey: "onboarding.slide_1.content",
-      icon: <Flame className="w-16 h-16 md:w-20 md:h-20 text-orange-500 animate-pulse drop-shadow-[0_0_15px_rgba(249,115,22,0.4)]" />,
+      icon: (
+        <Flame className="w-16 h-16 md:w-20 md:h-20 text-orange-500 animate-pulse drop-shadow-[0_0_15px_rgba(249,115,22,0.4)]" />
+      ),
       color: "from-orange-500/10 via-orange-100/20 to-amber-200/10",
       bgGradient: "from-orange-500 to-amber-500",
       accent: "border-orange-200",
@@ -91,7 +94,9 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       titleKey: "onboarding.slide_2.title",
       subtitleKey: "onboarding.slide_2.subtitle",
       contentKey: "onboarding.slide_2.content",
-      icon: <Zap className="w-16 h-16 md:w-20 md:h-20 text-amber-500 drop-shadow-[0_0_15px_rgba(245,158,11,0.4)]" />,
+      icon: (
+        <Zap className="w-16 h-16 md:w-20 md:h-20 text-amber-500 drop-shadow-[0_0_15px_rgba(245,158,11,0.4)]" />
+      ),
       color: "from-amber-500/10 via-amber-100/20 to-yellow-200/10",
       bgGradient: "from-amber-500 to-yellow-600",
       accent: "border-amber-200",
@@ -100,7 +105,9 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       titleKey: "onboarding.slide_3.title",
       subtitleKey: "onboarding.slide_3.subtitle",
       contentKey: "onboarding.slide_3.content",
-      icon: <ShoppingBag className="w-16 h-16 md:w-20 md:h-20 text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.4)]" />,
+      icon: (
+        <ShoppingBag className="w-16 h-16 md:w-20 md:h-20 text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.4)]" />
+      ),
       color: "from-blue-500/10 via-blue-100/20 to-indigo-200/10",
       bgGradient: "from-blue-500 to-indigo-600",
       accent: "border-blue-200",
@@ -136,7 +143,9 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       titleKey: "onboarding.slide_6.title",
       subtitleKey: "onboarding.slide_6.subtitle",
       contentKey: "onboarding.slide_6.content",
-      icon: <User className="w-16 h-16 md:w-20 md:h-20 text-violet-500 drop-shadow-[0_0_15px_rgba(139,92,246,0.4)]" />,
+      icon: (
+        <User className="w-16 h-16 md:w-20 md:h-20 text-violet-500 drop-shadow-[0_0_15px_rgba(139,92,246,0.4)]" />
+      ),
       color: "from-violet-500/10 via-violet-100/20 to-purple-200/10",
       bgGradient: "from-violet-500 to-purple-600",
       accent: "border-violet-200",
@@ -167,11 +176,11 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       setHasNameError(true);
       return;
     }
-	setPlayerName(nameInput.trim());
+    setPlayerName(nameInput.trim());
     setNationality(selectedNationality);
     setPreferredCurrency(selectedCurrency);
     setGameMode(selectedGameMode);
-    
+
     if (selectedGameMode === "easy") {
       unlockAllItems();
       const timelineStore = useTimelineStore.getState();
@@ -187,9 +196,8 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
         },
       }));
     }
-    if (dobInput || useRandomDOB) {
-      setDateOfBirth(dobInput || generateRandomDOB());
-    }
+    // Set default age to 18 years old
+    setDateOfBirth(generateDefaultDOB());
     storageRepository.saveSettings({
       version: 1,
       theme: "system", // Use system preference by default instead of forcing light
@@ -299,7 +307,9 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
             className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition shadow-sm"
           >
             <BookOpen className="w-3.5 h-3.5 text-indigo-500" />
-            <span className="hidden sm:inline">{t("onboarding.view_guide" as TranslationKey)}</span>
+            <span className="hidden sm:inline">
+              {t("onboarding.view_guide" as TranslationKey)}
+            </span>
           </button>
 
           {/* Pill-styled Language Selector from UI Guidelines */}
@@ -344,7 +354,9 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
           {/* Top visual graphic area */}
           <div className="h-36 sm:h-44 bg-slate-50/50 dark:bg-slate-950/40 flex items-center justify-center border-b border-slate-100 dark:border-slate-800/80 relative overflow-hidden">
             {/* Slide specific abstract background glow */}
-            <div className={`absolute inset-0 bg-gradient-to-b ${activeSlide.color} opacity-40 blur-md`} />
+            <div
+              className={`absolute inset-0 bg-gradient-to-b ${activeSlide.color} opacity-40 blur-md`}
+            />
 
             <motion.div
               key={currentSlide}
@@ -396,9 +408,13 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                               }
                             }}
                             maxLength={24}
-                            aria-label={t("onboarding.slide_6.title" as TranslationKey)}
+                            aria-label={t(
+                              "onboarding.slide_6.title" as TranslationKey,
+                            )}
                             aria-invalid={hasNameError}
-                            aria-describedby={hasNameError ? "onboarding-name-error" : undefined}
+                            aria-describedby={
+                              hasNameError ? "onboarding-name-error" : undefined
+                            }
                             className={`flex-grow min-h-[44px] border rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white border-slate-200 dark:border-slate-800 font-bold transition-all ${
                               hasNameError
                                 ? "border-rose-500 focus:ring-rose-500"
@@ -431,7 +447,11 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                         <div className="mt-1">
                           <SearchableCountrySelect
                             selectedCode={selectedNationality}
-                            label={t("onboarding.nationality.title" as TranslationKey) || "Nationality"}
+                            label={
+                              t(
+                                "onboarding.nationality.title" as TranslationKey,
+                              ) || "Nationality"
+                            }
                             onSelect={(country) => {
                               setSelectedNationality(country.code);
                               setSelectedCurrency(country.defaultCurrency);
@@ -442,10 +462,14 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                         {/* Preferred Currency Pill Selector */}
                         <div className="flex flex-col gap-1.5 mt-1">
                           <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                            💳 {t("onboarding.currency.title" as TranslationKey) || "Default Currency"}
+                            💳{" "}
+                            {t("onboarding.currency.title" as TranslationKey) ||
+                              "Default Currency"}
                           </span>
                           <div className="grid grid-cols-4 gap-1.5">
-                            {(["USD", "EUR", "JPY", "IDR"] as CurrencyCode[]).map((curr) => {
+                            {(
+                              ["USD", "EUR", "JPY", "IDR"] as CurrencyCode[]
+                            ).map((curr) => {
                               const symbols: Record<CurrencyCode, string> = {
                                 USD: "$",
                                 EUR: "€",
@@ -467,63 +491,23 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                                       : "bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900"
                                   }`}
                                 >
-                                  {curr} <span className="opacity-75">{symbols[curr]}</span>
+                                  {curr}{" "}
+                                  <span className="opacity-75">
+                                    {symbols[curr]}
+                                  </span>
                                 </button>
                               );
                             })}
                           </div>
                         </div>
 
-                        {/* Date of Birth with Randomize Option */}
-                        <div className="flex flex-col gap-1.5 mt-3">
-                          <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                            📅 Date of Birth
-                          </span>
-                          <div className="flex gap-2 items-center">
-                            <input
-                              type="date"
-                              value={dobInput || player?.dateOfBirth || ""}
-                              onChange={(e) => {
-                                setDobInput(e.target.value);
-                                setUseRandomDOB(false);
-                              }}
-                              className="flex-grow min-h-[44px] border rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white border-slate-200 dark:border-slate-800 font-bold transition-all"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => {
-                                playSound("click");
-                                const randomDate = generateRandomDOB();
-                                setDobInput(randomDate);
-                                setUseRandomDOB(true);
-                              }}
-                              className="min-h-[44px] min-w-[44px] p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-indigo-500 hover:bg-indigo-600 text-white transition-colors shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40 flex items-center justify-center"
-                              title="Randomize date of birth"
-                              aria-label={t("onboarding_dob.randomize" as TranslationKey) || "Randomize"}
-                            >
-                              <Calendar className="w-4 h-4" />
-                            </button>
-                          </div>
-                          <div className="flex gap-2 mt-1">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                playSound("click");
-                                const randomDate = generateRandomDOB();
-                                setDobInput(randomDate);
-                                setUseRandomDOB(true);
-                              }}
-                              className="text-[10px] px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 font-semibold border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 transition-colors"
-                            >
-                              {t("onboarding_dob.randomize" as TranslationKey) || "Randomize Age (18-65)"}
-                            </button>
-                          </div>
-                        </div>
-
                         {/* Game Mode Selection */}
                         <div className="flex flex-col gap-1.5 mt-3">
                           <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                            🎮 {t("onboarding.game_mode.title" as TranslationKey) || "Game Mode"}
+                            🎮{" "}
+                            {t(
+                              "onboarding.game_mode.title" as TranslationKey,
+                            ) || "Game Mode"}
                           </span>
                           <div className="grid grid-cols-2 gap-2">
                             <button
@@ -539,7 +523,11 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                               }`}
                             >
                               <span className="text-sm">🏆</span>
-                              <span className="leading-tight">{t("onboarding.game_mode.career" as TranslationKey) || "Career (Standard)"}</span>
+                              <span className="leading-tight">
+                                {t(
+                                  "onboarding.game_mode.career" as TranslationKey,
+                                ) || "Career (Standard)"}
+                              </span>
                             </button>
                             <button
                               type="button"
@@ -554,11 +542,14 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                               }`}
                             >
                               <span className="text-sm">🚀</span>
-                              <span className="leading-tight">{t("onboarding.game_mode.easy" as TranslationKey) || "Easy (All Unlocked)"}</span>
+                              <span className="leading-tight">
+                                {t(
+                                  "onboarding.game_mode.easy" as TranslationKey,
+                                ) || "Easy (All Unlocked)"}
+                              </span>
                             </button>
                           </div>
                         </div>
-
                       </div>
                     </div>
                   ) : activeSlide.id === "community_stats" ? (
@@ -582,7 +573,9 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                         className="self-start text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 mt-1"
                       >
                         <BookOpen className="w-3.5 h-3.5" />
-                        <span>{t("onboarding.view_guide" as TranslationKey)} →</span>
+                        <span>
+                          {t("onboarding.view_guide" as TranslationKey)} →
+                        </span>
                       </button>
                     </div>
                   )}

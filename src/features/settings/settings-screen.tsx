@@ -15,16 +15,14 @@ import {
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CurrencySettingRow } from "@/components/economy/currency-selector";
+import { GlobalCommunityStats } from "@/components/stats/global-community-stats";
+import { SearchableCountrySelect } from "@/components/ui/searchable-country-select";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+import { useFirebaseStore } from "@/store/firebaseStore";
 import { usePlayerStore } from "@/store/player-store";
 import { useSettingsStore } from "@/store/settings-store";
-import { useFirebaseStore } from "@/store/firebaseStore";
 import { generateRunnerName } from "@/utils/name-generator";
-import { generateRandomDOB } from "@/utils/date-generator";
-
-import { SearchableCountrySelect } from "@/components/ui/searchable-country-select";
-import { GlobalCommunityStats } from "@/components/stats/global-community-stats";
 
 export function SettingsScreen() {
   const router = useRouter();
@@ -49,8 +47,6 @@ export function SettingsScreen() {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [hasInitializedName, setHasInitializedName] = useState(false);
   const [hasNameError, setHasNameError] = useState(false);
-  const [dobInput, setDobInput] = useState(player?.dateOfBirth || "");
-  const [useRandomDOB, setUseRandomDOB] = useState(false);
 
   useEffect(() => {
     if (player?.name && !hasInitializedName) {
@@ -154,7 +150,9 @@ export function SettingsScreen() {
                   maxLength={24}
                   aria-label={t("settings.name.title" as TranslationKey)}
                   aria-invalid={hasNameError}
-                  aria-describedby={hasNameError ? "settings-name-error" : undefined}
+                  aria-describedby={
+                    hasNameError ? "settings-name-error" : undefined
+                  }
                   className={`flex-grow min-h-[44px] border rounded-xl px-3.5 py-2 text-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none bg-slate-50 dark:bg-slate-900 focus:bg-white dark:focus:bg-slate-800 text-slate-800 dark:text-white font-bold transition-all ${
                     hasNameError
                       ? "border-red-500"
@@ -208,48 +206,6 @@ export function SettingsScreen() {
             </div>
           </div>
 
-          {/* Date of Birth */}
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-col">
-              <span className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
-                � Date of Birth
-              </span>
-              <span className="text-xs text-gray-400 dark:text-gray-500">
-                {t("settings.dob.desc" as TranslationKey) || "Used for age calculation and statistics"}
-              </span>
-            </div>
-            <div className="flex gap-2 items-center mt-1">
-              <input
-                type="date"
-                value={dobInput || player?.dateOfBirth || ""}
-                onChange={(e) => {
-                  playSound("click");
-                  setDobInput(e.target.value);
-                  setUseRandomDOB(false);
-                  if (e.target.value) {
-                    setDateOfBirth(e.target.value);
-                  }
-                }}
-                className="flex-grow min-h-[44px] border rounded-xl px-3.5 py-2 text-sm focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none bg-slate-50 dark:bg-slate-900 focus:bg-white dark:focus:bg-slate-800 text-slate-800 dark:text-white font-bold transition-all border-[#E5E7EB] dark:border-slate-700"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  playSound("click");
-                  const randomDate = generateRandomDOB();
-                  setDobInput(randomDate);
-                  setUseRandomDOB(true);
-                  setDateOfBirth(randomDate);
-                }}
-                aria-label={t("settings_dob.randomize" as TranslationKey) || "Randomize"}
-                className="min-h-[44px] min-w-[44px] p-2.5 bg-indigo-500 hover:bg-indigo-600 active:scale-95 text-white rounded-xl transition-all shadow-sm flex items-center justify-center border border-indigo-400 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
-                title={t("settings_dob.randomize" as TranslationKey) || "Randomize date of birth"}
-              >
-                <Calendar className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
           <hr className="border-[#E5E7EB] dark:border-slate-800" />
 
           {/* Sound Toggle */}
@@ -273,7 +229,9 @@ export function SettingsScreen() {
                 setSound(!settings.sound);
               }}
               className={`w-14 h-8 shrink-0 rounded-full p-1 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
-                settings.sound ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"
+                settings.sound
+                  ? "bg-indigo-600"
+                  : "bg-slate-200 dark:bg-slate-700"
               }`}
             >
               <div
@@ -287,36 +245,36 @@ export function SettingsScreen() {
           {/* Theme selection */}
           <>
             <hr className="border-[#E5E7EB] dark:border-slate-800" />
-              <div className="flex flex-col gap-2">
-                <div className="flex flex-col">
-                  <span className="text-sm font-bold text-gray-900 dark:text-white">
-                    {t("settings.theme.title" as TranslationKey)}
-                  </span>
-                  <span className="text-xs text-gray-400 dark:text-gray-500">
-                    {t("settings.theme.desc" as TranslationKey)}
-                  </span>
-                </div>
-                <div className="grid grid-cols-3 gap-2 mt-2">
-                  {(["light", "dark", "system"] as const).map((themeMode) => (
-                    <button
-                      key={themeMode}
-                      type="button"
-                      onClick={() => {
-                        playSound("click");
-                        setTheme(themeMode);
-                      }}
-                      className={`text-xs font-bold py-3 rounded-2xl transition-all border-2 capitalize ${
-                        settings.theme === themeMode
-                          ? "bg-blue-50 border-blue-500 text-blue-700 dark:bg-indigo-950/20 dark:text-indigo-300 dark:border-indigo-500"
-                          : "border-gray-200 bg-white dark:bg-slate-900 text-gray-600 dark:text-slate-300 hover:border-gray-300 dark:hover:border-slate-600"
-                      }`}
-                    >
-                      {t(`settings.theme.${themeMode}` as TranslationKey)}
-                    </button>
-                  ))}
-                </div>
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-col">
+                <span className="text-sm font-bold text-gray-900 dark:text-white">
+                  {t("settings.theme.title" as TranslationKey)}
+                </span>
+                <span className="text-xs text-gray-400 dark:text-gray-500">
+                  {t("settings.theme.desc" as TranslationKey)}
+                </span>
               </div>
-            </>
+              <div className="grid grid-cols-3 gap-2 mt-2">
+                {(["light", "dark", "system"] as const).map((themeMode) => (
+                  <button
+                    key={themeMode}
+                    type="button"
+                    onClick={() => {
+                      playSound("click");
+                      setTheme(themeMode);
+                    }}
+                    className={`text-xs font-bold py-3 rounded-2xl transition-all border-2 capitalize ${
+                      settings.theme === themeMode
+                        ? "bg-blue-50 border-blue-500 text-blue-700 dark:bg-indigo-950/20 dark:text-indigo-300 dark:border-indigo-500"
+                        : "border-gray-200 bg-white dark:bg-slate-900 text-gray-600 dark:text-slate-300 hover:border-gray-300 dark:hover:border-slate-600"
+                    }`}
+                  >
+                    {t(`settings.theme.${themeMode}` as TranslationKey)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </>
 
           <hr className="border-[#E5E7EB] dark:border-slate-800" />
 
@@ -382,38 +340,40 @@ export function SettingsScreen() {
           />
 
           <hr className="border-[#E5E7EB] dark:border-slate-800" />
-      {/* Data Sync Toggle */}
-      <div className="flex items-center justify-between">
-        <div className="flex flex-col">
-          <span className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
-            {t("settings.sync.title")}
-          </span>
-          <span className="text-xs text-gray-400 dark:text-gray-500">
-            {t("settings.sync.desc")}
-          </span>
-        </div>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={settings.syncWithFirebase}
-          aria-label={t("settings.sync.title")}
-          onClick={() => {
-            playSound("click");
-            const next = !settings.syncWithFirebase;
-            setSyncEnabled(next);
-            useFirebaseStore.getState().setEnabled(next);
-          }}
-          className={`w-14 h-8 shrink-0 rounded-full p-1 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
-            settings.syncWithFirebase ? "bg-indigo-600" : "bg-slate-200 dark:bg-slate-700"
-          }`}
-        >
-          <div
-            className={`bg-white dark:bg-slate-900 w-6 h-6 rounded-full shadow-md transform transition-transform duration-200 ${
-              settings.syncWithFirebase ? "translate-x-6" : "translate-x-0"
-            }`}
-          />
-        </button>
-      </div>
+          {/* Data Sync Toggle */}
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                {t("settings.sync.title")}
+              </span>
+              <span className="text-xs text-gray-400 dark:text-gray-500">
+                {t("settings.sync.desc")}
+              </span>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={settings.syncWithFirebase}
+              aria-label={t("settings.sync.title")}
+              onClick={() => {
+                playSound("click");
+                const next = !settings.syncWithFirebase;
+                setSyncEnabled(next);
+                useFirebaseStore.getState().setEnabled(next);
+              }}
+              className={`w-14 h-8 shrink-0 rounded-full p-1 transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
+                settings.syncWithFirebase
+                  ? "bg-indigo-600"
+                  : "bg-slate-200 dark:bg-slate-700"
+              }`}
+            >
+              <div
+                className={`bg-white dark:bg-slate-900 w-6 h-6 rounded-full shadow-md transform transition-transform duration-200 ${
+                  settings.syncWithFirebase ? "translate-x-6" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
 
           {/* Overall All-Time Community Stats */}
           <div className="mt-4">
@@ -448,7 +408,9 @@ export function SettingsScreen() {
         <section className="bg-slate-100/80 dark:bg-slate-900/60 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm p-6 flex flex-col gap-3">
           <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-sm">
             <Info className="h-4.5 w-4.5 shrink-0" />
-            <h3 className="font-heading font-black">{t("disclaimer.title" as TranslationKey)}</h3>
+            <h3 className="font-heading font-black">
+              {t("disclaimer.title" as TranslationKey)}
+            </h3>
           </div>
           <div className="flex flex-col gap-2.5 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
             <div className="flex items-start gap-2 bg-white/60 dark:bg-slate-950/40 p-3 rounded-xl border border-slate-200/50 dark:border-slate-800/50">
