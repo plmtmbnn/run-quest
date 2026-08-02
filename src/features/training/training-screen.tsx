@@ -284,48 +284,51 @@ export function TrainingScreen() {
               />
             </div>
 
-            {/* Week Header */}
-            <div className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-4 md:p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-6">
-              <div className="min-w-0">
-                <h2 className="font-heading text-xl md:text-2xl font-black text-slate-800 dark:text-white truncate">
-                  {t("training.this_weeks_plan")}
-                </h2>
-                <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 mt-1">
-                  {`Week ${currentWeeklyPlan.weekStartDay} - ${currentWeeklyPlan.weekEndDay}`}
-                </p>
-              </div>
-
-              {/* Adherence stat */}
-              <div className="w-full md:w-auto md:min-w-[200px] shrink-0">
-                <div className="flex items-center justify-between gap-2 mb-1.5">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                    {t("training.adherence")}
-                  </span>
-                  <span className="text-sm font-black text-green-600 dark:text-green-400">
-                    {adherence.completionRate}%
-                    <span className="text-slate-400 dark:text-slate-500 font-medium ml-1.5 text-xs">
-                      ({adherence.totalCompleted}/{adherence.totalPlanned})
-                    </span>
-                  </span>
+            {/* Week Header - Mobile-first responsive */}
+            <div className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-4 shadow-sm">
+              <div className="flex flex-col gap-4">
+                {/* Title and week range */}
+                <div className="flex flex-col gap-1">
+                  <h2 className="font-heading text-lg md:text-xl font-black text-slate-800 dark:text-white truncate">
+                    {t("training.this_weeks_plan")}
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {`Week ${currentWeeklyPlan.weekStartDay} - ${currentWeeklyPlan.weekEndDay}`}
+                  </p>
                 </div>
-                <div
-                  className="h-2.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden"
-                  role="progressbar"
-                  aria-valuenow={adherence.completionRate}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-label={t("training.adherence")}
-                >
+
+                {/* Adherence stat - full width on mobile, auto width on desktop */}
+                <div className="w-full">
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      {t("training.adherence")}
+                    </span>
+                    <span className="text-sm font-black text-green-600 dark:text-green-400">
+                      {adherence.completionRate}%
+                      <span className="text-slate-400 dark:text-slate-500 font-medium ml-1.5 text-[10px]">
+                        ({adherence.totalCompleted}/{adherence.totalPlanned})
+                      </span>
+                    </span>
+                  </div>
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all duration-1000 ease-out"
-                    style={{ width: `${adherence.completionRate}%` }}
-                  />
+                    className="h-2.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden"
+                    role="progressbar"
+                    aria-valuenow={adherence.completionRate}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label={t("training.adherence")}
+                  >
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-green-500 to-emerald-500 transition-all duration-1000 ease-out"
+                      style={{ width: `${adherence.completionRate}%` }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Weekly Calendar Grid */}
-            <div id="tour-training-calendar" className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-4 md:p-6 shadow-sm">
+            {/* Weekly Calendar Grid - Mobile-first responsive */}
+            <div id="tour-training-calendar" className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-3 md:p-4 shadow-sm">
               <WeeklyCalendarGrid
                 plan={currentWeeklyPlan}
                 currentDayIndex={dayIndex}

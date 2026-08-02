@@ -133,7 +133,11 @@ export function MedicalScreen() {
   };
 
   // Get estimated recovery time with best treatment
-  const getEstimatedRecoveryWithTreatment = (injury: { type: string; severity: InjurySeverity; daysToRecover: number; daysElapsed: number }) => {
+  const getEstimatedRecoveryWithTreatment = (injury: { type: string; severity: InjurySeverity; daysToRecover: number; daysElapsed: number } | null) => {
+    if (!injury) {
+      return 0;
+    }
+    
     const bestTreatment = getAvailableTreatments(injury.severity as InjurySeverity, runnerLevel, currentBalance)
       .sort((a, b) => a.recoverySpeedup - b.recoverySpeedup)[0];
     
@@ -512,7 +516,7 @@ export function MedicalScreen() {
                     ? t('health.injury_instantly_healed')
                     : t('health.treatment_applied', {
                         treatment: selectedTreatment?.name || '',
-                        days: getEstimatedRecoveryWithTreatment(selectedInjury!)
+                        days: getEstimatedRecoveryWithTreatment(selectedInjury)
                       }))
                   : t('health.treatment_failed_try_again')}
               </p>

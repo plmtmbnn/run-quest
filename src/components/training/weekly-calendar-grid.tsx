@@ -124,11 +124,11 @@ export function WeeklyCalendarGrid({
 
   return (
     <div ref={gridRef} className="w-full overflow-x-auto">
-      {/* Desktop Grid */}
+      {/* Mobile-first Grid - Stacked on mobile, 7-column grid on desktop */}
       <div
         role="list"
         aria-label={t("training.weekly_planner" as TranslationKey)}
-        className="hidden md:grid grid-cols-7 gap-2 md:gap-3 min-w-[600px]"
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 md:gap-3 min-w-[320px]"
       >
         {plan.plannedActivities.map((activity, index) => {
           const dayStatus = getDayStatus(activity);
@@ -142,45 +142,6 @@ export function WeeklyCalendarGrid({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
-              className="flex flex-col gap-2"
-            >
-              <DayPlannerCell
-                dayIndex={activity.dayIndex}
-                dayOfWeek={dayNames[index]}
-                plannedActivity={activity.activity}
-                actualActivity={activity.actualActivity}
-                isCompleted={activity.isCompleted}
-                isToday={isToday}
-                isRest={activity.activity === "Full Rest"}
-                energyCost={activity.energyCost}
-                status={dayStatus}
-                onClick={() => handleDayClick(activity.dayIndex)}
-                isExpanded={pickerDay?.dayIndex === activity.dayIndex}
-              />
-            </motion.div>
-          );
-        })}
-      </div>
-
-      {/* Mobile List (stacked) */}
-      <div
-        role="list"
-        aria-label={t("training.weekly_planner" as TranslationKey)}
-        className="md:hidden flex flex-col gap-3"
-      >
-        {plan.plannedActivities.map((activity, index) => {
-          const dayStatus = getDayStatus(activity);
-          const isToday = activity.dayIndex === currentDayIndex;
-          const isPast = activity.dayIndex < currentDayIndex;
-
-          return (
-            <motion.div
-              key={activity.dayIndex}
-              role="listitem"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-              className="flex flex-col gap-2"
             >
               <DayPlannerCell
                 dayIndex={activity.dayIndex}
@@ -298,15 +259,15 @@ function ActivityPickerModal({
         </div>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-5 pt-3 pb-4 sm:pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div className="flex items-center justify-between px-4 md:px-5 pt-3 pb-3 md:pb-4 border-b border-slate-100 dark:border-slate-800">
           <div className="flex flex-col">
             <h3
               id="activity-picker-title"
-              className="font-heading font-black text-lg text-slate-800 dark:text-white"
+              className="font-heading font-black text-base md:text-lg text-slate-800 dark:text-white"
             >
               {t("training.choose_activity" as TranslationKey)}
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
               {dayLabel} · Day {day.dayIndex}
             </p>
           </div>
@@ -314,7 +275,7 @@ function ActivityPickerModal({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full border border-slate-200 dark:border-slate-800 bg-slate-100/60 dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full border border-slate-200 dark:border-slate-800 bg-slate-100/60 dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none active:scale-95"
           >
             <span className="text-lg leading-none" aria-hidden="true">
               ×
@@ -323,8 +284,8 @@ function ActivityPickerModal({
         </div>
 
         {/* Options */}
-        <div className="px-5 py-4 overflow-y-auto pb-[max(1rem,env(safe-area-inset-bottom))]">
-          <div className="flex flex-col gap-2.5">
+        <div className="px-4 md:px-5 py-3 md:py-4 overflow-y-auto pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <div className="flex flex-col gap-2">
             {options.map((option) => {
               const energy = getActivityEnergyCost(option);
               const isCurrent = option === day.activity;
@@ -333,23 +294,23 @@ function ActivityPickerModal({
                   key={option}
                   type="button"
                   onClick={() => onSelect(option)}
-                  className={`w-full min-h-[52px] flex items-center gap-3 px-4 py-3 rounded-2xl border-2 transition-all text-left focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none
+                  className={`w-full min-h-[48px] flex items-center gap-3 px-3 md:px-4 py-2.5 md:py-3 rounded-xl border-2 transition-all text-left focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none active:scale-95
                     ${
                       isCurrent
                         ? "bg-indigo-50 dark:bg-indigo-950/20 border-indigo-500 dark:border-indigo-400"
-                        : "bg-white dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-[0.99]"
+                        : "bg-white dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
                     }`}
                 >
-                  <span className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shrink-0 text-xl">
+                  <span className="flex items-center justify-center min-w-[40px] min-h-[40px] bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shrink-0 text-lg rounded-full">
                     {getActivityEmoji(option)}
                   </span>
                   <span className="flex-1 min-w-0">
                     <span className="block font-bold text-sm text-slate-800 dark:text-white truncate">
                       {tActivity(option)}
                     </span>
-                    <span className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    <span className="flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
                       <span aria-hidden="true">⚡</span>
-                      {energy} EP
+                      <span className="font-mono font-bold">{energy} EP</span>
                     </span>
                   </span>
                   {isCurrent && (

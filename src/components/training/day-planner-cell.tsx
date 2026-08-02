@@ -76,36 +76,36 @@ export function DayPlannerCell({
     <motion.div
       whileHover={{ scale: 1.01 }}
       whileTap={{ scale: 0.99 }}
-      className={`flex flex-col gap-1 cursor-pointer ${isExpanded ? 'md:col-span-1' : ''}`}
+      className="flex flex-col gap-1"
     >
       <div
         onClick={onClick}
         className={`
-          p-3 md:p-4 rounded-xl border-2 transition-all duration-200
+          p-3 rounded-xl border-2 transition-all duration-200 min-h-[120px]
           ${getStatusStyles()}
           ${todayStyles}
           ${restStyles}
-          ${status === "missed" ? "cursor-not-allowed" : "cursor-pointer"}
+          ${status === "missed" ? "cursor-not-allowed opacity-60" : "cursor-pointer active:scale-95"}
         `}
       >
         <div className="flex justify-between items-start">
           <div className="flex flex-col">
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               {dayOfWeek}
             </span>
-            <span className="text-[10px] text-slate-400 dark:text-slate-500">
+            <span className="text-[9px] text-slate-400 dark:text-slate-500 mt-0.5">
               Day {dayIndex}
             </span>
           </div>
           {isToday && (
-            <span className="text-[10px] bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+            <span className="text-[9px] bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border border-indigo-500/20 dark:border-indigo-500/40">
               Today
             </span>
           )}
         </div>
 
-        <div className="mt-3 flex items-center gap-2">
-          <div className="flex items-center justify-center w-8 h-8 bg-white dark:bg-slate-900 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm shrink-0">
+        <div className="mt-2.5 flex items-center gap-2">
+          <div className="flex items-center justify-center min-w-[36px] min-h-[36px] bg-white dark:bg-slate-900 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm shrink-0">
             <span className={`text-lg ${displayMeta.color}`}>{displayMeta.emoji}</span>
           </div>
           <div className="flex-1 min-w-0">
@@ -113,25 +113,25 @@ export function DayPlannerCell({
               {displayActivity}
             </span>
             {status === "swapped" && actualActivity && (
-              <span className="text-xs text-slate-500 dark:text-slate-400 line-through ml-1">
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 line-through ml-1">
                 {plannedActivity}
               </span>
             )}
           </div>
         </div>
 
-        <div className="mt-3 flex justify-between items-center text-xs">
+        <div className="mt-2.5 flex justify-between items-center text-[10px]">
           <div className="flex items-center gap-1">
-            <span className="text-yellow-500">⚡</span>
-            <span className="font-bold text-slate-600 dark:text-slate-300">
+            <span className="text-amber-500">⚡</span>
+            <span className="font-mono font-bold text-slate-600 dark:text-slate-300">
               {energyCost} EP
             </span>
           </div>
           {isCompleted && status !== "missed" && (
-            <span className="text-green-500 font-bold">✓ Completed</span>
+            <span className="text-emerald-500 font-bold">✓ Completed</span>
           )}
           {status === "missed" && (
-            <span className="text-red-500 font-bold">✗ Missed</span>
+            <span className="text-rose-500 font-bold">✗ Missed</span>
           )}
         </div>
       </div>
