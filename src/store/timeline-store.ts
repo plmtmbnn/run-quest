@@ -130,12 +130,14 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     
     // ✅ PRESERVE runner state before action
     const runnerStateBefore = loadRunnerState();
-    console.log('📊 [XP-DEBUG] Before doAction:', {
-      actionId,
-      xp: runnerStateBefore.profile.xp,
-      level: runnerStateBefore.profile.level,
-      dayIndex: gameState.dayIndex
-    });
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('📊 [XP-DEBUG] Before doAction:', {
+        actionId,
+        xp: runnerStateBefore.profile.xp,
+        level: runnerStateBefore.profile.level,
+        dayIndex: gameState.dayIndex
+      });
+    }
     
     const baseAction = getAction(actionId);
     const action = customEnergyCost !== undefined ? { ...baseAction, energyCost: customEnergyCost } : baseAction;
@@ -160,16 +162,20 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     
     // ✅ VERIFY runner state after action
     const runnerStateAfter = loadRunnerState();
-    console.log('📊 [XP-DEBUG] After doAction:', {
-      actionId,
-      xp: runnerStateAfter.profile.xp,
-      level: runnerStateAfter.profile.level,
-      dayIndex: next.dayIndex
-    });
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('📊 [XP-DEBUG] After doAction:', {
+        actionId,
+        xp: runnerStateAfter.profile.xp,
+        level: runnerStateAfter.profile.level,
+        dayIndex: next.dayIndex
+      });
+    }
     
-    // ✅ RESTORE XP if it was lost
+    // ✅ RESTORE XP if it was lost (safety net for edge cases)
     if (runnerStateAfter.profile.xp < runnerStateBefore.profile.xp) {
-      console.error('⚠️ XP LOSS DETECTED in doAction! Restoring...');
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('⚠️ XP LOSS DETECTED in doAction! Restoring...');
+      }
       const restoredState = {
         ...runnerStateAfter,
         profile: {
@@ -206,12 +212,14 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     
     // ✅ PRESERVE runner state before fast-forward
     const runnerStateBefore = loadRunnerState();
-    console.log('🚀 [FF-DEBUG] Before fast-forward:', {
-      mode,
-      xp: runnerStateBefore.profile.xp,
-      level: runnerStateBefore.profile.level,
-      dayIndex: gameState.dayIndex
-    });
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('🚀 [FF-DEBUG] Before fast-forward:', {
+        mode,
+        xp: runnerStateBefore.profile.xp,
+        level: runnerStateBefore.profile.level,
+        dayIndex: gameState.dayIndex
+      });
+    }
 
     const storyProgress = useStoryStore.getState().storyProgress;
     const currentChapterNum = storyProgress.currentChapter;
@@ -296,16 +304,20 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     
     // ✅ VERIFY runner state after fast-forward
     const runnerStateAfter = loadRunnerState();
-    console.log('🚀 [FF-DEBUG] After fast-forward:', {
-      mode,
-      xp: runnerStateAfter.profile.xp,
-      level: runnerStateAfter.profile.level,
-      dayIndex: finalState.dayIndex
-    });
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('🚀 [FF-DEBUG] After fast-forward:', {
+        mode,
+        xp: runnerStateAfter.profile.xp,
+        level: runnerStateAfter.profile.level,
+        dayIndex: finalState.dayIndex
+      });
+    }
     
     // ✅ RESTORE XP if it was lost during fast-forward
     if (runnerStateAfter.profile.xp < runnerStateBefore.profile.xp) {
-      console.error('⚠️ XP LOSS DETECTED in fast-forward! Restoring...');
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('⚠️ XP LOSS DETECTED in fast-forward! Restoring...');
+      }
       const restoredState = {
         ...runnerStateAfter,
         profile: {

@@ -66,7 +66,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
     );
     return initialCountry.defaultCurrency;
   });
-  const [selectedGameMode, setSelectedGameMode] = useState<"career" | "easy">(
+  const [selectedGameMode, setSelectedGameMode] = useState<"career" | "easy" | "focus">(
     "career",
   );
   const unlockAllItems = useShopStore((state) => state.unlockAllItems);
@@ -181,7 +181,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
     setPreferredCurrency(selectedCurrency);
     setGameMode(selectedGameMode);
 
-    if (selectedGameMode === "easy") {
+    if (selectedGameMode === "easy" || selectedGameMode === "focus") {
       unlockAllItems();
       const timelineStore = useTimelineStore.getState();
       if (!timelineStore.gameState) {
@@ -509,7 +509,7 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                               "onboarding.game_mode.title" as TranslationKey,
                             ) || "Game Mode"}
                           </span>
-                          <div className="grid grid-cols-2 gap-2">
+                          <div className="grid grid-cols-3 gap-2">
                             <button
                               type="button"
                               onClick={() => {
@@ -546,6 +546,25 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
                                 {t(
                                   "onboarding.game_mode.easy" as TranslationKey,
                                 ) || "Easy (All Unlocked)"}
+                              </span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                playSound("click");
+                                setSelectedGameMode("focus");
+                              }}
+                              className={`py-2 px-2 rounded-xl text-[10px] sm:text-xs font-extrabold transition-all border text-center flex flex-col items-center justify-center gap-1 min-h-[56px] ${
+                                selectedGameMode === "focus"
+                                  ? "bg-purple-500 text-white border-purple-500 shadow-sm shadow-purple-500/30"
+                                  : "bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900"
+                              }`}
+                            >
+                              <span className="text-sm">🎯</span>
+                              <span className="leading-tight">
+                                {t(
+                                  "onboarding.game_mode.focus" as TranslationKey,
+                                ) || "Focus 1 Race"}
                               </span>
                             </button>
                           </div>

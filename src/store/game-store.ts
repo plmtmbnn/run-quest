@@ -5,12 +5,14 @@ interface GameState {
   currentChallenge: DailyChallenge | null;
   lastResult: SimulationResult | null;
   activeGhost: { runnerName: string; splits: number[] } | null;
+  focusTargetPosition: string | null;
 
   setChallenge: (challenge: DailyChallenge) => void;
   setResult: (result: SimulationResult) => void;
   setActiveGhost: (
     ghost: { runnerName: string; splits: number[] } | null,
   ) => void;
+  setFocusTargetPosition: (position: string | null) => void;
   clearState: () => void;
 }
 
@@ -18,10 +20,12 @@ export const useGameStore = create<GameState>((set) => ({
   currentChallenge: null,
   lastResult: null,
   activeGhost: null,
+  focusTargetPosition: null,
 
   setChallenge: (challenge) => set({ currentChallenge: challenge }),
   setResult: (result) => set({ lastResult: result }),
   setActiveGhost: (ghost) => set({ activeGhost: ghost }),
+  setFocusTargetPosition: (position) => set({ focusTargetPosition: position }),
   clearState: () =>
-    set({ currentChallenge: null, lastResult: null, activeGhost: null }),
+    set({ currentChallenge: null, lastResult: null, activeGhost: null, focusTargetPosition: null }),
 }));

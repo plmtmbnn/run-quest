@@ -8,6 +8,7 @@ import {
 } from "./runner-types";
 
 import { storageRepository } from "@/storage/storage-repository";
+import { resetXPTracker } from "./xp-tracker";
 
 const RUNNER_STORAGE_KEY = "runquest.runner";
 const OLD_RUNNER_STORAGE_KEY = "runnerProfile"; // Legacy key for migration
@@ -71,6 +72,7 @@ export const saveRunnerState = (state: RunnerState): void => {
  */
 export const resetRunnerState = (): void => {
   saveRunnerState(DEFAULT_RUNNER_STATE);
+  resetXPTracker();
 };
 
 /**

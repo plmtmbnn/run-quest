@@ -14,8 +14,15 @@ const OnboardingScreen = dynamic(
     ),
   { ssr: false },
 );
+const FocusRaceScreen = dynamic(
+  () =>
+    import("@/features/focus-race/focus-race-screen").then(
+      (mod) => mod.FocusRaceScreen,
+    ),
+  { ssr: false },
+);
 
-type AppScreen = "loading" | "onboarding" | "home";
+type AppScreen = "loading" | "onboarding" | "home" | "focus";
 
 /**
  * Root page — routes the player to the correct screen.
@@ -30,17 +37,19 @@ export default function Page() {
   useEffect(() => {
     // After hydration, check whether the player has completed onboarding.
     const stored = globalThis.localStorage?.getItem("runquest.settings");
+    let gameMode = "career";
     let hasCompleted = false;
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
         hasCompleted = parsed.hasCompletedOnboarding === true;
+        gameMode = parsed.gameMode || "career";
       } catch {
         hasCompleted = false;
       }
     }
 
-    setScreen(hasCompleted ? "home" : "onboarding");
+    setScreen(hasCompleted ? (gameMode === "focus" ? "focus" : "home") : "onboarding");
   }, []);
 
   if (screen === "loading") {
@@ -55,6 +64,10 @@ export default function Page() {
 
   if (screen === "onboarding") {
     return <OnboardingScreen onComplete={() => setScreen("home")} />;
+  }
+
+  if (screen === "focus") {
+    return <FocusRaceScreen />;
   }
 
   return <HomeScreen />;

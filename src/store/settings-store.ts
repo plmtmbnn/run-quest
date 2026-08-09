@@ -43,7 +43,7 @@ export interface SettingsState {
   setSound: (value: boolean) => void;
   setHapticFeedback: (value: boolean) => void;
   setPreferredCurrency: (currency: CurrencyCode) => void;
-  setGameMode: (mode: "easy" | "career") => void;
+  setGameMode: (mode: "easy" | "career" | "focus") => void;
   setSyncEnabled: (enabled: boolean) => void;
   setPreferences: (prefs: StoredSettings["preferences"]) => void;
   completeOnboarding: () => void;

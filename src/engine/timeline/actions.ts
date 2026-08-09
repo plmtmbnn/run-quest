@@ -265,11 +265,17 @@ export function applyAction(state: GameState, action: Action): GameState {
       workTypeId,
     );
     
-    // ✅ Award XP for working (5 XP per work session)
+    // ✅ Award XP for working (5 XP per work session) - SYNCHRONOUS to prevent race conditions
     if (typeof window !== "undefined") {
-      import("../../runner/xp-rewards").then(({ awardJobXP }) => {
+      try {
+        const { awardJobXP } = require("../../runner/xp-rewards");
         awardJobXP("work");
-      });
+      } catch (error) {
+        // Silently fail if xp-rewards module is not available
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn('Failed to award work XP:', error);
+        }
+      }
     }
     
     updatedState = {

@@ -30,6 +30,7 @@ import { setPBIfFaster } from "@/runner/personal-best";
 import { useSound } from "@/hooks/use-sound";
 import { useSocialStore } from "@/social/social-store";
 import { useGameStore } from "@/store/game-store";
+import { useSettingsStore } from "@/store/settings-store";
 import { usePlayerStore } from "@/store/player-store";
 import { usePreparationStore } from "@/store/preparation-store";
 import { useTimelineStore } from "@/store/timeline-store";
@@ -44,7 +45,8 @@ export function ResultScreen() {
   const lang = (language === "id" ? "id" : "en") as "en" | "id";
   const { playSound } = useSound();
 
-  const { lastResult, currentChallenge, clearState } = useGameStore();
+  const { lastResult, currentChallenge, focusTargetPosition, clearState } = useGameStore();
+  const gameMode = useSettingsStore((state) => state.settings.gameMode);
   const { reset } = usePreparationStore();
   const { runnerState, setRunnerState } = useRunnerStore();
   const player = usePlayerStore((state) => state.player);
@@ -482,7 +484,12 @@ export function ResultScreen() {
   const handleBackHome = () => {
     clearState();
     reset();
-    router.push("/");
+    if (gameMode === "focus") {
+      router.push("/?mode=focus");
+      // Since page.tsx routes based on settings, we just push / and let it route
+    } else {
+      router.push("/");
+    }
   };
 
   return (
@@ -512,10 +519,17 @@ export function ResultScreen() {
             <button
               type="button"
               onClick={handleBackHome}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 transition hover:bg-gray-50 dark:hover:bg-slate-800 active:scale-95"
-              aria-label="Go Home"
+              className={`flex items-center justify-center rounded-full border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 transition hover:bg-gray-50 dark:hover:bg-slate-800 active:scale-95 ${gameMode === "focus" ? 'px-4 h-10 gap-2 font-bold text-xs' : 'h-10 w-10'}`}
+              aria-label={gameMode === "focus" ? "Play Again" : "Go Home"}
             >
-              <Home className="h-4.5 w-4.5 text-gray-600 dark:text-gray-300" />
+              {gameMode === "focus" ? (
+                <>
+                  <Home className="h-4.5 w-4.5 text-gray-600 dark:text-gray-300" />
+                  <span>Play Again</span>
+                </>
+              ) : (
+                <Home className="h-4.5 w-4.5 text-gray-600 dark:text-gray-300" />
+              )}
             </button>
           </div>
         </div>
@@ -567,6 +581,29 @@ export function ResultScreen() {
             </div>
           </div>
         </div>
+
+        {/* Focus Mode Target Display */}
+        {gameMode === "focus" && focusTargetPosition && (
+          <div className="rounded-[2rem] border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm flex items-center justify-between">
+            <div>
+              <h3 className="font-heading font-black text-sm uppercase text-gray-500 mb-1">Target Position</h3>
+              <p className="text-xl font-bold">{
+                focusTargetPosition === "1st" ? "1st Place" :
+                focusTargetPosition === "podium" ? "Podium (Top 3)" :
+                focusTargetPosition === "top10" ? "Top 10%" : "Finisher"
+              }</p>
+            </div>
+            <div className="text-right">
+              <h3 className="font-heading font-black text-sm uppercase text-gray-500 mb-1">Actual Result</h3>
+              <p className={`text-xl font-bold ${
+                outcome === "gold" || outcome === "silver" || outcome === "bronze" ? "text-emerald-500" :
+                outcome === "finish" ? "text-blue-500" : "text-rose-500"
+              }`}>
+                {t(`challenge.result.outcome_${outcome}` as TranslationKey).toUpperCase()}
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* RP & Ranking Progression Card */}
         {rpGained !== 0 && (

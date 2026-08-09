@@ -5,6 +5,7 @@ import { loadRunnerState, saveRunnerState } from "./runner-persistence";
 import type { RunnerProfile, RunnerState } from "./runner-types";
 // Import from progression-engine for consistency
 import { awardXP } from "./progression-engine";
+import { safelyAwardXP } from "./xp-tracker";
 
 /**
  * Calculates the runner's Race Readiness based on Fitness, Fatigue, and other factors.
@@ -197,12 +198,16 @@ export const completeRace = (
 
   const finalXpGained = (xpGained || 0) + bonusXp;
   if (finalXpGained > 0) {
-    const xpResult = awardXP(updatedProfile, finalXpGained);
+    // Use the new XP tracker to prevent race conditions
+    safelyAwardXP(finalXpGained, `race:complete`);
+    
+    // Update profile with new XP values from tracker
+    const currentState = loadRunnerState();
     updatedProfile = {
       ...updatedProfile,
-      xp: xpResult.xp,
-      level: xpResult.level,
-      skillPoints: xpResult.skillPoints,
+      xp: currentState.profile.xp,
+      level: currentState.profile.level,
+      skillPoints: currentState.profile.skillPoints,
     };
   }
 

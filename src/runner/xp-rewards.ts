@@ -10,6 +10,7 @@
 
 import { awardXP, applyXPReward } from './progression-engine';
 import { loadRunnerState, saveRunnerState } from './runner-persistence';
+import { safelyAwardXP, getXPState } from './xp-tracker';
 import type { RunnerState } from './runner-types';
 
 /**
@@ -54,12 +55,7 @@ export const XP_BY_JOB_ACTIVITY = {
  */
 export function awardTrainingXP(activity: keyof typeof XP_BY_TRAINING_ACTIVITY): number {
   const xp = XP_BY_TRAINING_ACTIVITY[activity] || 15;
-  const currentState = loadRunnerState();
-  const updatedProfile = applyXPReward(currentState.profile, xp);
-  const updatedState = { ...currentState, profile: updatedProfile, lastUpdated: new Date().toISOString() };
-  saveRunnerState(updatedState);
-  
-  console.log(`🏃 Training XP: +${xp} for ${activity} (Total: ${updatedState.profile.xp}, Level: ${updatedState.profile.level})`);
+  safelyAwardXP(xp, `training:${activity}`);
   return xp;
 }
 
@@ -68,12 +64,7 @@ export function awardTrainingXP(activity: keyof typeof XP_BY_TRAINING_ACTIVITY):
  */
 export function awardRegistrationXP(tier: keyof typeof XP_BY_RACE_TIER_REGISTRATION): number {
   const xp = XP_BY_RACE_TIER_REGISTRATION[tier] || 10;
-  const currentState = loadRunnerState();
-  const updatedProfile = applyXPReward(currentState.profile, xp);
-  const updatedState = { ...currentState, profile: updatedProfile, lastUpdated: new Date().toISOString() };
-  saveRunnerState(updatedState);
-  
-  console.log(`📝 Registration XP: +${xp} for ${tier} race (Total: ${updatedState.profile.xp}, Level: ${updatedState.profile.level})`);
+  safelyAwardXP(xp, `registration:${tier}`);
   return xp;
 }
 
@@ -82,12 +73,7 @@ export function awardRegistrationXP(tier: keyof typeof XP_BY_RACE_TIER_REGISTRAT
  */
 export function awardJobXP(action: keyof typeof XP_BY_JOB_ACTIVITY): number {
   const xp = XP_BY_JOB_ACTIVITY[action];
-  const currentState = loadRunnerState();
-  const updatedProfile = applyXPReward(currentState.profile, xp);
-  const updatedState = { ...currentState, profile: updatedProfile, lastUpdated: new Date().toISOString() };
-  saveRunnerState(updatedState);
-  
-  console.log(`💼 Job XP: +${xp} for ${action} (Total: ${updatedState.profile.xp}, Level: ${updatedState.profile.level})`);
+  safelyAwardXP(xp, `job:${action}`);
   return xp;
 }
 
@@ -130,12 +116,7 @@ export function awardRaceCompletionXP(
   const { calculateRaceXP } = require('./progression-engine');
   const xp = calculateRaceXP(placement, totalEntrants, distance, tier, isChampionship);
   
-  const currentState = loadRunnerState();
-  const updatedProfile = applyXPReward(currentState.profile, xp);
-  const updatedState = { ...currentState, profile: updatedProfile, lastUpdated: new Date().toISOString() };
-  saveRunnerState(updatedState);
-  
-  console.log(`🏆 Race Completion XP: +${xp} (Placement: ${placement}/${totalEntrants}, Total: ${updatedState.profile.xp}, Level: ${updatedState.profile.level})`);
+  safelyAwardXP(xp, `race:${tier}:placement:${placement}`);
   return xp;
 }
 
@@ -162,16 +143,13 @@ export function awardRaceCompletionXPFromSimulation(
  */
 export function awardBonusXP(amount: number, reason: string): number {
   if (amount < 0) {
-    console.warn('⚠️ Attempted to award negative bonus XP:', amount);
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('⚠️ Attempted to award negative bonus XP:', amount);
+    }
     return 0;
   }
   
-  const currentState = loadRunnerState();
-  const updatedProfile = applyXPReward(currentState.profile, amount);
-  const updatedState = { ...currentState, profile: updatedProfile, lastUpdated: new Date().toISOString() };
-  saveRunnerState(updatedState);
-  
-  console.log(`⭐ Bonus XP: +${amount} for ${reason} (Total: ${updatedState.profile.xp}, Level: ${updatedState.profile.level})`);
+  safelyAwardXP(amount, `bonus:${reason}`);
   return amount;
 }
 
@@ -202,9 +180,11 @@ export function ensureXPPreserved(beforeState: RunnerState, afterState: RunnerSt
  */
 export function logXPState(context: string): void {
   const currentState = loadRunnerState();
-  console.log(`📊 [XP-DEBUG] ${context}:`, {
-    xp: currentState.profile.xp,
-    level: currentState.profile.level,
-    skillPoints: currentState.profile.skillPoints,
-  });
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`📊 [XP-DEBUG] ${context}:`, {
+      xp: currentState.profile.xp,
+      level: currentState.profile.level,
+      skillPoints: currentState.profile.skillPoints,
+    });
+  }
 }
