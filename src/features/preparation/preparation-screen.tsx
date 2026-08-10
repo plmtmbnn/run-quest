@@ -66,25 +66,36 @@ export function PreparationScreen() {
   const [showLoadoutSelector, setShowLoadoutSelector] = useState(false);
   const [showSaveLoadout, setShowSaveLoadout] = useState(false);
   const [loadoutName, setLoadoutName] = useState("");
+  const [activeLoadoutId, setActiveLoadoutId] = useState<string | null>(null);
+  const [appliedToast, setAppliedToast] = useState<string | null>(null);
 
-  // Get loadouts for current race distance
+  // Get loadouts for current race distance with fallback
   const raceDistance = challenge.race.distance;
-  const availableLoadouts = [5, 10, 21.1, 42.2].includes(raceDistance)
-    ? getLoadoutsForDistance(raceDistance as Distance)
-    : [];
+  const availableLoadouts = (() => {
+    const matching = getLoadoutsForDistance(raceDistance as Distance);
+    if (matching.length > 0) return matching;
+    return useLoadoutStore.getState().loadouts;
+  })();
 
   useEffect(() => {
     if (!schedulingState) return;
 
     const scheduleId = currentChallenge?.scheduleId;
-    if (!scheduleId) {
+    if (
+      !scheduleId ||
+      scheduleId.startsWith("parkrun_") ||
+      scheduleId.startsWith("focus_") ||
+      scheduleId.startsWith("quick_")
+    ) {
       return;
     }
 
     const instanceKey = makeRegistrationKey(scheduleId, dayIndex);
-    const isThisOccurrenceDone =
-      schedulingState.completedRaces[instanceKey] !== undefined ||
-      schedulingState.completedRaces[`${scheduleId}_${dayIndex}`] !== undefined;
+    const completedDay =
+      schedulingState.completedRaces[instanceKey] ??
+      schedulingState.completedRaces[`${scheduleId}_${dayIndex}`];
+
+    const isThisOccurrenceDone = completedDay === dayIndex;
 
     if (isThisOccurrenceDone) {
       router.replace("/");
@@ -275,8 +286,10 @@ export function PreparationScreen() {
       nutritionQuantities: validQuantities,
     });
 
-    // Mark loadout as used
+    // Mark loadout as used & update active selection UI state
     useLoadout(loadoutId);
+    setActiveLoadoutId(loadoutId);
+    setAppliedToast(loadout.name);
     setShowLoadoutSelector(false);
   };
 
@@ -468,22 +481,52 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
               </div>
             </div>
 
+            {/* Applied Loadout Toast Banner */}
+            {appliedToast && (
+              <div className="mb-3 p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-xs font-bold flex items-center justify-between shadow-sm">
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-500" />
+                  <span>⚡ Loadout applied: <strong>{appliedToast}</strong></span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAppliedToast(null)}
+                  className="p-1 rounded-full hover:bg-emerald-100 dark:hover:bg-emerald-900 transition-all text-emerald-700 dark:text-emerald-300"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+
             {/* Loadout Selection Pills */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 scrollbar-none">
               {availableLoadouts.length > 0 ? (
-                availableLoadouts.map((loadout) => (
-                  <button
-                    key={loadout.id}
-                    type="button"
-                    onClick={() => handleLoadLoadout(loadout.id)}
-                    className="shrink-0 px-3.5 py-2 rounded-2xl text-xs font-bold border transition-all active:scale-95 flex items-center gap-2 bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50/40 dark:hover:bg-indigo-950/30"
-                  >
-                    <span>⚡ {loadout.name}</span>
-                    <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold">
-                      {loadout.distance === "all" ? "ALL" : `${loadout.distance}K`}
-                    </span>
-                  </button>
-                ))
+                availableLoadouts.map((loadout) => {
+                  const isActive = activeLoadoutId === loadout.id;
+                  return (
+                    <button
+                      key={loadout.id}
+                      type="button"
+                      onClick={() => handleLoadLoadout(loadout.id)}
+                      className={`shrink-0 px-3.5 py-2 rounded-2xl text-xs font-bold border transition-all active:scale-95 flex items-center gap-2 ${
+                        isActive
+                          ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-500/20"
+                          : "bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50/40 dark:hover:bg-indigo-950/30"
+                      }`}
+                    >
+                      <span>⚡ {loadout.name}</span>
+                      <span
+                        className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded font-bold ${
+                          isActive
+                            ? "bg-indigo-700 text-white"
+                            : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300"
+                        }`}
+                      >
+                        {loadout.distance === "all" ? "ALL" : `${loadout.distance}K`}
+                      </span>
+                    </button>
+                  );
+                })
               ) : (
                 <p className="text-xs text-slate-400 dark:text-slate-500 italic py-1">
                   {t("preparation.loadout_presets.no_loadouts" as TranslationKey)}

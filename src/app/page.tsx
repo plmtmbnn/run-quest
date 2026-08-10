@@ -22,6 +22,8 @@ const FocusRaceScreen = dynamic(
   { ssr: false },
 );
 
+import { useSettingsStore } from "@/store/settings-store";
+
 type AppScreen = "loading" | "onboarding" | "home" | "focus";
 
 /**
@@ -33,28 +35,22 @@ type AppScreen = "loading" | "onboarding" | "home" | "focus";
  */
 export default function Page() {
   const [screen, setScreen] = useState<AppScreen>("loading");
+  const gameMode = useSettingsStore((state) => state.settings.gameMode);
+  const hasCompletedOnboarding = useSettingsStore(
+    (state) => state.settings.hasCompletedOnboarding
+  );
 
   useEffect(() => {
-    // After hydration, check whether the player has completed onboarding.
-    const stored = globalThis.localStorage?.getItem("runquest.settings");
-    let gameMode = "career";
-    let hasCompleted = false;
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        hasCompleted = parsed.hasCompletedOnboarding === true;
-        gameMode = parsed.gameMode || "career";
-      } catch {
-        hasCompleted = false;
-      }
+    if (!hasCompletedOnboarding) {
+      setScreen("onboarding");
+    } else if (gameMode === "focus") {
+      setScreen("focus");
+    } else {
+      setScreen("home");
     }
-
-    setScreen(hasCompleted ? (gameMode === "focus" ? "focus" : "home") : "onboarding");
-  }, []);
+  }, [hasCompletedOnboarding, gameMode]);
 
   if (screen === "loading") {
-    // Render a minimal skeleton loader until the client has checked localStorage.
-    // This avoids the SSR/client hydration mismatch while providing visual feedback.
     return (
       <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
         <div className="text-neutral-400 text-sm animate-pulse">Loading RunQuest...</div>
@@ -63,7 +59,14 @@ export default function Page() {
   }
 
   if (screen === "onboarding") {
-    return <OnboardingScreen onComplete={() => setScreen("home")} />;
+    return (
+      <OnboardingScreen
+        onComplete={() => {
+          const currentMode = useSettingsStore.getState().settings.gameMode;
+          setScreen(currentMode === "focus" ? "focus" : "home");
+        }}
+      />
+    );
   }
 
   if (screen === "focus") {

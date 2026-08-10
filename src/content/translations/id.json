@@ -111,7 +111,9 @@
     "game_mode": {
       "title": "Mode Permainan",
       "career": "Karir (Standar)",
-      "easy": "Mudah (Semua Terbuka)"
+      "easy": "Mudah (Semua Terbuka)",
+      "focus": "Fokus 1 Balapan",
+      "season": "Mode Musim"
     },
     "currency": {
       "title": "Mata Uang Default",
@@ -251,6 +253,16 @@
       "light": "Terang",
       "dark": "Gelap",
       "system": "Sistem"
+    },
+    "mode": {
+      "title": "Mode Permainan Aktif",
+      "desc": "Ganti antara Mode Karir, Sandbox Mudah, dan Mode Fokus 1 Balapan.",
+      "career": "Mode Karir",
+      "career_desc": "Simulasi penuh dengan pekerjaan harian, ekonomi, kalender, dan progres perlengkapan.",
+      "easy": "Mode Mudah (Sandbox)",
+      "easy_desc": "Mode karir dengan semua sepatu, alat & nutrisi terbuka, plus uang ekstra.",
+      "focus": "Fokus 1 Balapan",
+      "focus_desc": "Set balapan instant dengan rekor pribadi & tingkat kesulitan AI."
     },
     "preferences": {
       "desc": "Race yang cocok dengan preferensi ini akan diprioritaskan di Papan Balap Harianmu.",

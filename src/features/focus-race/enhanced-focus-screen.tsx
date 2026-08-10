@@ -28,6 +28,7 @@ import { generateRaceChallenge } from "@/services/challenge/generator";
 import { generateChallengesForDistance, getAIFieldStrength } from "@/engine/focus/challenge-generator";
 import { generateWeather, generateCourse } from "@/engine/focus/weather-generator";
 import { useSound } from "@/hooks/use-sound";
+import { useTimelineStore } from "@/store/timeline-store";
 import type { Surface, Elevation } from "@/types/engine";
 
 type DistanceOption = {
@@ -50,6 +51,7 @@ export function EnhancedFocusScreen() {
   const setGameMode = useSettingsStore((state) => state.setGameMode);
   const { setChallenge } = useGameStore();
   const { preparation } = usePreparationStore();
+  const currentDayIndex = useTimelineStore((state) => state.gameState?.dayIndex ?? 0);
   
   // Focus progression store
   const {
@@ -146,7 +148,7 @@ export function EnhancedFocusScreen() {
     // Generate race challenge
     const challenge = generateRaceChallenge({
       scheduleId: "focus_race",
-      dayIndex: 1,
+      dayIndex: currentDayIndex,
       distance: selectedDistance,
       surface: course.surface as Surface,
       elevation: course.elevation === "flat" ? "flat" : course.elevation === "hilly" ? "hilly" : "rolling" as Elevation,

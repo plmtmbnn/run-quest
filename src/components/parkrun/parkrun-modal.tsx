@@ -9,6 +9,7 @@ import { useLoadoutStore } from "@/store/loadout-store";
 import { useGameStore } from "@/store/game-store";
 import { generateRaceChallenge } from "@/services/challenge/generator";
 import { useSound } from "@/hooks/use-sound";
+import { useTimelineStore } from "@/store/timeline-store";
 import type { Surface, Elevation } from "@/types/engine";
 import type { Distance } from "@/store/focus-progression-store";
 
@@ -36,13 +37,15 @@ export function ParkrunModal({ onClose }: ParkrunModalProps) {
     return `${minutes}:${secs.toString().padStart(2, "0")}`;
   };
   
+  const currentDayIndex = useTimelineStore((state) => state.gameState?.dayIndex ?? 0);
+
   const handleStartParkrun = (parkrun: ParkrunEvent) => {
     playSound("success");
     
     // Generate race challenge
     const challenge = generateRaceChallenge({
       scheduleId: `parkrun_${parkrun.id}`,
-      dayIndex: 1, // Current day
+      dayIndex: currentDayIndex,
       distance: parkrun.distance,
       surface: "road" as Surface,
       elevation: "flat" as Elevation,

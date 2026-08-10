@@ -114,6 +114,12 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     const updated = { ...get().settings, gameMode };
     storageRepository.saveSettings(updated);
     set({ settings: updated });
+
+    if (gameMode === "easy" || gameMode === "focus") {
+      import("@/shop/shop-store").then(({ useShopStore }) => {
+        useShopStore.getState().unlockAllItems();
+      });
+    }
   },
 
   setSyncEnabled(enabled) {

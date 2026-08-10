@@ -76,14 +76,21 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
     if (!schedulingState) return;
 
     const scheduleId = currentChallenge?.scheduleId;
-    if (!scheduleId) {
+    if (
+      !scheduleId ||
+      scheduleId.startsWith("parkrun_") ||
+      scheduleId.startsWith("focus_") ||
+      scheduleId.startsWith("quick_")
+    ) {
       return;
     }
 
     const instanceKey = makeRegistrationKey(scheduleId, dayIndex);
-    const isThisOccurrenceDone =
-      schedulingState.completedRaces[instanceKey] !== undefined ||
-      schedulingState.completedRaces[`${scheduleId}_${dayIndex}`] !== undefined;
+    const completedDay =
+      schedulingState.completedRaces[instanceKey] ??
+      schedulingState.completedRaces[`${scheduleId}_${dayIndex}`];
+
+    const isThisOccurrenceDone = completedDay === dayIndex;
 
     if (isThisOccurrenceDone) {
       router.replace("/");

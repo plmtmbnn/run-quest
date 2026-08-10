@@ -14,7 +14,7 @@ import { FULL_CATALOG } from "./shop-catalog";
 
 export const DEFAULT_INVENTORY: PlayerInventory = {
   shoes: { daily_trainer: true } as Record<Shoe, boolean>,
-  nutrition: {} as Record<Nutrition, number>,
+  nutrition: { water: 5 } as Record<Nutrition, number>,
   gear: {} as Record<Gear, boolean>,
 };
 
@@ -53,10 +53,14 @@ export const useShopStore = create<ShopState>((set, get) => ({
     if (get().isInitialized) return;
     const stored = storageRepository.loadInventory();
     if (stored) {
+      const storedNutrition = (stored.nutrition as Record<Nutrition, number>) || {};
+      if (storedNutrition.water === undefined || storedNutrition.water === 0) {
+        storedNutrition.water = 5;
+      }
       set({
         inventory: {
           shoes: (stored.shoes as Record<Shoe, boolean>) || { daily_trainer: true },
-          nutrition: (stored.nutrition as Record<Nutrition, number>) || {},
+          nutrition: storedNutrition,
           gear: (stored.gear as Record<Gear, boolean>) || {},
         },
         isInitialized: true,

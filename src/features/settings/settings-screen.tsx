@@ -39,6 +39,7 @@ export function SettingsScreen() {
     setPreferences,
     setPreferredCurrency,
     setSyncEnabled,
+    setGameMode,
     resetAllData,
   } = useSettingsStore();
   const { playSound } = useSound();
@@ -275,6 +276,76 @@ export function SettingsScreen() {
               </div>
             </div>
           </>
+
+          <hr className="border-[#E5E7EB] dark:border-slate-800" />
+
+          {/* Game Mode Selection */}
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                <span>🎮</span> {t("settings.mode.title" as TranslationKey)}
+              </span>
+              <span className="text-xs text-gray-400 dark:text-gray-500">
+                {t("settings.mode.desc" as TranslationKey)}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">
+              {[
+                {
+                  id: "career" as const,
+                  title: t("settings.mode.career" as TranslationKey),
+                  desc: t("settings.mode.career_desc" as TranslationKey),
+                  icon: "🏆",
+                  color: "border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300",
+                },
+                {
+                  id: "easy" as const,
+                  title: t("settings.mode.easy" as TranslationKey),
+                  desc: t("settings.mode.easy_desc" as TranslationKey),
+                  icon: "🚀",
+                  color: "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300",
+                },
+                {
+                  id: "focus" as const,
+                  title: t("settings.mode.focus" as TranslationKey),
+                  desc: t("settings.mode.focus_desc" as TranslationKey),
+                  icon: "🎯",
+                  color: "border-purple-500 bg-purple-50/50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300",
+                },
+              ].map((modeItem) => {
+                const isSelected = (settings.gameMode || "career") === modeItem.id;
+                return (
+                  <button
+                    key={modeItem.id}
+                    type="button"
+                    onClick={() => {
+                      playSound("click");
+                      setGameMode(modeItem.id);
+                    }}
+                    className={`p-4 rounded-2xl border-2 text-left flex flex-col gap-1.5 transition-all active:scale-95 ${
+                      isSelected
+                        ? modeItem.color
+                        : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-lg">{modeItem.icon}</span>
+                      {isSelected && (
+                        <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900">
+                          Active
+                        </span>
+                      )}
+                    </div>
+                    <span className="font-heading font-black text-sm">{modeItem.title}</span>
+                    <span className="text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
+                      {modeItem.desc}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           <hr className="border-[#E5E7EB] dark:border-slate-800" />
 

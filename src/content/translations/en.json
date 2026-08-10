@@ -111,7 +111,9 @@
     "game_mode": {
       "title": "Game Mode",
       "career": "Career (Standard)",
-      "easy": "Easy (All Unlocked)"
+      "easy": "Easy (All Unlocked)",
+      "focus": "Focus 1 Race",
+      "season": "Season Mode"
     },
     "currency": {
       "title": "Default Currency",
@@ -251,6 +253,16 @@
       "light": "Light",
       "dark": "Dark",
       "system": "System"
+    },
+    "mode": {
+      "title": "Active Game Mode",
+      "desc": "Switch between Career Mode, Easy Sandbox, and Focus 1 Race mode.",
+      "career": "Career Mode",
+      "career_desc": "Full simulation with daily jobs, economy, calendar, and gear progression.",
+      "easy": "Easy Mode (Sandbox)",
+      "easy_desc": "Career mode with all shoes, gear & fuel unlocked, plus extra cash.",
+      "focus": "Focus 1 Race",
+      "focus_desc": "Instant arcade race setup with personal bests & custom AI difficulty."
     },
     "preferences": {
       "desc": "Races matching your preferences will be prioritized on your Daily Race Board.",
