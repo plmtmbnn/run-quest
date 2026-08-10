@@ -732,6 +732,25 @@
         "name": "Gritty",
         "desc": "Pushes through pain. Risks over-exertion."
       }
+    },
+    "loadout_presets": {
+      "title": "Quick Loadout",
+      "subtitle": "Apply a saved race strategy setup",
+      "select": "Choose Loadout...",
+      "save_button": "Save as Loadout",
+      "manage_button": "Manage Loadouts",
+      "modal_title": "Save Race Loadout",
+      "modal_subtitle": "Save current gear, fuel & pacing choices for future races",
+      "name_label": "Loadout Name",
+      "name_placeholder": "e.g. 5K PR Speed Setup",
+      "save": "Save Loadout",
+      "manager_title": "Race Loadouts",
+      "manager_subtitle": "Available setups for this race distance",
+      "no_loadouts": "No saved loadouts for this distance yet.",
+      "custom_badge": "Custom",
+      "preset_badge": "Preset",
+      "applied": "Loadout applied!",
+      "delete_confirm": "Are you sure you want to delete this loadout?"
     }
   },
   "challenge": {

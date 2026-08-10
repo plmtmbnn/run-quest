@@ -732,6 +732,25 @@
         "name": "Gritty",
         "desc": "Menembus batas rasa sakit. Berisiko overtraining."
       }
+    },
+    "loadout_presets": {
+      "title": "Quick Loadout",
+      "subtitle": "Terapkan strategi balap yang telah disimpan",
+      "select": "Pilih Loadout...",
+      "save_button": "Simpan Loadout",
+      "manage_button": "Kelola Loadout",
+      "modal_title": "Simpan Loadout Balap",
+      "modal_subtitle": "Simpan kombinasi sepatu, nutrisi, perlengkapan & taktik saat ini",
+      "name_label": "Nama Loadout",
+      "name_placeholder": "misal: Set Balap 5K Kencang",
+      "save": "Simpan Loadout",
+      "manager_title": "Loadout Balapan",
+      "manager_subtitle": "Preset strategi yang tersedia untuk jarak ini",
+      "no_loadouts": "Belum ada loadout tersimpan untuk jarak ini.",
+      "custom_badge": "Kustom",
+      "preset_badge": "Preset",
+      "applied": "Loadout berhasil diterapkan!",
+      "delete_confirm": "Apakah Anda yakin ingin menghapus loadout ini?"
     }
   },
   "challenge": {

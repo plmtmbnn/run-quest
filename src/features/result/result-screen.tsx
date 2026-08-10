@@ -10,6 +10,7 @@ import { RaceReportCard } from "@/components/share/race-report-card";
 import { ShareModal } from "@/components/share/share-modal";
 import { PostRaceAnalytics } from "@/components/race/post-race-analytics";
 import { EnhancedStandings } from "@/components/race/enhanced-standings";
+import { FocusResultEnhancement } from "@/components/focus/focus-result-enhancement";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { saveRunToHistory } from "@/runner/run-history";
 import { useRunnerStore } from "@/runner/runner-store";
@@ -492,6 +493,36 @@ export function ResultScreen() {
     }
   };
 
+  // Calculate player position for Focus Mode
+  const getPlayerPosition = (): number => {
+    if (outcome === "dnf" || outcome === "dns") return 999; // DNF/DNS treated as last place
+    
+    const finalState = lastResult.stateLog?.[lastResult.stateLog.length - 1];
+    if (!finalState?.opponents) return 1; // If no opponents, player is 1st
+    
+    // Count how many opponents finished ahead of the player
+    let position = 1;
+    for (const opp of finalState.opponents) {
+      if (!opp.isDNF && opp.accumulatedTime < lastResult.finishTime) {
+        position++;
+      }
+    }
+    
+    return position;
+  };
+
+  const handleRaceAgain = () => {
+    clearState();
+    reset();
+    router.push("/?mode=focus");
+  };
+
+  const handleBackToFocus = () => {
+    clearState();
+    reset();
+    router.push("/?mode=focus");
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
@@ -536,6 +567,17 @@ export function ResultScreen() {
       </header>
 
       <main className="mx-auto max-w-3xl px-6 py-8 flex flex-col gap-8">
+        {/* Focus Mode Enhancement - Shows progression, achievements, and quick actions */}
+        {gameMode === "focus" && challenge.race.distance && [5, 10, 21.1, 42.2].includes(challenge.race.distance) && (
+          <FocusResultEnhancement
+            result={lastResult}
+            distance={challenge.race.distance as 5 | 10 | 21.1 | 42.2}
+            position={getPlayerPosition()}
+            onRaceAgain={handleRaceAgain}
+            onBackToFocus={handleBackToFocus}
+          />
+        )}
+
         {/* Core Stats Overview */}
         <div id="tour-result-summary" className="rounded-[2rem] border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col md:flex-row items-center gap-8 justify-around">
           {/* Medal / DNF Icon */}

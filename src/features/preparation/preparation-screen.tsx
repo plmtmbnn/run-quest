@@ -4,14 +4,21 @@ import { motion } from "framer-motion";
 import {
   AlertTriangle,
   ArrowLeft,
+  Bookmark,
+  Check,
   Clock,
   Flame,
   Info,
+  Layers,
   MapPin,
+  Plus,
   Share2,
   ShoppingBag,
+  Sliders,
   Sparkles,
+  Trash2,
   Wind,
+  X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -19,6 +26,8 @@ import { useExpenseStore } from "@/store/expense-store";
 import { LoadoutCard } from "@/components/share/loadout-card";
 import { ShareModal } from "@/components/share/share-modal";
 import { useSound } from "@/hooks/use-sound";
+import { useLoadoutStore } from "@/store/loadout-store";
+import type { Distance } from "@/store/focus-progression-store";
 import type { TranslationKey } from "@/i18n/use-translation";
 import { useTranslation } from "@/i18n/use-translation";
 import { generateDailyChallenge } from "@/services/challenge/generator";
@@ -43,9 +52,26 @@ export function PreparationScreen() {
   );
   const { hasItem, getItemQuantity } = useShopStore();
   const { storedGhosts, selectedGhostIds, toggleSelectGhost } = useGhostStore();
+  const { 
+    getLoadoutsForDistance, 
+    useLoadout, 
+    createLoadout,
+    deleteLoadout 
+  } = useLoadoutStore();
 
   const challenge =
     currentChallenge || generateDailyChallenge(dayIndex.toString());
+
+  // Loadout state
+  const [showLoadoutSelector, setShowLoadoutSelector] = useState(false);
+  const [showSaveLoadout, setShowSaveLoadout] = useState(false);
+  const [loadoutName, setLoadoutName] = useState("");
+
+  // Get loadouts for current race distance
+  const raceDistance = challenge.race.distance;
+  const availableLoadouts = [5, 10, 21.1, 42.2].includes(raceDistance)
+    ? getLoadoutsForDistance(raceDistance as Distance)
+    : [];
 
   useEffect(() => {
     if (!schedulingState) return;
@@ -75,6 +101,7 @@ export function PreparationScreen() {
     setPacing: _setPacing,
     setMindset: _setMindset,
     setWarmupBonus,
+    setPreparation,
   } = usePreparationStore();
   const { playSound } = useSound();
 
@@ -206,6 +233,83 @@ export function PreparationScreen() {
     }, 1500);
   };
 
+  // Loadout handlers
+  const handleLoadLoadout = (loadoutId: string) => {
+    const loadout = useLoadoutStore.getState().getLoadoutById(loadoutId);
+    if (!loadout) return;
+
+    playSound("success");
+
+    const prep = loadout.preparation;
+
+    // Shoe ownership & terrain validation: fallback to daily_trainer if not owned/valid
+    const isShoeOwned = hasItem("shoes", prep.shoes);
+    const isShoeValidForTerrain = isTrailRace
+      ? prep.shoes !== "stability" && prep.shoes !== "max_cushion"
+      : prep.shoes !== "trail" && prep.shoes !== "aggressive_trail" && prep.shoes !== "minimalist_trail";
+
+    const selectedShoe = isShoeOwned && isShoeValidForTerrain ? prep.shoes : "daily_trainer";
+
+    // Nutrition ownership validation
+    const validNutrition = prep.nutrition.filter(
+      (n) => hasItem("nutrition", n) && getItemQuantity("nutrition", n) > 0
+    );
+
+    const validQuantities: Record<string, number> = {};
+    validNutrition.forEach((n) => {
+      const ownedQty = getItemQuantity("nutrition", n);
+      const requestedQty = prep.nutritionQuantities?.[n] ?? 1;
+      validQuantities[n] = Math.min(requestedQty, Math.max(1, ownedQty));
+    });
+
+    // Gear ownership validation
+    const validGear = prep.gear.filter((g) => hasItem("gear", g));
+
+    setPreparation({
+      shoes: selectedShoe,
+      nutrition: validNutrition,
+      gear: validGear,
+      warmup: prep.warmup,
+      pacing: prep.pacing,
+      mindset: prep.mindset,
+      nutritionQuantities: validQuantities,
+    });
+
+    // Mark loadout as used
+    useLoadout(loadoutId);
+    setShowLoadoutSelector(false);
+  };
+
+  const handleSaveLoadout = () => {
+    if (!loadoutName.trim()) {
+      alert("Please enter a loadout name");
+      return;
+    }
+
+    if (![5, 10, 21.1, 42.2].includes(raceDistance)) {
+      alert("Loadouts are only supported for 5K, 10K, Half Marathon, and Marathon distances");
+      return;
+    }
+
+    playSound("success");
+    createLoadout({
+      name: loadoutName,
+      distance: raceDistance as Distance,
+      preparation: { ...preparation },
+      autoApply: false,
+    });
+
+    setLoadoutName("");
+    setShowSaveLoadout(false);
+  };
+
+  const handleDeleteLoadout = (loadoutId: string) => {
+    if (confirm("Are you sure you want to delete this loadout?")) {
+      playSound("click");
+      deleteLoadout(loadoutId);
+    }
+  };
+
   const handleStartSimulation = () => {
     if (useExpenseStore.getState().hasUnpaidExpenses()) {
       alert(t("expenses.unpaid_warning" as TranslationKey));
@@ -320,6 +424,74 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
 
       <main className="mx-auto grid max-w-5xl gap-6 sm:gap-8 px-4 sm:px-6 py-6 lg:grid-cols-[1fr_320px]">
         <div className="flex flex-col gap-8 sm:gap-10">
+          {/* Quick Loadout Section */}
+          <section id="section-loadout" className="rounded-[2rem] border border-[#E5E7EB] dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                  <Layers className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 className="font-heading font-black text-sm sm:text-base text-slate-800 dark:text-white">
+                    {t("preparation.loadout_presets.title" as TranslationKey)}
+                  </h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {t("preparation.loadout_presets.subtitle" as TranslationKey)}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 self-start sm:self-auto">
+                <button
+                  type="button"
+                  onClick={() => {
+                    playSound("click");
+                    setShowSaveLoadout(true);
+                  }}
+                  className="px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-all active:scale-95 flex items-center gap-1.5 min-h-[36px]"
+                >
+                  <Bookmark className="w-3.5 h-3.5" />
+                  <span>{t("preparation.loadout_presets.save_button" as TranslationKey)}</span>
+                </button>
+                {availableLoadouts.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playSound("click");
+                      setShowLoadoutSelector(true);
+                    }}
+                    className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all active:scale-95 flex items-center gap-1.5 min-h-[36px]"
+                  >
+                    <Sliders className="w-3.5 h-3.5" />
+                    <span>{t("preparation.loadout_presets.manage_button" as TranslationKey)}</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Loadout Selection Pills */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 scrollbar-none">
+              {availableLoadouts.length > 0 ? (
+                availableLoadouts.map((loadout) => (
+                  <button
+                    key={loadout.id}
+                    type="button"
+                    onClick={() => handleLoadLoadout(loadout.id)}
+                    className="shrink-0 px-3.5 py-2 rounded-2xl text-xs font-bold border transition-all active:scale-95 flex items-center gap-2 bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50/40 dark:hover:bg-indigo-950/30"
+                  >
+                    <span>⚡ {loadout.name}</span>
+                    <span className="text-[9px] font-mono uppercase px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold">
+                      {loadout.distance === "all" ? "ALL" : `${loadout.distance}K`}
+                    </span>
+                  </button>
+                ))
+              ) : (
+                <p className="text-xs text-slate-400 dark:text-slate-500 italic py-1">
+                  {t("preparation.loadout_presets.no_loadouts" as TranslationKey)}
+                </p>
+              )}
+            </div>
+          </section>
+
           <section id="section-shoes" className="flex flex-col gap-4 scroll-mt-28">
             <div className="flex items-center gap-2.5 border-b border-[#E5E7EB] dark:border-slate-800 pb-2.5">
               <span className="text-xl">👟</span>
@@ -1124,6 +1296,174 @@ ${t("share.loadout.cta" as TranslationKey)} https://runquest.game`;
                 >
                   {t("preparation.warmup_challenge.tap_button" as TranslationKey)}
                 </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showSaveLoadout && (
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-6 max-w-md w-full shadow-2xl flex flex-col gap-5 text-left">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Bookmark className="w-5 h-5 text-indigo-500" />
+                <h3 className="font-heading font-black text-lg text-slate-800 dark:text-white">
+                  {t("preparation.loadout_presets.modal_title" as TranslationKey)}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowSaveLoadout(false)}
+                className="p-1 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              {t("preparation.loadout_presets.modal_subtitle" as TranslationKey)}
+            </p>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
+                {t("preparation.loadout_presets.name_label" as TranslationKey)}
+              </label>
+              <input
+                type="text"
+                value={loadoutName}
+                onChange={(e) => setLoadoutName(e.target.value)}
+                placeholder={t("preparation.loadout_presets.name_placeholder" as TranslationKey)}
+                className="w-full px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium"
+                autoFocus
+              />
+            </div>
+
+            {/* Configuration Summary Preview */}
+            <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex flex-col gap-1.5 text-xs text-slate-600 dark:text-slate-300 font-medium">
+              <div className="flex items-center gap-2">
+                <span>👟</span>
+                <span className="font-bold">{t(`preparation.shoes.${preparation.shoes}.name` as TranslationKey)}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span>🥤</span>
+                <span>
+                  {preparation.nutrition.length > 0
+                    ? preparation.nutrition.map((n) => t(`preparation.nutrition.${n}.name` as TranslationKey)).join(", ")
+                    : "None"}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span>📈</span>
+                <span>
+                  {t(`preparation.pacing.${preparation.pacing}.name` as TranslationKey)} • {t(`preparation.mindset.${preparation.mindset}.name` as TranslationKey)}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowSaveLoadout(false)}
+                className="flex-1 py-3 rounded-2xl text-xs font-bold border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all min-h-[44px]"
+              >
+                {t("common.cancel" as TranslationKey)}
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveLoadout}
+                className="flex-1 py-3 rounded-2xl text-xs font-black uppercase tracking-wider text-white bg-indigo-500 hover:bg-indigo-600 transition-all shadow-md shadow-indigo-500/20 active:scale-95 min-h-[44px]"
+              >
+                {t("preparation.loadout_presets.save" as TranslationKey)}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showLoadoutSelector && (
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-6 max-w-lg w-full max-h-[85vh] overflow-y-auto shadow-2xl flex flex-col gap-5 text-left">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sliders className="w-5 h-5 text-indigo-500" />
+                <h3 className="font-heading font-black text-lg text-slate-800 dark:text-white">
+                  {t("preparation.loadout_presets.manager_title" as TranslationKey)}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowLoadoutSelector(false)}
+                className="p-1 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              {t("preparation.loadout_presets.manager_subtitle" as TranslationKey)} ({raceDistance}K)
+            </p>
+
+            <div className="flex flex-col gap-3">
+              {availableLoadouts.length > 0 ? (
+                availableLoadouts.map((loadout) => {
+                  const isDefaultPreset = ["5k-speed", "10k-balanced", "half-endurance", "marathon-conservative"].includes(loadout.id);
+                  return (
+                    <div
+                      key={loadout.id}
+                      className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 flex flex-col gap-3 hover:border-indigo-400 dark:hover:border-indigo-600 transition-all"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-heading font-black text-sm text-slate-800 dark:text-white">
+                            {loadout.name}
+                          </h4>
+                          <span
+                            className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                              isDefaultPreset
+                                ? "bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800"
+                                : "bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
+                            }`}
+                          >
+                            {isDefaultPreset
+                              ? t("preparation.loadout_presets.preset_badge" as TranslationKey)
+                              : t("preparation.loadout_presets.custom_badge" as TranslationKey)}
+                          </span>
+                        </div>
+                        {!isDefaultPreset && (
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteLoadout(loadout.id)}
+                            className="p-1.5 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-all"
+                            title="Delete Loadout"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 dark:text-slate-400 font-medium">
+                        <div>👟 {t(`preparation.shoes.${loadout.preparation.shoes}.name` as TranslationKey)}</div>
+                        <div>🧘 {t(`preparation.warmup.${loadout.preparation.warmup}.name` as TranslationKey)}</div>
+                        <div>📊 {t(`preparation.pacing.${loadout.preparation.pacing}.name` as TranslationKey)}</div>
+                        <div>🧠 {t(`preparation.mindset.${loadout.preparation.mindset}.name` as TranslationKey)}</div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleLoadLoadout(loadout.id)}
+                        className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-indigo-500 hover:bg-indigo-600 transition-all active:scale-95 flex items-center justify-center gap-1.5 min-h-[38px]"
+                      >
+                        <Check className="w-4 h-4" />
+                        <span>Apply Loadout</span>
+                      </button>
+                    </div>
+                  );
+                })
+              ) : (
+                <p className="text-xs text-slate-400 dark:text-slate-500 italic text-center py-4">
+                  {t("preparation.loadout_presets.no_loadouts" as TranslationKey)}
+                </p>
               )}
             </div>
           </div>
