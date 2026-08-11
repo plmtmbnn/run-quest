@@ -297,8 +297,10 @@ function SponsorCard({
         status === "active"
           ? "bg-green-50/50 dark:bg-green-950/20 border-green-200 dark:border-green-900/30"
           : status === "available"
-            ? (tierColors[sponsor.tier] ??
-              "bg-slate-50/50 dark:bg-slate-900/40 border-[#E5E7EB] dark:border-slate-800/50")
+            ? (
+                tierColors[sponsor.tier] ??
+                  "bg-slate-50/50 dark:bg-slate-900/40 border-[#E5E7EB] dark:border-slate-800/50"
+              )
             : status === "pending"
               ? "bg-indigo-50/50 dark:bg-indigo-950/20 border-indigo-200 dark:border-indigo-900/30 shadow-[0_0_15px_rgba(99,102,241,0.08)] animate-[pulse_3s_infinite]"
               : status === "cooldown"

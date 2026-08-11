@@ -43,7 +43,7 @@ export interface SettingsState {
   setSound: (value: boolean) => void;
   setHapticFeedback: (value: boolean) => void;
   setPreferredCurrency: (currency: CurrencyCode) => void;
-  setGameMode: (mode: "easy" | "career" | "focus") => void;
+  setGameMode: (mode: "easy" | "career" | "focus" | "season") => void;
   setSyncEnabled: (enabled: boolean) => void;
   setPreferences: (prefs: StoredSettings["preferences"]) => void;
   completeOnboarding: () => void;
@@ -110,7 +110,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     set({ settings: updated });
   },
 
-  setGameMode(gameMode) {
+  setGameMode(gameMode: "easy" | "career" | "focus" | "season") {
     const updated = { ...get().settings, gameMode };
     storageRepository.saveSettings(updated);
     set({ settings: updated });

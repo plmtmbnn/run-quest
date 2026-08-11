@@ -45,7 +45,10 @@ export const StoredSettingsSchema = z.object({
   sound: z.boolean(),
   hapticFeedback: z.boolean().optional().default(true),
   hasCompletedOnboarding: z.boolean().optional().default(false),
-  gameMode: z.enum(["easy", "career", "focus"]).optional().default("career"),
+  gameMode: z
+    .enum(["easy", "career", "focus", "season"])
+    .optional()
+    .default("career"),
   preferredCurrency: z.enum(["USD", "EUR", "JPY", "IDR"]).default("USD"),
   preferences: z
     .object({

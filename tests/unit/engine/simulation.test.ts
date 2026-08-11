@@ -117,9 +117,9 @@ describe("Simulation Engine", () => {
     const res1 = simulateRace({ ...defaultInput, seed: 100 });
     const res2 = simulateRace({ ...defaultInput, seed: 999 });
 
-    // Times are close but not identical
+    // Times are close but not identical (variance increased due to dynamic rival pacing)
     expect(res1.finishTime).not.toBe(res2.finishTime);
-    expect(Math.abs(res1.finishTime - res2.finishTime)).toBeLessThan(100);
+    expect(Math.abs(res1.finishTime - res2.finishTime)).toBeLessThan(200);
   });
 
   it("should calculate carbon racer to be faster but fatigue rate higher than daily trainer", () => {

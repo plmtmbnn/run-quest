@@ -13,6 +13,7 @@ import {
 import { WorkSelectorModal } from "@/components/economy/work-selector-modal";
 import { HealthStatusWidget } from "@/components/health/health-status-widget";
 import { ExpenseWidget } from "@/components/home/expense-widget";
+import { ParkrunModal } from "@/components/parkrun/parkrun-modal";
 // New Sprint 26 Imports
 import { RaceCalendar } from "@/components/scheduling/race-calendar";
 import { RaceEntryModal } from "@/components/scheduling/race-entry-modal";
@@ -97,6 +98,7 @@ export function HomeScreen() {
   const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
   const [entryValidation, setEntryValidation] =
     useState<EntryValidation | null>(null);
+  const [isParkrunModalOpen, setIsParkrunModalOpen] = useState(false);
 
   // Sprint 33: Race Day Alert State
   const [showRaceAlert, setShowRaceAlert] = useState(false);
@@ -744,6 +746,30 @@ export function HomeScreen() {
                   type="button"
                   onClick={() => {
                     playSound("click");
+                    setIsParkrunModalOpen(true);
+                  }}
+                  aria-label="Quick Race"
+                  className="inline-flex items-center gap-1.5 text-[10px] uppercase font-black tracking-wider bg-emerald-500/30 hover:bg-emerald-500/40 active:scale-95 px-3 py-2 rounded-xl transition-all border border-emerald-400/40 min-h-[38px] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60"
+                >
+                  ⏱️ Quick Race →
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    playSound("click");
+                    router.push("/season");
+                  }}
+                  aria-label="Season Mode"
+                  className="inline-flex items-center gap-1.5 text-[10px] uppercase font-black tracking-wider bg-purple-500/30 hover:bg-purple-500/40 active:scale-95 px-3 py-2 rounded-xl transition-all border border-purple-400/40 min-h-[38px] focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400/60"
+                >
+                  📅 Season Mode →
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    playSound("click");
                     router.push("/sponsors");
                   }}
                   aria-label={t("sponsors.title" as TranslationKey)}
@@ -797,6 +823,11 @@ export function HomeScreen() {
               onRaceClick={handleRaceSelect}
             />
           </div>
+        )}
+
+        {/* Parkrun Modal */}
+        {isParkrunModalOpen && (
+          <ParkrunModal onClose={() => setIsParkrunModalOpen(false)} />
         )}
 
         {/* Race Entry Modal */}

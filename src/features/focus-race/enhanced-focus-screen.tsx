@@ -28,6 +28,7 @@ import {
   generateWeather,
 } from "@/engine/focus/weather-generator";
 import { useSound } from "@/hooks/use-sound";
+import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { generateRaceChallenge } from "@/services/challenge/generator";
 import {
   type Difficulty,
@@ -40,8 +41,6 @@ import { usePreparationStore } from "@/store/preparation-store";
 import { useSettingsStore } from "@/store/settings-store";
 import { useTimelineStore } from "@/store/timeline-store";
 import type { Elevation, Surface } from "@/types/engine";
-
-import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 
 type DistanceOption = {
   id: string;

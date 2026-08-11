@@ -95,8 +95,10 @@ const AVATAR_COLORS = [
 export function generateRival(
   difficulty: Difficulty,
   specialty?: Rival["specialty"],
+  random?: import("@/utils/random/seeded-random").SeededRandom,
 ): Rival {
-  const nameData = RIVAL_NAMES[Math.floor(Math.random() * RIVAL_NAMES.length)];
+  const rand = () => random ? random.next() : Math.random();
+  const nameData = RIVAL_NAMES[Math.floor(rand() * RIVAL_NAMES.length)];
   const personalities: RivalPersonality[] = [
     "aggressive",
     "conservative",
@@ -105,14 +107,14 @@ export function generateRival(
     "consistent",
   ];
   const personality =
-    personalities[Math.floor(Math.random() * personalities.length)];
+    personalities[Math.floor(rand() * personalities.length)];
 
   // Skill level based on difficulty
   const skillLevelBase = {
-    recreational: 0.3 + Math.random() * 0.2, // 0.3-0.5
-    competitive: 0.5 + Math.random() * 0.2, // 0.5-0.7
-    elite: 0.7 + Math.random() * 0.2, // 0.7-0.9
-    professional: 0.85 + Math.random() * 0.15, // 0.85-1.0
+    recreational: 0.3 + rand() * 0.2, // 0.3-0.5
+    competitive: 0.5 + rand() * 0.2, // 0.5-0.7
+    elite: 0.7 + rand() * 0.2, // 0.7-0.9
+    professional: 0.85 + rand() * 0.15, // 0.85-1.0
   }[difficulty];
 
   const specialties: Rival["specialty"][] = [
@@ -122,20 +124,20 @@ export function generateRival(
     "consistent",
   ];
   const chosenSpecialty =
-    specialty || specialties[Math.floor(Math.random() * specialties.length)];
+    specialty || specialties[Math.floor(rand() * specialties.length)];
 
   return {
-    id: `rival_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    id: `rival_${Date.now()}_${rand().toString(36).substr(2, 9)}`,
     name: `${nameData.first} ${nameData.last}`,
     nationality: nameData.nationality,
     skillLevel: skillLevelBase,
     personality,
     specialty: chosenSpecialty,
-    backstory: generateBackstory(chosenSpecialty, personality),
+    backstory: generateBackstory(chosenSpecialty, personality, random),
     appearance: {
       avatar: `${nameData.first.charAt(0)}${nameData.last.charAt(0)}`,
       primaryColor:
-        AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)],
+        AVATAR_COLORS[Math.floor(rand() * AVATAR_COLORS.length)],
     },
   };
 }
@@ -146,6 +148,7 @@ export function generateRival(
 export function generateRaceField(
   difficulty: Difficulty,
   fieldSize: number = 50,
+  random?: import("@/utils/random/seeded-random").SeededRandom,
 ): {
   rivals: Rival[];
   archRival: Rival | null;
@@ -164,7 +167,7 @@ export function generateRaceField(
   // Generate strong rivals (potential winners)
   for (let i = 0; i < strengthConfig.strong; i++) {
     rivals.push(
-      generateRival(difficulty, i % 2 === 0 ? "sprinter" : "endurance"),
+      generateRival(difficulty, i % 2 === 0 ? "sprinter" : "endurance", random),
     );
   }
 
@@ -177,7 +180,7 @@ export function generateRaceField(
   }[difficulty] as Difficulty;
 
   for (let i = 0; i < strengthConfig.medium; i++) {
-    rivals.push(generateRival(lowerDifficulty));
+    rivals.push(generateRival(lowerDifficulty, undefined, random));
   }
 
   // Generate weak rivals
@@ -189,11 +192,12 @@ export function generateRaceField(
   }[difficulty] as Difficulty;
 
   for (let i = 0; i < strengthConfig.weak; i++) {
-    rivals.push(generateRival(lowestDifficulty));
+    rivals.push(generateRival(lowestDifficulty, undefined, random));
   }
 
   // Shuffle to mix abilities
-  rivals.sort(() => Math.random() - 0.5);
+  const rand = () => random ? random.next() : Math.random();
+  rivals.sort(() => rand() - 0.5);
 
   // Select arch rival (slightly better than player's level)
   const topRivals = rivals
@@ -213,6 +217,7 @@ export function generateRaceField(
 function generateBackstory(
   specialty: Rival["specialty"],
   personality: RivalPersonality,
+  random?: import("@/utils/random/seeded-random").SeededRandom,
 ): string {
   const backstories = {
     sprinter: [
@@ -238,7 +243,8 @@ function generateBackstory(
   };
 
   const stories = backstories[specialty];
-  return stories[Math.floor(Math.random() * stories.length)];
+  const rand = () => random ? random.next() : Math.random();
+  return stories[Math.floor(rand() * stories.length)];
 }
 
 /**
@@ -294,8 +300,10 @@ export function adjustRivalPacing(
   totalDistance: number,
   playerPosition: number,
   rivalPosition: number,
+  random?: import("@/utils/random/seeded-random").SeededRandom,
 ): number {
   let paceModifier = 1.0;
+  const rand = () => random ? random.next() : Math.random();
 
   switch (rival.personality) {
     case "aggressive":
@@ -310,7 +318,7 @@ export function adjustRivalPacing(
 
     case "unpredictable":
       // Random surges
-      paceModifier = Math.random() > 0.7 ? 0.9 : 1.05;
+      paceModifier = rand() > 0.7 ? 0.9 : 1.05;
       break;
 
     case "tactical":

@@ -364,6 +364,9 @@ export interface OpponentState {
   paceSeconds: number;
   isNemesis?: boolean;
   isGhost?: boolean;
+  personality?: import("@/engine/focus/rival-generator").RivalPersonality;
+  specialty?: "sprinter" | "endurance" | "tactical" | "consistent";
+  skillLevel?: number;
 }
 
 export type DecisionCategory =

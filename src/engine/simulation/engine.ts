@@ -8,6 +8,10 @@ import {
   DesperationEngine,
 } from "@/engine/desperation/desperation-engine";
 import { calculateEnvironmentModifiers } from "@/engine/environment/environment-modifier";
+import {
+  adjustRivalPacing,
+  generateRaceField,
+} from "@/engine/focus/rival-generator";
 import { calculatePerformance } from "@/engine/performance/calculator";
 import { calculatePreparationScore } from "@/engine/scoring/preparation-score";
 import { calculateBodyStress } from "@/engine/simulation/body-stress-engine";
@@ -196,8 +200,17 @@ export function advanceSimulation(
         )
       : 100;
 
-    // Generate 20-30 AI Opponents deterministically from the seed for realistic field standings
-    const random = new SeededRandom(seed);
+    // Generate AI Opponents using Rival Generator for realistic and dynamic field standings
+    const difficultyMap: Record<
+      string,
+      import("@/store/focus-progression-store").Difficulty
+    > = {
+      international: "professional",
+      national: "elite",
+      state: "competitive",
+      local: "recreational",
+    };
+    const diff = difficultyMap[challenge.tier || "local"] || "recreational";
     const desiredCount =
       challenge.tier === "international"
         ? 30
@@ -207,16 +220,16 @@ export function advanceSimulation(
             ? 22
             : 20;
     const opponentsCount = Math.min(50, Math.max(20, desiredCount));
-    const opponents: import("@/types/engine").OpponentState[] = [];
-    const archetypes: ("frontrunner" | "splitter" | "steady")[] = [
-      "frontrunner",
-      "splitter",
-      "steady",
-    ];
 
+    const random = new SeededRandom(seed);
+    const { rivals } = generateRaceField(diff as any, 50, random);
+    const selectedRivals = rivals.slice(0, opponentsCount);
+
+    const opponents: import("@/types/engine").OpponentState[] = [];
     const hasNemesis = runnerProfile?.currentNemesis;
 
-    for (let i = 0; i < opponentsCount; i++) {
+    for (let i = 0; i < selectedRivals.length; i++) {
+      const rival = selectedRivals[i];
       if (i === 0 && hasNemesis && runnerProfile.currentNemesis) {
         opponents.push({
           id: `nemesis_${seed}`,
@@ -231,21 +244,28 @@ export function advanceSimulation(
           isNemesis: true,
         });
       } else {
-        const firstIdx = Math.floor(random.nextRange(0, FIRST_NAMES.length));
-        const lastIdx = Math.floor(random.nextRange(0, LAST_NAMES.length));
-        const name = `${FIRST_NAMES[firstIdx]} ${LAST_NAMES[lastIdx]}`;
-        const archetype =
-          archetypes[Math.floor(random.nextRange(0, archetypes.length))];
+        let archetype: "frontrunner" | "splitter" | "steady" = "steady";
+        if (rival.personality === "aggressive") archetype = "frontrunner";
+        if (rival.personality === "conservative") archetype = "splitter";
+
+        // Base pace on skill level (0.0 to 1.0)
+        // 1.0 skill = professional pace (e.g., 180s/km)
+        // 0.0 skill = recreational pace (e.g., 360s/km)
+        const basePace = 360 - rival.skillLevel * 120;
+
         opponents.push({
-          id: `opponent_${i}_${seed}`,
-          name,
+          id: rival.id,
+          name: rival.name,
           archetype,
           distanceCovered: 0,
           accumulatedTime: 0,
           energy: 100,
           hydration: 100,
           isDNF: false,
-          paceSeconds: 310,
+          paceSeconds: Math.round(basePace),
+          personality: rival.personality,
+          specialty: rival.specialty,
+          skillLevel: rival.skillLevel,
         });
       }
     }
@@ -932,23 +952,37 @@ export function advanceSimulation(
           continue;
         }
 
-        let oppPace = challenge.objective.targetTime / challenge.race.distance;
+        let oppPace =
+          opp.paceSeconds ||
+          challenge.objective.targetTime / challenge.race.distance;
 
-        // Archetype pacing profiles
-        if (opp.archetype === "frontrunner") {
-          if (km <= maxKms * 0.5) {
-            oppPace -= 15; // starts fast
-          } else {
-            oppPace += 20; // slows down
-          }
-        } else if (opp.archetype === "splitter") {
-          if (km <= maxKms * 0.6) {
-            oppPace += 12; // starts slow
-          } else {
-            oppPace -= 22; // negative split kick
-          }
+        if (opp.personality) {
+          const paceModifier = adjustRivalPacing(
+            { personality: opp.personality } as any,
+            km,
+            maxKms,
+            currentStepState.distanceCovered,
+            opp.distanceCovered,
+            random
+          );
+          oppPace *= paceModifier;
         } else {
-          oppPace += 3; // steady pacing
+          // Archetype pacing profiles (fallback)
+          if (opp.archetype === "frontrunner") {
+            if (km <= maxKms * 0.5) {
+              oppPace -= 15; // starts fast
+            } else {
+              oppPace += 20; // slows down
+            }
+          } else if (opp.archetype === "splitter") {
+            if (km <= maxKms * 0.6) {
+              oppPace += 12; // starts slow
+            } else {
+              oppPace -= 22; // negative split kick
+            }
+          } else {
+            oppPace += 3; // steady pacing
+          }
         }
 
         // Apply Nemesis performance boost
