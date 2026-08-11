@@ -14,9 +14,12 @@ export interface CalculatedGhostPosition {
 /**
  * Calculates a ghost runner's position in KM at a specific elapsed time (in seconds).
  */
-export function calculateGhostDistanceAtTime(ghost: GhostRunner, elapsedSec: number): number {
+export function calculateGhostDistanceAtTime(
+  ghost: GhostRunner,
+  elapsedSec: number,
+): number {
   if (!ghost.splitTimes || ghost.splitTimes.length === 0) return 0;
-  
+
   if (elapsedSec <= 0) return 0;
   if (elapsedSec >= ghost.finalTime) return ghost.distance;
 
@@ -24,7 +27,7 @@ export function calculateGhostDistanceAtTime(ghost: GhostRunner, elapsedSec: num
   for (let i = 0; i < ghost.splitTimes.length - 1; i++) {
     const tStart = ghost.splitTimes[i];
     const tEnd = ghost.splitTimes[i + 1];
-    
+
     if (elapsedSec >= tStart && elapsedSec <= tEnd) {
       const kmStart = i;
       const kmEnd = i + 1;
@@ -52,7 +55,11 @@ interface GhostRunnerDisplayProps {
   playerKm: number;
 }
 
-export function GhostRunnerBadge({ ghost, ghostKm, playerKm }: GhostRunnerDisplayProps) {
+export function GhostRunnerBadge({
+  ghost,
+  ghostKm,
+  playerKm,
+}: GhostRunnerDisplayProps) {
   const gapMeters = getGhostGapMeters(playerKm, ghostKm);
   const isAhead = gapMeters > 0;
   const isClose = Math.abs(gapMeters) <= 30;
@@ -77,7 +84,10 @@ export function GhostRunnerBadge({ ghost, ghostKm, playerKm }: GhostRunnerDispla
         typeStyles[ghost.type]
       }`}
     >
-      <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: ghost.avatarColor }} />
+      <span
+        className="w-1.5 h-1.5 rounded-full animate-pulse"
+        style={{ backgroundColor: ghost.avatarColor }}
+      />
       <span>{ghost.name}</span>
       <span className="px-1 bg-black/30 rounded text-[9px] uppercase font-sans">
         {typeLabels[ghost.type]}

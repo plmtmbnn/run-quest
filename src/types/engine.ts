@@ -2,15 +2,18 @@ import type { RaceTier } from "@/economy/economy-types";
 import type { RacePrerequisites } from "@/economy/race-entry-engine";
 import type { ActiveBreakingPoint } from "@/engine/breaking-points/breaking-types";
 import type { DesperationMode } from "@/engine/desperation/desperation-types";
-import type { FlowLevel, FlowState } from "@/engine/simulation/types";
-import type { RhythmState } from "@/engine/simulation/rhythm-engine";
-import type { BreathingCategory, BreathingState } from "@/engine/simulation/breathing-engine";
 import type {
   BodyStressState,
   BodyZoneId,
   StressLevel,
   ZoneStressInfo,
 } from "@/engine/simulation/body-stress-engine";
+import type {
+  BreathingCategory,
+  BreathingState,
+} from "@/engine/simulation/breathing-engine";
+import type { RhythmState } from "@/engine/simulation/rhythm-engine";
+import type { FlowLevel, FlowState } from "@/engine/simulation/types";
 import type { RunnerProfile } from "@/runner/runner-types";
 
 export type {
@@ -27,11 +30,48 @@ export type {
   ZoneStressInfo,
 };
 
-export type Shoe = "daily_trainer" | "carbon_racer" | "lightweight" | "trail" | "stability" | "max_cushion" | "aggressive_trail" | "minimalist_trail" | "marathon_racer" | "ultra_trail" | "speed_flats" | "plated_supershoe";
+export type Shoe =
+  | "daily_trainer"
+  | "carbon_racer"
+  | "lightweight"
+  | "trail"
+  | "stability"
+  | "max_cushion"
+  | "aggressive_trail"
+  | "minimalist_trail"
+  | "marathon_racer"
+  | "ultra_trail"
+  | "speed_flats"
+  | "plated_supershoe";
 
-export type Nutrition = "water" | "electrolyte" | "energy_gel" | "caffeine" | "energy_bar" | "hydration_mix" | "salt_tablets" | "caffeine_gum" | "beetroot_juice" | "isotonic_drink" | "protein_bar" | "carb_chews" | "endurance_gel_plus";
+export type Nutrition =
+  | "water"
+  | "electrolyte"
+  | "energy_gel"
+  | "caffeine"
+  | "energy_bar"
+  | "hydration_mix"
+  | "salt_tablets"
+  | "caffeine_gum"
+  | "beetroot_juice"
+  | "isotonic_drink"
+  | "protein_bar"
+  | "carb_chews"
+  | "endurance_gel_plus";
 
-export type Gear = "cap" | "sunglasses" | "arm_sleeves" | "hydration_vest" | "lightweight_jacket" | "compression_socks" | "trail_gaiters" | "moisture_wicking_shirt" | "running_belt" | "headband" | "running_backpack" | "gps_watch";
+export type Gear =
+  | "cap"
+  | "sunglasses"
+  | "arm_sleeves"
+  | "hydration_vest"
+  | "lightweight_jacket"
+  | "compression_socks"
+  | "trail_gaiters"
+  | "moisture_wicking_shirt"
+  | "running_belt"
+  | "headband"
+  | "running_backpack"
+  | "gps_watch";
 
 export type Warmup = "none" | "dynamic" | "full";
 
@@ -299,7 +339,9 @@ export interface SimulationState {
   // Endorphin system properties
   endorphinState?: import("@/engine/endorphins/endorphin-types").EndorphinState;
   hasUsedEndorphins?: boolean;
-  activeEndorphinRush?: import("@/engine/endorphins/endorphin-types").ActiveEndorphinRush | null;
+  activeEndorphinRush?:
+    | import("@/engine/endorphins/endorphin-types").ActiveEndorphinRush
+    | null;
   // Sprint 36 Flow State system
   flowState?: FlowState;
   // Sprint 36 Cadence & Rhythm system

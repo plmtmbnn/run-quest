@@ -27,5 +27,10 @@ export const useGameStore = create<GameState>((set) => ({
   setActiveGhost: (ghost) => set({ activeGhost: ghost }),
   setFocusTargetPosition: (position) => set({ focusTargetPosition: position }),
   clearState: () =>
-    set({ currentChallenge: null, lastResult: null, activeGhost: null, focusTargetPosition: null }),
+    set({
+      currentChallenge: null,
+      lastResult: null,
+      activeGhost: null,
+      focusTargetPosition: null,
+    }),
 }));

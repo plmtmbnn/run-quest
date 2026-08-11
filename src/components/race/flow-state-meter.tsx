@@ -9,7 +9,10 @@ interface FlowStateMeterProps {
   className?: string;
 }
 
-export function FlowStateMeter({ flowState, className = "" }: FlowStateMeterProps) {
+export function FlowStateMeter({
+  flowState,
+  className = "",
+}: FlowStateMeterProps) {
   const score = flowState?.score ?? 0;
   const level = flowState?.level ?? "building";
   const isInTheZone = flowState?.isInTheZone ?? false;
@@ -59,7 +62,9 @@ export function FlowStateMeter({ flowState, className = "" }: FlowStateMeterProp
             FLOW STATE
           </span>
         </div>
-        <span className={`text-xs font-black uppercase tracking-wide ${getLevelColor()}`}>
+        <span
+          className={`text-xs font-black uppercase tracking-wide ${getLevelColor()}`}
+        >
           {getLevelLabel()}
         </span>
       </div>

@@ -88,7 +88,12 @@ export function CriticalAlert({
         }}
         className={`fixed top-16 left-0 right-0 z-40 ${config.bgColor} ${config.textColor} shadow-2xl`}
         style={{
-          height: level === "warning" ? "4rem" : level === "critical" ? "5rem" : "6rem",
+          height:
+            level === "warning"
+              ? "4rem"
+              : level === "critical"
+                ? "5rem"
+                : "6rem",
         }}
       >
         <div className="max-w-4xl mx-auto h-full flex items-center justify-between px-4 md:px-6">
@@ -104,7 +109,8 @@ export function CriticalAlert({
               <span className="text-xs md:text-sm font-bold">
                 {level === "warning" && "Energy Low"}
                 {level === "critical" && "Collapse Risk"}
-                {level === "emergency" && `DNF Imminent! ${distanceRemaining.toFixed(1)}km to finish`}
+                {level === "emergency" &&
+                  `DNF Imminent! ${distanceRemaining.toFixed(1)}km to finish`}
               </span>
             </div>
           </div>

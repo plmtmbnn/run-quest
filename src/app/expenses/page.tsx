@@ -2,23 +2,23 @@
 
 import { motion } from "framer-motion";
 import {
+  AlertTriangle,
   ArrowLeft,
   CheckCircle2,
-  AlertTriangle,
+  Clock,
+  Shield,
+  Wallet,
   XCircle,
   Zap,
-  Shield,
-  Clock,
-  Wallet,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { formatCurrency } from "@/economy/currency-converter";
 import {
-  RECURRING_EXPENSES,
   calculateExpenseAmount,
+  RECURRING_EXPENSES,
 } from "@/economy/recurring-expenses";
-import { useTranslation, type TranslationKey } from "@/i18n/use-translation";
+import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { loadRunnerState } from "@/runner/runner-persistence";
 import { useExpenseStore } from "@/store/expense-store";
 import { useSettingsStore } from "@/store/settings-store";
@@ -52,7 +52,7 @@ export default function ExpensesPage() {
   const monthlyTotal = getMonthlyTotal(runnerLevel, registeredCount);
   const activeBenefits = getActiveBenefits();
   const availableExpenses = RECURRING_EXPENSES.filter(
-    (e) => runnerLevel >= e.unlockedAtLevel
+    (e) => runnerLevel >= e.unlockedAtLevel,
   );
 
   const monthsAffordable =
@@ -107,7 +107,12 @@ export default function ExpensesPage() {
 
         {/* Affordability Status */}
         <div className="p-3 rounded-xl border flex items-center justify-between text-sm font-medium bg-slate-50 dark:bg-slate-800/30 border-slate-200 dark:border-slate-800">
-          <span>{t("home.stats.money")}: <span className="font-mono font-bold">{formatCurrency(currentBalance, preferredCurrency)}</span></span>
+          <span>
+            {t("home.stats.money")}:{" "}
+            <span className="font-mono font-bold">
+              {formatCurrency(currentBalance, preferredCurrency)}
+            </span>
+          </span>
           <div>
             {monthsAffordable >= 3 ? (
               <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
@@ -115,7 +120,9 @@ export default function ExpensesPage() {
               </span>
             ) : monthsAffordable >= 1 ? (
               <span className="text-amber-600 dark:text-amber-400 font-semibold">
-                {(t("expenses.status_warning_monthly" as TranslationKey) || "").replace("{months}", String(monthsAffordable))}
+                {(
+                  t("expenses.status_warning_monthly" as TranslationKey) || ""
+                ).replace("{months}", String(monthsAffordable))}
               </span>
             ) : (
               <span className="text-rose-600 dark:text-rose-400 font-semibold">
@@ -162,7 +169,11 @@ export default function ExpensesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {availableExpenses.map((expense) => {
             const isActive = expenseState.activeExpenses.includes(expense.id);
-            const amount = calculateExpenseAmount(expense, runnerLevel, registeredCount);
+            const amount = calculateExpenseAmount(
+              expense,
+              runnerLevel,
+              registeredCount,
+            );
 
             return (
               <div
@@ -194,7 +205,10 @@ export default function ExpensesPage() {
                       {formatCurrency(amount, preferredCurrency)}
                     </span>
                     <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                      / {t(`expenses.frequency.${expense.frequency}` as TranslationKey)}
+                      /{" "}
+                      {t(
+                        `expenses.frequency.${expense.frequency}` as TranslationKey,
+                      )}
                     </span>
                   </div>
 
@@ -204,15 +218,22 @@ export default function ExpensesPage() {
                         {t("expenses.benefits_title")}
                       </span>
                       <ul className="text-xs space-y-1 text-emerald-600 dark:text-emerald-400">
-                        {Object.entries(expense.benefits).map(([bKey, bVal]) => (
-                          <li key={bKey} className="flex items-center gap-1.5">
-                            <Zap className="w-3 h-3 shrink-0" />
-                            <span>
-                              +{Math.round((bVal ?? 0) * 100)}%{" "}
-                              {t(`expenses.benefits.${bKey}` as TranslationKey)}
-                            </span>
-                          </li>
-                        ))}
+                        {Object.entries(expense.benefits).map(
+                          ([bKey, bVal]) => (
+                            <li
+                              key={bKey}
+                              className="flex items-center gap-1.5"
+                            >
+                              <Zap className="w-3 h-3 shrink-0" />
+                              <span>
+                                +{Math.round((bVal ?? 0) * 100)}%{" "}
+                                {t(
+                                  `expenses.benefits.${bKey}` as TranslationKey,
+                                )}
+                              </span>
+                            </li>
+                          ),
+                        )}
                       </ul>
                     </div>
                   )}
@@ -257,11 +278,15 @@ export default function ExpensesPage() {
                         <XCircle className="w-4 h-4 text-rose-500" />
                       )}
                       <span>
-                        {t("expenses.day" as TranslationKey, { day: tx.dayIndex })}
+                        {t("expenses.day" as TranslationKey, {
+                          day: tx.dayIndex,
+                        })}
                       </span>
                     </div>
                     <div className="text-xs text-slate-500 dark:text-slate-400">
-                      {tx.expenses.map((e) => t(e.name as TranslationKey)).join(", ")}
+                      {tx.expenses
+                        .map((e) => t(e.name as TranslationKey))
+                        .join(", ")}
                     </div>
                   </div>
 

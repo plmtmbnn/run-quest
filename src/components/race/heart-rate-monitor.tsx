@@ -12,10 +12,13 @@ interface HeartRateMonitorProps {
 /**
  * Calculate heart rate (BPM) based on race conditions
  */
-function calculateBPM(state: SimulationState, currentPacing: PacingPlan): number {
+function calculateBPM(
+  state: SimulationState,
+  currentPacing: PacingPlan,
+): number {
   // Base heart rate by pacing intensity
   let baseBPM = 120;
-  
+
   switch (currentPacing) {
     case "jog":
     case "conservative":
@@ -32,42 +35,43 @@ function calculateBPM(state: SimulationState, currentPacing: PacingPlan): number
     case "sprint":
       baseBPM = 190;
       break;
-    case "negative_split":
+    case "negative_split": {
       // Progressive increase based on distance
       const progressPct = state.distanceCovered / state.totalDistance;
-      baseBPM = 140 + (progressPct * 40); // 140 -> 180
+      baseBPM = 140 + progressPct * 40; // 140 -> 180
       break;
+    }
   }
 
   // Fatigue multiplier: +1 bpm per 1% muscle fatigue
   const fatigueImpact = state.muscleFatigue * 0.8;
-  
+
   // Mental stress: +0.5 bpm per 1% mental fatigue
   const mentalStressImpact = state.mentalFatigue * 0.5;
-  
+
   // Energy depletion: +20 bpm when energy < 30%
   const energyImpact = state.energy < 30 ? 20 : 0;
-  
+
   // Breaking point spike: +20 bpm
   const breakingPointImpact = state.activeBreakingPoint ? 20 : 0;
-  
+
   // Desperation mode surge: +30 bpm
   const desperationImpact = state.desperationMode ? 30 : 0;
-  
+
   // Runner's high: -10 bpm (calming effect)
   const runnersHighImpact = state.isRunnersHighActive ? -10 : 0;
-  
+
   // Final calculation
   const totalBPM = Math.round(
     baseBPM +
-    fatigueImpact +
-    mentalStressImpact +
-    energyImpact +
-    breakingPointImpact +
-    desperationImpact +
-    runnersHighImpact
+      fatigueImpact +
+      mentalStressImpact +
+      energyImpact +
+      breakingPointImpact +
+      desperationImpact +
+      runnersHighImpact,
   );
-  
+
   // Clamp between realistic ranges: 100-220 bpm
   return Math.max(100, Math.min(220, totalBPM));
 }
@@ -130,15 +134,18 @@ function getHeartRateZone(bpm: number): {
  * HeartRateMonitor - Real-time physiological feedback
  * Displays current BPM with color-coded zones and pulsing animation
  */
-export function HeartRateMonitor({ state, currentPacing }: HeartRateMonitorProps) {
+export function HeartRateMonitor({
+  state,
+  currentPacing,
+}: HeartRateMonitorProps) {
   const bpm = calculateBPM(state, currentPacing);
   const zone = getHeartRateZone(bpm);
-  
+
   // Calculate pulse animation speed based on BPM
   // 60 bpm = 1 beat per second = 1000ms
   // Formula: duration = 60000 / bpm
   const pulseDuration = Math.max(0.3, Math.min(1.5, 60 / bpm));
-  
+
   return (
     <div className="flex items-center gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-4 py-3 shadow-sm">
       {/* Pulsing Heart Icon */}
@@ -158,7 +165,7 @@ export function HeartRateMonitor({ state, currentPacing }: HeartRateMonitorProps
           strokeWidth={2.5}
         />
       </motion.div>
-      
+
       {/* BPM Display */}
       <div className="flex flex-col">
         <div className="flex items-baseline gap-1">
@@ -169,7 +176,7 @@ export function HeartRateMonitor({ state, currentPacing }: HeartRateMonitorProps
             BPM
           </span>
         </div>
-        
+
         {/* Zone Label */}
         <span
           className={`text-[9px] font-bold uppercase tracking-wider ${zone.textColor}`}
@@ -177,7 +184,7 @@ export function HeartRateMonitor({ state, currentPacing }: HeartRateMonitorProps
           {zone.label}
         </span>
       </div>
-      
+
       {/* Critical Warning for Danger Zone */}
       {bpm >= 200 && (
         <motion.div

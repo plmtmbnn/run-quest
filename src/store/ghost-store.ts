@@ -16,7 +16,7 @@ export interface GhostRunner {
 interface GhostStoreState {
   storedGhosts: GhostRunner[];
   selectedGhostIds: string[];
-  
+
   // Actions
   addGhost: (ghost: GhostRunner) => void;
   removeGhost: (id: string) => void;
@@ -74,7 +74,10 @@ export const useGhostStore = create<GhostStoreState>()(
 
       addGhost: (ghost) =>
         set((state) => ({
-          storedGhosts: [ghost, ...state.storedGhosts.filter((g) => g.id !== ghost.id)],
+          storedGhosts: [
+            ghost,
+            ...state.storedGhosts.filter((g) => g.id !== ghost.id),
+          ],
         })),
 
       removeGhost: (id) =>
@@ -92,7 +95,11 @@ export const useGhostStore = create<GhostStoreState>()(
         set((state) => {
           const isSelected = state.selectedGhostIds.includes(id);
           if (isSelected) {
-            return { selectedGhostIds: state.selectedGhostIds.filter((gId) => gId !== id) };
+            return {
+              selectedGhostIds: state.selectedGhostIds.filter(
+                (gId) => gId !== id,
+              ),
+            };
           }
           if (state.selectedGhostIds.length >= 3) {
             return state; // Limit max 3
@@ -101,7 +108,9 @@ export const useGhostStore = create<GhostStoreState>()(
         }),
 
       getGhostsForDistance: (distance) => {
-        return get().storedGhosts.filter((g) => Math.abs(g.distance - distance) < 0.5);
+        return get().storedGhosts.filter(
+          (g) => Math.abs(g.distance - distance) < 0.5,
+        );
       },
 
       getActiveGhosts: () => {
@@ -111,6 +120,6 @@ export const useGhostStore = create<GhostStoreState>()(
     }),
     {
       name: "runquest.ghosts",
-    }
-  )
+    },
+  ),
 );

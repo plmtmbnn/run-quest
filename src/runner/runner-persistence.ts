@@ -1,13 +1,12 @@
 // runner-persistence.ts
 // Handles local storage operations for persisting the Runner Profile.
 
+import { storageRepository } from "@/storage/storage-repository";
 import {
   DEFAULT_RUNNER_STATE,
   type RunnerProfile,
   type RunnerState,
 } from "./runner-types";
-
-import { storageRepository } from "@/storage/storage-repository";
 import { resetXPTracker } from "./xp-tracker";
 
 const RUNNER_STORAGE_KEY = "runquest.runner";
@@ -22,7 +21,8 @@ let inMemoryRunnerState: RunnerState | null = null;
 export const loadRunnerState = (): RunnerState => {
   try {
     // Try new key first
-    const storedState = storageRepository.loadCustom<RunnerState>(RUNNER_STORAGE_KEY);
+    const storedState =
+      storageRepository.loadCustom<RunnerState>(RUNNER_STORAGE_KEY);
     if (storedState) {
       inMemoryRunnerState = storedState;
       return storedState;
@@ -60,7 +60,7 @@ export const saveRunnerState = (state: RunnerState): void => {
   try {
     storageRepository.saveCustom(RUNNER_STORAGE_KEY, state);
     window.dispatchEvent(
-      new CustomEvent("runner-state-updated", { detail: state })
+      new CustomEvent("runner-state-updated", { detail: state }),
     );
   } catch (error) {
     console.error("Failed to save runner state to local storage:", error);

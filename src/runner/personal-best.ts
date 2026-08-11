@@ -1,6 +1,6 @@
 /**
  * Personal Best (PB) Tracking System
- * 
+ *
  * Tracks and predicts race times for:
  * - 5K
  * - 10K
@@ -54,11 +54,16 @@ export function getDistanceCategory(distanceKm: number): DistanceCategory {
  */
 export function getStandardDistance(category: DistanceCategory): number {
   switch (category) {
-    case "5K": return 5;
-    case "10K": return 10;
-    case "HM": return 21.1;
-    case "FM": return 42.2;
-    case "Ultra": return 50;
+    case "5K":
+      return 5;
+    case "10K":
+      return 10;
+    case "HM":
+      return 21.1;
+    case "FM":
+      return 42.2;
+    case "Ultra":
+      return 50;
   }
 }
 
@@ -106,7 +111,7 @@ export function getPB(category: DistanceCategory): PersonalBest | null {
 export function isNewPB(distanceKm: number, finishTime: number): boolean {
   const category = getDistanceCategory(distanceKm);
   const currentPB = getPB(category);
-  
+
   if (!currentPB) return true;
   return finishTime < currentPB.finishTime;
 }
@@ -123,12 +128,12 @@ export function setPBIfFaster(
   const category = getDistanceCategory(distanceKm);
   const pbs = loadRunnerPBs();
   const existingPB = pbs.pbs.find((pb) => pb.category === category);
-  
+
   // Check if new time is better
   if (existingPB && finishTime >= existingPB.finishTime) {
     return false; // Not a new PB
   }
-  
+
   const averagePace = finishTime / distanceKm;
   const newPB: PersonalBest = {
     category,
@@ -138,7 +143,7 @@ export function setPBIfFaster(
     challengeId,
     averagePace,
   };
-  
+
   if (existingPB) {
     // Update existing
     const index = pbs.pbs.indexOf(existingPB);
@@ -147,7 +152,7 @@ export function setPBIfFaster(
     // Add new
     pbs.pbs.push(newPB);
   }
-  
+
   pbs.lastUpdated = new Date().toISOString();
   saveRunnerPBs(pbs);
   return true;
@@ -160,7 +165,7 @@ export function formatTime(totalSeconds: number): string {
   const hrs = Math.floor(totalSeconds / 3600);
   const mins = Math.floor((totalSeconds % 3600) / 60);
   const secs = Math.floor(totalSeconds % 60);
-  
+
   if (hrs > 0) {
     return `${hrs}:${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   }
@@ -170,7 +175,7 @@ export function formatTime(totalSeconds: number): string {
 /**
  * Predict finish time for a target distance based on a PB at another distance
  * Uses Riegel's formula: T2 = T1 * (D2 / D1)^1.06
- * 
+ *
  * @param sourceDistanceKm - The distance of the known PB
  * @param sourceTimeSeconds - The known PB time
  * @param targetDistanceKm - The target distance to predict
@@ -183,14 +188,13 @@ export function predictFinishTime(
 ): number {
   // Riegel's formula constant (typically 1.06 for endurance events)
   const RIEGEL_CONSTANT = 1.06;
-  
+
   if (sourceDistanceKm <= 0 || targetDistanceKm <= 0) return 0;
-  
-  const predicted = sourceTimeSeconds * Math.pow(
-    targetDistanceKm / sourceDistanceKm,
-    RIEGEL_CONSTANT,
-  );
-  
+
+  const predicted =
+    sourceTimeSeconds *
+    (targetDistanceKm / sourceDistanceKm) ** RIEGEL_CONSTANT;
+
   return Math.round(predicted);
 }
 
@@ -204,24 +208,24 @@ export function predictFromBestPB(targetDistanceKm: number): {
   confidence: "high" | "medium" | "low";
 } | null {
   const pbs = loadRunnerPBs();
-  
+
   if (pbs.pbs.length === 0) return null;
-  
+
   // Find the best PB (fastest pace)
   const bestPB = pbs.pbs.reduce((best, current) => {
     return current.averagePace < best.averagePace ? current : best;
   });
-  
+
   const predictedTime = predictFinishTime(
     bestPB.distance,
     bestPB.finishTime,
     targetDistanceKm,
   );
-  
+
   // Determine confidence based on distance ratio
   const ratio = targetDistanceKm / bestPB.distance;
   let confidence: "high" | "medium" | "low";
-  
+
   if (ratio <= 1.5) {
     confidence = "high";
   } else if (ratio <= 2.5) {
@@ -229,7 +233,7 @@ export function predictFromBestPB(targetDistanceKm: number): {
   } else {
     confidence = "low";
   }
-  
+
   return {
     predictedTime,
     basedOn: bestPB.category,
@@ -246,7 +250,7 @@ export function getTrainingRecommendation(): {
   targetPace: number; // seconds per km
 } | null {
   const pbs = loadRunnerPBs();
-  
+
   if (pbs.pbs.length === 0) {
     return {
       focusDistance: "5K",
@@ -254,13 +258,16 @@ export function getTrainingRecommendation(): {
       targetPace: 360, // 6:00/km
     };
   }
-  
+
   // Find weakest distance (slowest pace)
   const weakest = pbs.pbs.reduce((worst, current) => {
     return current.averagePace > worst.averagePace ? current : worst;
   });
-  
-  const recommendations: Record<DistanceCategory, { reason: string; targetPace: number }> = {
+
+  const recommendations: Record<
+    DistanceCategory,
+    { reason: string; targetPace: number }
+  > = {
     "5K": {
       reason: "Build speed with shorter intervals",
       targetPace: weakest.averagePace * 0.95,
@@ -269,20 +276,20 @@ export function getTrainingRecommendation(): {
       reason: "Develop endurance at threshold pace",
       targetPace: weakest.averagePace * 0.98,
     },
-    "HM": {
+    HM: {
       reason: "Increase long run distance",
       targetPace: weakest.averagePace * 1.02,
     },
-    "FM": {
+    FM: {
       reason: "Build marathon-specific endurance",
       targetPace: weakest.averagePace * 1.05,
     },
-    "Ultra": {
+    Ultra: {
       reason: "Focus on ultra-specific training",
-      targetPace: weakest.averagePace * 1.10,
+      targetPace: weakest.averagePace * 1.1,
     },
   };
-  
+
   return {
     focusDistance: weakest.category,
     ...recommendations[weakest.category],

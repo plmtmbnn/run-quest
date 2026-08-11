@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Clock, TrendingUp, TrendingDown, Target } from "lucide-react";
-import { useTranslation, type TranslationKey } from "@/i18n/use-translation";
+import { Clock, Target, TrendingDown, TrendingUp } from "lucide-react";
+import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 
 interface PaceProjectorProps {
   currentPace: number; // seconds per km
@@ -45,10 +45,18 @@ export function PaceProjector({
   // Coach tip based on race context
   const getCoachTip = (): string => {
     const progress = distanceCovered / totalDistance;
-    if (deltaToPB !== null && deltaToPB > 30) return t("challenge.race.pace_projector.coach_tip_slow" as TranslationKey);
-    if (deltaToPB !== null && deltaToPB < -10) return t("challenge.race.pace_projector.coach_tip_start" as TranslationKey);
-    if (progress > 0.8) return t("challenge.race.pace_projector.coach_tip_end" as TranslationKey);
-    if (progress > 0.4) return t("challenge.race.pace_projector.coach_tip_mid" as TranslationKey);
+    if (deltaToPB !== null && deltaToPB > 30)
+      return t(
+        "challenge.race.pace_projector.coach_tip_slow" as TranslationKey,
+      );
+    if (deltaToPB !== null && deltaToPB < -10)
+      return t(
+        "challenge.race.pace_projector.coach_tip_start" as TranslationKey,
+      );
+    if (progress > 0.8)
+      return t("challenge.race.pace_projector.coach_tip_end" as TranslationKey);
+    if (progress > 0.4)
+      return t("challenge.race.pace_projector.coach_tip_mid" as TranslationKey);
     return t("challenge.race.pace_projector.coach_tip_start" as TranslationKey);
   };
 
@@ -107,7 +115,9 @@ export function PaceProjector({
               )}
               {isAhead
                 ? t("challenge.race.pace_projector.ahead_pb" as TranslationKey)
-                : t("challenge.race.pace_projector.behind_pb" as TranslationKey)}
+                : t(
+                    "challenge.race.pace_projector.behind_pb" as TranslationKey,
+                  )}
             </span>
             <motion.span
               key={deltaToPB.toFixed(1)}
@@ -121,7 +131,8 @@ export function PaceProjector({
                     : "text-red-600 dark:text-red-400"
               }`}
             >
-              {isAhead ? "-" : "+"}{Math.abs(deltaToPB).toFixed(1)}s
+              {isAhead ? "-" : "+"}
+              {Math.abs(deltaToPB).toFixed(1)}s
             </motion.span>
           </div>
         )}

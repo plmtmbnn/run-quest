@@ -1,28 +1,47 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowLeft, Settings, Zap, TrendingUp, Heart, ShieldCheck, AlertTriangle } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  Heart,
+  Settings,
+  ShieldCheck,
+  TrendingUp,
+  Zap,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { useExpenseStore } from "../../store/expense-store";
-import { type TranslationKey, useTranslation } from "../../i18n/use-translation";
+import { ScreenTour } from "../../components/tour/screen-tour";
+import { CoachFeedbackPanel } from "../../components/training/coach-feedback-panel";
+import { CustomPlanBuilder } from "../../components/training/custom-plan-builder";
+import { PlanTemplateSelector } from "../../components/training/plan-template-selector";
+import {
+  TrainingResultsOverlay,
+  type WorkoutStatDiff,
+} from "../../components/training/training-results-overlay";
+import { WeeklyCalendarGrid } from "../../components/training/weekly-calendar-grid";
+import {
+  type TranslationKey,
+  useTranslation,
+} from "../../i18n/use-translation";
+import { loadRunnerState } from "../../runner/runner-persistence";
 import { useRunnerStore } from "../../runner/runner-store";
+import { getRegisteredRaces } from "../../scheduling/race-calendar-engine";
+import { useExpenseStore } from "../../store/expense-store";
 import { useTimelineStore } from "../../store/timeline-store";
 import { processAdaptationQueue } from "../../training/adaptation-engine";
 import { generateCoachRecommendation } from "../../training/coach-recommendation";
-import { useTrainingStore } from "../../training/training-store";
-import type { DailyActivity, PlanTemplate } from "../../training/training-types";
-import { initializeWeeklyPlanState } from "../../training/training-store";
-import { WeeklyCalendarGrid } from "../../components/training/weekly-calendar-grid";
-import { PlanTemplateSelector } from "../../components/training/plan-template-selector";
-import { CoachFeedbackPanel } from "../../components/training/coach-feedback-panel";
-import { getRegisteredRaces } from "../../scheduling/race-calendar-engine";
-import { getWeekStartDay } from "../../training/weekly-plan-engine";
 import { recordTrainingActivity } from "../../training/training-engine";
-import { loadRunnerState } from "../../runner/runner-persistence";
-import { CustomPlanBuilder } from "../../components/training/custom-plan-builder";
-import { TrainingResultsOverlay, type WorkoutStatDiff } from "../../components/training/training-results-overlay";
-import { ScreenTour } from "../../components/tour/screen-tour";
+import {
+  initializeWeeklyPlanState,
+  useTrainingStore,
+} from "../../training/training-store";
+import type {
+  DailyActivity,
+  PlanTemplate,
+} from "../../training/training-types";
+import { getWeekStartDay } from "../../training/weekly-plan-engine";
 
 /**
  * Weekly Training Planner Screen (Sprint 30 - Task 9)
@@ -33,21 +52,33 @@ export function TrainingScreen() {
   const { t } = useTranslation();
   const [runTour, setRunTour] = useState(false);
   const { runnerState } = useRunnerStore();
-  const { trainingState, currentWeeklyPlan, planHistory, lastPlanGenerated, 
-          setCurrentPlan, generateNewPlan, completeActivity, swapActivity, 
-          getAdherenceMetrics } = useTrainingStore();
+  const {
+    trainingState,
+    currentWeeklyPlan,
+    planHistory,
+    lastPlanGenerated,
+    setCurrentPlan,
+    generateNewPlan,
+    completeActivity,
+    swapActivity,
+    getAdherenceMetrics,
+  } = useTrainingStore();
   const dayIndex = useTimelineStore((s) => s.gameState?.dayIndex ?? 0);
   const energy = useTimelineStore((s) => s.gameState?.energy ?? 0);
   const scheduling = useTimelineStore((s) => s.gameState?.scheduling);
-  const upcomingRaces = scheduling ? getRegisteredRaces(scheduling, dayIndex) : [];
+  const upcomingRaces = scheduling
+    ? getRegisteredRaces(scheduling, dayIndex)
+    : [];
 
   const [selectedDayIndex, setSelectedDayIndex] = useState<number | null>(null);
-  const [selectedTemplate, setSelectedTemplate] = useState<PlanTemplate | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<PlanTemplate | null>(
+    null,
+  );
   const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
   const [isFeedbackExpanded, setIsFeedbackExpanded] = useState(true);
-  const [autoExpandDayIndex, setAutoExpandDayIndex] = useState<number | undefined>(
-    undefined,
-  );
+  const [autoExpandDayIndex, setAutoExpandDayIndex] = useState<
+    number | undefined
+  >(undefined);
   const [isCustomBuilderOpen, setIsCustomBuilderOpen] = useState(false);
   const [workoutOverlay, setWorkoutOverlay] = useState<{
     isOpen: boolean;
@@ -84,7 +115,7 @@ export function TrainingScreen() {
   // Handle generating a new plan
   const handleGenerateNewPlan = useCallback(() => {
     if (isGeneratingPlan) return;
-    
+
     setIsGeneratingPlan(true);
     try {
       generateNewPlan(dayIndex, runnerState, upcomingRaces);
@@ -101,7 +132,12 @@ export function TrainingScreen() {
 
       const hasId = Boolean((template as { id?: string }).id);
       if (hasId) {
-        generateNewPlan(dayIndex, runnerState, upcomingRaces, (template as { id: string }).id);
+        generateNewPlan(
+          dayIndex,
+          runnerState,
+          upcomingRaces,
+          (template as { id: string }).id,
+        );
       } else {
         setIsCustomBuilderOpen(true);
       }
@@ -115,18 +151,21 @@ export function TrainingScreen() {
   }, []);
 
   // Handle activity completion / swap via calendar picker
-  const handleActivityComplete = useCallback((dayIndex: number, activity: DailyActivity) => {
-    swapActivity(dayIndex, activity);
-  }, [swapActivity]);
+  const handleActivityComplete = useCallback(
+    (dayIndex: number, activity: DailyActivity) => {
+      swapActivity(dayIndex, activity);
+    },
+    [swapActivity],
+  );
 
   // Handle starting today's workout
   const handleStartWorkout = useCallback(() => {
     if (!currentWeeklyPlan) return;
-    
+
     const todaysActivity = currentWeeklyPlan.plannedActivities.find(
-      (pa) => pa.dayIndex === dayIndex
+      (pa) => pa.dayIndex === dayIndex,
     );
-    
+
     if (todaysActivity) {
       const fitnessBefore = runnerState.profile.currentFitness;
       const fatigueBefore = runnerState.profile.currentFatigue;
@@ -134,7 +173,7 @@ export function TrainingScreen() {
 
       // 1. Deduct EP via train action in timeline (variable EP)
       useTimelineStore.getState().doAction("train", todaysActivity.energyCost);
-      
+
       // 2. Record the training activity (updates fitness/fatigue/readiness & adaptation queue)
       recordTrainingActivity(todaysActivity.activity, dayIndex);
 
@@ -164,7 +203,7 @@ export function TrainingScreen() {
 
   // Get today's planned activity
   const todaysActivity = currentWeeklyPlan?.plannedActivities.find(
-    (pa) => pa.dayIndex === dayIndex
+    (pa) => pa.dayIndex === dayIndex,
   );
 
   // Get adherence metrics
@@ -252,7 +291,9 @@ export function TrainingScreen() {
             <div className="flex items-center gap-3">
               <AlertTriangle className="w-6 h-6 text-rose-600 dark:text-rose-400 shrink-0" />
               <div>
-                <p className="font-bold text-sm">{t("expenses.unpaid_warning" as TranslationKey)}</p>
+                <p className="font-bold text-sm">
+                  {t("expenses.unpaid_warning" as TranslationKey)}
+                </p>
               </div>
             </div>
             <button
@@ -275,7 +316,10 @@ export function TrainingScreen() {
         {currentWeeklyPlan && !isGeneratingPlan && (
           <>
             {/* Template Selector */}
-            <div id="tour-training-templates" className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-4 md:p-6 shadow-sm">
+            <div
+              id="tour-training-templates"
+              className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-4 md:p-6 shadow-sm"
+            >
               <PlanTemplateSelector
                 currentFitness={runnerState.profile.currentFitness}
                 currentFatigue={runnerState.profile.currentFatigue}
@@ -328,7 +372,10 @@ export function TrainingScreen() {
             </div>
 
             {/* Weekly Calendar Grid - Mobile-first responsive */}
-            <div id="tour-training-calendar" className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-3 md:p-4 shadow-sm">
+            <div
+              id="tour-training-calendar"
+              className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-3 md:p-4 shadow-sm"
+            >
               <WeeklyCalendarGrid
                 plan={currentWeeklyPlan}
                 currentDayIndex={dayIndex}
@@ -360,68 +407,95 @@ export function TrainingScreen() {
                     {/* Volume */}
                     <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 text-center">
                       <div className="flex items-center justify-center w-10 h-10 bg-white dark:bg-slate-900 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm mx-auto mb-2">
-                        <span className="text-lg text-green-600 dark:text-green-400">🏃</span>
+                        <span className="text-lg text-green-600 dark:text-green-400">
+                          🏃
+                        </span>
                       </div>
                       <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
                         {t("training.volume")}
                       </h4>
                       <p className="text-2xl font-black text-slate-800 dark:text-white">
-                        {currentWeeklyPlan.plannedActivities.reduce((sum, pa) => {
-                          // Estimate distance based on activity type
-                          const distanceMap: Record<DailyActivity, number> = {
-                            "Recovery Run": 4,
-                            "Easy Run": 6,
-                            "Tempo Run": 8,
-                            "Interval Training": 5,
-                            "Long Run": 15,
-                            "Hill Repeats": 5,
-                            "Strength Training": 0,
-                            "Mobility Session": 0,
-                            "Full Rest": 0,
-                          };
-                          return sum + (distanceMap[pa.activity] || 0);
-                        }, 0)} km
+                        {currentWeeklyPlan.plannedActivities.reduce(
+                          (sum, pa) => {
+                            // Estimate distance based on activity type
+                            const distanceMap: Record<DailyActivity, number> = {
+                              "Recovery Run": 4,
+                              "Easy Run": 6,
+                              "Tempo Run": 8,
+                              "Interval Training": 5,
+                              "Long Run": 15,
+                              "Hill Repeats": 5,
+                              "Strength Training": 0,
+                              "Mobility Session": 0,
+                              "Full Rest": 0,
+                            };
+                            return sum + (distanceMap[pa.activity] || 0);
+                          },
+                          0,
+                        )}{" "}
+                        km
                       </p>
                     </div>
 
                     {/* Energy Cost */}
                     <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 text-center">
                       <div className="flex items-center justify-center w-10 h-10 bg-white dark:bg-slate-900 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm mx-auto mb-2">
-                        <span className="text-lg text-yellow-600 dark:text-yellow-400">⚡</span>
+                        <span className="text-lg text-yellow-600 dark:text-yellow-400">
+                          ⚡
+                        </span>
                       </div>
                       <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
                         {t("training.energy_cost")}
                       </h4>
                       <p className="text-2xl font-black text-slate-800 dark:text-white">
-                        {currentWeeklyPlan.plannedActivities.reduce((sum, pa) => sum + pa.energyCost, 0)} EP
+                        {currentWeeklyPlan.plannedActivities.reduce(
+                          (sum, pa) => sum + pa.energyCost,
+                          0,
+                        )}{" "}
+                        EP
                       </p>
                     </div>
 
                     {/* Hard Days */}
                     <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 text-center">
                       <div className="flex items-center justify-center w-10 h-10 bg-white dark:bg-slate-900 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm mx-auto mb-2">
-                        <span className="text-lg text-red-600 dark:text-red-400">🔥</span>
+                        <span className="text-lg text-red-600 dark:text-red-400">
+                          🔥
+                        </span>
                       </div>
                       <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
                         {t("training.hard_days")}
                       </h4>
                       <p className="text-2xl font-black text-slate-800 dark:text-white">
-                        {currentWeeklyPlan.plannedActivities.filter(pa => 
-                          ["Tempo Run", "Interval Training", "Long Run", "Hill Repeats"].includes(pa.activity)
-                        ).length}
+                        {
+                          currentWeeklyPlan.plannedActivities.filter((pa) =>
+                            [
+                              "Tempo Run",
+                              "Interval Training",
+                              "Long Run",
+                              "Hill Repeats",
+                            ].includes(pa.activity),
+                          ).length
+                        }
                       </p>
                     </div>
 
                     {/* Rest Days */}
                     <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 text-center">
                       <div className="flex items-center justify-center w-10 h-10 bg-white dark:bg-slate-900 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm mx-auto mb-2">
-                        <span className="text-lg text-blue-600 dark:text-blue-400">😴</span>
+                        <span className="text-lg text-blue-600 dark:text-blue-400">
+                          😴
+                        </span>
                       </div>
                       <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
                         {t("training.rest_days")}
                       </h4>
                       <p className="text-2xl font-black text-slate-800 dark:text-white">
-                        {currentWeeklyPlan.plannedActivities.filter(pa => pa.activity === "Full Rest").length}
+                        {
+                          currentWeeklyPlan.plannedActivities.filter(
+                            (pa) => pa.activity === "Full Rest",
+                          ).length
+                        }
                       </p>
                     </div>
                   </div>
@@ -438,8 +512,12 @@ export function TrainingScreen() {
                       />
                     </div>
                     <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-1">
-                      <span>{adherence.completionRate}% {t("training.complete")}</span>
-                      <span>{adherence.missedWorkouts} {t("training.missed")}</span>
+                      <span>
+                        {adherence.completionRate}% {t("training.complete")}
+                      </span>
+                      <span>
+                        {adherence.missedWorkouts} {t("training.missed")}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -469,11 +547,11 @@ export function TrainingScreen() {
                 : "bg-slate-100 dark:bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-200 dark:border-slate-700"
             }`}
           >
-            {todaysActivity ? 
-              hasEnoughEnergy ? 
-                `${t("training.start_workout")} - ${todaysActivity.activity}` : 
-                `${t("training.need_energy")} (${todaysActivity.energyCost} EP)` :
-              t("training.no_workout_today")}
+            {todaysActivity
+              ? hasEnoughEnergy
+                ? `${t("training.start_workout")} - ${todaysActivity.activity}`
+                : `${t("training.need_energy")} (${todaysActivity.energyCost} EP)`
+              : t("training.no_workout_today")}
           </button>
         </div>
       </main>
@@ -509,18 +587,24 @@ export function TrainingScreen() {
             target: "body",
             placement: "center",
             title: t("tour.screens.training.welcome.title" as TranslationKey),
-            content: t("tour.screens.training.welcome.content" as TranslationKey),
+            content: t(
+              "tour.screens.training.welcome.content" as TranslationKey,
+            ),
             skipBeacon: true,
           },
           {
             target: "#tour-training-calendar",
             title: t("tour.screens.training.calendar.title" as TranslationKey),
-            content: t("tour.screens.training.calendar.content" as TranslationKey),
+            content: t(
+              "tour.screens.training.calendar.content" as TranslationKey,
+            ),
           },
           {
             target: "#tour-training-templates",
             title: t("tour.screens.training.templates.title" as TranslationKey),
-            content: t("tour.screens.training.templates.content" as TranslationKey),
+            content: t(
+              "tour.screens.training.templates.content" as TranslationKey,
+            ),
           },
           {
             target: "#tour-training-coach",

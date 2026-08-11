@@ -1,4 +1,12 @@
-import { Award, Clock, Flame, ShieldAlert, Sparkles, Trophy, Zap } from "lucide-react";
+import {
+  Award,
+  Clock,
+  Flame,
+  ShieldAlert,
+  Sparkles,
+  Trophy,
+  Zap,
+} from "lucide-react";
 import type { Language } from "@/i18n/types";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import type { DailyChallenge, Grade, Outcome } from "@/types/engine";
@@ -46,30 +54,42 @@ export function RaceReportCard({
         return {
           bg: "bg-gradient-to-br from-amber-500/25 via-yellow-500/10 to-amber-600/25 border-amber-400/50 text-amber-300 shadow-lg shadow-amber-500/10",
           icon: <Trophy className="h-10 w-10 text-amber-300 drop-shadow-md" />,
-          label: t("challenge.result.outcome_gold" as TranslationKey) || "Gold Medal",
+          label:
+            t("challenge.result.outcome_gold" as TranslationKey) ||
+            "Gold Medal",
         };
       case "silver":
         return {
           bg: "bg-gradient-to-br from-slate-300/25 via-slate-400/10 to-slate-500/25 border-slate-300/50 text-slate-200 shadow-lg shadow-slate-400/10",
           icon: <Award className="h-10 w-10 text-slate-200 drop-shadow-md" />,
-          label: t("challenge.result.outcome_silver" as TranslationKey) || "Silver Medal",
+          label:
+            t("challenge.result.outcome_silver" as TranslationKey) ||
+            "Silver Medal",
         };
       case "bronze":
         return {
           bg: "bg-gradient-to-br from-amber-700/25 via-orange-600/10 to-amber-800/25 border-amber-600/50 text-amber-400 shadow-lg shadow-amber-700/10",
           icon: <Award className="h-10 w-10 text-amber-400 drop-shadow-md" />,
-          label: t("challenge.result.outcome_bronze" as TranslationKey) || "Bronze Medal",
+          label:
+            t("challenge.result.outcome_bronze" as TranslationKey) ||
+            "Bronze Medal",
         };
       case "finish":
         return {
           bg: "bg-gradient-to-br from-indigo-500/25 via-blue-500/10 to-indigo-600/25 border-indigo-400/50 text-indigo-300 shadow-lg shadow-indigo-500/10",
-          icon: <Sparkles className="h-10 w-10 text-indigo-300 drop-shadow-md" />,
-          label: t("challenge.result.outcome_finish" as TranslationKey) || "Finisher",
+          icon: (
+            <Sparkles className="h-10 w-10 text-indigo-300 drop-shadow-md" />
+          ),
+          label:
+            t("challenge.result.outcome_finish" as TranslationKey) ||
+            "Finisher",
         };
       default:
         return {
           bg: "bg-gradient-to-br from-rose-600/25 via-red-500/10 to-rose-700/25 border-rose-500/50 text-rose-300 shadow-lg shadow-rose-600/10",
-          icon: <ShieldAlert className="h-10 w-10 text-rose-400 drop-shadow-md" />,
+          icon: (
+            <ShieldAlert className="h-10 w-10 text-rose-400 drop-shadow-md" />
+          ),
           label: outcome === "dns" ? "Did Not Start" : "Did Not Finish",
         };
     }
@@ -96,14 +116,18 @@ export function RaceReportCard({
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/60 border border-slate-700/60 text-xs font-mono font-bold text-slate-300">
             <span>📏</span>
             <span>{challenge.race.distance} km</span>
-            <span className="capitalize text-slate-400">({challenge.race.surface})</span>
+            <span className="capitalize text-slate-400">
+              ({challenge.race.surface})
+            </span>
           </div>
         </div>
 
         {/* Core Metrics Glass Grid */}
         <div className="grid grid-cols-4 gap-4 my-auto">
           {/* Outcome Tile */}
-          <div className={`rounded-2xl p-4 border flex flex-col items-center justify-center text-center ${outcomeStyle.bg}`}>
+          <div
+            className={`rounded-2xl p-4 border flex flex-col items-center justify-center text-center ${outcomeStyle.bg}`}
+          >
             {outcomeStyle.icon}
             <span className="text-[10px] uppercase tracking-wider font-black mt-2 truncate max-w-full">
               {outcomeStyle.label}
@@ -157,7 +181,9 @@ export function RaceReportCard({
         <div className="flex justify-between items-center text-xs text-slate-400 border-t border-slate-800/80 pt-3">
           <div className="flex items-center gap-2">
             <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-mono text-slate-300 font-bold">Official Race Certificate</span>
+            <span className="font-mono text-slate-300 font-bold">
+              Official Race Certificate
+            </span>
           </div>
           <span className="font-extrabold text-indigo-400 italic">
             {outcome === "dns"

@@ -2,8 +2,8 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect } from "react";
-import type { WeatherTransition } from "@/types/engine";
 import { WEATHER_EMOJI } from "@/engine/weather/weather-transitions";
+import type { WeatherTransition } from "@/types/engine";
 
 interface WeatherAlertProps {
   transition: WeatherTransition | null;
@@ -40,7 +40,9 @@ export function WeatherAlert({ transition, onDismiss }: WeatherAlertProps) {
         ? "from-red-500/90 to-rose-600/90 border-red-400/50"
         : "from-amber-500/90 to-orange-600/90 border-amber-400/50";
 
-  const energyImpact = Math.round((transition.effect.energyCostMultiplier - 1) * 100);
+  const energyImpact = Math.round(
+    (transition.effect.energyCostMultiplier - 1) * 100,
+  );
   const impactText =
     energyImpact < 0
       ? `Energy cost ↓${Math.abs(energyImpact)}%`

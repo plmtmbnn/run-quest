@@ -27,37 +27,40 @@ export interface RacePrediction {
 export function predictRaceOutcome(
   profile: RunnerProfile,
   challenge: DailyChallenge,
-  preparation: Preparation
+  preparation: Preparation,
 ): RacePrediction {
   // Calculate effective race pace considering all modifiers
   const effectivePace = calculateEffectivePace(profile, challenge, preparation);
-  
+
   // Estimate AI field strength
-  const aiFieldStrength = estimateAIStrength(challenge.tier || "local", challenge.race.distance);
-  
+  const aiFieldStrength = estimateAIStrength(
+    challenge.tier || "local",
+    challenge.race.distance,
+  );
+
   // Calculate win probability
   const winProbability = calculateWinProbability(
     effectivePace,
     aiFieldStrength,
     profile,
-    challenge
+    challenge,
   );
-  
+
   // Generate strategy recommendation
   const strategy = generateStrategy(profile, challenge, winProbability);
-  
+
   // Calculate suggested pace range
   const paceRange = calculatePaceRange(effectivePace, aiFieldStrength);
-  
+
   // Identify key threats
   const threats = identifyKeyThreats(challenge, aiFieldStrength);
-  
+
   // Assess confidence factors
   const factors = assessConfidenceFactors(profile, challenge);
-  
+
   // Generate personalized coach notes
   const notes = generateCoachNotes(winProbability, factors, challenge);
-  
+
   return {
     winProbability,
     winProbabilityLabel: getWinProbabilityLabel(winProbability),
@@ -76,30 +79,39 @@ export function predictRaceOutcome(
 function calculateEffectivePace(
   profile: RunnerProfile,
   challenge: DailyChallenge,
-  preparation: Preparation
+  preparation: Preparation,
 ): number {
   // Base pace from fitness level
   const basePace = calculatePlayerBasePace(profile, challenge.race.distance);
-  
+
   // Gear bonus (from shoes and other gear)
   const gearBonus = calculateGearBonus(preparation);
-  
+
   // Condition penalty (weather, terrain)
   const conditionPenalty = calculateConditionPenalty(challenge);
-  
+
   // Fatigue penalty
   const fatiguePenalty = calculateFatiguePenalty(profile.currentFatigue || 0);
-  
+
   // Readiness adjustment
-  const readinessAdjustment = calculateReadinessAdjustment(profile.currentReadiness || 100);
-  
+  const readinessAdjustment = calculateReadinessAdjustment(
+    profile.currentReadiness || 100,
+  );
+
   // Experience multiplier
-  const experienceMultiplier = calculateExperienceModifier(profile.totalRuns || 0);
-  
+  const experienceMultiplier = calculateExperienceModifier(
+    profile.totalRuns || 0,
+  );
+
   // Cumulative effect
-  let pace = basePace - gearBonus + conditionPenalty + fatiguePenalty + readinessAdjustment;
+  let pace =
+    basePace -
+    gearBonus +
+    conditionPenalty +
+    fatiguePenalty +
+    readinessAdjustment;
   pace *= experienceMultiplier;
-  
+
   return Math.round(pace);
 }
 
@@ -108,19 +120,23 @@ function calculateEffectivePace(
  */
 function calculatePlayerBasePace(
   profile: RunnerProfile,
-  distance: number
+  distance: number,
 ): number {
   const fitnessLevel = profile.currentFitness || 50;
   const basePaceAt100Fitness = 240; // 4:00 min/km at 100 fitness
   const basePaceAt0Fitness = 420; // 7:00 min/km at 0 fitness
-  
-  let pace = basePaceAt0Fitness - (fitnessLevel / 100) * (basePaceAt0Fitness - basePaceAt100Fitness);
-  
+
+  let pace =
+    basePaceAt0Fitness -
+    (fitnessLevel / 100) * (basePaceAt0Fitness - basePaceAt100Fitness);
+
   // Adjust for distance (longer distances have slower average paces)
-  if (distance >= 42) pace += 30; // Marathon+ penalty
-  else if (distance >= 21) pace += 15; // Half marathon penalty
+  if (distance >= 42)
+    pace += 30; // Marathon+ penalty
+  else if (distance >= 21)
+    pace += 15; // Half marathon penalty
   else if (distance >= 10) pace += 5; // 10K penalty
-  
+
   return pace;
 }
 
@@ -129,7 +145,7 @@ function calculatePlayerBasePace(
  */
 function calculateGearBonus(preparation: Preparation): number {
   let bonus = 0;
-  
+
   // Shoes bonus (from shop-catalog stats)
   const shoeBonus: Record<string, number> = {
     carbon_racer: 3,
@@ -146,12 +162,12 @@ function calculateGearBonus(preparation: Preparation): number {
     max_cushion: 0,
   };
   bonus += shoeBonus[preparation.shoes] || 0;
-  
+
   // Other minor gear bonuses
   if (preparation.gear.includes("gps_watch")) bonus += 1;
   if (preparation.gear.includes("sunglasses")) bonus += 0.5;
   if (preparation.gear.includes("compression_socks")) bonus += 1;
-  
+
   return bonus;
 }
 
@@ -162,26 +178,26 @@ function calculateConditionPenalty(challenge: DailyChallenge): number {
   let penalty = 0;
   const env = challenge.environment;
   const race = challenge.race;
-  
+
   // Weather penalties
   if (env.weather === "rain") penalty += 10;
   if (env.weather === "storm") penalty += 20;
   if (env.weather === "fog") penalty += 5;
-  
+
   // Temperature penalties
   if (env.temperature > 28) penalty += 15; // Hot
   if (env.temperature > 32) penalty += 30; // Very hot
   if (env.temperature < 5) penalty += 10; // Cold
   if (env.temperature < -5) penalty += 20; // Very cold
-  
+
   // Wind penalty
   if (env.wind.speed > 20) penalty += 10;
   if (env.wind.speed > 30) penalty += 20;
-  
+
   // Surface modifiers
   if (race.surface === "trail") penalty += 5;
   if (race.elevation === "hilly") penalty += 10;
-  
+
   return penalty;
 }
 
@@ -218,19 +234,19 @@ function calculateExperienceModifier(totalRaces: number): number {
  */
 function estimateAIStrength(tier: string, distance: number): number {
   const tierPace: Record<string, number> = {
-    local: 300,      // 5:00 min/km average
-    regional: 270,   // 4:30 min/km
-    state: 255,      // 4:15 min/km
-    national: 240,   // 4:00 min/km
+    local: 300, // 5:00 min/km average
+    regional: 270, // 4:30 min/km
+    state: 255, // 4:15 min/km
+    national: 240, // 4:00 min/km
     international: 225, // 3:45 min/km
   };
-  
+
   let pace = tierPace[tier] || 300;
-  
+
   // Distance adjustment
   if (distance >= 42) pace += 20;
   else if (distance >= 21) pace += 10;
-  
+
   return pace;
 }
 
@@ -241,28 +257,28 @@ function calculateWinProbability(
   playerPace: number,
   aiPace: number,
   profile: RunnerProfile,
-  challenge: DailyChallenge
+  challenge: DailyChallenge,
 ): number {
   // Pace differential (negative means player is faster than field average)
   const paceDiff = playerPace - aiPace;
-  
+
   // Base probability from pace comparison
-  let probability = 50 - (paceDiff * 2); // ±2% per second difference
-  
+  let probability = 50 - paceDiff * 2; // ±2% per second difference
+
   // Adjust for experience
   const totalRuns = profile.totalRuns || 0;
   if (totalRuns > 50) probability += 10;
   else if (totalRuns > 20) probability += 5;
   else if (totalRuns < 5) probability -= 10;
-  
+
   // Adjust for race tier (higher tier = more variance/uncertainty)
   if (challenge.tier === "international") probability -= 5;
   if (challenge.tier === "national") probability -= 3;
-  
+
   // Add conditioning factor (race difficulty based on weather/elevation)
   const conditioningFactor = calculateConditionFactor(challenge);
   probability += conditioningFactor;
-  
+
   // Clamp to 1-99% (never absolute certainty)
   return Math.max(1, Math.min(99, Math.round(probability)));
 }
@@ -274,14 +290,14 @@ function calculateConditionFactor(challenge: DailyChallenge): number {
   let factor = 0;
   const weather = challenge.environment.weather;
   const elevation = challenge.race.elevation;
-  
+
   // Difficult weather reduces win probability likelihood
   if (["storm", "hot", "cold"].includes(weather)) factor -= 15;
   if (["rain"].includes(weather)) factor -= 5;
-  
+
   // Hilly/mountainous terrain makes underdog potential higher
   if (elevation === "hilly") factor += 3;
-  
+
   return factor;
 }
 
@@ -291,11 +307,11 @@ function calculateConditionFactor(challenge: DailyChallenge): number {
 function generateStrategy(
   profile: RunnerProfile,
   challenge: DailyChallenge,
-  winProb: number
+  winProb: number,
 ): string {
   const distance = challenge.race.distance;
   const fatigue = profile.currentFatigue || 0;
-  
+
   if (winProb > 70) {
     return `Start conservatively and control the pace. Attack at ${Math.floor(distance * 0.7)}K to break away.`;
   } else if (winProb > 40) {
@@ -312,13 +328,13 @@ function generateStrategy(
  */
 function calculatePaceRange(
   playerPace: number,
-  aiPace: number
+  aiPace: number,
 ): { min: number; max: number } {
   // Suggest a range that's competitive but realistic
   const targetPace = Math.min(playerPace, aiPace);
-  
+
   return {
-    min: targetPace - 5,  // Push pace (faster)
+    min: targetPace - 5, // Push pace (faster)
     max: targetPace + 10, // Safe pace (slower)
   };
 }
@@ -326,23 +342,34 @@ function calculatePaceRange(
 /**
  * Generate top 3 competitor names for race context
  */
-function identifyKeyThreats(challenge: DailyChallenge, aiStrength: number): string[] {
+function identifyKeyThreats(
+  challenge: DailyChallenge,
+  aiStrength: number,
+): string[] {
   const names = [
-    "Sarah Chen", "Marcus Rodriguez", "Emily Watson",
-    "David Kim", "Anna Kowalski", "James Thompson",
-    "Maria Silva", "Ahmed Hassan", "Sophie Dubois",
-    "Li Wei", "Fatima Al-Zahra", "Carlos Mendes"
+    "Sarah Chen",
+    "Marcus Rodriguez",
+    "Emily Watson",
+    "David Kim",
+    "Anna Kowalski",
+    "James Thompson",
+    "Maria Silva",
+    "Ahmed Hassan",
+    "Sophie Dubois",
+    "Li Wei",
+    "Fatima Al-Zahra",
+    "Carlos Mendes",
   ];
-  
+
   // Sort AI opponents by name seeded by race ID
   const seed = challenge.id.split("").reduce((a, b) => a + b.charCodeAt(0), 0);
   const threats: string[] = [];
-  
+
   for (let i = 0; i < 3; i++) {
     const index = (seed + i * 17) % names.length;
     threats.push(names[index]);
   }
-  
+
   return threats;
 }
 
@@ -351,7 +378,7 @@ function identifyKeyThreats(challenge: DailyChallenge, aiStrength: number): stri
  */
 function assessConfidenceFactors(
   profile: RunnerProfile,
-  challenge: DailyChallenge
+  challenge: DailyChallenge,
 ): RacePrediction["confidenceFactors"] {
   const fitness = profile.currentFitness || 50;
   const fatigue = profile.currentFatigue || 0;
@@ -359,15 +386,32 @@ function assessConfidenceFactors(
   const temp = challenge.environment.temperature;
   const weather = challenge.environment.weather;
   const elevation = challenge.race.elevation;
-  
+
   return {
-    fitness: fitness > 80 ? "excellent" : fitness > 60 ? "good" : fitness > 40 ? "adequate" : "poor",
-    fatigue: fatigue < 20 ? "fresh" : fatigue < 50 ? "normal" : fatigue < 75 ? "tired" : "exhausted",
-    experience: totalRuns > 50 ? "veteran" : totalRuns > 10 ? "experienced" : "novice",
-    conditions: 
-      weather === "sunny" && temp > 10 && temp < 25 && elevation === "flat" ? "favorable" :
-      weather === "rain" || weather === "storm" || temp > 30 || temp < 5 ? "challenging" :
-      "neutral",
+    fitness:
+      fitness > 80
+        ? "excellent"
+        : fitness > 60
+          ? "good"
+          : fitness > 40
+            ? "adequate"
+            : "poor",
+    fatigue:
+      fatigue < 20
+        ? "fresh"
+        : fatigue < 50
+          ? "normal"
+          : fatigue < 75
+            ? "tired"
+            : "exhausted",
+    experience:
+      totalRuns > 50 ? "veteran" : totalRuns > 10 ? "experienced" : "novice",
+    conditions:
+      weather === "sunny" && temp > 10 && temp < 25 && elevation === "flat"
+        ? "favorable"
+        : weather === "rain" || weather === "storm" || temp > 30 || temp < 5
+          ? "challenging"
+          : "neutral",
   };
 }
 
@@ -377,55 +421,75 @@ function assessConfidenceFactors(
 function generateCoachNotes(
   winProb: number,
   factors: RacePrediction["confidenceFactors"],
-  challenge: DailyChallenge
+  challenge: DailyChallenge,
 ): string {
   const notes: string[] = [];
-  
+
   // Fitness feedback
   if (factors.fitness === "excellent") {
-    notes.push("Your fitness is outstanding this week - you're primed for a great performance!");
+    notes.push(
+      "Your fitness is outstanding this week - you're primed for a great performance!",
+    );
   } else if (factors.fitness === "poor") {
-    notes.push("Your fitness needs improvement. Consider this a learning opportunity before focusing on results.");
+    notes.push(
+      "Your fitness needs improvement. Consider this a learning opportunity before focusing on results.",
+    );
   }
-  
+
   // Fatigue warning/warning
   if (factors.fatigue === "exhausted") {
-    notes.push("⚠️ Warning: You're carrying significant fatigue. Avoid pushing too hard on early segments.");
+    notes.push(
+      "⚠️ Warning: You're carrying significant fatigue. Avoid pushing too hard on early segments.",
+    );
   } else if (factors.fatigue === "fresh") {
     notes.push("You're well-rested and ready to give your best effort today.");
   }
-  
+
   // Experience note
   if (factors.experience === "novice") {
-    notes.push("Remember to stick to your pacing strategy. Don't go out too fast in the first few kilometers.");
+    notes.push(
+      "Remember to stick to your pacing strategy. Don't go out too fast in the first few kilometers.",
+    );
   } else if (factors.experience === "veteran") {
-    notes.push("Trust your instincts and your training - you know exactly what needs to happen.");
+    notes.push(
+      "Trust your instincts and your training - you know exactly what needs to happen.",
+    );
   }
-  
+
   // Conditions note
   if (factors.conditions === "challenging") {
-    notes.push("The race conditions are tougher today. Adjust your expectations and focus on executing your strategy.");
+    notes.push(
+      "The race conditions are tougher today. Adjust your expectations and focus on executing your strategy.",
+    );
   }
-  
+
   // Win probability encouragement
   if (winProb > 70) {
-    notes.push("🌟 You're the favorite to win! Execute your race plan and make it yours!");
+    notes.push(
+      "🌟 You're the favorite to win! Execute your race plan and make it yours!",
+    );
   } else if (winProb < 30) {
-    notes.push("🛡️ This will be an uphill battle against stronger competitors. Focus on a strong finish and personal improvement.");
+    notes.push(
+      "🛡️ This will be an uphill battle against stronger competitors. Focus on a strong finish and personal improvement.",
+    );
   }
-  
+
   // Personal message based on combo of factors
   if (winProb > 60 && factors.fitness === "excellent") {
-    notes.push("This could be your breakthrough race - go show them what you've got!");
+    notes.push(
+      "This could be your breakthrough race - go show them what you've got!",
+    );
   }
-  
+
   return notes.join(" ");
 }
 
 /**
  * Get win probability label for display
  */
-function getWinProbabilityLabel(prob: number): RacePrediction["winProbabilityLabel"] {
+function getWinProbabilityLabel(
+  prob: number,
+): RacePrediction["winProbabilityLabel"] {
   if (prob >= 80) return "Very High";
   if (prob >= 60) return "High";
   if (prob >= 40) return "Medium";
@@ -449,7 +513,7 @@ export function formatDuration(totalSeconds: number): string {
   const hrs = Math.floor(totalSeconds / 3600);
   const mins = Math.floor((totalSeconds % 3600) / 60);
   const secs = totalSeconds % 60;
-  
+
   if (hrs > 0) {
     return `${hrs}h ${mins}m ${secs}s`;
   }

@@ -2,13 +2,13 @@
 
 import { motion } from "framer-motion";
 import { useMemo } from "react";
-import { useTimelineStore } from "@/store/timeline-store";
-import { usePlayerStore } from "@/store/player-store";
-import { useSettingsStore } from "@/store/settings-store";
 import { formatCurrency } from "@/economy/currency-converter";
-import { formatCompact } from "@/utils/format-compact";
 import { deriveDate } from "@/engine/timeline/calendar";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+import { usePlayerStore } from "@/store/player-store";
+import { useSettingsStore } from "@/store/settings-store";
+import { useTimelineStore } from "@/store/timeline-store";
+import { formatCompact } from "@/utils/format-compact";
 
 interface StatCardProps {
   label: string;
@@ -18,7 +18,13 @@ interface StatCardProps {
   "aria-label"?: string;
 }
 
-function StatCard({ label, value, icon, className, "aria-label": ariaLabel }: StatCardProps) {
+function StatCard({
+  label,
+  value,
+  icon,
+  className,
+  "aria-label": ariaLabel,
+}: StatCardProps) {
   return (
     <div
       className={`flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/50 rounded-xl md:rounded-2xl p-2 md:p-3 text-center border border-slate-100 dark:border-slate-700/50 ${className}`}
@@ -51,7 +57,10 @@ export function GameStats() {
         {/* Stats Skeletons — Activity Row */}
         <div className="grid grid-cols-3 gap-2 md:gap-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/50 rounded-xl md:rounded-2xl p-2 md:p-3 text-center border border-slate-100 dark:border-slate-700/50 h-16">
+            <div
+              key={i}
+              className="flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/50 rounded-xl md:rounded-2xl p-2 md:p-3 text-center border border-slate-100 dark:border-slate-700/50 h-16"
+            >
               <div className="h-3 w-12 bg-slate-200 dark:bg-slate-700 rounded mb-2"></div>
               <div className="h-4 w-8 bg-slate-200 dark:bg-slate-700 rounded"></div>
             </div>
@@ -60,7 +69,10 @@ export function GameStats() {
         {/* Stats Skeletons — Progression Row */}
         <div className="grid grid-cols-3 gap-2 md:gap-3">
           {[4, 5, 6].map((i) => (
-            <div key={i} className="flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/50 rounded-xl md:rounded-2xl p-2 md:p-3 text-center border border-slate-100 dark:border-slate-700/50 h-16">
+            <div
+              key={i}
+              className="flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-800/50 rounded-xl md:rounded-2xl p-2 md:p-3 text-center border border-slate-100 dark:border-slate-700/50 h-16"
+            >
               <div className="h-3 w-10 bg-slate-200 dark:bg-slate-700 rounded mb-2"></div>
               <div className="h-4 w-8 bg-slate-200 dark:bg-slate-700 rounded"></div>
             </div>
@@ -73,39 +85,38 @@ export function GameStats() {
   const currentBalance = Math.max(0, gameState?.economy?.currentBalance ?? 0);
   const currentDate = gameState ? deriveDate(gameState) : null;
 
-  const formattedBalance = useMemo(() =>
-    formatCurrency(
-      currentBalance,
-      settings.preferredCurrency || "USD",
-      { compact: true },
-    ),
-    [currentBalance, settings.preferredCurrency]
+  const formattedBalance = useMemo(
+    () =>
+      formatCurrency(currentBalance, settings.preferredCurrency || "USD", {
+        compact: true,
+      }),
+    [currentBalance, settings.preferredCurrency],
   );
 
-  const runs = useMemo(() =>
-    formatCompact(player?.statistics?.totalRuns ?? 0),
-    [player?.statistics?.totalRuns]
+  const runs = useMemo(
+    () => formatCompact(player?.statistics?.totalRuns ?? 0),
+    [player?.statistics?.totalRuns],
   );
 
-  const distance = useMemo(() =>
-    `${formatCompact(player?.statistics?.totalDistance ?? 0)} km`,
-    [player?.statistics?.totalDistance]
+  const distance = useMemo(
+    () => `${formatCompact(player?.statistics?.totalDistance ?? 0)} km`,
+    [player?.statistics?.totalDistance],
   );
 
   // Progression stats (used for sponsor/job unlock checks)
-  const careerWins = useMemo(() =>
-    formatCompact((gameState?.flags?.career_wins as number) ?? 0),
-    [gameState?.flags?.career_wins]
+  const careerWins = useMemo(
+    () => formatCompact((gameState?.flags?.career_wins as number) ?? 0),
+    [gameState?.flags?.career_wins],
   );
 
-  const rating = useMemo(() =>
-    formatCompact((gameState?.flags?.rating as number) ?? 1500),
-    [gameState?.flags?.rating]
+  const rating = useMemo(
+    () => formatCompact((gameState?.flags?.rating as number) ?? 1500),
+    [gameState?.flags?.rating],
   );
 
-  const reputation = useMemo(() =>
-    formatCompact((gameState?.flags?.reputation as number) ?? 0),
-    [gameState?.flags?.reputation]
+  const reputation = useMemo(
+    () => formatCompact((gameState?.flags?.reputation as number) ?? 0),
+    [gameState?.flags?.reputation],
   );
 
   return (
@@ -135,7 +146,7 @@ export function GameStats() {
           </span>
         </div>
       )}
-      
+
       {/* Player Stats — Activity Row */}
       <div className="grid grid-cols-3 gap-2 md:gap-3">
         <StatCard

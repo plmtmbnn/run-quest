@@ -7,16 +7,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { formatCurrency } from "@/economy/currency-converter";
 import type { WorkType, WorkTypeId } from "@/economy/work-types";
 import {
   getAllWorkTypesWithStatus,
   getWorkEfficiency,
 } from "@/economy/work-types";
-import type { GameState } from "@/engine/timeline/time-types";
 import { deriveDate } from "@/engine/timeline/calendar";
-import { useSettingsStore } from "@/store/settings-store";
-import { formatCurrency } from "@/economy/currency-converter";
+import type { GameState } from "@/engine/timeline/time-types";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+import { useSettingsStore } from "@/store/settings-store";
 
 // Interpolate {placeholder} tokens in translation strings.
 function interpolate(
@@ -61,7 +61,10 @@ export function WorkSelectorModal({
     null,
   );
   const lastJobChangeDay = (gameState.flags.lastJobChangeDay as number) ?? -7;
-  const cooldownDaysRemaining = Math.max(0, 7 - (gameState.dayIndex - lastJobChangeDay));
+  const cooldownDaysRemaining = Math.max(
+    0,
+    7 - (gameState.dayIndex - lastJobChangeDay),
+  );
   const workOptions = getAllWorkTypesWithStatus(gameState);
 
   const currentJobId = (gameState.flags.activeJobId as WorkTypeId) || null;
@@ -76,31 +79,73 @@ export function WorkSelectorModal({
     const missing: string[] = [];
 
     if (req.minAge !== undefined && age < req.minAge) {
-      missing.push(interpolate(t("work.missing_req.age_min" as TranslationKey), { min: req.minAge, age }));
+      missing.push(
+        interpolate(t("work.missing_req.age_min" as TranslationKey), {
+          min: req.minAge,
+          age,
+        }),
+      );
     }
     if (req.maxAge !== undefined && age > req.maxAge) {
-      missing.push(interpolate(t("work.missing_req.age_max" as TranslationKey), { max: req.maxAge, age }));
+      missing.push(
+        interpolate(t("work.missing_req.age_max" as TranslationKey), {
+          max: req.maxAge,
+          age,
+        }),
+      );
     }
-    if (req.minIntellect !== undefined && (stats.intellect ?? 0) < req.minIntellect) {
-      missing.push(interpolate(t("work.missing_req.intellect" as TranslationKey), { min: req.minIntellect, val: stats.intellect ?? 0 }));
+    if (
+      req.minIntellect !== undefined &&
+      (stats.intellect ?? 0) < req.minIntellect
+    ) {
+      missing.push(
+        interpolate(t("work.missing_req.intellect" as TranslationKey), {
+          min: req.minIntellect,
+          val: stats.intellect ?? 0,
+        }),
+      );
     }
-    if (req.minCharisma !== undefined && (stats.charisma ?? 0) < req.minCharisma) {
-      missing.push(interpolate(t("work.missing_req.charisma" as TranslationKey), { min: req.minCharisma, val: stats.charisma ?? 0 }));
+    if (
+      req.minCharisma !== undefined &&
+      (stats.charisma ?? 0) < req.minCharisma
+    ) {
+      missing.push(
+        interpolate(t("work.missing_req.charisma" as TranslationKey), {
+          min: req.minCharisma,
+          val: stats.charisma ?? 0,
+        }),
+      );
     }
-    if (req.minRunningSkill !== undefined && (skills.running ?? 0) < req.minRunningSkill) {
-      missing.push(interpolate(t("work.missing_req.running_skill" as TranslationKey), { min: req.minRunningSkill, val: skills.running ?? 0 }));
+    if (
+      req.minRunningSkill !== undefined &&
+      (skills.running ?? 0) < req.minRunningSkill
+    ) {
+      missing.push(
+        interpolate(t("work.missing_req.running_skill" as TranslationKey), {
+          min: req.minRunningSkill,
+          val: skills.running ?? 0,
+        }),
+      );
     }
     if (req.hasActiveSponsor && !gameState.sponsorship?.currentSponsor) {
       missing.push(t("work.missing_req.sponsor" as TranslationKey));
     }
-    if (req.minCareerWins !== undefined && ((flags.career_wins as number) ?? 0) < req.minCareerWins) {
-      missing.push(interpolate(t("work.missing_req.career_wins" as TranslationKey), { count: req.minCareerWins, val: (flags.career_wins as number) ?? 0 }));
+    if (
+      req.minCareerWins !== undefined &&
+      ((flags.career_wins as number) ?? 0) < req.minCareerWins
+    ) {
+      missing.push(
+        interpolate(t("work.missing_req.career_wins" as TranslationKey), {
+          count: req.minCareerWins,
+          val: (flags.career_wins as number) ?? 0,
+        }),
+      );
     }
 
     return missing;
   };
 
-  const [outcome, setOutcome] = useState<null | 'accepted' | 'rejected'>(null);
+  const [outcome, setOutcome] = useState<null | "accepted" | "rejected">(null);
 
   const handleConfirm = () => {
     if (selectedWorkType && cooldownDaysRemaining <= 0) {
@@ -108,9 +153,9 @@ export function WorkSelectorModal({
       const accepted = Math.random() < 0.7;
       if (accepted) {
         onSelectWork(selectedWorkType);
-        setOutcome('accepted');
+        setOutcome("accepted");
       } else {
-        setOutcome('rejected');
+        setOutcome("rejected");
       }
     }
   };
@@ -170,10 +215,14 @@ export function WorkSelectorModal({
                         </div>
                         <div>
                           <h3 className="text-lg font-black font-heading tracking-tight text-slate-800 dark:text-white">
-                            {t(`work.types.${workType.id}.name` as TranslationKey)}
+                            {t(
+                              `work.types.${workType.id}.name` as TranslationKey,
+                            )}
                           </h3>
                           <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-0.5">
-                            {t(`work.types.${workType.id}.desc` as TranslationKey)}
+                            {t(
+                              `work.types.${workType.id}.desc` as TranslationKey,
+                            )}
                           </p>
                         </div>
                       </div>
@@ -183,7 +232,10 @@ export function WorkSelectorModal({
                         <div className="flex items-center gap-1.5 bg-green-50 dark:bg-green-500/10 px-3 py-1.5 rounded-xl border border-green-100 dark:border-green-500/20">
                           <span className="text-sm">💰</span>
                           <span className="text-sm font-bold text-green-700 dark:text-green-400 tracking-tight">
-                            {formatCurrency(workType.pay.min, preferredCurrency)}
+                            {formatCurrency(
+                              workType.pay.min,
+                              preferredCurrency,
+                            )}
                             {workType.pay.max !== workType.pay.min &&
                               ` - ${formatCurrency(workType.pay.max, preferredCurrency)}`}
                           </span>
@@ -251,8 +303,8 @@ export function WorkSelectorModal({
                             )}
                             {workType.effects.intellect && (
                               <span className="px-2.5 py-1 bg-purple-50 dark:bg-purple-950/20 text-purple-600 dark:text-purple-400 font-bold uppercase tracking-wider text-[10px] rounded-lg border border-purple-200 dark:border-purple-900/30">
-                                {t("work.effects.intellect" as TranslationKey)} +
-                                {workType.effects.intellect}
+                                {t("work.effects.intellect" as TranslationKey)}{" "}
+                                +{workType.effects.intellect}
                               </span>
                             )}
                             {workType.effects.charisma && (

@@ -56,7 +56,16 @@ export function PRCelebration({
   onShare,
 }: PRCelebrationProps) {
   const [visible, setVisible] = useState(true);
-  const [confettiPieces, setConfettiPieces] = useState<{ id: number; x: number; y: number; color: string; size: number; rotation: number; }[]>([]);
+  const [confettiPieces, setConfettiPieces] = useState<
+    {
+      id: number;
+      x: number;
+      y: number;
+      color: string;
+      size: number;
+      rotation: number;
+    }[]
+  >([]);
 
   const improvement = calculateImprovement(previousTime, newTime);
   const improvementMessage = getImprovementMessage(improvement);
@@ -64,8 +73,15 @@ export function PRCelebration({
   useEffect(() => {
     // Generate confetti pieces
     const pieces = [];
-    const colors = ["#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#fbbf24"];
-    
+    const colors = [
+      "#10b981",
+      "#3b82f6",
+      "#f59e0b",
+      "#ef4444",
+      "#8b5cf6",
+      "#fbbf24",
+    ];
+
     for (let i = 0; i < 150; i++) {
       pieces.push({
         id: i,
@@ -76,7 +92,7 @@ export function PRCelebration({
         rotation: Math.random() * 360,
       });
     }
-    
+
     setConfettiPieces(pieces);
 
     // Auto-dismiss after 8 seconds
@@ -118,7 +134,11 @@ export function PRCelebration({
                   x: `${piece.x + (Math.random() - 0.5) * 20}%`,
                   y: "-20vh",
                   opacity: [0, 1, 0],
-                  rotate: [piece.rotation, piece.rotation + 360, piece.rotation + 720],
+                  rotate: [
+                    piece.rotation,
+                    piece.rotation + 360,
+                    piece.rotation + 720,
+                  ],
                 }}
                 transition={{
                   duration: Math.random() * 3 + 2,
@@ -271,7 +291,7 @@ export function PRCelebration({
 export function usePRDetection(
   currentTime: number,
   distance: number,
-  playerProfile: any
+  playerProfile: any,
 ) {
   const [isNewPR, setIsNewPR] = useState(false);
   const [previousTime, setPreviousTime] = useState<number | null>(null);
@@ -284,7 +304,7 @@ export function usePRDetection(
 
     // Find previous best time for this distance
     const previousRuns = playerProfile.runHistory.filter(
-      (run: any) => run.distance === distance
+      (run: any) => run.distance === distance,
     );
 
     if (previousRuns.length === 0) {
@@ -294,7 +314,7 @@ export function usePRDetection(
     } else {
       // Sort by time (ascending) and get the best
       const sortedRuns = [...previousRuns].sort(
-        (a: any, b: any) => a.finishTime - b.finishTime
+        (a: any, b: any) => a.finishTime - b.finishTime,
       );
       const bestTime = sortedRuns[0].finishTime;
 

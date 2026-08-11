@@ -1,18 +1,32 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { DEFAULT_RUNNER_PROFILE, DEFAULT_RUNNER_STATE } from "@/runner/runner-types";
-import { generateWeeklyPlan, calculateAdherence } from "@/training/weekly-plan-engine";
-import { recordTrainingActivity } from "@/training/training-engine";
-import { generateCoachRecommendation } from "@/training/coach-recommendation";
+import { beforeEach, describe, expect, it } from "vitest";
 import { loadRunnerState, saveRunnerState } from "@/runner/runner-persistence";
-import { loadTrainingState, saveTrainingState } from "@/training/training-store";
-import { DEFAULT_TRAINING_STATE } from "@/training/training-types";
+import {
+  DEFAULT_RUNNER_PROFILE,
+  DEFAULT_RUNNER_STATE,
+} from "@/runner/runner-types";
 import type { RaceOccurrence } from "@/scheduling/race-calendar-types";
+import { generateCoachRecommendation } from "@/training/coach-recommendation";
+import { recordTrainingActivity } from "@/training/training-engine";
+import {
+  loadTrainingState,
+  saveTrainingState,
+} from "@/training/training-store";
+import { DEFAULT_TRAINING_STATE } from "@/training/training-types";
+import {
+  calculateAdherence,
+  generateWeeklyPlan,
+} from "@/training/weekly-plan-engine";
 
 describe("Sprint 32: Training Performance Overhaul Tests", () => {
   beforeEach(() => {
     // Reset local storage mock state before each test
     saveRunnerState({
-      profile: { ...DEFAULT_RUNNER_PROFILE, currentFitness: 30, currentFatigue: 10, currentReadiness: 80 },
+      profile: {
+        ...DEFAULT_RUNNER_PROFILE,
+        currentFitness: 30,
+        currentFatigue: 10,
+        currentReadiness: 80,
+      },
       lastUpdated: new Date().toISOString(),
     });
     saveTrainingState({
@@ -45,8 +59,13 @@ describe("Sprint 32: Training Performance Overhaul Tests", () => {
 
     const updatedRunner = loadRunnerState();
     // Tempo run has fitness 2 in ACTIVITY_EFFECTS, 30% immediate = 0.6
-    expect(updatedRunner.profile.currentFitness).toBeCloseTo(initialFitness + 0.6, 1);
-    expect(updatedRunner.profile.totalTrainingDays).toBe(initialTrainingDays + 1);
+    expect(updatedRunner.profile.currentFitness).toBeCloseTo(
+      initialFitness + 0.6,
+      1,
+    );
+    expect(updatedRunner.profile.totalTrainingDays).toBe(
+      initialTrainingDays + 1,
+    );
 
     // Check that remaining 70% (1.4) was queued for adaptation
     const trainingState = loadTrainingState();

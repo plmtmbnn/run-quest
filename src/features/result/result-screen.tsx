@@ -1,22 +1,40 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Award, BookOpen, Camera, Check, ChevronDown, ChevronUp, Clock, Copy, Home, Share2, Sparkles } from "lucide-react";
+import {
+  Award,
+  BookOpen,
+  Camera,
+  Check,
+  ChevronDown,
+  ChevronUp,
+  Clock,
+  Copy,
+  Home,
+  Share2,
+  Sparkles,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { FocusResultEnhancement } from "@/components/focus/focus-result-enhancement";
+import { EnhancedStandings } from "@/components/race/enhanced-standings";
+import { PostRaceAnalytics } from "@/components/race/post-race-analytics";
 import { CoachQuoteCard } from "@/components/share/coach-quote-card";
 import { EventHighlightCard } from "@/components/share/event-highlight-card";
 import { RaceReportCard } from "@/components/share/race-report-card";
 import { ShareModal } from "@/components/share/share-modal";
-import { PostRaceAnalytics } from "@/components/race/post-race-analytics";
-import { EnhancedStandings } from "@/components/race/enhanced-standings";
-import { FocusResultEnhancement } from "@/components/focus/focus-result-enhancement";
+import { ScreenTour } from "@/components/tour/screen-tour";
+import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+import { setPBIfFaster } from "@/runner/personal-best";
 import { saveRunToHistory } from "@/runner/run-history";
 import { useRunnerStore } from "@/runner/runner-store";
 import type { RunRecord } from "@/runner/runner-types";
+import {
+  analyzeRacePerformance,
+  type RaceAnalytics,
+} from "@/services/analytics/race-analytics";
 import { generateDailyChallenge } from "@/services/challenge/generator";
-import { analyzeRacePerformance, type RaceAnalytics } from "@/services/analytics/race-analytics";
 import {
   isNewPersonalBest,
   loadGhostRun,
@@ -27,17 +45,14 @@ import {
   calculateRankPointsChange,
   getTierAndDivision,
 } from "@/social/ranking-engine";
-import { setPBIfFaster } from "@/runner/personal-best";
-import { useSound } from "@/hooks/use-sound";
 import { useSocialStore } from "@/social/social-store";
 import { useGameStore } from "@/store/game-store";
-import { useSettingsStore } from "@/store/settings-store";
 import { usePlayerStore } from "@/store/player-store";
 import { usePreparationStore } from "@/store/preparation-store";
+import { useSettingsStore } from "@/store/settings-store";
 import { useTimelineStore } from "@/store/timeline-store";
 import type { RaceEvent } from "@/types/engine";
 import { isHighlightShareable } from "@/utils/highlight-utils";
-import { ScreenTour } from "@/components/tour/screen-tour";
 
 export function ResultScreen() {
   const router = useRouter();
@@ -46,14 +61,17 @@ export function ResultScreen() {
   const lang = (language === "id" ? "id" : "en") as "en" | "id";
   const { playSound } = useSound();
 
-  const { lastResult, currentChallenge, focusTargetPosition, clearState } = useGameStore();
+  const { lastResult, currentChallenge, focusTargetPosition, clearState } =
+    useGameStore();
   const gameMode = useSettingsStore((state) => state.settings.gameMode);
   const { reset } = usePreparationStore();
   const { runnerState, setRunnerState } = useRunnerStore();
   const player = usePlayerStore((state) => state.player);
-  
+
   // Get player name from player store
-  const playerName = player?.name || `Runner #${player?.id.slice(0, 5).toUpperCase() || "00000"}`;
+  const playerName =
+    player?.name ||
+    `Runner #${player?.id.slice(0, 5).toUpperCase() || "00000"}`;
 
   // Ranking States
   const [hasProcessed, setHasProcessed] = useState(false);
@@ -81,15 +99,17 @@ export function ResultScreen() {
       setTimeout(() => setIsSummaryCopied(false), 2500);
     });
   };
-  
+
   // Analytics state
   const [showAnalytics, setShowAnalytics] = useState(false);
-  const [raceAnalytics, setRaceAnalytics] = useState<RaceAnalytics | null>(null);
+  const [raceAnalytics, setRaceAnalytics] = useState<RaceAnalytics | null>(
+    null,
+  );
 
   const dayIndex = useTimelineStore((state) => state.gameState?.dayIndex ?? 0);
   const challenge =
     currentChallenge || generateDailyChallenge(dayIndex.toString());
-  
+
   const { preparation } = usePreparationStore();
 
   useEffect(() => {
@@ -224,7 +244,13 @@ export function ResultScreen() {
 
       const dayIndex = useTimelineStore.getState().gameState?.dayIndex;
 
-      if (isNewPersonalBest(challenge.id, lastResult.finishTime, challenge.race.distance)) {
+      if (
+        isNewPersonalBest(
+          challenge.id,
+          lastResult.finishTime,
+          challenge.race.distance,
+        )
+      ) {
         saveGhostRun(
           challenge.id,
           playerName,
@@ -233,7 +259,7 @@ export function ResultScreen() {
           dayIndex,
           challenge.race.distance,
         );
-        
+
         // Also save to the new PB tracking system
         setPBIfFaster(
           challenge.race.distance,
@@ -250,10 +276,14 @@ export function ResultScreen() {
           profile.rankPoints || 0,
           dayIndex,
         );
-      
+
       // Generate race analytics
       try {
-        const analytics = analyzeRacePerformance(lastResult, challenge, preparation);
+        const analytics = analyzeRacePerformance(
+          lastResult,
+          challenge,
+          preparation,
+        );
         setRaceAnalytics(analytics);
       } catch (error) {
         console.error("Failed to generate race analytics:", error);
@@ -374,7 +404,10 @@ export function ResultScreen() {
       {
         id: "player",
         name: playerName,
-        distance: outcome === "dnf" ? (finalState?.distanceCovered ?? 0) : challenge.race.distance,
+        distance:
+          outcome === "dnf"
+            ? (finalState?.distanceCovered ?? 0)
+            : challenge.race.distance,
         isPlayer: true,
         isDNF: outcome === "dnf",
       },
@@ -496,10 +529,10 @@ export function ResultScreen() {
   // Calculate player position for Focus Mode
   const getPlayerPosition = (): number => {
     if (outcome === "dnf" || outcome === "dns") return 999; // DNF/DNS treated as last place
-    
+
     const finalState = lastResult.stateLog?.[lastResult.stateLog.length - 1];
     if (!finalState?.opponents) return 1; // If no opponents, player is 1st
-    
+
     // Count how many opponents finished ahead of the player
     let position = 1;
     for (const opp of finalState.opponents) {
@@ -507,7 +540,7 @@ export function ResultScreen() {
         position++;
       }
     }
-    
+
     return position;
   };
 
@@ -550,13 +583,17 @@ export function ResultScreen() {
             <button
               type="button"
               onClick={handleBackHome}
-              className={`flex items-center justify-center rounded-full border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 transition hover:bg-gray-50 dark:hover:bg-slate-800 active:scale-95 ${gameMode === "focus" ? 'px-4 h-10 gap-2 font-bold text-xs' : 'h-10 w-10'}`}
-              aria-label={gameMode === "focus" ? "Play Again" : "Go Home"}
+              className={`flex items-center justify-center rounded-full border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 transition hover:bg-gray-50 dark:hover:bg-slate-800 active:scale-95 ${gameMode === "focus" ? "px-4 h-10 gap-2 font-bold text-xs" : "h-10 w-10"}`}
+              aria-label={
+                gameMode === "focus"
+                  ? t("result_custom.play_again" as TranslationKey)
+                  : "Go Home"
+              }
             >
               {gameMode === "focus" ? (
                 <>
                   <Home className="h-4.5 w-4.5 text-gray-600 dark:text-gray-300" />
-                  <span>Play Again</span>
+                  <span>{t("result_custom.play_again" as TranslationKey)}</span>
                 </>
               ) : (
                 <Home className="h-4.5 w-4.5 text-gray-600 dark:text-gray-300" />
@@ -568,18 +605,23 @@ export function ResultScreen() {
 
       <main className="mx-auto max-w-3xl px-6 py-8 flex flex-col gap-8">
         {/* Focus Mode Enhancement - Shows progression, achievements, and quick actions */}
-        {gameMode === "focus" && challenge.race.distance && [5, 10, 21.1, 42.2].includes(challenge.race.distance) && (
-          <FocusResultEnhancement
-            result={lastResult}
-            distance={challenge.race.distance as 5 | 10 | 21.1 | 42.2}
-            position={getPlayerPosition()}
-            onRaceAgain={handleRaceAgain}
-            onBackToFocus={handleBackToFocus}
-          />
-        )}
+        {gameMode === "focus" &&
+          challenge.race.distance &&
+          [5, 10, 21.1, 42.2].includes(challenge.race.distance) && (
+            <FocusResultEnhancement
+              result={lastResult}
+              distance={challenge.race.distance as 5 | 10 | 21.1 | 42.2}
+              position={getPlayerPosition()}
+              onRaceAgain={handleRaceAgain}
+              onBackToFocus={handleBackToFocus}
+            />
+          )}
 
         {/* Core Stats Overview */}
-        <div id="tour-result-summary" className="rounded-[2rem] border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col md:flex-row items-center gap-8 justify-around">
+        <div
+          id="tour-result-summary"
+          className="rounded-[2rem] border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm flex flex-col md:flex-row items-center gap-8 justify-around"
+        >
           {/* Medal / DNF Icon */}
           <div
             className={`flex flex-col items-center p-6 rounded-2xl border ${getOutcomeColor()}`}
@@ -628,20 +670,37 @@ export function ResultScreen() {
         {gameMode === "focus" && focusTargetPosition && (
           <div className="rounded-[2rem] border border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm flex items-center justify-between">
             <div>
-              <h3 className="font-heading font-black text-sm uppercase text-gray-500 mb-1">Target Position</h3>
-              <p className="text-xl font-bold">{
-                focusTargetPosition === "1st" ? "1st Place" :
-                focusTargetPosition === "podium" ? "Podium (Top 3)" :
-                focusTargetPosition === "top10" ? "Top 10%" : "Finisher"
-              }</p>
+              <h3 className="font-heading font-black text-sm uppercase text-gray-500 mb-1">
+                {t("result_custom.target_position" as TranslationKey)}
+              </h3>
+              <p className="text-xl font-bold">
+                {focusTargetPosition === "1st"
+                  ? "1st Place"
+                  : focusTargetPosition === "podium"
+                    ? "Podium (Top 3)"
+                    : focusTargetPosition === "top10"
+                      ? "Top 10%"
+                      : "Finisher"}
+              </p>
             </div>
             <div className="text-right">
-              <h3 className="font-heading font-black text-sm uppercase text-gray-500 mb-1">Actual Result</h3>
-              <p className={`text-xl font-bold ${
-                outcome === "gold" || outcome === "silver" || outcome === "bronze" ? "text-emerald-500" :
-                outcome === "finish" ? "text-blue-500" : "text-rose-500"
-              }`}>
-                {t(`challenge.result.outcome_${outcome}` as TranslationKey).toUpperCase()}
+              <h3 className="font-heading font-black text-sm uppercase text-gray-500 mb-1">
+                {t("result_custom.actual_result" as TranslationKey)}
+              </h3>
+              <p
+                className={`text-xl font-bold ${
+                  outcome === "gold" ||
+                  outcome === "silver" ||
+                  outcome === "bronze"
+                    ? "text-emerald-500"
+                    : outcome === "finish"
+                      ? "text-blue-500"
+                      : "text-rose-500"
+                }`}
+              >
+                {t(
+                  `challenge.result.outcome_${outcome}` as TranslationKey,
+                ).toUpperCase()}
               </p>
             </div>
           </div>
@@ -825,7 +884,8 @@ export function ResultScreen() {
               </div>
             </div>
             <span className="px-2.5 py-1 rounded-full bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px] font-extrabold uppercase tracking-wider">
-              {story.highlights.length} {t("result.story_headline" as TranslationKey)}
+              {story.highlights.length}{" "}
+              {t("result.story_headline" as TranslationKey)}
             </span>
           </div>
 
@@ -845,15 +905,18 @@ export function ResultScreen() {
             >
               <span className="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300 flex items-center gap-2">
                 <span>⚡</span>
-                <span>{t("result.story_headline" as TranslationKey)} ({story.highlights.length})</span>
+                <span>
+                  {t("result.story_headline" as TranslationKey)} (
+                  {story.highlights.length})
+                </span>
               </span>
-              <ChevronDown 
+              <ChevronDown
                 className={`h-4 w-4 text-slate-500 dark:text-slate-400 transition-transform duration-200 ${
                   isHighlightsExpanded ? "rotate-180" : ""
                 }`}
               />
             </button>
-            
+
             {isHighlightsExpanded && (
               <div className="flex flex-col gap-2.5">
                 {story.highlights.map((h, idx) => {
@@ -870,8 +933,12 @@ export function ResultScreen() {
                       className="text-xs text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-950/50 border border-slate-200/70 dark:border-slate-800 hover:border-amber-400/50 dark:hover:border-amber-600/50 rounded-xl p-3.5 flex items-center justify-between gap-3 transition-all shadow-sm"
                     >
                       <div className="flex items-start gap-2.5 flex-1 min-w-0">
-                        <span className="text-amber-500 font-bold shrink-0 mt-0.5">⚡</span>
-                        <span className="leading-relaxed font-medium">{h[lang]}</span>
+                        <span className="text-amber-500 font-bold shrink-0 mt-0.5">
+                          ⚡
+                        </span>
+                        <span className="leading-relaxed font-medium">
+                          {h[lang]}
+                        </span>
                       </div>
                       {isShareable && (
                         <button
@@ -1028,16 +1095,18 @@ export function ResultScreen() {
                 <div className="flex items-center justify-center gap-2">
                   <Sparkles className="h-5 w-5 text-orange-500" />
                   <span className="font-heading text-lg font-bold text-orange-600 dark:text-orange-400">
-                    {t("race.analytics.deep_dive" as TranslationKey) || "🔍 Deep Dive Analytics"}
+                    {t("race.analytics.deep_dive" as TranslationKey) ||
+                      "🔍 Deep Dive Analytics"}
                   </span>
                   <Sparkles className="h-5 w-5 text-purple-500" />
                 </div>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  {t("race.analytics.deep_dive_desc" as TranslationKey) || "Pace charts, energy analysis, what-if scenarios & more"}
+                  {t("race.analytics.deep_dive_desc" as TranslationKey) ||
+                    "Pace charts, energy analysis, what-if scenarios & more"}
                 </p>
               </motion.button>
             )}
-            
+
             {showAnalytics && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -1045,7 +1114,7 @@ export function ResultScreen() {
                 transition={{ duration: 0.3 }}
               >
                 <PostRaceAnalytics analytics={raceAnalytics} lang={lang} />
-                
+
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -1055,7 +1124,8 @@ export function ResultScreen() {
                   <div className="flex items-center justify-center gap-2">
                     <ChevronUp className="h-4 w-4 text-slate-600 dark:text-slate-400" />
                     <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">
-                      {t("race.analytics.collapse" as TranslationKey) || "Collapse Analytics"}
+                      {t("race.analytics.collapse" as TranslationKey) ||
+                        "Collapse Analytics"}
                     </span>
                   </div>
                 </motion.button>

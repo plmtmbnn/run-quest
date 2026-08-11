@@ -1,4 +1,4 @@
-import type { Weather, Environment } from "@/types/engine";
+import type { Environment, Weather } from "@/types/engine";
 
 /**
  * Dynamic Weather and Environment Generation
@@ -173,9 +173,11 @@ const COURSE_PROFILES: CourseProfile[] = [
 /**
  * Generate random weather conditions
  */
-export function generateWeather(seasonalBias?: "spring" | "summer" | "fall" | "winter"): Environment {
+export function generateWeather(
+  seasonalBias?: "spring" | "summer" | "fall" | "winter",
+): Environment {
   let weatherOptions: Weather[] = ["sunny", "cloudy", "rain"];
-  
+
   // Adjust weather probabilities based on season
   if (seasonalBias === "summer") {
     weatherOptions = ["sunny", "sunny", "hot", "cloudy"];
@@ -184,9 +186,10 @@ export function generateWeather(seasonalBias?: "spring" | "summer" | "fall" | "w
   } else if (seasonalBias === "spring" || seasonalBias === "fall") {
     weatherOptions = ["cloudy", "rain", "sunny"];
   }
-  
-  const weather = weatherOptions[Math.floor(Math.random() * weatherOptions.length)];
-  
+
+  const weather =
+    weatherOptions[Math.floor(Math.random() * weatherOptions.length)];
+
   // Generate temperature based on weather
   const tempRanges = {
     sunny: { min: 18, max: 25 },
@@ -197,13 +200,15 @@ export function generateWeather(seasonalBias?: "spring" | "summer" | "fall" | "w
     cold: { min: 2, max: 10 },
     fog: { min: 8, max: 15 },
   };
-  
+
   const range = tempRanges[weather];
-  const temperature = Math.floor(Math.random() * (range.max - range.min + 1)) + range.min;
-  
+  const temperature =
+    Math.floor(Math.random() * (range.max - range.min + 1)) + range.min;
+
   // Generate humidity
-  const humidity = weather === "hot" ? 60 + Math.random() * 30 : 40 + Math.random() * 40;
-  
+  const humidity =
+    weather === "hot" ? 60 + Math.random() * 30 : 40 + Math.random() * 40;
+
   // Generate wind
   const windSpeeds = {
     sunny: { min: 0, max: 15 },
@@ -214,16 +219,28 @@ export function generateWeather(seasonalBias?: "spring" | "summer" | "fall" | "w
     cold: { min: 10, max: 30 },
     fog: { min: 0, max: 10 },
   };
-  
+
   const windRange = windSpeeds[weather];
-  const windSpeed = Math.floor(Math.random() * (windRange.max - windRange.min + 1)) + windRange.min;
-  
-  const directions: Array<"north" | "south" | "east" | "west"> = ["north", "south", "east", "west"];
-  const windDirection = directions[Math.floor(Math.random() * directions.length)];
-  
-  const timeOptions: Array<"morning" | "afternoon" | "evening" | "night"> = ["morning", "afternoon", "evening"];
+  const windSpeed =
+    Math.floor(Math.random() * (windRange.max - windRange.min + 1)) +
+    windRange.min;
+
+  const directions: Array<"north" | "south" | "east" | "west"> = [
+    "north",
+    "south",
+    "east",
+    "west",
+  ];
+  const windDirection =
+    directions[Math.floor(Math.random() * directions.length)];
+
+  const timeOptions: Array<"morning" | "afternoon" | "evening" | "night"> = [
+    "morning",
+    "afternoon",
+    "evening",
+  ];
   const timeOfDay = timeOptions[Math.floor(Math.random() * timeOptions.length)];
-  
+
   return {
     weather,
     temperature,
@@ -239,14 +256,18 @@ export function generateWeather(seasonalBias?: "spring" | "summer" | "fall" | "w
 /**
  * Get random course profile
  */
-export function generateCourse(difficultyPreference?: "easy" | "medium" | "hard" | "extreme"): CourseProfile {
+export function generateCourse(
+  difficultyPreference?: "easy" | "medium" | "hard" | "extreme",
+): CourseProfile {
   let courses = COURSE_PROFILES;
-  
+
   if (difficultyPreference) {
-    courses = COURSE_PROFILES.filter((c) => c.difficulty === difficultyPreference);
+    courses = COURSE_PROFILES.filter(
+      (c) => c.difficulty === difficultyPreference,
+    );
     if (courses.length === 0) courses = COURSE_PROFILES; // Fallback
   }
-  
+
   return courses[Math.floor(Math.random() * courses.length)];
 }
 
@@ -262,7 +283,7 @@ export function getWeatherCondition(weather: Weather): WeatherCondition {
  */
 export function calculateEnvironmentImpact(
   weather: Weather,
-  course: CourseProfile
+  course: CourseProfile,
 ): {
   totalPaceModifier: number;
   description: string;
@@ -271,9 +292,9 @@ export function calculateEnvironmentImpact(
   const weatherCondition = WEATHER_CONDITIONS[weather];
   const weatherImpact = weatherCondition.performanceImpact.paceModifier;
   const courseImpact = course.performanceImpact.paceModifier;
-  
+
   const totalPaceModifier = weatherImpact * courseImpact;
-  
+
   // Determine overall difficulty
   const difficultyScores = {
     easy: 1,
@@ -281,17 +302,20 @@ export function calculateEnvironmentImpact(
     hard: 3,
     extreme: 4,
   };
-  
-  const avgDifficulty = (difficultyScores[weatherCondition.difficulty] + difficultyScores[course.difficulty]) / 2;
+
+  const avgDifficulty =
+    (difficultyScores[weatherCondition.difficulty] +
+      difficultyScores[course.difficulty]) /
+    2;
   let difficulty: "easy" | "medium" | "hard" | "extreme";
-  
+
   if (avgDifficulty <= 1.5) difficulty = "easy";
   else if (avgDifficulty <= 2.5) difficulty = "medium";
   else if (avgDifficulty <= 3.5) difficulty = "hard";
   else difficulty = "extreme";
-  
+
   const description = `${course.description} with ${weatherCondition.description.toLowerCase()}`;
-  
+
   return {
     totalPaceModifier,
     description,

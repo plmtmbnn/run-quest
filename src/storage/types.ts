@@ -34,4 +34,3 @@ export type StorageKey =
   | "runquest.cache"
   | "runquest.timeline"
   | "runquest.inventory";
-

@@ -297,24 +297,28 @@ export function SettingsScreen() {
                   title: t("settings.mode.career" as TranslationKey),
                   desc: t("settings.mode.career_desc" as TranslationKey),
                   icon: "🏆",
-                  color: "border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300",
+                  color:
+                    "border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300",
                 },
                 {
                   id: "easy" as const,
                   title: t("settings.mode.easy" as TranslationKey),
                   desc: t("settings.mode.easy_desc" as TranslationKey),
                   icon: "🚀",
-                  color: "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300",
+                  color:
+                    "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300",
                 },
                 {
                   id: "focus" as const,
                   title: t("settings.mode.focus" as TranslationKey),
                   desc: t("settings.mode.focus_desc" as TranslationKey),
                   icon: "🎯",
-                  color: "border-purple-500 bg-purple-50/50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300",
+                  color:
+                    "border-purple-500 bg-purple-50/50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300",
                 },
               ].map((modeItem) => {
-                const isSelected = (settings.gameMode || "career") === modeItem.id;
+                const isSelected =
+                  (settings.gameMode || "career") === modeItem.id;
                 return (
                   <button
                     key={modeItem.id}
@@ -337,7 +341,9 @@ export function SettingsScreen() {
                         </span>
                       )}
                     </div>
-                    <span className="font-heading font-black text-sm">{modeItem.title}</span>
+                    <span className="font-heading font-black text-sm">
+                      {modeItem.title}
+                    </span>
                     <span className="text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
                       {modeItem.desc}
                     </span>

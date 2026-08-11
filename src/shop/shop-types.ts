@@ -1,7 +1,7 @@
 // shop-types.ts
 // Type definitions for the Centralized Shop System
 
-import type { Shoe, Nutrition, Gear } from "@/types/engine";
+import type { Gear, Nutrition, Shoe } from "@/types/engine";
 
 export type ShopCategory = "shoes" | "nutrition" | "gear";
 

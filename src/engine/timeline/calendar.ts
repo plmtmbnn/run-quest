@@ -39,7 +39,7 @@ export function formatGameDate(dayIndex: number): string {
   const dayOfMonth = dayOfLife % DAYS_PER_MONTH;
   const week = Math.floor(dayOfMonth / DAYS_PER_WEEK);
   const dayOfWeek = dayOfMonth % DAYS_PER_WEEK;
-  
+
   return `Year ${yearsElapsed + 1}, M${month + 1}, W${week + 1}, D${dayOfWeek + 1}`;
 }
 

@@ -10,6 +10,11 @@ import {
 import { calculateEnvironmentModifiers } from "@/engine/environment/environment-modifier";
 import { calculatePerformance } from "@/engine/performance/calculator";
 import { calculatePreparationScore } from "@/engine/scoring/preparation-score";
+import { calculateBodyStress } from "@/engine/simulation/body-stress-engine";
+import {
+  createInitialBreathingState,
+  updateBreathingState,
+} from "@/engine/simulation/breathing-engine";
 import { simulateKmStep } from "@/engine/simulation/checkpoint-loop";
 import { generateDecisionTimeline } from "@/engine/simulation/decision-generator";
 import {
@@ -17,11 +22,6 @@ import {
   createInitialFlowState,
 } from "@/engine/simulation/flow-state-engine";
 import { createInitialRhythmState } from "@/engine/simulation/rhythm-engine";
-import {
-  createInitialBreathingState,
-  updateBreathingState,
-} from "@/engine/simulation/breathing-engine";
-import { calculateBodyStress } from "@/engine/simulation/body-stress-engine";
 import { generateStory } from "@/engine/story/story-builder";
 import type {
   ChoiceBehavior,
@@ -198,7 +198,14 @@ export function advanceSimulation(
 
     // Generate 20-30 AI Opponents deterministically from the seed for realistic field standings
     const random = new SeededRandom(seed);
-    const desiredCount = challenge.tier === "international" ? 30 : challenge.tier === "national" ? 25 : challenge.tier === "state" ? 22 : 20;
+    const desiredCount =
+      challenge.tier === "international"
+        ? 30
+        : challenge.tier === "national"
+          ? 25
+          : challenge.tier === "state"
+            ? 22
+            : 20;
     const opponentsCount = Math.min(50, Math.max(20, desiredCount));
     const opponents: import("@/types/engine").OpponentState[] = [];
     const archetypes: ("frontrunner" | "splitter" | "steady")[] = [
@@ -447,11 +454,11 @@ export function advanceSimulation(
             );
           }
 
-    const option = DESPERATION_OPTIONS.find(
-      (
-        o: import("@/engine/desperation/desperation-types").DesperationOption,
-      ) => o.id === choiceId,
-    );
+          const option = DESPERATION_OPTIONS.find(
+            (
+              o: import("@/engine/desperation/desperation-types").DesperationOption,
+            ) => o.id === choiceId,
+          );
           state.eventsResolved.push({
             km: state.distanceCovered,
             title: {
@@ -710,7 +717,10 @@ export function advanceSimulation(
     // Apply pre-rolled transitions from the challenge instead of random rolls.
     // We mutate the challenge environment so subsequent km calculations use the
     // new weather modifiers automatically through calculateEnvironmentModifiers.
-    if (challenge.weatherTransitions && challenge.weatherTransitions.length > 0) {
+    if (
+      challenge.weatherTransitions &&
+      challenge.weatherTransitions.length > 0
+    ) {
       for (const wt of challenge.weatherTransitions) {
         if (wt.km === km && !wt.alertShown) {
           // Apply the new weather to the environment
@@ -1000,7 +1010,7 @@ export function advanceSimulation(
     // Sprint 36 Breathing State Update
     const estimatedHR = Math.round(
       120 +
-        (currentStepState.fatigue * 0.7) +
+        currentStepState.fatigue * 0.7 +
         (currentStepState.currentPacing === "sprint"
           ? 25
           : currentStepState.currentPacing === "push"
@@ -1008,7 +1018,8 @@ export function advanceSimulation(
             : 0),
     );
     currentStepState.breathingState = updateBreathingState(
-      currentStepState.breathingState || createInitialBreathingState(estimatedHR),
+      currentStepState.breathingState ||
+        createInitialBreathingState(estimatedHR),
       estimatedHR,
     );
 

@@ -26,7 +26,11 @@ export function detectDeviceCountry(): string {
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     if (timeZone) {
       const tzUpper = timeZone.toLowerCase();
-      if (tzUpper.includes("jakarta") || tzUpper.includes("jayapura") || tzUpper.includes("makassar")) {
+      if (
+        tzUpper.includes("jakarta") ||
+        tzUpper.includes("jayapura") ||
+        tzUpper.includes("makassar")
+      ) {
         return "ID";
       }
       if (tzUpper.includes("tokyo")) return "JP";
@@ -35,10 +39,15 @@ export function detectDeviceCountry(): string {
       if (tzUpper.includes("paris")) return "FR";
       if (tzUpper.includes("seoul")) return "KR";
       if (tzUpper.includes("singapore")) return "SG";
-      if (tzUpper.includes("sydney") || tzUpper.includes("melbourne")) return "AU";
+      if (tzUpper.includes("sydney") || tzUpper.includes("melbourne"))
+        return "AU";
       if (tzUpper.includes("nairobi")) return "KE";
       if (tzUpper.includes("addis_ababa")) return "ET";
-      if (tzUpper.includes("new_york") || tzUpper.includes("los_angeles") || tzUpper.includes("chicago")) {
+      if (
+        tzUpper.includes("new_york") ||
+        tzUpper.includes("los_angeles") ||
+        tzUpper.includes("chicago")
+      ) {
         return "US";
       }
     }

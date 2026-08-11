@@ -57,7 +57,7 @@ export interface Season {
 export interface SeasonState {
   currentSeasonId: string | null;
   seasons: Season[];
-  
+
   // Actions
   unlockSeason: (seasonId: string) => void;
   startSeason: (seasonId: string) => void;
@@ -145,7 +145,8 @@ const SEASON_1: Season = {
 const SEASON_2: Season = {
   id: "season-2",
   name: "Regional Championship",
-  description: "Step up to regional competition with 10K and Half Marathon races",
+  description:
+    "Step up to regional competition with 10K and Half Marathon races",
   tier: 2,
   unlocked: false,
   completed: false,
@@ -212,14 +213,14 @@ export const useSeasonStore = create<SeasonState>()(
     (set, get) => ({
       currentSeasonId: null,
       seasons: [SEASON_1, SEASON_2],
-      
+
       unlockSeason: (seasonId) =>
         set((state) => ({
           seasons: state.seasons.map((s) =>
-            s.id === seasonId ? { ...s, unlocked: true } : s
+            s.id === seasonId ? { ...s, unlocked: true } : s,
           ),
         })),
-      
+
       startSeason: (seasonId) => {
         const state = get();
         const season = state.seasons.find((s) => s.id === seasonId);
@@ -227,29 +228,29 @@ export const useSeasonStore = create<SeasonState>()(
           set({ currentSeasonId: seasonId });
         }
       },
-      
+
       completeWeek: (weekNumber) =>
         set((state) => {
           if (!state.currentSeasonId) return state;
-          
+
           return {
             seasons: state.seasons.map((s) =>
               s.id === state.currentSeasonId
                 ? {
                     ...s,
                     weeks: s.weeks.map((w) =>
-                      w.week === weekNumber ? { ...w, completed: true } : w
+                      w.week === weekNumber ? { ...w, completed: true } : w,
                     ),
                   }
-                : s
+                : s,
             ),
           };
         }),
-      
+
       completeRace: (raceId, time, position) =>
         set((state) => {
           if (!state.currentSeasonId) return state;
-          
+
           return {
             seasons: state.seasons.map((s) =>
               s.id === state.currentSeasonId
@@ -267,19 +268,19 @@ export const useSeasonStore = create<SeasonState>()(
                                   ? { time, position }
                                   : r.bestResult,
                             }
-                          : r
+                          : r,
                       ),
                     })),
                   }
-                : s
+                : s,
             ),
           };
         }),
-      
+
       updateSeasonGoal: (goalId, value) =>
         set((state) => {
           if (!state.currentSeasonId) return state;
-          
+
           return {
             seasons: state.seasons.map((s) =>
               s.id === state.currentSeasonId
@@ -292,41 +293,39 @@ export const useSeasonStore = create<SeasonState>()(
                             currentValue: Math.max(g.currentValue, value),
                             completed: value >= g.targetValue,
                           }
-                        : g
+                        : g,
                     ),
                   }
-                : s
+                : s,
             ),
           };
         }),
-      
+
       advanceWeek: () =>
         set((state) => {
           if (!state.currentSeasonId) return state;
-          
+
           return {
             seasons: state.seasons.map((s) =>
               s.id === state.currentSeasonId && s.currentWeek < 12
                 ? { ...s, currentWeek: s.currentWeek + 1 }
-                : s
+                : s,
             ),
           };
         }),
-      
+
       completeSeason: () =>
         set((state) => {
           if (!state.currentSeasonId) return state;
-          
+
           return {
             seasons: state.seasons.map((s) =>
-              s.id === state.currentSeasonId
-                ? { ...s, completed: true }
-                : s
+              s.id === state.currentSeasonId ? { ...s, completed: true } : s,
             ),
             currentSeasonId: null,
           };
         }),
-      
+
       resetSeason: (seasonId) =>
         set((state) => ({
           seasons: state.seasons.map((s) =>
@@ -350,12 +349,12 @@ export const useSeasonStore = create<SeasonState>()(
                     completed: false,
                   })),
                 }
-              : s
+              : s,
           ),
         })),
     }),
     {
       name: "runquest.season",
-    }
-  )
+    },
+  ),
 );

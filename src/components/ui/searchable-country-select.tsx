@@ -3,7 +3,11 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, ChevronDown, Globe, Search, X } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
-import { COUNTRIES_DATA, type CountryData, getCountryByCode } from "@/config/countries-data";
+import {
+  COUNTRIES_DATA,
+  type CountryData,
+  getCountryByCode,
+} from "@/config/countries-data";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 
@@ -128,7 +132,8 @@ export function SearchableCountrySelect({
                 <div className="flex items-center justify-between">
                   <h3 className="font-heading font-black text-base text-slate-800 dark:text-white flex items-center gap-2">
                     <Globe className="w-4 h-4 text-indigo-500" />
-                    {t("onboarding.nationality.title" as TranslationKey) || "Select Nationality"}
+                    {t("onboarding.nationality.title" as TranslationKey) ||
+                      "Select Nationality"}
                   </h3>
                   <button
                     type="button"
@@ -252,7 +257,9 @@ function CountryRow({
         <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-200/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
           {country.code}
         </span>
-        {isSelected && <Check className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />}
+        {isSelected && (
+          <Check className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+        )}
       </div>
     </button>
   );

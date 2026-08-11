@@ -54,9 +54,21 @@ const SURFACE_STYLES: Record<
 };
 
 const RANK_STYLES = [
-  { ring: "ring-amber-400 dark:ring-amber-400", badge: "bg-amber-400 text-amber-950", icon: "🥇" },
-  { ring: "ring-slate-300 dark:ring-slate-400", badge: "bg-slate-300 text-slate-800", icon: "🥈" },
-  { ring: "ring-orange-400 dark:ring-orange-500", badge: "bg-orange-400 text-orange-950", icon: "🥉" },
+  {
+    ring: "ring-amber-400 dark:ring-amber-400",
+    badge: "bg-amber-400 text-amber-950",
+    icon: "🥇",
+  },
+  {
+    ring: "ring-slate-300 dark:ring-slate-400",
+    badge: "bg-slate-300 text-slate-800",
+    icon: "🥈",
+  },
+  {
+    ring: "ring-orange-400 dark:ring-orange-500",
+    badge: "bg-orange-400 text-orange-950",
+    icon: "🥉",
+  },
 ];
 
 export function HorizontalTrackProgress({
@@ -98,7 +110,10 @@ export function HorizontalTrackProgress({
   const elevation = useMemo(() => {
     const profile = routeProfile?.elevationPoints;
     if (!profile || profile.length === 0) {
-      return { path: "M 0 50 L 100 50", segments: [] as { d: string; grade: "climb" | "descent" | "flat" }[] };
+      return {
+        path: "M 0 50 L 100 50",
+        segments: [] as { d: string; grade: "climb" | "descent" | "flat" }[],
+      };
     }
 
     const minElev = Math.min(...profile.map((p) => p.elevation));
@@ -131,7 +146,12 @@ export function HorizontalTrackProgress({
       const midY = (prev.y + curr.y) / 2;
       return {
         d: `M ${prev.x} ${prev.y} Q ${prev.x} ${prev.y} ${midX} ${midY} T ${curr.x} ${curr.y}`,
-        grade: grade > 0.02 ? ("climb" as const) : grade < -0.02 ? ("descent" as const) : ("flat" as const),
+        grade:
+          grade > 0.02
+            ? ("climb" as const)
+            : grade < -0.02
+              ? ("descent" as const)
+              : ("flat" as const),
       };
     });
 
@@ -139,7 +159,10 @@ export function HorizontalTrackProgress({
   }, [routeProfile]);
 
   const currentTerrain = useMemo(() => {
-    if (!routeProfile?.elevationPoints || routeProfile.elevationPoints.length < 2) {
+    if (
+      !routeProfile?.elevationPoints ||
+      routeProfile.elevationPoints.length < 2
+    ) {
       return { icon: "➡️", label: "Flat" };
     }
 
@@ -169,8 +192,12 @@ export function HorizontalTrackProgress({
 
   const leaderDistance = sortedRunners[0]?.distance ?? 0;
   const player = runners.find((r) => r.isPlayer);
-  const playerRank = player ? sortedRunners.findIndex((r) => r.id === player.id) : -1;
-  const playerGapMeters = player ? Math.max(0, Math.round((leaderDistance - player.distance) * 1000)) : 0;
+  const playerRank = player
+    ? sortedRunners.findIndex((r) => r.id === player.id)
+    : -1;
+  const playerGapMeters = player
+    ? Math.max(0, Math.round((leaderDistance - player.distance) * 1000))
+    : 0;
 
   return (
     <div className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 md:p-6">
@@ -217,7 +244,11 @@ export function HorizontalTrackProgress({
       <div className="relative w-full">
         {/* Elevation Profile Background, colored by grade */}
         <div className="absolute inset-x-0 top-0 h-24 md:h-32">
-          <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full">
+          <svg
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+            className="w-full h-full"
+          >
             <path
               d={`${elevation.path} L 100 100 L 0 100 Z`}
               className="fill-slate-200/40 dark:fill-slate-700/30"
@@ -231,8 +262,8 @@ export function HorizontalTrackProgress({
                     seg.grade === "climb"
                       ? "fill-none stroke-amber-500/80 dark:stroke-amber-400/80"
                       : seg.grade === "descent"
-                      ? "fill-none stroke-sky-500/70 dark:stroke-sky-400/70"
-                      : "fill-none stroke-slate-400 dark:stroke-slate-600"
+                        ? "fill-none stroke-sky-500/70 dark:stroke-sky-400/70"
+                        : "fill-none stroke-slate-400 dark:stroke-slate-600"
                   }
                   strokeWidth="0.6"
                   strokeLinecap="round"
@@ -290,10 +321,16 @@ export function HorizontalTrackProgress({
             const position = (km / raceDistance) * 100;
             const isFinish = km === raceDistance;
             return (
-              <div key={km} className="absolute top-1/2 -translate-y-1/2" style={{ left: `${position}%` }}>
+              <div
+                key={km}
+                className="absolute top-1/2 -translate-y-1/2"
+                style={{ left: `${position}%` }}
+              >
                 <div
                   className={`w-0.5 h-3 ${
-                    isFinish ? "bg-slate-500 dark:bg-slate-400" : "bg-slate-400 dark:bg-slate-600"
+                    isFinish
+                      ? "bg-slate-500 dark:bg-slate-400"
+                      : "bg-slate-400 dark:bg-slate-600"
                   }`}
                 />
                 <div className="absolute top-5 left-1/2 -translate-x-1/2 whitespace-nowrap">
@@ -307,7 +344,10 @@ export function HorizontalTrackProgress({
 
           {/* Runners */}
           {sortedRunners.map((runner, rank) => {
-            const position = Math.min((runner.distance / raceDistance) * 100, 100);
+            const position = Math.min(
+              (runner.distance / raceDistance) * 100,
+              100,
+            );
             const isPlayer = runner.isPlayer;
             const isGhost = runner.isGhost;
             const isDNF = runner.isDNF;
@@ -341,8 +381,8 @@ export function HorizontalTrackProgress({
                         isPlayer
                           ? "bg-gradient-to-r from-emerald-500 to-green-600 shadow-lg ring-2 ring-emerald-400 dark:ring-emerald-500"
                           : isGhost
-                          ? "bg-slate-400/50 dark:bg-slate-500/50 opacity-70"
-                          : "bg-indigo-500 dark:bg-indigo-600 shadow-md"
+                            ? "bg-slate-400/50 dark:bg-slate-500/50 opacity-70"
+                            : "bg-indigo-500 dark:bg-indigo-600 shadow-md"
                       }
                       ${medal && !isPlayer ? `ring-2 ${medal.ring}` : ""}
                       ${isDNF ? "grayscale opacity-40" : ""}
@@ -370,8 +410,8 @@ export function HorizontalTrackProgress({
                         isPlayer
                           ? "bg-emerald-500 text-white"
                           : isGhost
-                          ? "bg-slate-400/70 text-white"
-                          : "bg-indigo-500 text-white"
+                            ? "bg-slate-400/70 text-white"
+                            : "bg-indigo-500 text-white"
                       }
                       ${isDNF ? "line-through opacity-60" : ""}
                     `}
@@ -388,8 +428,8 @@ export function HorizontalTrackProgress({
                             playerEnergy > 60
                               ? "bg-emerald-500"
                               : playerEnergy > 30
-                              ? "bg-amber-500"
-                              : "bg-rose-500"
+                                ? "bg-amber-500"
+                                : "bg-rose-500"
                           }`}
                           style={{ width: `${playerEnergy}%` }}
                           transition={{ duration: 0.3 }}
@@ -410,11 +450,14 @@ export function HorizontalTrackProgress({
           <span className="font-mono font-bold uppercase tracking-wider">
             {surfaceStyle.icon} {surfaceStyle.label}
           </span>
-          {routeProfile && <span className="font-mono">{routeProfile.name}</span>}
+          {routeProfile && (
+            <span className="font-mono">{routeProfile.name}</span>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <span className="font-mono font-bold tabular-nums">
-            {sortedRunners.filter((r) => !r.isDNF).length} / {sortedRunners.length} Running
+            {sortedRunners.filter((r) => !r.isDNF).length} /{" "}
+            {sortedRunners.length} Running
           </span>
         </div>
       </div>

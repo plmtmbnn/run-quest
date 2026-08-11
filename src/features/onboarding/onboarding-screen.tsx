@@ -66,9 +66,9 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
     );
     return initialCountry.defaultCurrency;
   });
-  const [selectedGameMode, setSelectedGameMode] = useState<"career" | "easy" | "focus">(
-    "career",
-  );
+  const [selectedGameMode, setSelectedGameMode] = useState<
+    "career" | "easy" | "focus"
+  >("career");
   const unlockAllItems = useShopStore((state) => state.unlockAllItems);
 
   useEffect(() => {

@@ -1,16 +1,29 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Activity, AlertTriangle, Bandage, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Activity,
+  AlertTriangle,
+  Bandage,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { useState } from "react";
-import type { BodyStressState, BodyZoneId, ZoneStressInfo } from "@/engine/simulation/body-stress-engine";
+import type {
+  BodyStressState,
+  BodyZoneId,
+  ZoneStressInfo,
+} from "@/engine/simulation/body-stress-engine";
 
 interface BodyStressAvatarProps {
   bodyStress?: BodyStressState;
   className?: string;
 }
 
-export function BodyStressAvatar({ bodyStress, className = "" }: BodyStressAvatarProps) {
+export function BodyStressAvatar({
+  bodyStress,
+  className = "",
+}: BodyStressAvatarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [hoveredZone, setHoveredZone] = useState<ZoneStressInfo | null>(null);
 
@@ -24,15 +37,54 @@ export function BodyStressAvatar({ bodyStress, className = "" }: BodyStressAvata
         bodyStress.feet,
       ]
     : [
-        { zoneId: "head", label: "Head & Focus", percentage: 10, level: "normal", hasInjury: false },
-        { zoneId: "lungs", label: "Lungs & Chest", percentage: 15, level: "normal", hasInjury: false },
-        { zoneId: "core", label: "Core & Back", percentage: 12, level: "normal", hasInjury: false },
-        { zoneId: "quads", label: "Quads & Thighs", percentage: 20, level: "normal", hasInjury: false },
-        { zoneId: "calves", label: "Calves & Shins", percentage: 18, level: "normal", hasInjury: false },
-        { zoneId: "feet", label: "Feet & Ankles", percentage: 25, level: "normal", hasInjury: false },
+        {
+          zoneId: "head",
+          label: "Head & Focus",
+          percentage: 10,
+          level: "normal",
+          hasInjury: false,
+        },
+        {
+          zoneId: "lungs",
+          label: "Lungs & Chest",
+          percentage: 15,
+          level: "normal",
+          hasInjury: false,
+        },
+        {
+          zoneId: "core",
+          label: "Core & Back",
+          percentage: 12,
+          level: "normal",
+          hasInjury: false,
+        },
+        {
+          zoneId: "quads",
+          label: "Quads & Thighs",
+          percentage: 20,
+          level: "normal",
+          hasInjury: false,
+        },
+        {
+          zoneId: "calves",
+          label: "Calves & Shins",
+          percentage: 18,
+          level: "normal",
+          hasInjury: false,
+        },
+        {
+          zoneId: "feet",
+          label: "Feet & Ankles",
+          percentage: 25,
+          level: "normal",
+          hasInjury: false,
+        },
       ];
 
-  const worstZone = zones.reduce((max, z) => (z.percentage > max.percentage ? z : max), zones[0]);
+  const worstZone = zones.reduce(
+    (max, z) => (z.percentage > max.percentage ? z : max),
+    zones[0],
+  );
   const activeInjuries = zones.filter((z) => z.hasInjury);
 
   const getZoneFill = (info: ZoneStressInfo) => {
@@ -80,15 +132,23 @@ export function BodyStressAvatar({ bodyStress, className = "" }: BodyStressAvata
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
         >
-          {isCollapsed ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          {isCollapsed ? (
+            <ChevronUp className="w-4 h-4" />
+          ) : (
+            <ChevronDown className="w-4 h-4" />
+          )}
         </button>
       </div>
 
       {/* Collapsed Pill Summary */}
       {isCollapsed ? (
         <div className="mt-2 flex items-center justify-between text-xs">
-          <span className="text-[10px] font-bold uppercase text-slate-500">MAX STRESS</span>
-          <span className={`px-2 py-0.5 rounded-full font-mono font-bold border text-[10px] ${getLevelBadgeColor(worstZone.level)}`}>
+          <span className="text-[10px] font-bold uppercase text-slate-500">
+            MAX STRESS
+          </span>
+          <span
+            className={`px-2 py-0.5 rounded-full font-mono font-bold border text-[10px] ${getLevelBadgeColor(worstZone.level)}`}
+          >
             {worstZone.percentage}% ({worstZone.zoneId.toUpperCase()})
           </span>
         </div>
@@ -186,11 +246,15 @@ export function BodyStressAvatar({ bodyStress, className = "" }: BodyStressAvata
                 onMouseEnter={() => setHoveredZone(z)}
                 onMouseLeave={() => setHoveredZone(null)}
                 className={`flex items-center justify-between text-[10px] p-1 rounded-md cursor-pointer transition-colors ${
-                  hoveredZone?.zoneId === z.zoneId ? "bg-slate-100 dark:bg-slate-800" : ""
+                  hoveredZone?.zoneId === z.zoneId
+                    ? "bg-slate-100 dark:bg-slate-800"
+                    : ""
                 }`}
               >
                 <div className="flex items-center gap-1 min-w-0">
-                  {z.hasInjury && <AlertTriangle className="w-3 h-3 text-red-500 shrink-0" />}
+                  {z.hasInjury && (
+                    <AlertTriangle className="w-3 h-3 text-red-500 shrink-0" />
+                  )}
                   <span className="font-semibold truncate text-slate-700 dark:text-slate-300">
                     {z.label.split(" ")[0]}
                   </span>
@@ -215,12 +279,17 @@ export function BodyStressAvatar({ bodyStress, className = "" }: BodyStressAvata
           >
             <div className="flex items-center justify-between mb-1">
               <span className="font-bold">{hoveredZone.label}</span>
-              <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase border ${getLevelBadgeColor(hoveredZone.level)}`}>
+              <span
+                className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase border ${getLevelBadgeColor(hoveredZone.level)}`}
+              >
                 {hoveredZone.level}
               </span>
             </div>
             <div className="text-[11px] font-mono text-slate-300">
-              Stress Level: <span className="font-bold text-white">{hoveredZone.percentage}%</span>
+              Stress Level:{" "}
+              <span className="font-bold text-white">
+                {hoveredZone.percentage}%
+              </span>
             </div>
             {hoveredZone.hasInjury && (
               <div className="mt-1 text-[10px] text-red-400 font-semibold flex items-center gap-1">

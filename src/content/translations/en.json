@@ -441,25 +441,82 @@
       "rejected": "❌ APPLICATION REJECTED"
     },
     "types": {
-      "part_time": { "name": "Part-time Job", "desc": "Low-stress work at a local shop. Leaves plenty of energy for training." },
-      "full_time": { "name": "Full-time Work", "desc": "Standard 9-to-5. Steady income but drains daily energy." },
-      "freelance": { "name": "Freelance Gig", "desc": "Contract work with variable pay based on your intellect." },
-      "coaching": { "name": "Running Coach", "desc": "Train other athletes. Pay scales with your running expertise." },
-      "sponsor_event": { "name": "Sponsor Appearance", "desc": "Represent your sponsor. Great pay with minimal physical toll." },
-      "corporate": { "name": "Corporate Career", "desc": "High-paying office job. Highly demanding on your daily energy." },
-      "coach": { "name": "Fitness Instructor", "desc": "Lead group fitness classes. Builds charisma." },
-      "brand_ambassador": { "name": "Brand Ambassador", "desc": "Promote running brands. Requires high charisma." },
-      "marathon_trainer": { "name": "Endurance Coach", "desc": "Pace others for their marathons. Builds your own endurance." },
-      "content_creator": { "name": "Running Vlogger", "desc": "Document your training online. Build a community while earning." },
-      "personal_trainer": { "name": "Personal Trainer", "desc": "1-on-1 coaching sessions. Apply your running knowledge." },
-      "sports_nutritionist": { "name": "Sports Nutritionist", "desc": "Plan race day fueling for athletes. Blends intellect and experience." },
-      "running_store_staff": { "name": "Run Specialty Staff", "desc": "Fit runners for shoes. Stay surrounded by the sport." },
-      "event_organizer": { "name": "Race Director", "desc": "Organize local 5Ks. Requires leadership and deep race experience." },
-      "warehouse_worker": { "name": "Warehouse Worker", "desc": "Physical labor. Keeps you on your feet all day." },
-      "delivery_driver": { "name": "Delivery Driver", "desc": "Flexible hours. Moderate pay and stress." },
-      "social_media_manager": { "name": "Social Media Manager", "desc": "Manage accounts for local running clubs." },
-      "physical_therapist": { "name": "Physical Therapist", "desc": "Help runners rehab injuries. High intellect required." },
-      "race_official": { "name": "Race Official", "desc": "Timekeeper and official. Demands professionalism and experience." }
+      "part_time": {
+        "name": "Part-time Job",
+        "desc": "Low-stress work at a local shop. Leaves plenty of energy for training."
+      },
+      "full_time": {
+        "name": "Full-time Work",
+        "desc": "Standard 9-to-5. Steady income but drains daily energy."
+      },
+      "freelance": {
+        "name": "Freelance Gig",
+        "desc": "Contract work with variable pay based on your intellect."
+      },
+      "coaching": {
+        "name": "Running Coach",
+        "desc": "Train other athletes. Pay scales with your running expertise."
+      },
+      "sponsor_event": {
+        "name": "Sponsor Appearance",
+        "desc": "Represent your sponsor. Great pay with minimal physical toll."
+      },
+      "corporate": {
+        "name": "Corporate Career",
+        "desc": "High-paying office job. Highly demanding on your daily energy."
+      },
+      "coach": {
+        "name": "Fitness Instructor",
+        "desc": "Lead group fitness classes. Builds charisma."
+      },
+      "brand_ambassador": {
+        "name": "Brand Ambassador",
+        "desc": "Promote running brands. Requires high charisma."
+      },
+      "marathon_trainer": {
+        "name": "Endurance Coach",
+        "desc": "Pace others for their marathons. Builds your own endurance."
+      },
+      "content_creator": {
+        "name": "Running Vlogger",
+        "desc": "Document your training online. Build a community while earning."
+      },
+      "personal_trainer": {
+        "name": "Personal Trainer",
+        "desc": "1-on-1 coaching sessions. Apply your running knowledge."
+      },
+      "sports_nutritionist": {
+        "name": "Sports Nutritionist",
+        "desc": "Plan race day fueling for athletes. Blends intellect and experience."
+      },
+      "running_store_staff": {
+        "name": "Run Specialty Staff",
+        "desc": "Fit runners for shoes. Stay surrounded by the sport."
+      },
+      "event_organizer": {
+        "name": "Race Director",
+        "desc": "Organize local 5Ks. Requires leadership and deep race experience."
+      },
+      "warehouse_worker": {
+        "name": "Warehouse Worker",
+        "desc": "Physical labor. Keeps you on your feet all day."
+      },
+      "delivery_driver": {
+        "name": "Delivery Driver",
+        "desc": "Flexible hours. Moderate pay and stress."
+      },
+      "social_media_manager": {
+        "name": "Social Media Manager",
+        "desc": "Manage accounts for local running clubs."
+      },
+      "physical_therapist": {
+        "name": "Physical Therapist",
+        "desc": "Help runners rehab injuries. High intellect required."
+      },
+      "race_official": {
+        "name": "Race Official",
+        "desc": "Timekeeper and official. Demands professionalism and experience."
+      }
     },
     "missing_req": {
       "age_min": "Age {min}+ required (currently {age})",
@@ -1437,46 +1494,130 @@
     },
     "screens": {
       "training": {
-        "welcome": { "title": "Training Planner 🏃", "content": "Plan your weekly workouts to build fitness, manage fatigue, and prepare for upcoming races." },
-        "calendar": { "title": "Weekly Calendar 📅", "content": "View and manage planned activities for each day of the week." },
-        "templates": { "title": "Plan Templates 📑", "content": "Choose preset training plans tailored for 5K, 10K, Half, or Full Marathon goals." },
-        "coach": { "title": "Coach Recommendations 💡", "content": "Get personalized feedback and tactical advice from your virtual coach." }
+        "welcome": {
+          "title": "Training Planner 🏃",
+          "content": "Plan your weekly workouts to build fitness, manage fatigue, and prepare for upcoming races."
+        },
+        "calendar": {
+          "title": "Weekly Calendar 📅",
+          "content": "View and manage planned activities for each day of the week."
+        },
+        "templates": {
+          "title": "Plan Templates 📑",
+          "content": "Choose preset training plans tailored for 5K, 10K, Half, or Full Marathon goals."
+        },
+        "coach": {
+          "title": "Coach Recommendations 💡",
+          "content": "Get personalized feedback and tactical advice from your virtual coach."
+        }
       },
       "preparation": {
-        "welcome": { "title": "Race Preparation 🎽", "content": "Gear up and configure your race strategy before stepping up to the starting line." },
-        "shoes": { "title": "Running Shoes 👟", "content": "Select shoes that match the race surface and terrain to optimize performance." },
-        "nutrition": { "title": "Race Nutrition 🍌", "content": "Pack gels, water, and electrolytes to manage stamina during the run." },
-        "gear": { "title": "Weather & Gear 🧢", "content": "Equip jackets, caps, or vest based on course weather conditions." },
-        "warmup": { "title": "Warmup Routine 🔥", "content": "Perform warmups to reduce injury risk and start at peak readiness." },
-        "pacing": { "title": "Pacing Strategy ⏱️", "content": "Set negative split, steady, or aggressive pacing strategies." }
+        "welcome": {
+          "title": "Race Preparation 🎽",
+          "content": "Gear up and configure your race strategy before stepping up to the starting line."
+        },
+        "shoes": {
+          "title": "Running Shoes 👟",
+          "content": "Select shoes that match the race surface and terrain to optimize performance."
+        },
+        "nutrition": {
+          "title": "Race Nutrition 🍌",
+          "content": "Pack gels, water, and electrolytes to manage stamina during the run."
+        },
+        "gear": {
+          "title": "Weather & Gear 🧢",
+          "content": "Equip jackets, caps, or vest based on course weather conditions."
+        },
+        "warmup": {
+          "title": "Warmup Routine 🔥",
+          "content": "Perform warmups to reduce injury risk and start at peak readiness."
+        },
+        "pacing": {
+          "title": "Pacing Strategy ⏱️",
+          "content": "Set negative split, steady, or aggressive pacing strategies."
+        }
       },
       "shop": {
-        "welcome": { "title": "RunQuest Pro Shop 🏪", "content": "Upgrade your gear, buy shoes, and stock up on nutrition supplies." },
-        "categories": { "title": "Shop Categories 🏷️", "content": "Filter items by Shoes, Nutrition, or Accessories & Gear." },
-        "items": { "title": "Equipment Catalog 🛒", "content": "Check requirements, level restrictions, and prices to purchase gear." }
+        "welcome": {
+          "title": "RunQuest Pro Shop 🏪",
+          "content": "Upgrade your gear, buy shoes, and stock up on nutrition supplies."
+        },
+        "categories": {
+          "title": "Shop Categories 🏷️",
+          "content": "Filter items by Shoes, Nutrition, or Accessories & Gear."
+        },
+        "items": {
+          "title": "Equipment Catalog 🛒",
+          "content": "Check requirements, level restrictions, and prices to purchase gear."
+        }
       },
       "result": {
-        "welcome": { "title": "Race Results 🏁", "content": "Review your finish time, placement, and performance metrics." },
-        "summary": { "title": "Performance Summary 🥇", "content": "Check your official finish grade, time, and earned prizes/XP." },
-        "stats": { "title": "Splits & Analysis 📊", "content": "Analyze your pace breakdown, heart rate, and strategic decisions." },
-        "share": { "title": "Share Card 📸", "content": "Generate a visual card to share your achievements with friends!" }
+        "welcome": {
+          "title": "Race Results 🏁",
+          "content": "Review your finish time, placement, and performance metrics."
+        },
+        "summary": {
+          "title": "Performance Summary 🥇",
+          "content": "Check your official finish grade, time, and earned prizes/XP."
+        },
+        "stats": {
+          "title": "Splits & Analysis 📊",
+          "content": "Analyze your pace breakdown, heart rate, and strategic decisions."
+        },
+        "share": {
+          "title": "Share Card 📸",
+          "content": "Generate a visual card to share your achievements with friends!"
+        }
       },
       "medical": {
-        "welcome": { "title": "Medical Center 🏥", "content": "Monitor athlete health, manage fatigue, and treat injuries." },
-        "status": { "title": "Health & Fatigue Status 🩺", "content": "Keep an eye on injury risk levels and overtraining warnings." },
-        "treatments": { "title": "Treatments & Therapy 💊", "content": "Apply therapies and treatments to speed up recovery times." }
+        "welcome": {
+          "title": "Medical Center 🏥",
+          "content": "Monitor athlete health, manage fatigue, and treat injuries."
+        },
+        "status": {
+          "title": "Health & Fatigue Status 🩺",
+          "content": "Keep an eye on injury risk levels and overtraining warnings."
+        },
+        "treatments": {
+          "title": "Treatments & Therapy 💊",
+          "content": "Apply therapies and treatments to speed up recovery times."
+        }
       },
       "briefing": {
-        "welcome": { "title": "Pre-Race Briefing 📜", "content": "Analyze course details, weather conditions, and opponent lineups." },
-        "course": { "title": "Course Elevation & Surface ⛰️", "content": "Review hills, surface types, and segment profiles." },
-        "weather": { "title": "Weather Forecast 🌤️", "content": "Check temperature, wind, and rain alerts before starting." },
-        "start": { "title": "Proceed to Start Line 🚀", "content": "Ready to run? Head straight to race preparation or start line." }
+        "welcome": {
+          "title": "Pre-Race Briefing 📜",
+          "content": "Analyze course details, weather conditions, and opponent lineups."
+        },
+        "course": {
+          "title": "Course Elevation & Surface ⛰️",
+          "content": "Review hills, surface types, and segment profiles."
+        },
+        "weather": {
+          "title": "Weather Forecast 🌤️",
+          "content": "Check temperature, wind, and rain alerts before starting."
+        },
+        "start": {
+          "title": "Proceed to Start Line 🚀",
+          "content": "Ready to run? Head straight to race preparation or start line."
+        }
       },
       "race": {
-        "welcome": { "title": "Live Race Simulation ⚡", "content": "Watch the race unfold in real-time physics and pacing simulation!" },
-        "simulation": { "title": "Track View 🏃♂️", "content": "See your position relative to rival runners along the course." },
-        "stats": { "title": "Live Metrics 📊", "content": "Track heart rate, stamina reserve, pace, and gap to leader." },
-        "decisions": { "title": "Tactical Decisions 🎯", "content": "Make split-second calls to surge, hold pace, or consume nutrition!" }
+        "welcome": {
+          "title": "Live Race Simulation ⚡",
+          "content": "Watch the race unfold in real-time physics and pacing simulation!"
+        },
+        "simulation": {
+          "title": "Track View 🏃♂️",
+          "content": "See your position relative to rival runners along the course."
+        },
+        "stats": {
+          "title": "Live Metrics 📊",
+          "content": "Track heart rate, stamina reserve, pace, and gap to leader."
+        },
+        "decisions": {
+          "title": "Tactical Decisions 🎯",
+          "content": "Make split-second calls to surge, hold pace, or consume nutrition!"
+        }
       }
     }
   },
@@ -1519,7 +1660,10 @@
       "hill_specialist": {
         "name": "Hill Specialist",
         "desc": "Nullifies climb penalties: no +20s/km pace penalty and no +1.5x fatigue increase on uphill segments.",
-        "effects": ["No pace penalty on climbs", "No fatigue increase on climbs"]
+        "effects": [
+          "No pace penalty on climbs",
+          "No fatigue increase on climbs"
+        ]
       },
       "iron_stomach": {
         "name": "Iron Stomach",
@@ -1557,5 +1701,76 @@
       "preferred_strategy": "Preferred Strategy",
       "not_set": "Not set"
     }
+  },
+  "season_mode": {
+    "title": "Season Mode",
+    "subtitle": "Structured Progression • No Timeline",
+    "continue_season": "Continue Season {tier}",
+    "week_progress": "Week Progress",
+    "season_goals": "Season Goals",
+    "all_seasons": "All Seasons",
+    "weeks": "Weeks",
+    "goals": "Goals",
+    "prize": "Prize",
+    "start_season": "Start Season",
+    "completed": "Completed",
+    "locked": "Locked"
+  },
+  "preparation_custom": {
+    "apply_loadout": "Apply Loadout"
+  },
+  "race_custom": {
+    "muscle_fatigue": "Muscle Fatigue",
+    "mental_fatigue": "Mental Fatigue",
+    "pace_stability": "Pace Stability"
+  },
+  "social_table": {
+    "rank": "Rank",
+    "runner": "Runner",
+    "tier": "Tier",
+    "rp": "RP",
+    "distance": "Distance",
+    "record_time": "Record / Time"
+  },
+  "focus_mode": {
+    "title": "Focus Mode",
+    "subtitle": "Quick Race • No Career Barriers",
+    "races": "Races",
+    "prs": "PRs",
+    "podiums": "Podiums",
+    "reset_session": "Reset Session",
+    "select_distance": "Select Distance",
+    "unlocked_count": "{unlocked}/{total} Unlocked",
+    "pb": "PB",
+    "difficulty": "Difficulty",
+    "available_challenges": "Available Challenges",
+    "reward": "Reward: {value}",
+    "your_progress": "Your Progress",
+    "total_races": "Total Races",
+    "podium_finishes": "Podium Finishes",
+    "achievements": "Achievements",
+    "personal_bests": "Personal Bests",
+    "no_pb_yet": "No PB yet",
+    "start_race": "START RACE",
+    "use_loadout": "Use Loadout ({count})"
+  },
+  "sponsor_modal": {
+    "per_training": "Per Training",
+    "per_race": "Per Race",
+    "per_victory": "Per Victory",
+    "monthly_stipend": "Monthly Stipend",
+    "decision_info": "You can accept, reject, or review this offer later."
+  },
+  "betting_results": {
+    "net_result": "Net Result"
+  },
+  "injury_panel_custom": {
+    "healthy": "Healthy",
+    "recovery_progress": "Recovery Progress"
+  },
+  "result_custom": {
+    "play_again": "Play Again",
+    "target_position": "Target Position",
+    "actual_result": "Actual Result"
   }
 }

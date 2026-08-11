@@ -2,10 +2,14 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import type { WeeklyPlan, PlannedActivity, DailyActivity } from "@/training/training-types";
-import { getActivityEnergyCost } from "@/training/plan-templates";
-import { DayPlannerCell } from "./day-planner-cell";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+import { getActivityEnergyCost } from "@/training/plan-templates";
+import type {
+  DailyActivity,
+  PlannedActivity,
+  WeeklyPlan,
+} from "@/training/training-types";
+import { DayPlannerCell } from "./day-planner-cell";
 
 interface WeeklyCalendarGridProps {
   plan: WeeklyPlan;
@@ -26,8 +30,9 @@ export function WeeklyCalendarGrid({
   const { t } = useTranslation();
   const [pickerDay, setPickerDay] = useState<PlannedActivity | null>(
     autoExpandDayIndex !== undefined
-      ? plan.plannedActivities.find((pa) => pa.dayIndex === autoExpandDayIndex) ??
-          null
+      ? (plan.plannedActivities.find(
+          (pa) => pa.dayIndex === autoExpandDayIndex,
+        ) ?? null)
       : null,
   );
   const gridRef = useRef<HTMLDivElement>(null);
@@ -46,7 +51,7 @@ export function WeeklyCalendarGrid({
 
   // Get today's activity
   const todaysActivity = plan.plannedActivities.find(
-    (pa) => pa.dayIndex === currentDayIndex
+    (pa) => pa.dayIndex === currentDayIndex,
   );
 
   // Day names for display (localized)
@@ -116,7 +121,7 @@ export function WeeklyCalendarGrid({
   // Handle activity completion (from modal)
   const handleCompleteActivity = (
     dayIndex: number,
-    activity: DailyActivity
+    activity: DailyActivity,
   ) => {
     onActivityComplete(dayIndex, activity);
     setPickerDay(null);
@@ -339,7 +344,12 @@ function getActivityOptions(currentActivity: DailyActivity): DailyActivity[] {
 
   // For easy runs, show similar intensity options (unique)
   if (currentActivity === "Easy Run" || currentActivity === "Recovery Run") {
-    const base: DailyActivity[] = ["Recovery Run", "Easy Run", "Mobility Session", "Strength Training"];
+    const base: DailyActivity[] = [
+      "Recovery Run",
+      "Easy Run",
+      "Mobility Session",
+      "Strength Training",
+    ];
     return Array.from(new Set([currentActivity, ...base]));
   }
 
@@ -350,11 +360,21 @@ function getActivityOptions(currentActivity: DailyActivity): DailyActivity[] {
     currentActivity === "Long Run" ||
     currentActivity === "Hill Repeats"
   ) {
-    const base: DailyActivity[] = ["Tempo Run", "Interval Training", "Easy Run", "Strength Training"];
+    const base: DailyActivity[] = [
+      "Tempo Run",
+      "Interval Training",
+      "Easy Run",
+      "Strength Training",
+    ];
     return Array.from(new Set([currentActivity, ...base]));
   }
 
   // For strength/mobility, show similar options (unique)
-  const base: DailyActivity[] = ["Strength Training", "Mobility Session", "Recovery Run", "Easy Run"];
+  const base: DailyActivity[] = [
+    "Strength Training",
+    "Mobility Session",
+    "Recovery Run",
+    "Easy Run",
+  ];
   return Array.from(new Set([currentActivity, ...base]));
 }

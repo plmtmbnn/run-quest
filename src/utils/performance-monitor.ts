@@ -1,6 +1,6 @@
 /**
  * Performance Monitoring System for Run-Quest
- * 
+ *
  * Monitors and reports performance metrics to ensure smooth gameplay,
  * especially on mobile devices.
  */
@@ -16,8 +16,8 @@ export interface PerformanceMetrics {
   paintTime: number;
   loadTime: number;
   timestamp: number;
-  deviceType: 'mobile' | 'tablet' | 'desktop' | 'unknown';
-  connectionType: 'wifi' | 'cellular' | 'offline' | 'unknown';
+  deviceType: "mobile" | "tablet" | "desktop" | "unknown";
+  connectionType: "wifi" | "cellular" | "offline" | "unknown";
 }
 
 /**
@@ -36,8 +36,8 @@ export interface PerformanceThresholds {
  * Default performance thresholds
  */
 const DEFAULT_THRESHOLDS: PerformanceThresholds = {
-  minFrameRate: 30,    // Minimum acceptable FPS
-  maxRenderTime: 16,   // Max render time in ms (for 60fps)
+  minFrameRate: 30, // Minimum acceptable FPS
+  maxRenderTime: 16, // Max render time in ms (for 60fps)
   maxMemoryUsage: 500, // Max memory usage in MB
   warningFrameRate: 45, // Warning FPS threshold
   warningRenderTime: 30, // Warning render time in ms
@@ -58,7 +58,7 @@ let currentFrameRate = 60;
  * Start performance monitoring
  */
 export function startPerformanceMonitoring(
-  customThresholds?: Partial<PerformanceThresholds>
+  customThresholds?: Partial<PerformanceThresholds>,
 ): void {
   if (isMonitoring) return;
 
@@ -75,8 +75,8 @@ export function startPerformanceMonitoring(
   startMemoryMonitoring();
 
   // Log startup
-  if (process.env.NODE_ENV !== 'production') {
-    console.log('📊 Performance monitoring started');
+  if (process.env.NODE_ENV !== "production") {
+    console.log("📊 Performance monitoring started");
   }
 }
 
@@ -93,7 +93,7 @@ export function stopPerformanceMonitoring(): void {
  * Start frame rate monitoring
  */
 function startFrameRateMonitoring(): void {
-  if (typeof window === 'undefined') return;
+  if (typeof window === "undefined") return;
 
   let lastTime = performance.now();
   let frameCount = 0;
@@ -124,7 +124,12 @@ function startFrameRateMonitoring(): void {
  * Start memory monitoring
  */
 function startMemoryMonitoring(): void {
-  if (typeof window === 'undefined' || !window.performance || !(window.performance as any).memory) return;
+  if (
+    typeof window === "undefined" ||
+    !window.performance ||
+    !(window.performance as any).memory
+  )
+    return;
 
   setInterval(() => {
     if (!isMonitoring) return;
@@ -147,7 +152,7 @@ function startMemoryMonitoring(): void {
 
     // Check for memory issues
     if (memoryUsage > performanceThresholds.maxMemoryUsage) {
-      reportPerformanceIssue('memory', memoryUsage);
+      reportPerformanceIssue("memory", memoryUsage);
     }
   }, 5000); // Check every 5 seconds
 }
@@ -184,9 +189,9 @@ export function recordMetrics(metrics: Partial<PerformanceMetrics>): void {
  */
 function checkPerformanceThresholds(): void {
   if (currentFrameRate < performanceThresholds.minFrameRate) {
-    reportPerformanceIssue('frameRate', currentFrameRate);
+    reportPerformanceIssue("frameRate", currentFrameRate);
   } else if (currentFrameRate < performanceThresholds.warningFrameRate) {
-    logPerformanceWarning('frameRate', currentFrameRate);
+    logPerformanceWarning("frameRate", currentFrameRate);
   }
 }
 
@@ -197,16 +202,19 @@ function reportPerformanceIssue(metric: string, value: number): void {
   const issue = {
     metric,
     value,
-    threshold: metric === 'frameRate' 
-      ? performanceThresholds.minFrameRate 
-      : performanceThresholds.maxMemoryUsage,
+    threshold:
+      metric === "frameRate"
+        ? performanceThresholds.minFrameRate
+        : performanceThresholds.maxMemoryUsage,
     timestamp: Date.now(),
     deviceType: getDeviceType(),
   };
 
   // In production, you might send this to analytics
-  if (process.env.NODE_ENV !== 'production') {
-    console.warn(`⚠️ Performance issue: ${metric} = ${value} (threshold: ${issue.threshold})`);
+  if (process.env.NODE_ENV !== "production") {
+    console.warn(
+      `⚠️ Performance issue: ${metric} = ${value} (threshold: ${issue.threshold})`,
+    );
   }
 
   // Trigger performance optimization
@@ -217,7 +225,7 @@ function reportPerformanceIssue(metric: string, value: number): void {
  * Log a performance warning
  */
 function logPerformanceWarning(metric: string, value: number): void {
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== "production") {
     console.log(`ℹ️ Performance warning: ${metric} = ${value}`);
   }
 }
@@ -227,13 +235,13 @@ function logPerformanceWarning(metric: string, value: number): void {
  */
 function optimizePerformance(metric: string, value: number): void {
   switch (metric) {
-    case 'frameRate':
+    case "frameRate":
       if (value < performanceThresholds.minFrameRate) {
         // Reduce animation complexity
         reduceAnimations();
       }
       break;
-    case 'memory':
+    case "memory":
       if (value > performanceThresholds.maxMemoryUsage) {
         // Clean up memory
         cleanupMemory();
@@ -248,12 +256,12 @@ function optimizePerformance(metric: string, value: number): void {
 function reduceAnimations(): void {
   // This would be implemented based on your animation system
   // For example, with Framer Motion:
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     // Disable complex animations on mobile
-    const isMobile = getDeviceType() === 'mobile';
+    const isMobile = getDeviceType() === "mobile";
     if (isMobile) {
       // You could set a global flag or modify animation props
-      document.body.classList.add('reduce-animations');
+      document.body.classList.add("reduce-animations");
     }
   }
 }
@@ -262,7 +270,7 @@ function reduceAnimations(): void {
  * Clean up memory
  */
 function cleanupMemory(): void {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     // Trigger garbage collection hints
     if (window.gc) {
       window.gc();
@@ -276,41 +284,44 @@ function cleanupMemory(): void {
 /**
  * Get current device type
  */
-function getDeviceType(): PerformanceMetrics['deviceType'] {
-  if (typeof window === 'undefined') return 'unknown';
+function getDeviceType(): PerformanceMetrics["deviceType"] {
+  if (typeof window === "undefined") return "unknown";
 
   const width = window.innerWidth;
   const height = window.innerHeight;
-  const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
 
   if (isTouch) {
-    if (width <= 768) return 'mobile';
-    if (width <= 1024) return 'tablet';
+    if (width <= 768) return "mobile";
+    if (width <= 1024) return "tablet";
   }
 
-  return 'desktop';
+  return "desktop";
 }
 
 /**
  * Get current connection type
  */
-function getConnectionType(): PerformanceMetrics['connectionType'] {
-  if (typeof window === 'undefined') return 'unknown';
+function getConnectionType(): PerformanceMetrics["connectionType"] {
+  if (typeof window === "undefined") return "unknown";
 
   const navigator = window.navigator as any;
-  const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  const connection =
+    navigator.connection ||
+    navigator.mozConnection ||
+    navigator.webkitConnection;
 
-  if (!connection) return 'unknown';
+  if (!connection) return "unknown";
 
-  if (connection.effectiveType === '4g' || connection.effectiveType === '3g') {
-    return 'cellular';
+  if (connection.effectiveType === "4g" || connection.effectiveType === "3g") {
+    return "cellular";
   }
 
-  if (connection.effectiveType === 'wifi') {
-    return 'wifi';
+  if (connection.effectiveType === "wifi") {
+    return "wifi";
   }
 
-  return connection.onLine ? 'wifi' : 'offline';
+  return connection.onLine ? "wifi" : "offline";
 }
 
 /**
@@ -345,29 +356,32 @@ export function getAverageMetrics(): PerformanceMetrics {
     };
   }
 
-  const sum = metricsHistory.reduce((acc, metrics) => {
-    return {
-      frameRate: acc.frameRate + metrics.frameRate,
-      memoryUsage: acc.memoryUsage + metrics.memoryUsage,
-      renderTime: acc.renderTime + metrics.renderTime,
-      scriptTime: acc.scriptTime + metrics.scriptTime,
-      paintTime: acc.paintTime + metrics.paintTime,
-      loadTime: acc.loadTime + metrics.loadTime,
-      timestamp: acc.timestamp,
-      deviceType: acc.deviceType,
-      connectionType: acc.connectionType,
-    };
-  }, {
-    frameRate: 0,
-    memoryUsage: 0,
-    renderTime: 0,
-    scriptTime: 0,
-    paintTime: 0,
-    loadTime: 0,
-    timestamp: 0,
-    deviceType: 'unknown',
-    connectionType: 'unknown',
-  });
+  const sum = metricsHistory.reduce(
+    (acc, metrics) => {
+      return {
+        frameRate: acc.frameRate + metrics.frameRate,
+        memoryUsage: acc.memoryUsage + metrics.memoryUsage,
+        renderTime: acc.renderTime + metrics.renderTime,
+        scriptTime: acc.scriptTime + metrics.scriptTime,
+        paintTime: acc.paintTime + metrics.paintTime,
+        loadTime: acc.loadTime + metrics.loadTime,
+        timestamp: acc.timestamp,
+        deviceType: acc.deviceType,
+        connectionType: acc.connectionType,
+      };
+    },
+    {
+      frameRate: 0,
+      memoryUsage: 0,
+      renderTime: 0,
+      scriptTime: 0,
+      paintTime: 0,
+      loadTime: 0,
+      timestamp: 0,
+      deviceType: "unknown",
+      connectionType: "unknown",
+    },
+  );
 
   return {
     frameRate: sum.frameRate / metricsHistory.length,
@@ -387,7 +401,7 @@ export function getAverageMetrics(): PerformanceMetrics {
  */
 export function isPerformanceAcceptable(): boolean {
   const avgMetrics = getAverageMetrics();
-  
+
   return (
     avgMetrics.frameRate >= performanceThresholds.minFrameRate &&
     avgMetrics.memoryUsage <= performanceThresholds.maxMemoryUsage
@@ -399,13 +413,16 @@ export function isPerformanceAcceptable(): boolean {
  */
 export function getPerformanceScore(): number {
   const avgMetrics = getAverageMetrics();
-  
+
   // Normalize metrics to 0-100 scale
   const frameRateScore = Math.min(100, (avgMetrics.frameRate / 60) * 100);
-  const memoryScore = Math.max(0, 100 - (avgMetrics.memoryUsage / performanceThresholds.maxMemoryUsage) * 100);
-  
+  const memoryScore = Math.max(
+    0,
+    100 - (avgMetrics.memoryUsage / performanceThresholds.maxMemoryUsage) * 100,
+  );
+
   // Weighted average
-  return Math.round((frameRateScore * 0.7) + (memoryScore * 0.3));
+  return Math.round(frameRateScore * 0.7 + memoryScore * 0.3);
 }
 
 /**
@@ -416,21 +433,21 @@ export function getPerformanceTips(): string[] {
   const avgMetrics = getAverageMetrics();
 
   if (avgMetrics.frameRate < performanceThresholds.warningFrameRate) {
-    tips.push('Reduce animation complexity');
-    tips.push('Simplify component rendering');
-    tips.push('Use React.memo for expensive components');
+    tips.push("Reduce animation complexity");
+    tips.push("Simplify component rendering");
+    tips.push("Use React.memo for expensive components");
   }
 
   if (avgMetrics.memoryUsage > performanceThresholds.warningMemoryUsage) {
-    tips.push('Clean up unused event listeners');
-    tips.push('Limit cached data');
-    tips.push('Use lazy loading for non-critical components');
+    tips.push("Clean up unused event listeners");
+    tips.push("Limit cached data");
+    tips.push("Use lazy loading for non-critical components");
   }
 
   return tips;
 }
 
 // Auto-start monitoring in development
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== "production") {
   startPerformanceMonitoring();
 }

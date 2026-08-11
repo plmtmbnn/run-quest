@@ -16,15 +16,15 @@ export const BOSTON_MARATHON: RouteProfile = {
   surface: "road",
   profileType: "hilly",
   elevationPoints: [
-    { distance: 0, elevation: 0.45 },      // Hopkinton start
-    { distance: 0.1, elevation: 0.38 },    // Early downhill
-    { distance: 0.25, elevation: 0.35 },   // Ashland descent
-    { distance: 0.4, elevation: 0.4 },     // Framingham rolling
-    { distance: 0.52, elevation: 0.48 },   // Wellesley climb
-    { distance: 0.65, elevation: 0.72 },   // HEARTBREAK HILL!
-    { distance: 0.75, elevation: 0.55 },   // Post-heartbreak recovery
-    { distance: 0.85, elevation: 0.5 },    // Cleveland Circle
-    { distance: 1.0, elevation: 0.48 },    // Boylston Street finish
+    { distance: 0, elevation: 0.45 }, // Hopkinton start
+    { distance: 0.1, elevation: 0.38 }, // Early downhill
+    { distance: 0.25, elevation: 0.35 }, // Ashland descent
+    { distance: 0.4, elevation: 0.4 }, // Framingham rolling
+    { distance: 0.52, elevation: 0.48 }, // Wellesley climb
+    { distance: 0.65, elevation: 0.72 }, // HEARTBREAK HILL!
+    { distance: 0.75, elevation: 0.55 }, // Post-heartbreak recovery
+    { distance: 0.85, elevation: 0.5 }, // Cleveland Circle
+    { distance: 1.0, elevation: 0.48 }, // Boylston Street finish
   ],
   characteristics: {
     maxGrade: 8.5,
@@ -33,7 +33,13 @@ export const BOSTON_MARATHON: RouteProfile = {
   },
   environment: {
     biome: "urban",
-    landmarks: ["Hopkinton Green", "Wellesley College", "Heartbreak Hill", "Citgo Sign", "Boylston Street"],
+    landmarks: [
+      "Hopkinton Green",
+      "Wellesley College",
+      "Heartbreak Hill",
+      "Citgo Sign",
+      "Boylston Street",
+    ],
   },
 };
 
@@ -44,11 +50,11 @@ export const BERLIN_MARATHON: RouteProfile = {
   profileType: "flat",
   elevationPoints: [
     { distance: 0, elevation: 0.48 },
-    { distance: 0.2, elevation: 0.50 },
+    { distance: 0.2, elevation: 0.5 },
     { distance: 0.4, elevation: 0.49 },
     { distance: 0.6, elevation: 0.51 },
-    { distance: 0.8, elevation: 0.50 },
-    { distance: 1.0, elevation: 0.50 },
+    { distance: 0.8, elevation: 0.5 },
+    { distance: 1.0, elevation: 0.5 },
   ],
   characteristics: {
     maxGrade: 2.0,
@@ -57,7 +63,12 @@ export const BERLIN_MARATHON: RouteProfile = {
   },
   environment: {
     biome: "urban",
-    landmarks: ["Brandenburg Gate", "Tiergarten", "Charlottenburg", "Victory Column"],
+    landmarks: [
+      "Brandenburg Gate",
+      "Tiergarten",
+      "Charlottenburg",
+      "Victory Column",
+    ],
   },
 };
 
@@ -67,13 +78,13 @@ export const LONDON_MARATHON: RouteProfile = {
   surface: "road",
   profileType: "rolling",
   elevationPoints: [
-    { distance: 0, elevation: 0.50 },      // Greenwich Park
-    { distance: 0.15, elevation: 0.45 },   // Cutty Sark descent
-    { distance: 0.3, elevation: 0.52 },    // Tower Bridge approach
-    { distance: 0.5, elevation: 0.48 },    // Thames embankment
-    { distance: 0.7, elevation: 0.50 },    // Westminster
-    { distance: 0.85, elevation: 0.53 },   // Embankment rise
-    { distance: 1.0, elevation: 0.50 },    // The Mall finish
+    { distance: 0, elevation: 0.5 }, // Greenwich Park
+    { distance: 0.15, elevation: 0.45 }, // Cutty Sark descent
+    { distance: 0.3, elevation: 0.52 }, // Tower Bridge approach
+    { distance: 0.5, elevation: 0.48 }, // Thames embankment
+    { distance: 0.7, elevation: 0.5 }, // Westminster
+    { distance: 0.85, elevation: 0.53 }, // Embankment rise
+    { distance: 1.0, elevation: 0.5 }, // The Mall finish
   ],
   characteristics: {
     maxGrade: 4.5,
@@ -82,7 +93,13 @@ export const LONDON_MARATHON: RouteProfile = {
   },
   environment: {
     biome: "urban",
-    landmarks: ["Greenwich Park", "Tower Bridge", "Big Ben", "London Eye", "Buckingham Palace"],
+    landmarks: [
+      "Greenwich Park",
+      "Tower Bridge",
+      "Big Ben",
+      "London Eye",
+      "Buckingham Palace",
+    ],
   },
 };
 
@@ -92,16 +109,16 @@ export const NYC_MARATHON: RouteProfile = {
   surface: "road",
   profileType: "hilly",
   elevationPoints: [
-    { distance: 0, elevation: 0.48 },      // Staten Island
-    { distance: 0.1, elevation: 0.55 },    // Verrazano Bridge climb
-    { distance: 0.15, elevation: 0.42 },   // Brooklyn descent
-    { distance: 0.4, elevation: 0.50 },    // Brooklyn streets
-    { distance: 0.5, elevation: 0.58 },    // Pulaski Bridge
-    { distance: 0.6, elevation: 0.52 },    // Queens
-    { distance: 0.7, elevation: 0.62 },    // Queensboro Bridge
-    { distance: 0.8, elevation: 0.48 },    // First Avenue
-    { distance: 0.9, elevation: 0.55 },    // Bronx hills
-    { distance: 1.0, elevation: 0.50 },    // Central Park finish
+    { distance: 0, elevation: 0.48 }, // Staten Island
+    { distance: 0.1, elevation: 0.55 }, // Verrazano Bridge climb
+    { distance: 0.15, elevation: 0.42 }, // Brooklyn descent
+    { distance: 0.4, elevation: 0.5 }, // Brooklyn streets
+    { distance: 0.5, elevation: 0.58 }, // Pulaski Bridge
+    { distance: 0.6, elevation: 0.52 }, // Queens
+    { distance: 0.7, elevation: 0.62 }, // Queensboro Bridge
+    { distance: 0.8, elevation: 0.48 }, // First Avenue
+    { distance: 0.9, elevation: 0.55 }, // Bronx hills
+    { distance: 1.0, elevation: 0.5 }, // Central Park finish
   ],
   characteristics: {
     maxGrade: 7.0,
@@ -110,7 +127,13 @@ export const NYC_MARATHON: RouteProfile = {
   },
   environment: {
     biome: "urban",
-    landmarks: ["Verrazano Bridge", "Brooklyn", "Queensboro Bridge", "First Avenue", "Central Park"],
+    landmarks: [
+      "Verrazano Bridge",
+      "Brooklyn",
+      "Queensboro Bridge",
+      "First Avenue",
+      "Central Park",
+    ],
   },
 };
 
@@ -122,9 +145,9 @@ export const TOKYO_MARATHON: RouteProfile = {
   elevationPoints: [
     { distance: 0, elevation: 0.49 },
     { distance: 0.25, elevation: 0.51 },
-    { distance: 0.5, elevation: 0.50 },
+    { distance: 0.5, elevation: 0.5 },
     { distance: 0.75, elevation: 0.52 },
-    { distance: 1.0, elevation: 0.50 },
+    { distance: 1.0, elevation: 0.5 },
   ],
   characteristics: {
     maxGrade: 2.5,
@@ -133,7 +156,13 @@ export const TOKYO_MARATHON: RouteProfile = {
   },
   environment: {
     biome: "urban",
-    landmarks: ["Tokyo Station", "Imperial Palace", "Asakusa", "Ginza", "Tokyo Tower"],
+    landmarks: [
+      "Tokyo Station",
+      "Imperial Palace",
+      "Asakusa",
+      "Ginza",
+      "Tokyo Tower",
+    ],
   },
 };
 
@@ -143,11 +172,11 @@ export const CHICAGO_MARATHON: RouteProfile = {
   surface: "road",
   profileType: "flat",
   elevationPoints: [
-    { distance: 0, elevation: 0.50 },
+    { distance: 0, elevation: 0.5 },
     { distance: 0.3, elevation: 0.49 },
     { distance: 0.6, elevation: 0.51 },
-    { distance: 0.9, elevation: 0.50 },
-    { distance: 1.0, elevation: 0.50 },
+    { distance: 0.9, elevation: 0.5 },
+    { distance: 1.0, elevation: 0.5 },
   ],
   characteristics: {
     maxGrade: 1.5,
@@ -170,16 +199,16 @@ export const BROMO_ULTRA: RouteProfile = {
   surface: "trail",
   profileType: "volcanic",
   elevationPoints: [
-    { distance: 0, elevation: 0.30 },      // Sea of Sand start
-    { distance: 0.1, elevation: 0.45 },    // Gradual climb
-    { distance: 0.2, elevation: 0.62 },    // Steep volcanic slope
-    { distance: 0.3, elevation: 0.85 },    // Crater rim approach
-    { distance: 0.4, elevation: 0.90 },    // Summit ridge
-    { distance: 0.5, elevation: 0.75 },    // Technical descent
-    { distance: 0.6, elevation: 0.65 },    // Mid-valley
-    { distance: 0.7, elevation: 0.80 },    // Second peak
-    { distance: 0.85, elevation: 0.70 },   // Final descent
-    { distance: 1.0, elevation: 0.50 },    // Finish lowlands
+    { distance: 0, elevation: 0.3 }, // Sea of Sand start
+    { distance: 0.1, elevation: 0.45 }, // Gradual climb
+    { distance: 0.2, elevation: 0.62 }, // Steep volcanic slope
+    { distance: 0.3, elevation: 0.85 }, // Crater rim approach
+    { distance: 0.4, elevation: 0.9 }, // Summit ridge
+    { distance: 0.5, elevation: 0.75 }, // Technical descent
+    { distance: 0.6, elevation: 0.65 }, // Mid-valley
+    { distance: 0.7, elevation: 0.8 }, // Second peak
+    { distance: 0.85, elevation: 0.7 }, // Final descent
+    { distance: 1.0, elevation: 0.5 }, // Finish lowlands
   ],
   characteristics: {
     maxGrade: 18.0,
@@ -198,15 +227,15 @@ export const RINJANI_SKYRACE: RouteProfile = {
   surface: "trail",
   profileType: "mountainous",
   elevationPoints: [
-    { distance: 0, elevation: 0.25 },      // Base camp
-    { distance: 0.15, elevation: 0.50 },   // Forest climb
-    { distance: 0.3, elevation: 0.70 },    // Alpine zone
-    { distance: 0.45, elevation: 0.88 },   // Near summit
-    { distance: 0.5, elevation: 0.92 },    // Summit peak
-    { distance: 0.6, elevation: 0.75 },    // Crater descent
-    { distance: 0.75, elevation: 0.60 },   // Lake shore
-    { distance: 0.9, elevation: 0.45 },    // Final descent
-    { distance: 1.0, elevation: 0.28 },    // Village finish
+    { distance: 0, elevation: 0.25 }, // Base camp
+    { distance: 0.15, elevation: 0.5 }, // Forest climb
+    { distance: 0.3, elevation: 0.7 }, // Alpine zone
+    { distance: 0.45, elevation: 0.88 }, // Near summit
+    { distance: 0.5, elevation: 0.92 }, // Summit peak
+    { distance: 0.6, elevation: 0.75 }, // Crater descent
+    { distance: 0.75, elevation: 0.6 }, // Lake shore
+    { distance: 0.9, elevation: 0.45 }, // Final descent
+    { distance: 1.0, elevation: 0.28 }, // Village finish
   ],
   characteristics: {
     maxGrade: 22.0,
@@ -215,7 +244,12 @@ export const RINJANI_SKYRACE: RouteProfile = {
   },
   environment: {
     biome: "mountain",
-    landmarks: ["Segara Anak Lake", "Barujari Cone", "Summit Ridge", "Hot Springs"],
+    landmarks: [
+      "Segara Anak Lake",
+      "Barujari Cone",
+      "Summit Ridge",
+      "Hot Springs",
+    ],
   },
 };
 
@@ -227,7 +261,7 @@ export const BANDUNG_HILLS: RouteProfile = {
   elevationPoints: [
     { distance: 0, elevation: 0.45 },
     { distance: 0.2, elevation: 0.58 },
-    { distance: 0.4, elevation: 0.50 },
+    { distance: 0.4, elevation: 0.5 },
     { distance: 0.6, elevation: 0.65 },
     { distance: 0.8, elevation: 0.55 },
     { distance: 1.0, elevation: 0.48 },
@@ -254,7 +288,7 @@ export const TAHURA_FOREST: RouteProfile = {
     { distance: 0.4, elevation: 0.62 },
     { distance: 0.6, elevation: 0.58 },
     { distance: 0.8, elevation: 0.65 },
-    { distance: 1.0, elevation: 0.50 },
+    { distance: 1.0, elevation: 0.5 },
   ],
   characteristics: {
     maxGrade: 12.0,
@@ -273,12 +307,12 @@ export const BALI_COASTAL: RouteProfile = {
   surface: "road",
   profileType: "coastal",
   elevationPoints: [
-    { distance: 0, elevation: 0.48 },      // Beach level
-    { distance: 0.2, elevation: 0.52 },    // Gentle rise
-    { distance: 0.4, elevation: 0.50 },    // Coastal flat
-    { distance: 0.6, elevation: 0.55 },    // Cliff path
-    { distance: 0.8, elevation: 0.51 },    // Descent
-    { distance: 1.0, elevation: 0.49 },    // Beach finish
+    { distance: 0, elevation: 0.48 }, // Beach level
+    { distance: 0.2, elevation: 0.52 }, // Gentle rise
+    { distance: 0.4, elevation: 0.5 }, // Coastal flat
+    { distance: 0.6, elevation: 0.55 }, // Cliff path
+    { distance: 0.8, elevation: 0.51 }, // Descent
+    { distance: 1.0, elevation: 0.49 }, // Beach finish
   ],
   characteristics: {
     maxGrade: 5.0,
@@ -301,7 +335,7 @@ export const ARJUNO_ULTRA: RouteProfile = {
     { distance: 0.15, elevation: 0.48 },
     { distance: 0.3, elevation: 0.68 },
     { distance: 0.45, elevation: 0.85 },
-    { distance: 0.5, elevation: 0.90 },
+    { distance: 0.5, elevation: 0.9 },
     { distance: 0.6, elevation: 0.78 },
     { distance: 0.75, elevation: 0.82 },
     { distance: 0.85, elevation: 0.65 },
@@ -314,7 +348,12 @@ export const ARJUNO_ULTRA: RouteProfile = {
   },
   environment: {
     biome: "mountain",
-    landmarks: ["Twin Peaks", "Alpine Meadows", "Sulfur Springs", "Cloud Forest"],
+    landmarks: [
+      "Twin Peaks",
+      "Alpine Meadows",
+      "Sulfur Springs",
+      "Cloud Forest",
+    ],
   },
 };
 
@@ -329,10 +368,10 @@ export const GENERIC_FLAT_CITY: RouteProfile = {
   profileType: "flat",
   elevationPoints: [
     { distance: 0, elevation: 0.49 },
-    { distance: 0.25, elevation: 0.50 },
+    { distance: 0.25, elevation: 0.5 },
     { distance: 0.5, elevation: 0.51 },
-    { distance: 0.75, elevation: 0.50 },
-    { distance: 1.0, elevation: 0.50 },
+    { distance: 0.75, elevation: 0.5 },
+    { distance: 1.0, elevation: 0.5 },
   ],
   characteristics: {
     maxGrade: 2.0,
@@ -354,7 +393,7 @@ export const GENERIC_ROLLING_HILLS: RouteProfile = {
     { distance: 0.2, elevation: 0.55 },
     { distance: 0.4, elevation: 0.48 },
     { distance: 0.6, elevation: 0.58 },
-    { distance: 0.8, elevation: 0.50 },
+    { distance: 0.8, elevation: 0.5 },
     { distance: 1.0, elevation: 0.52 },
   ],
   characteristics: {
@@ -373,12 +412,12 @@ export const GENERIC_MOUNTAIN_TRAIL: RouteProfile = {
   surface: "trail",
   profileType: "mountainous",
   elevationPoints: [
-    { distance: 0, elevation: 0.30 },
-    { distance: 0.2, elevation: 0.50 },
-    { distance: 0.4, elevation: 0.70 },
+    { distance: 0, elevation: 0.3 },
+    { distance: 0.2, elevation: 0.5 },
+    { distance: 0.4, elevation: 0.7 },
     { distance: 0.6, elevation: 0.85 },
     { distance: 0.8, elevation: 0.65 },
-    { distance: 1.0, elevation: 0.40 },
+    { distance: 1.0, elevation: 0.4 },
   ],
   characteristics: {
     maxGrade: 15.0,
@@ -396,9 +435,9 @@ export const GENERIC_FOREST_TRAIL: RouteProfile = {
   surface: "trail",
   profileType: "forest",
   elevationPoints: [
-    { distance: 0, elevation: 0.40 },
+    { distance: 0, elevation: 0.4 },
     { distance: 0.25, elevation: 0.52 },
-    { distance: 0.5, elevation: 0.60 },
+    { distance: 0.5, elevation: 0.6 },
     { distance: 0.75, elevation: 0.55 },
     { distance: 1.0, elevation: 0.45 },
   ],
@@ -418,9 +457,9 @@ export const GENERIC_TRACK: RouteProfile = {
   surface: "track",
   profileType: "flat",
   elevationPoints: [
-    { distance: 0, elevation: 0.50 },
-    { distance: 0.5, elevation: 0.50 },
-    { distance: 1.0, elevation: 0.50 },
+    { distance: 0, elevation: 0.5 },
+    { distance: 0.5, elevation: 0.5 },
+    { distance: 1.0, elevation: 0.5 },
   ],
   characteristics: {
     maxGrade: 0.5,
@@ -440,7 +479,7 @@ export const GENERIC_COASTAL: RouteProfile = {
   elevationPoints: [
     { distance: 0, elevation: 0.48 },
     { distance: 0.3, elevation: 0.52 },
-    { distance: 0.6, elevation: 0.50 },
+    { distance: 0.6, elevation: 0.5 },
     { distance: 0.9, elevation: 0.53 },
     { distance: 1.0, elevation: 0.49 },
   ],
@@ -463,7 +502,7 @@ export const GENERIC_DESERT: RouteProfile = {
     { distance: 0, elevation: 0.45 },
     { distance: 0.2, elevation: 0.52 },
     { distance: 0.5, elevation: 0.58 },
-    { distance: 0.8, elevation: 0.50 },
+    { distance: 0.8, elevation: 0.5 },
     { distance: 1.0, elevation: 0.47 },
   ],
   characteristics: {
@@ -483,7 +522,7 @@ export const GENERIC_PLANTATION: RouteProfile = {
   profileType: "rolling",
   elevationPoints: [
     { distance: 0, elevation: 0.42 },
-    { distance: 0.25, elevation: 0.50 },
+    { distance: 0.25, elevation: 0.5 },
     { distance: 0.5, elevation: 0.55 },
     { distance: 0.75, elevation: 0.48 },
     { distance: 1.0, elevation: 0.45 },
@@ -508,12 +547,12 @@ export const JAKARTA_CITY_FLAT: RouteProfile = {
   surface: "road",
   profileType: "flat",
   elevationPoints: [
-    { distance: 0, elevation: 0.50 },
+    { distance: 0, elevation: 0.5 },
     { distance: 0.2, elevation: 0.51 },
     { distance: 0.4, elevation: 0.49 },
-    { distance: 0.6, elevation: 0.50 },
+    { distance: 0.6, elevation: 0.5 },
     { distance: 0.8, elevation: 0.52 },
-    { distance: 1.0, elevation: 0.50 },
+    { distance: 1.0, elevation: 0.5 },
   ],
   characteristics: {
     maxGrade: 2.0,
@@ -535,7 +574,7 @@ export const BOROBUDUR_HERITAGE: RouteProfile = {
     { distance: 0, elevation: 0.45 },
     { distance: 0.15, elevation: 0.52 },
     { distance: 0.35, elevation: 0.58 },
-    { distance: 0.6, elevation: 0.50 },
+    { distance: 0.6, elevation: 0.5 },
     { distance: 0.8, elevation: 0.48 },
     { distance: 1.0, elevation: 0.46 },
   ],
@@ -546,7 +585,12 @@ export const BOROBUDUR_HERITAGE: RouteProfile = {
   },
   environment: {
     biome: "tropical",
-    landmarks: ["Borobudur Temple", "Mendut Temple", "Rice Paddies", "Elo River"],
+    landmarks: [
+      "Borobudur Temple",
+      "Mendut Temple",
+      "Rice Paddies",
+      "Elo River",
+    ],
   },
 };
 
@@ -569,7 +613,12 @@ export const PRAMBANAN_TEMPLES: RouteProfile = {
   },
   environment: {
     biome: "tropical",
-    landmarks: ["Prambanan Temple", "Sewu Temple", "Ratu Boko", "Village Roads"],
+    landmarks: [
+      "Prambanan Temple",
+      "Sewu Temple",
+      "Ratu Boko",
+      "Village Roads",
+    ],
   },
 };
 
@@ -583,7 +632,7 @@ export const DIENG_PLATEAU: RouteProfile = {
     { distance: 0.2, elevation: 0.72 },
     { distance: 0.4, elevation: 0.68 },
     { distance: 0.6, elevation: 0.75 },
-    { distance: 0.8, elevation: 0.70 },
+    { distance: 0.8, elevation: 0.7 },
     { distance: 1.0, elevation: 0.67 },
   ],
   characteristics: {
@@ -593,7 +642,12 @@ export const DIENG_PLATEAU: RouteProfile = {
   },
   environment: {
     biome: "mountain",
-    landmarks: ["Telaga Warna", "Arjuna Temple", "Sikidang Crater", "Potato Fields"],
+    landmarks: [
+      "Telaga Warna",
+      "Arjuna Temple",
+      "Sikidang Crater",
+      "Potato Fields",
+    ],
   },
 };
 
@@ -603,7 +657,7 @@ export const KOMODO_ISLAND: RouteProfile = {
   surface: "trail",
   profileType: "hilly",
   elevationPoints: [
-    { distance: 0, elevation: 0.40 },
+    { distance: 0, elevation: 0.4 },
     { distance: 0.2, elevation: 0.55 },
     { distance: 0.4, elevation: 0.68 },
     { distance: 0.6, elevation: 0.58 },
@@ -617,7 +671,12 @@ export const KOMODO_ISLAND: RouteProfile = {
   },
   environment: {
     biome: "tropical",
-    landmarks: ["Pink Beach", "Padar Viewpoint", "Savanna Hills", "Dragon Habitat"],
+    landmarks: [
+      "Pink Beach",
+      "Padar Viewpoint",
+      "Savanna Hills",
+      "Dragon Habitat",
+    ],
   },
 };
 
@@ -629,7 +688,7 @@ export const TOBA_LAKESIDE: RouteProfile = {
   elevationPoints: [
     { distance: 0, elevation: 0.52 },
     { distance: 0.25, elevation: 0.48 },
-    { distance: 0.5, elevation: 0.50 },
+    { distance: 0.5, elevation: 0.5 },
     { distance: 0.75, elevation: 0.46 },
     { distance: 1.0, elevation: 0.51 },
   ],
@@ -651,10 +710,10 @@ export const WAKATOBI_COASTAL: RouteProfile = {
   profileType: "flat",
   elevationPoints: [
     { distance: 0, elevation: 0.48 },
-    { distance: 0.3, elevation: 0.50 },
+    { distance: 0.3, elevation: 0.5 },
     { distance: 0.6, elevation: 0.49 },
     { distance: 0.9, elevation: 0.51 },
-    { distance: 1.0, elevation: 0.50 },
+    { distance: 1.0, elevation: 0.5 },
   ],
   characteristics: {
     maxGrade: 3.0,
@@ -663,7 +722,12 @@ export const WAKATOBI_COASTAL: RouteProfile = {
   },
   environment: {
     biome: "coastal",
-    landmarks: ["Coral Beaches", "Mangrove Forests", "Fishing Villages", "Marine Park"],
+    landmarks: [
+      "Coral Beaches",
+      "Mangrove Forests",
+      "Fishing Villages",
+      "Marine Park",
+    ],
   },
 };
 
@@ -679,7 +743,7 @@ export const ROUTE_PROFILES: Record<string, RouteProfile> = {
   nyc_marathon: NYC_MARATHON,
   tokyo_marathon: TOKYO_MARATHON,
   chicago_marathon: CHICAGO_MARATHON,
-  
+
   // Indonesian Signature
   bromo_ultra: BROMO_ULTRA,
   rinjani_skyrace: RINJANI_SKYRACE,
@@ -687,7 +751,7 @@ export const ROUTE_PROFILES: Record<string, RouteProfile> = {
   tahura_forest: TAHURA_FOREST,
   bali_coastal: BALI_COASTAL,
   arjuno_ultra: ARJUNO_ULTRA,
-  
+
   // Unique Race Profiles
   jakarta_city_flat: JAKARTA_CITY_FLAT,
   borobudur_heritage: BOROBUDUR_HERITAGE,
@@ -696,7 +760,7 @@ export const ROUTE_PROFILES: Record<string, RouteProfile> = {
   komodo_island: KOMODO_ISLAND,
   toba_lakeside: TOBA_LAKESIDE,
   wakatobi_coastal: WAKATOBI_COASTAL,
-  
+
   // Generic Templates
   generic_flat_city: GENERIC_FLAT_CITY,
   generic_rolling_hills: GENERIC_ROLLING_HILLS,
@@ -713,12 +777,12 @@ export const ROUTE_PROFILES: Record<string, RouteProfile> = {
  */
 export function getRouteProfile(
   routeProfileId: string | undefined,
-  surface: "road" | "trail" | "track"
+  surface: "road" | "trail" | "track",
 ): RouteProfile {
   if (routeProfileId && ROUTE_PROFILES[routeProfileId]) {
     return ROUTE_PROFILES[routeProfileId];
   }
-  
+
   // Fallback to appropriate generic profile
   if (surface === "track") return GENERIC_TRACK;
   if (surface === "trail") return GENERIC_FOREST_TRAIL;

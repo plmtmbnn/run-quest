@@ -4,6 +4,11 @@ import {
 } from "@/content/events/event-database";
 import { calculateDynamicEnvironmentModifiers } from "@/engine/environment/environment-modifier";
 import type { PrepScoreModifiers } from "@/engine/scoring/preparation-score";
+import {
+  applyFlowScoreDelta,
+  createInitialFlowState,
+  evaluateKmFlowDelta,
+} from "@/engine/simulation/flow-state-engine";
 import type { RunnerProfile } from "@/runner/runner-types";
 import type {
   Checkpoint,
@@ -15,11 +20,6 @@ import type {
   RaceSegment,
   SimulationState,
 } from "@/types/engine";
-import {
-  applyFlowScoreDelta,
-  createInitialFlowState,
-  evaluateKmFlowDelta,
-} from "@/engine/simulation/flow-state-engine";
 import type { SeededRandom } from "@/utils/random/seeded-random";
 
 /**

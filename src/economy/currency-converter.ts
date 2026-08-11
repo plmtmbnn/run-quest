@@ -5,9 +5,9 @@
  * Display-only conversion - internal economy always uses base units.
  */
 
+import { formatCompact } from "@/utils/format-compact";
 import type { CurrencyCode, CurrencyConfig } from "./currency-config";
 import { getCurrencyConfig } from "./currency-config";
-import { formatCompact } from "@/utils/format-compact";
 
 /**
  * Convert base units to display currency.

@@ -19,7 +19,7 @@ export interface Rival {
   };
 }
 
-export type RivalPersonality = 
+export type RivalPersonality =
   | "aggressive" // Fast starts, may burn out
   | "conservative" // Steady pace, strong finisher
   | "unpredictable" // Wild pacing swings
@@ -52,7 +52,10 @@ const RIVAL_NAMES = [
   { first: "Ethan", last: "Kim", nationality: "South Korea" },
 ];
 
-const PERSONALITIES: Record<RivalPersonality, { description: string; pacing: string }> = {
+const PERSONALITIES: Record<
+  RivalPersonality,
+  { description: string; pacing: string }
+> = {
   aggressive: {
     description: "Known for blistering starts that intimidate competitors",
     pacing: "front-runner",
@@ -89,11 +92,21 @@ const AVATAR_COLORS = [
 /**
  * Generate a random rival with specified difficulty
  */
-export function generateRival(difficulty: Difficulty, specialty?: Rival["specialty"]): Rival {
+export function generateRival(
+  difficulty: Difficulty,
+  specialty?: Rival["specialty"],
+): Rival {
   const nameData = RIVAL_NAMES[Math.floor(Math.random() * RIVAL_NAMES.length)];
-  const personalities: RivalPersonality[] = ["aggressive", "conservative", "unpredictable", "tactical", "consistent"];
-  const personality = personalities[Math.floor(Math.random() * personalities.length)];
-  
+  const personalities: RivalPersonality[] = [
+    "aggressive",
+    "conservative",
+    "unpredictable",
+    "tactical",
+    "consistent",
+  ];
+  const personality =
+    personalities[Math.floor(Math.random() * personalities.length)];
+
   // Skill level based on difficulty
   const skillLevelBase = {
     recreational: 0.3 + Math.random() * 0.2, // 0.3-0.5
@@ -101,10 +114,16 @@ export function generateRival(difficulty: Difficulty, specialty?: Rival["special
     elite: 0.7 + Math.random() * 0.2, // 0.7-0.9
     professional: 0.85 + Math.random() * 0.15, // 0.85-1.0
   }[difficulty];
-  
-  const specialties: Rival["specialty"][] = ["sprinter", "endurance", "tactical", "consistent"];
-  const chosenSpecialty = specialty || specialties[Math.floor(Math.random() * specialties.length)];
-  
+
+  const specialties: Rival["specialty"][] = [
+    "sprinter",
+    "endurance",
+    "tactical",
+    "consistent",
+  ];
+  const chosenSpecialty =
+    specialty || specialties[Math.floor(Math.random() * specialties.length)];
+
   return {
     id: `rival_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     name: `${nameData.first} ${nameData.last}`,
@@ -115,7 +134,8 @@ export function generateRival(difficulty: Difficulty, specialty?: Rival["special
     backstory: generateBackstory(chosenSpecialty, personality),
     appearance: {
       avatar: `${nameData.first.charAt(0)}${nameData.last.charAt(0)}`,
-      primaryColor: AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)],
+      primaryColor:
+        AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)],
     },
   };
 }
@@ -125,14 +145,14 @@ export function generateRival(difficulty: Difficulty, specialty?: Rival["special
  */
 export function generateRaceField(
   difficulty: Difficulty,
-  fieldSize: number = 50
+  fieldSize: number = 50,
 ): {
   rivals: Rival[];
   archRival: Rival | null;
   underdog: Rival | null;
 } {
   const rivals: Rival[] = [];
-  
+
   // Determine strength distribution
   const strengthConfig = {
     recreational: { strong: 3, medium: 15, weak: 32 },
@@ -140,12 +160,14 @@ export function generateRaceField(
     elite: { strong: 15, medium: 25, weak: 10 },
     professional: { strong: 25, medium: 20, weak: 5 },
   }[difficulty];
-  
+
   // Generate strong rivals (potential winners)
   for (let i = 0; i < strengthConfig.strong; i++) {
-    rivals.push(generateRival(difficulty, i % 2 === 0 ? "sprinter" : "endurance"));
+    rivals.push(
+      generateRival(difficulty, i % 2 === 0 ? "sprinter" : "endurance"),
+    );
   }
-  
+
   // Generate medium rivals
   const lowerDifficulty = {
     recreational: "recreational",
@@ -153,11 +175,11 @@ export function generateRaceField(
     elite: "competitive",
     professional: "elite",
   }[difficulty] as Difficulty;
-  
+
   for (let i = 0; i < strengthConfig.medium; i++) {
     rivals.push(generateRival(lowerDifficulty));
   }
-  
+
   // Generate weak rivals
   const lowestDifficulty = {
     recreational: "recreational",
@@ -165,30 +187,33 @@ export function generateRaceField(
     elite: "recreational",
     professional: "competitive",
   }[difficulty] as Difficulty;
-  
+
   for (let i = 0; i < strengthConfig.weak; i++) {
     rivals.push(generateRival(lowestDifficulty));
   }
-  
+
   // Shuffle to mix abilities
   rivals.sort(() => Math.random() - 0.5);
-  
+
   // Select arch rival (slightly better than player's level)
   const topRivals = rivals
     .filter((r) => r.skillLevel > 0.7)
     .sort((a, b) => b.skillLevel - a.skillLevel);
   const archRival = topRivals[0] || null;
-  
+
   // Select underdog (weaker but with unpredictable personality)
   const underdogs = rivals.filter(
-    (r) => r.skillLevel < 0.5 && r.personality === "unpredictable"
+    (r) => r.skillLevel < 0.5 && r.personality === "unpredictable",
   );
   const underdog = underdogs[0] || null;
-  
+
   return { rivals, archRival, underdog };
 }
 
-function generateBackstory(specialty: Rival["specialty"], personality: RivalPersonality): string {
+function generateBackstory(
+  specialty: Rival["specialty"],
+  personality: RivalPersonality,
+): string {
   const backstories = {
     sprinter: [
       "Former track athlete transitioning to road racing",
@@ -211,7 +236,7 @@ function generateBackstory(specialty: Rival["specialty"], personality: RivalPers
       "Predictable but impossible to break",
     ],
   };
-  
+
   const stories = backstories[specialty];
   return stories[Math.floor(Math.random() * stories.length)];
 }
@@ -219,7 +244,14 @@ function generateBackstory(specialty: Rival["specialty"], personality: RivalPers
 /**
  * Get trash talk for arch rival based on context
  */
-export function getTrashTalk(context: "pre-race" | "mid-race-leading" | "mid-race-behind" | "post-race-won" | "post-race-lost"): string {
+export function getTrashTalk(
+  context:
+    | "pre-race"
+    | "mid-race-leading"
+    | "mid-race-behind"
+    | "post-race-won"
+    | "post-race-lost",
+): string {
   const trashTalk = {
     "pre-race": [
       "Hope you're ready to eat dust today.",
@@ -248,7 +280,7 @@ export function getTrashTalk(context: "pre-race" | "mid-race-leading" | "mid-rac
       "Fair play. That was impressive.",
     ],
   };
-  
+
   const options = trashTalk[context];
   return options[Math.floor(Math.random() * options.length)];
 }
@@ -261,26 +293,26 @@ export function adjustRivalPacing(
   currentKm: number,
   totalDistance: number,
   playerPosition: number,
-  rivalPosition: number
+  rivalPosition: number,
 ): number {
   let paceModifier = 1.0;
-  
+
   switch (rival.personality) {
     case "aggressive":
       // Fast start, gradual slowdown
       paceModifier = currentKm < totalDistance * 0.3 ? 0.95 : 1.05;
       break;
-    
+
     case "conservative":
       // Slow start, strong finish
       paceModifier = currentKm > totalDistance * 0.7 ? 0.95 : 1.02;
       break;
-    
+
     case "unpredictable":
       // Random surges
       paceModifier = Math.random() > 0.7 ? 0.9 : 1.05;
       break;
-    
+
     case "tactical":
       // Matches player's position
       if (rivalPosition > playerPosition) {
@@ -289,12 +321,12 @@ export function adjustRivalPacing(
         paceModifier = 1.01; // Maintain lead
       }
       break;
-    
+
     case "consistent":
       // Perfect pacing
       paceModifier = 1.0;
       break;
   }
-  
+
   return paceModifier;
 }

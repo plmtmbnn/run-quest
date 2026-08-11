@@ -6,20 +6,23 @@ import {
   getRaceBonus,
   getWinBonus,
 } from "@/economy/sponsorship-engine";
+import { recordNewRunner, recordRaceFinished } from "@/lib/firebaseService";
 import { completeRace } from "@/runner/runner-engine";
-import { completeRace as completeSchedulingRace, getScheduleById } from "@/scheduling/race-calendar-engine";
+import {
+  completeRace as completeSchedulingRace,
+  getScheduleById,
+} from "@/scheduling/race-calendar-engine";
+import { useShopStore } from "@/shop/shop-store";
 import { storageRepository } from "@/storage/storage-repository";
 import type {
   PlayerStatistics,
   StoredDaily,
   StoredPlayer,
 } from "@/storage/types";
+import { useFirebaseStore } from "@/store/firebaseStore";
 import { useGameStore } from "@/store/game-store";
 import { usePreparationStore } from "@/store/preparation-store";
-import { useShopStore } from "@/shop/shop-store";
 import { useTimelineStore } from "@/store/timeline-store";
-import { recordNewRunner, recordRaceFinished } from "@/lib/firebaseService";
-import { useFirebaseStore } from "@/store/firebaseStore";
 import type { SimulationResult } from "@/types/engine";
 import { generateRunnerName } from "@/utils/name-generator";
 
@@ -225,7 +228,6 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     if (gameState) {
       // 1. Position calculated above
 
-
       // 2. Award race prize money (only if player didn't DNF/DNS)
       const currentChallenge = useGameStore.getState().currentChallenge;
       const entryFee = currentChallenge?.entryFee ?? 0;
@@ -300,14 +302,19 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
 
       // Update scheduling state to mark race as completed
       let updatedScheduling = gameState.scheduling;
-      const currentChallengeForScheduling = useGameStore.getState().currentChallenge;
+      const currentChallengeForScheduling =
+        useGameStore.getState().currentChallenge;
       if (
         currentChallengeForScheduling &&
         currentChallengeForScheduling.scheduleId &&
         gameState.scheduling
       ) {
-        const schedule = getScheduleById(currentChallengeForScheduling.scheduleId);
-        const raceId = schedule ? schedule.raceId : currentChallengeForScheduling.id;
+        const schedule = getScheduleById(
+          currentChallengeForScheduling.scheduleId,
+        );
+        const raceId = schedule
+          ? schedule.raceId
+          : currentChallengeForScheduling.id;
         updatedScheduling = completeSchedulingRace(
           gameState.scheduling,
           raceId,
@@ -317,19 +324,30 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       }
 
       // 5. Compute progression flag updates (career_wins, rating, reputation)
-      const isWin = position === 1 && result.outcome !== "dnf" && result.outcome !== "dns";
+      const isWin =
+        position === 1 && result.outcome !== "dnf" && result.outcome !== "dns";
       const isFinished = result.outcome !== "dnf" && result.outcome !== "dns";
       const currentChallengeTier = currentChallenge?.tier ?? "local";
 
       // Rating growth per tier (base values for each finishing position range)
-      const tierRatingGain: Record<string, { win: number; podium: number; top5: number; finish: number; dnf: number }> = {
-        local:         { win: 30,  podium: 15,  top5: 8,  finish: 3,  dnf: -3 },
-        regional:      { win: 50,  podium: 25,  top5: 12, finish: 5,  dnf: -5 },
-        state:         { win: 70,  podium: 35,  top5: 18, finish: 7,  dnf: -7 },
-        national:      { win: 100, podium: 50,  top5: 25, finish: 10, dnf: -10 },
-        international: { win: 150, podium: 75,  top5: 40, finish: 15, dnf: -15 },
+      const tierRatingGain: Record<
+        string,
+        {
+          win: number;
+          podium: number;
+          top5: number;
+          finish: number;
+          dnf: number;
+        }
+      > = {
+        local: { win: 30, podium: 15, top5: 8, finish: 3, dnf: -3 },
+        regional: { win: 50, podium: 25, top5: 12, finish: 5, dnf: -5 },
+        state: { win: 70, podium: 35, top5: 18, finish: 7, dnf: -7 },
+        national: { win: 100, podium: 50, top5: 25, finish: 10, dnf: -10 },
+        international: { win: 150, podium: 75, top5: 40, finish: 15, dnf: -15 },
       };
-      const gains = tierRatingGain[currentChallengeTier] ?? tierRatingGain.local;
+      const gains =
+        tierRatingGain[currentChallengeTier] ?? tierRatingGain.local;
       let ratingDelta: number;
       if (!isFinished) ratingDelta = gains.dnf;
       else if (position === 1) ratingDelta = gains.win;
@@ -358,109 +376,116 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
         flags: {
           ...prev!.flags,
           // Increment career_wins so sponsorship unlock checks work
-          career_wins: ((prev!.flags.career_wins as number) ?? 0) + (isWin ? 1 : 0),
+          career_wins:
+            ((prev!.flags.career_wins as number) ?? 0) + (isWin ? 1 : 0),
           // Organic rating growth from every race (positive for finishes, slight penalty for DNF)
-          rating: Math.max(0, ((prev!.flags.rating as number) ?? 1500) + ratingDelta),
+          rating: Math.max(
+            0,
+            ((prev!.flags.rating as number) ?? 1500) + ratingDelta,
+          ),
           // Reputation grows with podiums and wins
-          reputation: Math.max(0, ((prev!.flags.reputation as number) ?? 0) + repDelta),
+          reputation: Math.max(
+            0,
+            ((prev!.flags.reputation as number) ?? 0) + repDelta,
+          ),
         },
       }));
 
-    const history = storageRepository.loadHistory() || {
-      version: 1,
-      entries: [],
-    };
-    const entryExists = history.entries.some(
-      (e) => e.challengeId === challengeId,
-    );
+      const history = storageRepository.loadHistory() || {
+        version: 1,
+        entries: [],
+      };
+      const entryExists = history.entries.some(
+        (e) => e.challengeId === challengeId,
+      );
 
-    if (!entryExists) {
-      history.entries.push({
-        challengeId,
-        playedAt: new Date().toISOString(),
-        finishTime: result.finishTime,
-        grade: result.grade as "S" | "A" | "B" | "C" | "D" | "F",
-        headline,
-        score: result.score,
-        outcome: result.outcome,
-      });
-      storageRepository.saveHistory(history);
-    }
-
-    // 2. Update player stats
-    const stats = { ...player.statistics };
-    const distanceRun = result.outcome === "dns" ? 0 : distance;
-    if (result.outcome !== "dns") {
-      stats.totalRuns += 1;
-    }
-    stats.totalDistance = Number(
-      (stats.totalDistance + distanceRun).toFixed(2),
-    );
-
-    if (result.outcome !== "dnf" && result.outcome !== "dns") {
-      if (position === 1) {
-        stats.totalWins += 1;
+      if (!entryExists) {
+        history.entries.push({
+          challengeId,
+          playedAt: new Date().toISOString(),
+          finishTime: result.finishTime,
+          grade: result.grade as "S" | "A" | "B" | "C" | "D" | "F",
+          headline,
+          score: result.score,
+          outcome: result.outcome,
+        });
+        storageRepository.saveHistory(history);
       }
-    }
-    if (result.grade === "S") {
-      stats.perfectRuns += 1;
-    }
 
-    // Streak calculation
-    const lastPlayedStr = player.lastPlayedAt;
-    let newStreak = player.statistics.currentStreak;
+      // 2. Update player stats
+      const stats = { ...player.statistics };
+      const distanceRun = result.outcome === "dns" ? 0 : distance;
+      if (result.outcome !== "dns") {
+        stats.totalRuns += 1;
+      }
+      stats.totalDistance = Number(
+        (stats.totalDistance + distanceRun).toFixed(2),
+      );
 
-    if (lastPlayedStr) {
-      const lastPlayed = new Date(lastPlayedStr);
-      const today = new Date();
+      if (result.outcome !== "dnf" && result.outcome !== "dns") {
+        if (position === 1) {
+          stats.totalWins += 1;
+        }
+      }
+      if (result.grade === "S") {
+        stats.perfectRuns += 1;
+      }
 
-      // Zero out time details to compare calendar dates
-      lastPlayed.setHours(0, 0, 0, 0);
-      today.setHours(0, 0, 0, 0);
+      // Streak calculation
+      const lastPlayedStr = player.lastPlayedAt;
+      let newStreak = player.statistics.currentStreak;
 
-      const diffTime = today.getTime() - lastPlayed.getTime();
-      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+      if (lastPlayedStr) {
+        const lastPlayed = new Date(lastPlayedStr);
+        const today = new Date();
 
-      if (diffDays === 1) {
-        newStreak += 1;
-      } else if (diffDays > 1) {
+        // Zero out time details to compare calendar dates
+        lastPlayed.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
+
+        const diffTime = today.getTime() - lastPlayed.getTime();
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 1) {
+          newStreak += 1;
+        } else if (diffDays > 1) {
+          newStreak = 1;
+        }
+        // If diffDays is 0 (completed on same day), do not modify current streak
+      } else {
         newStreak = 1;
       }
-      // If diffDays is 0 (completed on same day), do not modify current streak
-    } else {
-      newStreak = 1;
+
+      stats.currentStreak = newStreak;
+      if (newStreak > stats.longestStreak) {
+        stats.longestStreak = newStreak;
+      }
+
+      const updatedPlayer: StoredPlayer = {
+        ...player,
+        lastPlayedAt: new Date().toISOString(),
+        statistics: stats,
+      };
+
+      storageRepository.savePlayer(updatedPlayer);
+      set({ player: updatedPlayer });
+
+      // 3. Mark daily challenge as completed
+      const daily: StoredDaily = {
+        version: 1,
+        challengeId,
+        status: "completed",
+        completedAt: new Date().toISOString(),
+        resultId: result.outcome,
+      };
+      storageRepository.saveDaily(daily);
+
+      // 4. Update Daily Board status completed marker
+      const boardStatus = storageRepository.loadDailyBoard();
+      if (boardStatus) {
+        boardStatus.completedEntryId = challengeId;
+        storageRepository.saveDailyBoard(boardStatus);
+      }
     }
-
-    stats.currentStreak = newStreak;
-    if (newStreak > stats.longestStreak) {
-      stats.longestStreak = newStreak;
-    }
-
-    const updatedPlayer: StoredPlayer = {
-      ...player,
-      lastPlayedAt: new Date().toISOString(),
-      statistics: stats,
-    };
-
-    storageRepository.savePlayer(updatedPlayer);
-    set({ player: updatedPlayer });
-
-    // 3. Mark daily challenge as completed
-    const daily: StoredDaily = {
-      version: 1,
-      challengeId,
-      status: "completed",
-      completedAt: new Date().toISOString(),
-      resultId: result.outcome,
-    };
-    storageRepository.saveDaily(daily);
-
-    // 4. Update Daily Board status completed marker
-    const boardStatus = storageRepository.loadDailyBoard();
-    if (boardStatus) {
-      boardStatus.completedEntryId = challengeId;
-      storageRepository.saveDailyBoard(boardStatus);
-  }
-  }
   },
 }));

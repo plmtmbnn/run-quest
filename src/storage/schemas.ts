@@ -152,4 +152,3 @@ export const StoredInventorySchema = z.object({
   nutrition: z.record(z.string(), z.number()),
   gear: z.record(z.string(), z.boolean()),
 });
-

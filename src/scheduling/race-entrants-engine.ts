@@ -3,7 +3,11 @@
  * Dynamically calculates registered runners for race occurrences
  */
 
-import type { CategoryId, RaceOccurrence, RaceTier } from "./race-calendar-types";
+import type {
+  CategoryId,
+  RaceOccurrence,
+  RaceTier,
+} from "./race-calendar-types";
 
 interface FieldSizeConfig {
   min: number;
@@ -21,7 +25,7 @@ const FIELD_SIZE_BY_TIER: Record<RaceTier, FieldSizeConfig> = {
 
 /**
  * Calculate number of entrants for a race based on days until race
- * 
+ *
  * @param race - The race occurrence
  * @param currentDayIndex - Current game day
  * @param raceDayIndex - Day the race occurs
@@ -30,9 +34,12 @@ const FIELD_SIZE_BY_TIER: Record<RaceTier, FieldSizeConfig> = {
 /**
  * Get maximum field size for a race or category
  */
-export function getMaxEntrantsForRace(race: RaceOccurrence, categoryId?: CategoryId): number {
+export function getMaxEntrantsForRace(
+  race: RaceOccurrence,
+  categoryId?: CategoryId,
+): number {
   if (categoryId && race.categories && race.categories.length > 0) {
-    const cat = race.categories.find(c => c.id === categoryId);
+    const cat = race.categories.find((c) => c.id === categoryId);
     if (cat?.maxEntrants) {
       return cat.maxEntrants;
     }
@@ -44,10 +51,9 @@ export function getMaxEntrantsForRace(race: RaceOccurrence, categoryId?: Categor
 
   if (race.categories && race.categories.length > 0) {
     const catId = categoryId || race.selectedCategoryId;
-    const selectedCategory = race.categories.find(
-      c => c.id === catId
-    ) || race.categories[0];
-    
+    const selectedCategory =
+      race.categories.find((c) => c.id === catId) || race.categories[0];
+
     if (selectedCategory?.maxEntrants) {
       return selectedCategory.maxEntrants;
     }
@@ -59,7 +65,7 @@ export function getMaxEntrantsForRace(race: RaceOccurrence, categoryId?: Categor
 
 /**
  * Calculate number of entrants for a race based on days until race
- * 
+ *
  * @param race - The race occurrence
  * @param currentDayIndex - Current game day
  * @param raceDayIndex - Day the race occurs
@@ -70,28 +76,28 @@ export function calculateDynamicEntrants(
   race: RaceOccurrence,
   currentDayIndex: number,
   raceDayIndex: number,
-  categoryId?: CategoryId
+  categoryId?: CategoryId,
 ): number {
   const daysUntilRace = raceDayIndex - currentDayIndex;
-  
+
   // Get max field size for this race or specific category
   const maxEntrants = getMaxEntrantsForRace(race, categoryId);
-  
+
   // If race has passed, return max
   if (daysUntilRace <= 0) return maxEntrants;
-  
+
   // Calculate base entrants from timeline
   const baseEntrants = calculateBaseEntrantsByTimeline(
     daysUntilRace,
     maxEntrants,
-    race.tier
+    race.tier,
   );
-  
+
   // Add seeded variance for consistency per category/race
   const seedKey = `${race.scheduleId}_${raceDayIndex}_${categoryId || race.selectedCategoryId || "default"}`;
   const variance = getSeededVariance(seedKey);
   const finalEntrants = Math.floor(baseEntrants * (1 + variance));
-  
+
   // Always ensure between 1 and maxEntrants
   return Math.max(1, Math.min(maxEntrants, finalEntrants));
 }
@@ -102,28 +108,28 @@ export function calculateDynamicEntrants(
 function calculateBaseEntrantsByTimeline(
   daysUntilRace: number,
   maxEntrants: number,
-  tier: RaceTier
+  tier: RaceTier,
 ): number {
   // Early bird period (30+ days out)
   if (daysUntilRace > 30) {
     const earlyBirdRate = tier === "international" ? 0.15 : 0.05;
     return Math.floor(maxEntrants * earlyBirdRate);
   }
-  
+
   // Registration curve (0-30 days)
-  const timeProgress = 1 - (daysUntilRace / 30); // 0 → 1 as race approaches
-  const baseFillRate = Math.pow(timeProgress, 1.5); // Exponential curve
-  
+  const timeProgress = 1 - daysUntilRace / 30; // 0 → 1 as race approaches
+  const baseFillRate = timeProgress ** 1.5; // Exponential curve
+
   // Last-minute rush (final 7 days for international, 3 days for others)
   const rushThreshold = tier === "international" ? 7 : 3;
   let fillRate = baseFillRate;
-  
+
   if (daysUntilRace <= rushThreshold) {
     const rushProgress = (rushThreshold - daysUntilRace) / rushThreshold;
     const rushBonus = rushProgress * 0.15; // Up to +15% in final rush
     fillRate = Math.min(1, baseFillRate + rushBonus);
   }
-  
+
   return Math.floor(maxEntrants * fillRate);
 }
 
@@ -135,10 +141,10 @@ function getSeededVariance(seedKey: string): number {
   // Simple hash function for seeding
   let hash = 0;
   for (let i = 0; i < seedKey.length; i++) {
-    hash = ((hash << 5) - hash) + seedKey.charCodeAt(i);
+    hash = (hash << 5) - hash + seedKey.charCodeAt(i);
     hash = hash & hash; // Convert to 32-bit integer
   }
-  
+
   // Convert hash to -0.1 to +0.1 range
   const normalized = (Math.abs(hash) % 1000) / 1000; // 0 to 1
   return (normalized - 0.5) * 0.2; // -0.1 to +0.1
@@ -146,7 +152,7 @@ function getSeededVariance(seedKey: string): number {
 
 /**
  * Get entrant count with "X registered" format
- * 
+ *
  * @param race - Race occurrence
  * @param currentDayIndex - Current game day
  * @param raceDayIndex - Race day
@@ -157,9 +163,14 @@ export function getEntrantsDisplay(
   race: RaceOccurrence,
   currentDayIndex: number,
   raceDayIndex: number,
-  categoryId?: CategoryId
+  categoryId?: CategoryId,
 ): string {
-  const current = calculateDynamicEntrants(race, currentDayIndex, raceDayIndex, categoryId);
+  const current = calculateDynamicEntrants(
+    race,
+    currentDayIndex,
+    raceDayIndex,
+    categoryId,
+  );
   const max = getMaxEntrantsForRace(race, categoryId);
   return `${current} / ${max}`;
 }
@@ -171,9 +182,14 @@ export function isRaceFull(
   race: RaceOccurrence,
   currentDayIndex: number,
   raceDayIndex: number,
-  categoryId?: CategoryId
+  categoryId?: CategoryId,
 ): boolean {
-  const current = calculateDynamicEntrants(race, currentDayIndex, raceDayIndex, categoryId);
+  const current = calculateDynamicEntrants(
+    race,
+    currentDayIndex,
+    raceDayIndex,
+    categoryId,
+  );
   const max = getMaxEntrantsForRace(race, categoryId);
   return current >= max || Boolean(race.isFull);
 }
@@ -185,10 +201,15 @@ export function isRaceNearlyFull(
   race: RaceOccurrence,
   currentDayIndex: number,
   raceDayIndex: number,
-  categoryId?: CategoryId
+  categoryId?: CategoryId,
 ): boolean {
   if (isRaceFull(race, currentDayIndex, raceDayIndex, categoryId)) return false;
-  const current = calculateDynamicEntrants(race, currentDayIndex, raceDayIndex, categoryId);
+  const current = calculateDynamicEntrants(
+    race,
+    currentDayIndex,
+    raceDayIndex,
+    categoryId,
+  );
   const max = getMaxEntrantsForRace(race, categoryId);
   const fillRate = current / max;
   return fillRate >= 0.8 && fillRate < 1.0;
@@ -201,9 +222,14 @@ export function getFillRatePercentage(
   race: RaceOccurrence,
   currentDayIndex: number,
   raceDayIndex: number,
-  categoryId?: CategoryId
+  categoryId?: CategoryId,
 ): number {
-  const current = calculateDynamicEntrants(race, currentDayIndex, raceDayIndex, categoryId);
+  const current = calculateDynamicEntrants(
+    race,
+    currentDayIndex,
+    raceDayIndex,
+    categoryId,
+  );
   const max = getMaxEntrantsForRace(race, categoryId);
   if (max === 0) return 0;
   return Math.min(100, Math.round((current / max) * 100));

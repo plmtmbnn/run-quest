@@ -62,7 +62,9 @@ export function evaluateKmFlowDelta(params: FlowKmEvaluationParams): {
 
   // Pace consistency: within 5% of target pace
   if (params.targetPaceSeconds > 0) {
-    const paceDiff = Math.abs(params.actualPaceSeconds - params.targetPaceSeconds);
+    const paceDiff = Math.abs(
+      params.actualPaceSeconds - params.targetPaceSeconds,
+    );
     const paceMargin = params.targetPaceSeconds * 0.05;
     if (paceDiff <= paceMargin) {
       delta += 5;

@@ -3,14 +3,14 @@
 
 import { create } from "zustand";
 import { storageRepository } from "@/storage/storage-repository";
-import type { Shoe, Nutrition, Gear } from "@/types/engine";
+import type { Gear, Nutrition, Shoe } from "@/types/engine";
+import { FULL_CATALOG } from "./shop-catalog";
 import { processPurchase } from "./shop-engine";
 import type {
   PlayerInventory,
   PurchaseResult,
   ShopCategory,
 } from "./shop-types";
-import { FULL_CATALOG } from "./shop-catalog";
 
 export const DEFAULT_INVENTORY: PlayerInventory = {
   shoes: { daily_trainer: true } as Record<Shoe, boolean>,
@@ -53,13 +53,16 @@ export const useShopStore = create<ShopState>((set, get) => ({
     if (get().isInitialized) return;
     const stored = storageRepository.loadInventory();
     if (stored) {
-      const storedNutrition = (stored.nutrition as Record<Nutrition, number>) || {};
+      const storedNutrition =
+        (stored.nutrition as Record<Nutrition, number>) || {};
       if (storedNutrition.water === undefined || storedNutrition.water === 0) {
         storedNutrition.water = 5;
       }
       set({
         inventory: {
-          shoes: (stored.shoes as Record<Shoe, boolean>) || { daily_trainer: true },
+          shoes: (stored.shoes as Record<Shoe, boolean>) || {
+            daily_trainer: true,
+          },
           nutrition: storedNutrition,
           gear: (stored.gear as Record<Gear, boolean>) || {},
         },
@@ -185,7 +188,8 @@ export const useShopStore = create<ShopState>((set, get) => ({
     FULL_CATALOG.forEach((item) => {
       if (item.category === "shoes") newInventory.shoes[item.id as Shoe] = true;
       if (item.category === "gear") newInventory.gear[item.id as Gear] = true;
-      if (item.category === "nutrition") newInventory.nutrition[item.id as Nutrition] = 99;
+      if (item.category === "nutrition")
+        newInventory.nutrition[item.id as Nutrition] = 99;
     });
 
     set({ inventory: newInventory, isInitialized: true });

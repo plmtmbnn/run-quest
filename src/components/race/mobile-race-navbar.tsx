@@ -1,10 +1,24 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Activity, Droplet, Brain, Heart, Gauge, ChevronDown, ChevronUp, Trophy, Apple, FastForward, TrendingUp, TrendingDown, AlertCircle } from "lucide-react";
+import {
+  Activity,
+  AlertCircle,
+  Apple,
+  Brain,
+  ChevronDown,
+  ChevronUp,
+  Droplet,
+  FastForward,
+  Gauge,
+  Heart,
+  TrendingDown,
+  TrendingUp,
+  Trophy,
+} from "lucide-react";
 import { useState } from "react";
-import type { PacingPlan } from "@/types/engine";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+import type { PacingPlan } from "@/types/engine";
 import { EnhancedStandings } from "./enhanced-standings";
 
 type NavSection = "stats" | "actions" | "leaderboard" | null;
@@ -64,7 +78,7 @@ export function MobileRaceNavbar({
 
   // Sort runners by distance
   const sortedRunners = [...runners].sort((a, b) => b.distance - a.distance);
-  const playerPosition = sortedRunners.findIndex(r => r.isPlayer) + 1;
+  const playerPosition = sortedRunners.findIndex((r) => r.isPlayer) + 1;
 
   // Format pace (stats.pace is in seconds per km)
   const formatPace = (seconds: number) => {
@@ -97,27 +111,62 @@ export function MobileRaceNavbar({
     .filter(([_, qty]) => qty > 0)
     .map(([key, qty]) => ({
       key,
-      ...NUTRITION_META[key] || { label: key, icon: "💊" },
+      ...(NUTRITION_META[key] || { label: key, icon: "💊" }),
       qty,
     }))
     .slice(0, 6); // Show up to 6 types
 
   // Pacing strategy options - all tactical choices from engine.PacingPlan
-  const PACING_OPTIONS: { value: PacingPlan; label: string; desc: string; icon: string }[] = [
+  const PACING_OPTIONS: {
+    value: PacingPlan;
+    label: string;
+    desc: string;
+    icon: string;
+  }[] = [
     { value: "jog", label: "Jog", desc: "Conserve fatigue", icon: "🐢" },
     { value: "cruise", label: "Cruise", desc: "Steady pace", icon: "🏃" },
     { value: "push", label: "Push", desc: "Attack segments", icon: "⚡" },
     { value: "sprint", label: "Sprint", desc: "Max speed kick!", icon: "🔥" },
-    { value: "negative_split", label: "Negative Split", desc: "Slow start, fast finish", icon: "🔄" },
-    { value: "steady", label: "Steady", desc: "Even effort throughout", icon: "➖" },
-    { value: "aggressive", label: "Aggressive", desc: "Early intensity", icon: "🔥" },
-    { value: "conservative", label: "Conservative", desc: "Save energy for end", icon: "🛡️" },
+    {
+      value: "negative_split",
+      label: "Negative Split",
+      desc: "Slow start, fast finish",
+      icon: "🔄",
+    },
+    {
+      value: "steady",
+      label: "Steady",
+      desc: "Even effort throughout",
+      icon: "➖",
+    },
+    {
+      value: "aggressive",
+      label: "Aggressive",
+      desc: "Early intensity",
+      icon: "🔥",
+    },
+    {
+      value: "conservative",
+      label: "Conservative",
+      desc: "Save energy for end",
+      icon: "🛡️",
+    },
   ];
 
   // Simulation speed options with proper numeric literals
   const SPEED_OPTIONS = [
-    { value: 1 as const, label: "1x Slow", icon: "🐢", desc: "20s/km strategic" },
-    { value: 2 as const, label: "2x Normal", icon: "⚖️", desc: "10s/km balanced" },
+    {
+      value: 1 as const,
+      label: "1x Slow",
+      icon: "🐢",
+      desc: "20s/km strategic",
+    },
+    {
+      value: 2 as const,
+      label: "2x Normal",
+      icon: "⚖️",
+      desc: "10s/km balanced",
+    },
     { value: 5 as const, label: "5x Fast", icon: "⚡", desc: "5s/km reactive" },
   ];
 
@@ -142,9 +191,9 @@ export function MobileRaceNavbar({
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Activity className="w-4 h-4 text-emerald-500" />
-                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                      {t("race.mobile_navbar.energy" as TranslationKey)}
-                    </span>
+                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                          {t("race.mobile_navbar.energy" as TranslationKey)}
+                        </span>
                       </div>
                       <span className="text-xs font-mono font-bold text-slate-900 dark:text-white">
                         {stats.energy.toFixed(0)}%
@@ -153,11 +202,11 @@ export function MobileRaceNavbar({
                     <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                       <motion.div
                         className={`h-full ${
-                          stats.energy > 60 
-                            ? 'bg-emerald-500' 
-                            : stats.energy > 30 
-                            ? 'bg-amber-500' 
-                            : 'bg-rose-500'
+                          stats.energy > 60
+                            ? "bg-emerald-500"
+                            : stats.energy > 30
+                              ? "bg-amber-500"
+                              : "bg-rose-500"
                         }`}
                         style={{ width: `${stats.energy}%` }}
                         transition={{ duration: 0.3 }}
@@ -181,11 +230,11 @@ export function MobileRaceNavbar({
                     <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                       <motion.div
                         className={`h-full ${
-                          stats.hydration > 60 
-                            ? 'bg-blue-500' 
-                            : stats.hydration > 30 
-                            ? 'bg-amber-500' 
-                            : 'bg-rose-500'
+                          stats.hydration > 60
+                            ? "bg-blue-500"
+                            : stats.hydration > 30
+                              ? "bg-amber-500"
+                              : "bg-rose-500"
                         }`}
                         style={{ width: `${stats.hydration}%` }}
                         transition={{ duration: 0.3 }}
@@ -209,11 +258,11 @@ export function MobileRaceNavbar({
                     <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                       <motion.div
                         className={`h-full ${
-                          stats.focus > 60 
-                            ? 'bg-purple-500' 
-                            : stats.focus > 30 
-                            ? 'bg-amber-500' 
-                            : 'bg-rose-500'
+                          stats.focus > 60
+                            ? "bg-purple-500"
+                            : stats.focus > 30
+                              ? "bg-amber-500"
+                              : "bg-rose-500"
                         }`}
                         style={{ width: `${stats.focus}%` }}
                         transition={{ duration: 0.3 }}
@@ -231,7 +280,8 @@ export function MobileRaceNavbar({
                         </span>
                       </div>
                       <span className="text-xs font-mono font-bold text-slate-900 dark:text-white">
-                        {stats.heartRate.toFixed(0)} {t("race.mobile_navbar.bpm" as TranslationKey)}
+                        {stats.heartRate.toFixed(0)}{" "}
+                        {t("race.mobile_navbar.bpm" as TranslationKey)}
                       </span>
                     </div>
                   </div>
@@ -242,7 +292,9 @@ export function MobileRaceNavbar({
                       <div className="flex items-center gap-2">
                         <Gauge className="w-4 h-4 text-indigo-500" />
                         <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                          {t("race.mobile_navbar.current_pace" as TranslationKey)}
+                          {t(
+                            "race.mobile_navbar.current_pace" as TranslationKey,
+                          )}
                         </span>
                       </div>
                       <span className="text-xs font-mono font-bold text-slate-900 dark:text-white">
@@ -260,7 +312,9 @@ export function MobileRaceNavbar({
                   <div>
                     <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-2">
                       <FastForward className="w-4 h-4 text-amber-500" />
-                      {t("race.mobile_navbar.simulation_speed" as TranslationKey)}
+                      {t(
+                        "race.mobile_navbar.simulation_speed" as TranslationKey,
+                      )}
                     </h4>
                     <div className="flex gap-2">
                       {SPEED_OPTIONS.map((option) => (
@@ -270,14 +324,17 @@ export function MobileRaceNavbar({
                           disabled={isFinished || isPaused}
                           className={`
                             px-3 py-2 rounded-lg text-xs font-bold transition-all active:scale-95
-                            ${simSpeed === option.value
-                              ? 'bg-amber-500 text-white shadow-sm' 
-                              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                            ${
+                              simSpeed === option.value
+                                ? "bg-amber-500 text-white shadow-sm"
+                                : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
                             }
                             disabled:opacity-50 disabled:cursor-not-allowed
                           `}
                         >
-                          <span className="text-base block mb-0.5">{option.icon}</span>
+                          <span className="text-base block mb-0.5">
+                            {option.icon}
+                          </span>
                           <span>{option.label}</span>
                         </button>
                       ))}
@@ -288,7 +345,9 @@ export function MobileRaceNavbar({
                   <div className="space-y-2">
                     <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
                       <Gauge className="w-4 h-4 text-indigo-500" />
-                      {t("race.mobile_navbar.pacing_strategy" as TranslationKey)}
+                      {t(
+                        "race.mobile_navbar.pacing_strategy" as TranslationKey,
+                      )}
                     </h4>
                     <div className="grid grid-cols-2 gap-2">
                       {PACING_OPTIONS.map((option) => (
@@ -298,16 +357,21 @@ export function MobileRaceNavbar({
                           disabled={isFinished || isPaused}
                           className={`
                             px-3 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95
-                            ${currentPacing === option.value
-                              ? 'bg-emerald-500 text-white shadow-lg ring-2 ring-emerald-400'
-                              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                            ${
+                              currentPacing === option.value
+                                ? "bg-emerald-500 text-white shadow-lg ring-2 ring-emerald-400"
+                                : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
                             }
                             disabled:opacity-50 disabled:cursor-not-allowed
                           `}
                         >
                           <div className="text-lg mb-1">{option.icon}</div>
-                          <div className="font-bold text-sm">{option.label}</div>
-                          <div className="text-[9px] opacity-70 mt-0.5">{option.desc}</div>
+                          <div className="font-bold text-sm">
+                            {option.label}
+                          </div>
+                          <div className="text-[9px] opacity-70 mt-0.5">
+                            {option.desc}
+                          </div>
                         </button>
                       ))}
                     </div>
@@ -320,7 +384,7 @@ export function MobileRaceNavbar({
                     </h4>
                     {availableNutrition.length > 0 ? (
                       <div className="grid grid-cols-3 gap-2">
-                        {availableNutrition.map(item => (
+                        {availableNutrition.map((item) => (
                           <button
                             key={item.key}
                             onClick={() => onConsumeItem(item.key)}
@@ -328,7 +392,7 @@ export function MobileRaceNavbar({
                             className={`
                               px-3 py-2 rounded-xl text-xs font-bold transition-all active:scale-95
                               bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300
-                              ${isFinished || isPaused ? 'opacity-50 cursor-not-allowed' : ''}
+                              ${isFinished || isPaused ? "opacity-50 cursor-not-allowed" : ""}
                             `}
                           >
                             <div className="text-base mb-1">{item.icon}</div>
@@ -341,7 +405,9 @@ export function MobileRaceNavbar({
                       </div>
                     ) : (
                       <div className="bg-slate-100 dark:bg-slate-800/30 rounded-lg p-4 text-center">
-                        <span className="text-xs text-slate-400 dark:text-slate-500">No consumables available</span>
+                        <span className="text-xs text-slate-400 dark:text-slate-500">
+                          No consumables available
+                        </span>
                       </div>
                     )}
                   </div>
@@ -351,8 +417,8 @@ export function MobileRaceNavbar({
               {/* Leaderboard Panel - Enhanced Standings */}
               {activeSection === "leaderboard" && (
                 <div className="space-y-2">
-                  <EnhancedStandings 
-                    runners={sortedRunners} 
+                  <EnhancedStandings
+                    runners={sortedRunners}
                     raceDistance={raceDistance}
                     showMobileVersion={true}
                   />
@@ -392,14 +458,19 @@ export function MobileRaceNavbar({
             onClick={() => toggleSection("stats")}
             className={`
               flex flex-col items-center justify-center py-3 transition-all active:scale-95
-              ${activeSection === "stats"
-                ? 'bg-emerald-500/10 dark:bg-emerald-500/20 border-t-2 border-emerald-500'
-                : 'bg-transparent border-t-2 border-transparent'
+              ${
+                activeSection === "stats"
+                  ? "bg-emerald-500/10 dark:bg-emerald-500/20 border-t-2 border-emerald-500"
+                  : "bg-transparent border-t-2 border-transparent"
               }
             `}
           >
-            <Activity className={`w-5 h-5 mb-1 ${activeSection === "stats" ? 'text-emerald-500' : 'text-slate-500 dark:text-slate-400'}`} />
-            <span className={`text-[10px] font-bold ${activeSection === "stats" ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-400'}`}>
+            <Activity
+              className={`w-5 h-5 mb-1 ${activeSection === "stats" ? "text-emerald-500" : "text-slate-500 dark:text-slate-400"}`}
+            />
+            <span
+              className={`text-[10px] font-bold ${activeSection === "stats" ? "text-emerald-600 dark:text-emerald-400" : "text-slate-600 dark:text-slate-400"}`}
+            >
               {t("race.mobile_navbar.stats" as TranslationKey)}
             </span>
             {activeSection === "stats" ? (
@@ -413,14 +484,19 @@ export function MobileRaceNavbar({
             onClick={() => toggleSection("actions")}
             className={`
               flex flex-col items-center justify-center py-3 transition-all active:scale-95
-              ${activeSection === "actions"
-                ? 'bg-indigo-500/10 dark:bg-indigo-500/20 border-t-2 border-indigo-500'
-                : 'bg-transparent border-t-2 border-transparent'
+              ${
+                activeSection === "actions"
+                  ? "bg-indigo-500/10 dark:bg-indigo-500/20 border-t-2 border-indigo-500"
+                  : "bg-transparent border-t-2 border-transparent"
               }
             `}
           >
-            <Apple className={`w-5 h-5 mb-1 ${activeSection === "actions" ? 'text-indigo-500' : 'text-slate-500 dark:text-slate-400'}`} />
-            <span className={`text-[10px] font-bold ${activeSection === "actions" ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-400'}`}>
+            <Apple
+              className={`w-5 h-5 mb-1 ${activeSection === "actions" ? "text-indigo-500" : "text-slate-500 dark:text-slate-400"}`}
+            />
+            <span
+              className={`text-[10px] font-bold ${activeSection === "actions" ? "text-indigo-600 dark:text-indigo-400" : "text-slate-600 dark:text-slate-400"}`}
+            >
               {t("race.mobile_navbar.actions" as TranslationKey)}
             </span>
             {activeSection === "actions" ? (
@@ -434,14 +510,19 @@ export function MobileRaceNavbar({
             onClick={() => toggleSection("leaderboard")}
             className={`
               flex flex-col items-center justify-center py-3 transition-all active:scale-95
-              ${activeSection === "leaderboard"
-                ? 'bg-amber-500/10 dark:bg-amber-500/20 border-t-2 border-amber-500'
-                : 'bg-transparent border-t-2 border-transparent'
+              ${
+                activeSection === "leaderboard"
+                  ? "bg-amber-500/10 dark:bg-amber-500/20 border-t-2 border-amber-500"
+                  : "bg-transparent border-t-2 border-transparent"
               }
             `}
           >
-            <Trophy className={`w-5 h-5 mb-1 ${activeSection === "leaderboard" ? 'text-amber-500' : 'text-slate-500 dark:text-slate-400'}`} />
-            <span className={`text-[10px] font-bold ${activeSection === "leaderboard" ? 'text-amber-600 dark:text-amber-400' : 'text-slate-600 dark:text-slate-400'}`}>
+            <Trophy
+              className={`w-5 h-5 mb-1 ${activeSection === "leaderboard" ? "text-amber-500" : "text-slate-500 dark:text-slate-400"}`}
+            />
+            <span
+              className={`text-[10px] font-bold ${activeSection === "leaderboard" ? "text-amber-600 dark:text-amber-400" : "text-slate-600 dark:text-slate-400"}`}
+            >
               {t("race.mobile_navbar.board" as TranslationKey)}
             </span>
             {activeSection === "leaderboard" ? (

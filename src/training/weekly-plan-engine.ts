@@ -1,6 +1,6 @@
 /**
  * Weekly Plan Engine (Sprint 30 - Task 3)
- * 
+ *
  * Core logic for generating, validating, and managing weekly training plans.
  * Auto-generates plans every Monday based on runner state and upcoming races.
  */
@@ -8,23 +8,23 @@
 import { v4 as uuidv4 } from "uuid";
 import type { RunnerState } from "../runner/runner-types";
 import type { RaceOccurrence } from "../scheduling/race-calendar-types";
+import {
+  getActivityEnergyCost,
+  getTemplateById,
+  isHardActivity,
+  PLAN_TEMPLATES,
+  RECOVERY_TEMPLATE,
+  selectOptimalTemplate,
+} from "./plan-templates";
 import type {
-  WeeklyPlan,
+  AdherenceMetrics,
+  CoachFeedbackMessage,
+  DailyActivity,
   PlannedActivity,
   PlanTemplate,
   PlanValidation,
-  AdherenceMetrics,
-  DailyActivity,
-  CoachFeedbackMessage,
+  WeeklyPlan,
 } from "./training-types";
-import {
-  PLAN_TEMPLATES,
-  getTemplateById,
-  selectOptimalTemplate,
-  isHardActivity,
-  getActivityEnergyCost,
-  RECOVERY_TEMPLATE,
-} from "./plan-templates";
 
 /**
  * Generate a weekly training plan based on current runner state
@@ -33,24 +33,28 @@ export function generateWeeklyPlan(
   startDayIndex: number,
   runnerState: RunnerState,
   upcomingRaces: RaceOccurrence[] = [],
-  templateId?: string
+  templateId?: string,
 ): WeeklyPlan {
   const weekStartDay = getWeekStartDay(startDayIndex);
   const weekEndDay = weekStartDay + 6;
 
   // Check if there's a race in the next 14 days
   const hasUpcomingRace = upcomingRaces.some(
-    (race) => race.dayIndex >= weekStartDay && race.dayIndex <= weekStartDay + 14
+    (race) =>
+      race.dayIndex >= weekStartDay && race.dayIndex <= weekStartDay + 14,
   );
 
   // Check if there was a race in the past 7 days
   const hadRecentRace = upcomingRaces.some(
-    (race) => race.isCompleted && race.dayIndex >= weekStartDay - 7 && race.dayIndex < weekStartDay
+    (race) =>
+      race.isCompleted &&
+      race.dayIndex >= weekStartDay - 7 &&
+      race.dayIndex < weekStartDay,
   );
 
   // Select appropriate template
   let template: PlanTemplate;
-  
+
   if (templateId) {
     const requestedTemplate = getTemplateById(templateId);
     if (requestedTemplate) {
@@ -61,14 +65,14 @@ export function generateWeeklyPlan(
       const baseTemplate = selectOptimalTemplate(
         runnerState.profile.currentFitness || 30,
         runnerState.profile.currentFatigue || 10,
-        false
+        false,
       );
       template = createTaperTemplate(baseTemplate);
     } else {
       template = selectOptimalTemplate(
         runnerState.profile.currentFitness || 30,
         runnerState.profile.currentFatigue || 10,
-        false
+        false,
       );
     }
   } else if (hadRecentRace) {
@@ -79,7 +83,7 @@ export function generateWeeklyPlan(
     const baseTemplate = selectOptimalTemplate(
       runnerState.profile.currentFitness || 30,
       runnerState.profile.currentFatigue || 10,
-      false
+      false,
     );
     template = createTaperTemplate(baseTemplate);
   } else {
@@ -87,7 +91,7 @@ export function generateWeeklyPlan(
     template = selectOptimalTemplate(
       runnerState.profile.currentFitness || 30,
       runnerState.profile.currentFatigue || 10,
-      false
+      false,
     );
   }
 
@@ -99,7 +103,7 @@ export function generateWeeklyPlan(
       activity,
       isCompleted: false,
       energyCost: getActivityEnergyCost(activity),
-    })
+    }),
   );
 
   // Create the weekly plan
@@ -117,7 +121,11 @@ export function generateWeeklyPlan(
 
   // Check for races and apply race-aware adjustments
   for (const race of upcomingRaces) {
-    if (isTaperWeek(startDayIndex, race) || isRaceWeek(startDayIndex, race) || isRecoveryWeek(startDayIndex, race)) {
+    if (
+      isTaperWeek(startDayIndex, race) ||
+      isRaceWeek(startDayIndex, race) ||
+      isRecoveryWeek(startDayIndex, race)
+    ) {
       const adjustedPlan = adjustPlanForRace(plan, race);
       plan.plannedActivities = adjustedPlan.plannedActivities;
       break;
@@ -126,7 +134,12 @@ export function generateWeeklyPlan(
 
   // Validate and add feedback
   const validation = validateWeeklyPlan(plan, runnerState);
-  plan.coachFeedback = generatePlanFeedback(plan, validation, hasUpcomingRace, hadRecentRace);
+  plan.coachFeedback = generatePlanFeedback(
+    plan,
+    validation,
+    hasUpcomingRace,
+    hadRecentRace,
+  );
 
   return plan;
 }
@@ -168,7 +181,7 @@ export function getWeekStartDay(currentDayIndex: number): number {
  */
 export function shouldGenerateNewPlan(
   currentDayIndex: number,
-  lastPlanStartDay: number
+  lastPlanStartDay: number,
 ): boolean {
   const currentWeekStart = getWeekStartDay(currentDayIndex);
   return currentWeekStart > lastPlanStartDay;
@@ -179,7 +192,7 @@ export function shouldGenerateNewPlan(
  */
 export function validateWeeklyPlan(
   plan: WeeklyPlan,
-  runnerState: RunnerState
+  runnerState: RunnerState,
 ): PlanValidation {
   const warnings: string[] = [];
   const suggestions: string[] = [];
@@ -269,7 +282,7 @@ export function generatePlanFeedback(
   plan: WeeklyPlan,
   validation: PlanValidation,
   hasUpcomingRace: boolean = false,
-  hadRecentRace: boolean = false
+  hadRecentRace: boolean = false,
 ): CoachFeedbackMessage[] {
   const feedback: CoachFeedbackMessage[] = [];
 
@@ -299,7 +312,7 @@ export function generatePlanFeedback(
  */
 export function calculateAdherence(
   plan: WeeklyPlan,
-  currentDayIndex?: number
+  currentDayIndex?: number,
 ): AdherenceMetrics {
   const totalPlanned = plan.plannedActivities.length;
   const completed = plan.plannedActivities.filter((p) => p.isCompleted);
@@ -307,16 +320,14 @@ export function calculateAdherence(
   const swapped = completed.filter((p) => p.reason === "swapped").length;
   const effectiveDayIndex = currentDayIndex ?? plan.weekStartDay + 7;
   const missed = plan.plannedActivities.filter(
-    (p) => !p.isCompleted && p.dayIndex < effectiveDayIndex
+    (p) => !p.isCompleted && p.dayIndex < effectiveDayIndex,
   ).length;
 
-  const completionRate = totalPlanned > 0 
-    ? Math.round((totalCompleted / totalPlanned) * 100) 
-    : 0;
+  const completionRate =
+    totalPlanned > 0 ? Math.round((totalCompleted / totalPlanned) * 100) : 0;
 
-  const substitutionRate = totalCompleted > 0 
-    ? Math.round((swapped / totalCompleted) * 100) 
-    : 0;
+  const substitutionRate =
+    totalCompleted > 0 ? Math.round((swapped / totalCompleted) * 100) : 0;
 
   return {
     completionRate,
@@ -333,7 +344,7 @@ export function calculateAdherence(
 export function swapActivity(
   plan: WeeklyPlan,
   dayIndex: number,
-  newActivity: DailyActivity
+  newActivity: DailyActivity,
 ): WeeklyPlan {
   const updatedActivities = plan.plannedActivities.map((pa) => {
     if (pa.dayIndex === dayIndex) {
@@ -359,7 +370,7 @@ export function swapActivity(
 export function completeActivity(
   plan: WeeklyPlan,
   dayIndex: number,
-  actualActivity: DailyActivity
+  actualActivity: DailyActivity,
 ): WeeklyPlan {
   const updatedActivities = plan.plannedActivities.map((pa) => {
     if (pa.dayIndex === dayIndex) {
@@ -392,11 +403,13 @@ export function completeActivity(
  */
 export function getTodaysPlannedActivity(
   plan: WeeklyPlan | null,
-  currentDayIndex: number
+  currentDayIndex: number,
 ): PlannedActivity | null {
   if (!plan) return null;
 
-  return plan.plannedActivities.find((pa) => pa.dayIndex === currentDayIndex) || null;
+  return (
+    plan.plannedActivities.find((pa) => pa.dayIndex === currentDayIndex) || null
+  );
 }
 
 /**
@@ -416,31 +429,61 @@ export function isRaceWeek(dayIndex: number, race: RaceOccurrence): boolean {
 /**
  * Check if race was within past 3 days (recovery week)
  */
-export function isRecoveryWeek(dayIndex: number, race: RaceOccurrence): boolean {
-  return race.isCompleted && race.dayIndex < dayIndex && race.dayIndex >= dayIndex - 3;
+export function isRecoveryWeek(
+  dayIndex: number,
+  race: RaceOccurrence,
+): boolean {
+  return (
+    race.isCompleted &&
+    race.dayIndex < dayIndex &&
+    race.dayIndex >= dayIndex - 3
+  );
 }
 
 /**
  * Adjust plan activities based on race timing
  */
-export function adjustPlanForRace(plan: WeeklyPlan, race: RaceOccurrence): WeeklyPlan {
+export function adjustPlanForRace(
+  plan: WeeklyPlan,
+  race: RaceOccurrence,
+): WeeklyPlan {
   const weekStartDay = plan.weekStartDay;
   const updatedActivities = plan.plannedActivities.map((pa) => {
     const dayDiff = race.dayIndex - pa.dayIndex;
     if (isRaceWeek(pa.dayIndex, race)) {
       // Race day: mostly rest with light tempo if needed
-      return { ...pa, activity: "Easy Run" as DailyActivity, energyCost: getActivityEnergyCost("Easy Run") };
+      return {
+        ...pa,
+        activity: "Easy Run" as DailyActivity,
+        energyCost: getActivityEnergyCost("Easy Run"),
+      };
     }
     if (isTaperWeek(pa.dayIndex, race) && !isRaceWeek(pa.dayIndex, race)) {
       // Taper week: easy runs and recovery
-      if (pa.activity === "Interval Training" || pa.activity === "Hill Repeats" || pa.activity === "Long Run") {
-        return { ...pa, activity: "Easy Run" as DailyActivity, energyCost: getActivityEnergyCost("Easy Run") };
+      if (
+        pa.activity === "Interval Training" ||
+        pa.activity === "Hill Repeats" ||
+        pa.activity === "Long Run"
+      ) {
+        return {
+          ...pa,
+          activity: "Easy Run" as DailyActivity,
+          energyCost: getActivityEnergyCost("Easy Run"),
+        };
       }
-      return { ...pa, activity: "Easy Run" as DailyActivity, energyCost: getActivityEnergyCost("Easy Run") };
+      return {
+        ...pa,
+        activity: "Easy Run" as DailyActivity,
+        energyCost: getActivityEnergyCost("Easy Run"),
+      };
     }
     if (isRecoveryWeek(pa.dayIndex, race)) {
       // Recovery week after race: more rest, easy runs
-      return { ...pa, activity: "Easy Run" as DailyActivity, energyCost: getActivityEnergyCost("Easy Run") };
+      return {
+        ...pa,
+        activity: "Easy Run" as DailyActivity,
+        energyCost: getActivityEnergyCost("Easy Run"),
+      };
     }
     return pa;
   });
@@ -454,6 +497,9 @@ export function adjustPlanForRace(plan: WeeklyPlan, race: RaceOccurrence): Weekl
 /**
  * Check if a day is in the current week
  */
-export function isInCurrentWeek(dayIndex: number, weekStartDay: number): boolean {
+export function isInCurrentWeek(
+  dayIndex: number,
+  weekStartDay: number,
+): boolean {
   return dayIndex >= weekStartDay && dayIndex <= weekStartDay + 6;
 }

@@ -32,7 +32,9 @@ export function getBreathingCategory(heartRateBpm: number): {
   return { category: "gasping", breathsPerMin: 36 };
 }
 
-export function createInitialBreathingState(heartRateBpm: number = 130): BreathingState {
+export function createInitialBreathingState(
+  heartRateBpm: number = 130,
+): BreathingState {
   const { category, breathsPerMin } = getBreathingCategory(heartRateBpm);
   return {
     category,
@@ -54,10 +56,14 @@ export function updateBreathingState(
 ): BreathingState {
   const { category, breathsPerMin } = getBreathingCategory(heartRateBpm);
   const cooldownDurationMs = 120000; // 2 minutes
-  const timeSinceLastControl = currentState.lastControlledAtTime > 0
-    ? currentTimeMs - currentState.lastControlledAtTime
-    : cooldownDurationMs;
-  const cooldownRemainingMs = Math.max(0, cooldownDurationMs - timeSinceLastControl);
+  const timeSinceLastControl =
+    currentState.lastControlledAtTime > 0
+      ? currentTimeMs - currentState.lastControlledAtTime
+      : cooldownDurationMs;
+  const cooldownRemainingMs = Math.max(
+    0,
+    cooldownDurationMs - timeSinceLastControl,
+  );
 
   // Can control when HR > 180 or labored/gasping and cooldown has expired
   const canControl =

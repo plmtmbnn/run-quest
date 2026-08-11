@@ -1,10 +1,9 @@
 import { motion } from "framer-motion";
-import { Brain, Trophy, Clock, Wind, Sparkles } from "lucide-react";
-import { useTranslation, type TranslationKey } from "@/i18n/use-translation";
-import type { DailyChallenge } from "@/types/engine";
-import type { Preparation } from "@/types/engine";
+import { Brain, Clock, Sparkles, Trophy, Wind } from "lucide-react";
+import { formatPace, predictRaceOutcome } from "@/coach/race-prediction";
+import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import type { RunnerProfile } from "@/runner/runner-types";
-import { predictRaceOutcome, formatPace } from "@/coach/race-prediction";
+import type { DailyChallenge, Preparation } from "@/types/engine";
 
 interface CoachPredictionPanelProps {
   challenge: DailyChallenge;
@@ -12,16 +11,16 @@ interface CoachPredictionPanelProps {
   runnerProfile: RunnerProfile;
 }
 
-export function CoachPredictionPanel({ 
+export function CoachPredictionPanel({
   challenge,
   preparation,
-  runnerProfile
+  runnerProfile,
 }: CoachPredictionPanelProps) {
   const { t } = useTranslation();
-  
+
   // Generate prediction
   const prediction = predictRaceOutcome(runnerProfile, challenge, preparation);
-  
+
   // Get probability color based on win chance
   let probColor: string;
   if (prediction.winProbability >= 70) {
@@ -31,7 +30,7 @@ export function CoachPredictionPanel({
   } else {
     probColor = "text-rose-400";
   }
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -40,7 +39,7 @@ export function CoachPredictionPanel({
     >
       {/* Decorative background */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-400/10 rounded-full blur-3xl pointer-events-none" />
-      
+
       <div className="relative z-10">
         {/* Header */}
         <div className="flex items-start gap-3 mb-6">
@@ -94,7 +93,8 @@ export function CoachPredictionPanel({
             </span>
           </div>
           <p className="text-sm font-mono font-bold text-lg">
-            {formatPace(prediction.suggestedPaceRange.min)} – {formatPace(prediction.suggestedPaceRange.max)} min/km
+            {formatPace(prediction.suggestedPaceRange.min)} –{" "}
+            {formatPace(prediction.suggestedPaceRange.max)} min/km
           </p>
           <p className="text-xs mt-1 opacity-75">
             {t("coach.pacing_suggestion" as TranslationKey)}
@@ -128,20 +128,36 @@ export function CoachPredictionPanel({
           </p>
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
-              <div className="text-xs opacity-75 mb-1">{t("coach.fitness" as TranslationKey)}</div>
-              <div className="text-sm font-bold">{prediction.confidenceFactors.fitness}</div>
+              <div className="text-xs opacity-75 mb-1">
+                {t("coach.fitness" as TranslationKey)}
+              </div>
+              <div className="text-sm font-bold">
+                {prediction.confidenceFactors.fitness}
+              </div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
-              <div className="text-xs opacity-75 mb-1">{t("coach.fatigue" as TranslationKey)}</div>
-              <div className="text-sm font-bold">{prediction.confidenceFactors.fatigue}</div>
+              <div className="text-xs opacity-75 mb-1">
+                {t("coach.fatigue" as TranslationKey)}
+              </div>
+              <div className="text-sm font-bold">
+                {prediction.confidenceFactors.fatigue}
+              </div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
-              <div className="text-xs opacity-75 mb-1">{t("coach.experience" as TranslationKey)}</div>
-              <div className="text-sm font-bold">{prediction.confidenceFactors.experience}</div>
+              <div className="text-xs opacity-75 mb-1">
+                {t("coach.experience" as TranslationKey)}
+              </div>
+              <div className="text-sm font-bold">
+                {prediction.confidenceFactors.experience}
+              </div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/20">
-              <div className="text-xs opacity-75 mb-1">{t("coach.conditions" as TranslationKey)}</div>
-              <div className="text-sm font-bold">{prediction.confidenceFactors.conditions}</div>
+              <div className="text-xs opacity-75 mb-1">
+                {t("coach.conditions" as TranslationKey)}
+              </div>
+              <div className="text-sm font-bold">
+                {prediction.confidenceFactors.conditions}
+              </div>
             </div>
           </div>
         </div>
@@ -163,13 +179,21 @@ export function CoachPredictionPanel({
 }
 
 // Helper to translate probability labels
-function getProbabilityLabel(t: (key: TranslationKey) => string, label: string) {
+function getProbabilityLabel(
+  t: (key: TranslationKey) => string,
+  label: string,
+) {
   switch (label) {
-    case "Very High": return t("coach.probability_very_high" as TranslationKey);
-    case "High": return t("coach.probability_high" as TranslationKey);
-    case "Medium": return t("coach.probability_medium" as TranslationKey);
-    case "Low": return t("coach.probability_low" as TranslationKey);
-    case "Very Low": return t("coach.probability_very_low" as TranslationKey);
-    return label;
+    case "Very High":
+      return t("coach.probability_very_high" as TranslationKey);
+    case "High":
+      return t("coach.probability_high" as TranslationKey);
+    case "Medium":
+      return t("coach.probability_medium" as TranslationKey);
+    case "Low":
+      return t("coach.probability_low" as TranslationKey);
+    case "Very Low":
+      return t("coach.probability_very_low" as TranslationKey);
+      return label;
   }
 }

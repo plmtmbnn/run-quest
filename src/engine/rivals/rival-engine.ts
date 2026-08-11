@@ -1,15 +1,15 @@
 /**
  * Rival Engine
- * 
+ *
  * Handles rival selection, dialog generation, and relationship progression.
  */
 
 import {
+  createDefaultRelationship,
   RIVAL_ROSTER,
   type Rival,
   type RivalContext,
   type RivalRelationship,
-  createDefaultRelationship,
 } from "./rival-types";
 
 export type { Rival, RivalContext, RivalRelationship };
@@ -30,25 +30,25 @@ interface SelectionOptions {
  */
 export function selectRivalsForRace(options: SelectionOptions): Rival[] {
   const { playerSkill, raceDistance, previousRivals } = options;
-  
+
   // Build a pool of candidates
   const candidates = RIVAL_ROSTER.map((rival) => {
     const relationship = previousRivals[rival.id];
     // Score: higher priority for existing relationships, close skill match
     let score = 0;
-    
+
     if (relationship) {
       // Prioritize rivals with existing relationships
       score += Math.min(40, relationship.relationshipLevel * 0.5);
       score += relationship.totalEncounters * 2;
     }
-    
+
     // Skill match: closer to player skill = better match
     const skillDiff = Math.abs(rival.skillLevel - playerSkill);
     if (skillDiff < 10) score += 30;
     else if (skillDiff < 20) score += 20;
     else score += 10;
-    
+
     // Distance suitability: higher skill rivals more likely in longer races
     if (raceDistance >= 15) {
       if (rival.skillLevel > 70) score += 10;
@@ -57,13 +57,13 @@ export function selectRivalsForRace(options: SelectionOptions): Rival[] {
     } else {
       if (rival.skillLevel < 60) score += 10;
     }
-    
+
     return { rival, score };
   });
-  
+
   // Sort by score descending and pick top 1-3
   candidates.sort((a, b) => b.score - a.score);
-  
+
   // Pick 2-3 rivals
   const count = Math.min(3, Math.max(2, candidates.length));
   return candidates.slice(0, count).map((c) => c.rival);
@@ -91,27 +91,33 @@ export function generateRivalDialog(
   if (phrases.length === 0) {
     return { text: "...", intensity: "normal" };
   }
-  
+
   // Pick a phrase based on relationship level
-  const index = pickPhraseIndex(phrases.length, options?.relationshipLevel ?? 0);
+  const index = pickPhraseIndex(
+    phrases.length,
+    options?.relationshipLevel ?? 0,
+  );
   const text = phrases[index];
-  
+
   // Determine intensity
   let intensity: DialogIntensity = "normal";
   if (context === "overtake_player" || context === "overtaken_by_player") {
     intensity = "emphasized";
   }
-  
+
   // Extract the text - handle both string and LocalizedText types
-  const textString = typeof text === "string" ? text : (text.en || text.id || "");
-  
+  const textString = typeof text === "string" ? text : text.en || text.id || "";
+
   return { text: textString, intensity };
 }
 
 /**
  * Get the appropriate phrase array for a context
  */
-function getPhrasesForContext(rival: Rival, context: RivalContext): { en: string; id: string }[] {
+function getPhrasesForContext(
+  rival: Rival,
+  context: RivalContext,
+): { en: string; id: string }[] {
   switch (context) {
     case "pre_race":
       return rival.catchphrases.preRace;
@@ -119,7 +125,9 @@ function getPhrasesForContext(rival: Rival, context: RivalContext): { en: string
     case "overtaken_by_player":
       return rival.catchphrases.duringRace;
     case "post_race":
-      return rival.catchphrases.postRaceWin.concat(rival.catchphrases.postRaceLose);
+      return rival.catchphrases.postRaceWin.concat(
+        rival.catchphrases.postRaceLose,
+      );
     default:
       return [];
   }
@@ -130,11 +138,11 @@ function getPhrasesForContext(rival: Rival, context: RivalContext): { en: string
  */
 function pickPhraseIndex(length: number, relationshipLevel: number): number {
   if (length <= 1) return 0;
-  
+
   // Higher relationship = later phrases (more familiar/intense)
   const normalizedLevel = Math.min(100, relationshipLevel) / 100;
   const bias = Math.floor(normalizedLevel * (length - 1));
-  
+
   // Add some randomness around the bias
   const spread = 1;
   const randomOffset = Math.floor(Math.random() * (spread * 2 + 1)) - spread;
@@ -154,10 +162,10 @@ export function updateRivalRelationship(
   margin: number,
 ): RivalRelationship {
   const rel = existing || createDefaultRelationship();
-  
+
   // Base relationship change
   let relationshipChange = 0;
-  
+
   if (playerFinishedAhead) {
     rel.wins += 1;
     relationshipChange += 15; // Beating a rival
@@ -165,21 +173,24 @@ export function updateRivalRelationship(
     rel.losses += 1;
     relationshipChange += 5; // Respect for losing
   }
-  
+
   // Close finish bonus
   if (margin < 5) {
     relationshipChange += 10;
   }
-  
+
   // Racing against same rival
   if (rel.totalEncounters > 0) {
     relationshipChange += 10; // Per encounter
   }
-  
+
   rel.totalEncounters += 1;
   rel.lastEncounter = new Date().toISOString();
-  rel.relationshipLevel = Math.min(100, Math.max(0, rel.relationshipLevel + relationshipChange));
-  
+  rel.relationshipLevel = Math.min(
+    100,
+    Math.max(0, rel.relationshipLevel + relationshipChange),
+  );
+
   // Track margins
   if (margin < rel.closestMargin && margin > 0) {
     rel.closestMargin = margin;
@@ -190,14 +201,16 @@ export function updateRivalRelationship(
   if (!playerFinishedAhead && margin > rel.biggestLoss) {
     rel.biggestLoss = margin;
   }
-  
+
   return rel;
 }
 
 /**
  * Get the rivalry status label based on relationship level
  */
-export function getRivalryStatus(level: number): "neutral" | "friendly" | "rivalry" | "nemesis" {
+export function getRivalryStatus(
+  level: number,
+): "neutral" | "friendly" | "rivalry" | "nemesis" {
   if (level >= 80) return "friendly";
   if (level >= 40) return "nemesis";
   if (level >= 20) return "rivalry";
@@ -238,13 +251,13 @@ export function getRivalMilestoneText(
       id: "Rival menjadi rekan latihan! Sesi khusus terbuka!",
     },
   ];
-  
+
   for (const milestone of milestones) {
     if (level >= milestone.threshold) {
       return milestone[lang];
     }
   }
-  
+
   return null;
 }
 

@@ -7,6 +7,7 @@
 
 import { create } from "zustand";
 import { DEFAULT_ECONOMY_STATE } from "@/economy/economy-types";
+import { processMonthlySalary } from "@/economy/monthly-salary-engine";
 import { DEFAULT_SPONSORSHIP_STATE } from "@/economy/sponsorship-types";
 import type { ActionId, CalendarEvent, GameState } from "@/engine/timeline";
 import {
@@ -18,18 +19,17 @@ import {
   getScheduledStoryEvents,
   isDead,
 } from "@/engine/timeline";
-import { processMonthlySalary } from "@/economy/monthly-salary-engine";
-import { DEFAULT_SCHEDULING_STATE } from "@/scheduling/race-calendar-types";
+import { useHealthStore } from "@/health/health-store";
+import { loadRunnerState, saveRunnerState } from "@/runner/runner-persistence";
 import { getScheduleById } from "@/scheduling/race-calendar-engine";
+import { DEFAULT_SCHEDULING_STATE } from "@/scheduling/race-calendar-types";
 import { useSocialStore } from "@/social/social-store";
 import { storageRepository } from "@/storage/storage-repository";
-import { useHealthStore } from "@/health/health-store";
-import { useExpenseStore } from "@/store/expense-store";
-import { loadRunnerState, saveRunnerState } from "@/runner/runner-persistence";
 import type { StoredGameState } from "@/storage/types";
+import { useExpenseStore } from "@/store/expense-store";
+import { useSettingsStore } from "@/store/settings-store";
 import { markStoryBeatViewed } from "@/story/story-engine";
 import { useStoryStore } from "@/story/story-store";
-import { useSettingsStore } from "@/store/settings-store";
 
 interface TimelineState {
   gameState: GameState | null;
@@ -127,20 +127,23 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
   doAction(actionId: ActionId, customEnergyCost?: number) {
     const { gameState } = get();
     if (!gameState) return;
-    
+
     // ✅ PRESERVE runner state before action
     const runnerStateBefore = loadRunnerState();
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('📊 [XP-DEBUG] Before doAction:', {
+    if (process.env.NODE_ENV !== "production") {
+      console.log("📊 [XP-DEBUG] Before doAction:", {
         actionId,
         xp: runnerStateBefore.profile.xp,
         level: runnerStateBefore.profile.level,
-        dayIndex: gameState.dayIndex
+        dayIndex: gameState.dayIndex,
       });
     }
-    
+
     const baseAction = getAction(actionId);
-    const action = customEnergyCost !== undefined ? { ...baseAction, energyCost: customEnergyCost } : baseAction;
+    const action =
+      customEnergyCost !== undefined
+        ? { ...baseAction, energyCost: customEnergyCost }
+        : baseAction;
     const next = applyAction(gameState, action);
 
     // If day(s) advanced, simulate competition/social days!
@@ -153,28 +156,28 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
         socialStore.simulateCompetitionDay(playerKm, undefined, d);
       }
       socialStore.ageActivities(next.dayIndex);
-      
+
       // Update health state for each day advanced
       updateHealthForDaysAdvanced(daysAdvanced, actionId);
     }
 
     const updatedState = processMonthlySalary(next);
-    
+
     // ✅ VERIFY runner state after action
     const runnerStateAfter = loadRunnerState();
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('📊 [XP-DEBUG] After doAction:', {
+    if (process.env.NODE_ENV !== "production") {
+      console.log("📊 [XP-DEBUG] After doAction:", {
         actionId,
         xp: runnerStateAfter.profile.xp,
         level: runnerStateAfter.profile.level,
-        dayIndex: next.dayIndex
+        dayIndex: next.dayIndex,
       });
     }
-    
+
     // ✅ RESTORE XP if it was lost (safety net for edge cases)
     if (runnerStateAfter.profile.xp < runnerStateBefore.profile.xp) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.error('⚠️ XP LOSS DETECTED in doAction! Restoring...');
+      if (process.env.NODE_ENV !== "production") {
+        console.error("⚠️ XP LOSS DETECTED in doAction! Restoring...");
       }
       const restoredState = {
         ...runnerStateAfter,
@@ -187,20 +190,29 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
       };
       saveRunnerState(restoredState);
     }
-    
+
     const runnerLevel = loadRunnerState().profile.level || 1;
-    const expenseResult = useExpenseStore.getState().processScheduledExpenses(
-      updatedState.dayIndex,
-      updatedState.economy.currentBalance,
-      runnerLevel
-    );
-    const finalState = expenseResult.canAfford && expenseResult.dueExpenses.length > 0
-      ? {
-          ...updatedState,
-          economy: { ...updatedState.economy, currentBalance: expenseResult.balanceAfter },
-          resources: { ...updatedState.resources, money: expenseResult.balanceAfter },
-        }
-      : updatedState;
+    const expenseResult = useExpenseStore
+      .getState()
+      .processScheduledExpenses(
+        updatedState.dayIndex,
+        updatedState.economy.currentBalance,
+        runnerLevel,
+      );
+    const finalState =
+      expenseResult.canAfford && expenseResult.dueExpenses.length > 0
+        ? {
+            ...updatedState,
+            economy: {
+              ...updatedState.economy,
+              currentBalance: expenseResult.balanceAfter,
+            },
+            resources: {
+              ...updatedState.resources,
+              money: expenseResult.balanceAfter,
+            },
+          }
+        : updatedState;
 
     set({ gameState: finalState });
     storageRepository.saveGameState(finalState);
@@ -209,15 +221,15 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
   ff(mode: FastForwardMode) {
     const { gameState } = get();
     if (!gameState) return;
-    
+
     // ✅ PRESERVE runner state before fast-forward
     const runnerStateBefore = loadRunnerState();
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('🚀 [FF-DEBUG] Before fast-forward:', {
+    if (process.env.NODE_ENV !== "production") {
+      console.log("🚀 [FF-DEBUG] Before fast-forward:", {
         mode,
         xp: runnerStateBefore.profile.xp,
         level: runnerStateBefore.profile.level,
-        dayIndex: gameState.dayIndex
+        dayIndex: gameState.dayIndex,
       });
     }
 
@@ -244,7 +256,9 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
       // Registration values may be a plain dayIndex (number) or
       // { dayIndex, categoryId } when a category was selected — handle both.
       const registeredRacesOnDay: CalendarEvent[] = [];
-      const registeredEntries = Object.entries(stateWithFlags.scheduling.registered);
+      const registeredEntries = Object.entries(
+        stateWithFlags.scheduling.registered,
+      );
       for (const [scheduleId, regVal] of registeredEntries) {
         const regDay = typeof regVal === "object" ? regVal.dayIndex : regVal;
         if (regDay === d) {
@@ -271,18 +285,27 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     // Apply monthly salary credit if applicable
     const stateAfterSalary = processMonthlySalary(state);
     const runnerLevel = loadRunnerState().profile.level || 1;
-    const expenseResult = useExpenseStore.getState().processScheduledExpenses(
-      stateAfterSalary.dayIndex,
-      stateAfterSalary.economy.currentBalance,
-      runnerLevel
-    );
-    const finalState = expenseResult.canAfford && expenseResult.dueExpenses.length > 0
-      ? {
-          ...stateAfterSalary,
-          economy: { ...stateAfterSalary.economy, currentBalance: expenseResult.balanceAfter },
-          resources: { ...stateAfterSalary.resources, money: expenseResult.balanceAfter },
-        }
-      : stateAfterSalary;
+    const expenseResult = useExpenseStore
+      .getState()
+      .processScheduledExpenses(
+        stateAfterSalary.dayIndex,
+        stateAfterSalary.economy.currentBalance,
+        runnerLevel,
+      );
+    const finalState =
+      expenseResult.canAfford && expenseResult.dueExpenses.length > 0
+        ? {
+            ...stateAfterSalary,
+            economy: {
+              ...stateAfterSalary.economy,
+              currentBalance: expenseResult.balanceAfter,
+            },
+            resources: {
+              ...stateAfterSalary.resources,
+              money: expenseResult.balanceAfter,
+            },
+          }
+        : stateAfterSalary;
 
     // If day(s) advanced, simulate competition/social days!
     const daysAdvanced = finalState.dayIndex - stateWithFlags.dayIndex;
@@ -295,28 +318,28 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
         socialStore.simulateCompetitionDay(playerKm, undefined, d);
       }
       socialStore.ageActivities(finalState.dayIndex);
-      
+
       // Update health state for days advanced
       const healthStore = useHealthStore.getState();
       healthStore.updateInjuryRecovery(daysAdvanced);
       healthStore.saveToStorage();
     }
-    
+
     // ✅ VERIFY runner state after fast-forward
     const runnerStateAfter = loadRunnerState();
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('🚀 [FF-DEBUG] After fast-forward:', {
+    if (process.env.NODE_ENV !== "production") {
+      console.log("🚀 [FF-DEBUG] After fast-forward:", {
         mode,
         xp: runnerStateAfter.profile.xp,
         level: runnerStateAfter.profile.level,
-        dayIndex: finalState.dayIndex
+        dayIndex: finalState.dayIndex,
       });
     }
-    
+
     // ✅ RESTORE XP if it was lost during fast-forward
     if (runnerStateAfter.profile.xp < runnerStateBefore.profile.xp) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.error('⚠️ XP LOSS DETECTED in fast-forward! Restoring...');
+      if (process.env.NODE_ENV !== "production") {
+        console.error("⚠️ XP LOSS DETECTED in fast-forward! Restoring...");
       }
       const restoredState = {
         ...runnerStateAfter,
@@ -359,12 +382,13 @@ export const useTimelineStore = create<TimelineState>((set, get) => ({
     const { pendingEvents } = get();
     const eventToAck = pendingEvents.find((e) => e.id === eventId);
     if (eventToAck && eventToAck.type === "story") {
-      const beatId = (eventToAck.payload as any)?.storyBeat?.id || eventToAck.id;
+      const beatId =
+        (eventToAck.payload as any)?.storyBeat?.id || eventToAck.id;
       if (beatId) {
         const storyStore = useStoryStore.getState();
         if (!storyStore.storyProgress.viewedStoryBeats.includes(beatId)) {
           storyStore.setStoryProgress(
-            markStoryBeatViewed(storyStore.storyProgress, beatId)
+            markStoryBeatViewed(storyStore.storyProgress, beatId),
           );
         }
       }

@@ -8,9 +8,12 @@
 "use client";
 
 import { formatCurrency } from "@/economy/currency-converter";
-import { useSettingsStore } from "@/store/settings-store";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
-import type { Sponsor, SponsorshipState } from "../../economy/sponsorship-types";
+import { useSettingsStore } from "@/store/settings-store";
+import type {
+  Sponsor,
+  SponsorshipState,
+} from "../../economy/sponsorship-types";
 import { SPONSOR_TIER_ORDER, SPONSORS } from "../../economy/sponsorship-types";
 
 // Interpolate {placeholder} tokens in translation strings.
@@ -123,9 +126,7 @@ export function SponsorshipScreen({
                 ? SPONSOR_TIER_ORDER.indexOf(currentSponsor.tier) >= idx
                 : false;
               const isCurrent = currentSponsor?.tier === tier;
-              const tierLabel = t(
-                `sponsors.tiers.${tier}` as TranslationKey,
-              );
+              const tierLabel = t(`sponsors.tiers.${tier}` as TranslationKey);
 
               return (
                 <div
@@ -170,9 +171,10 @@ export function SponsorshipScreen({
               style={{
                 width: `${
                   currentSponsor
-                    ? ((SPONSOR_TIER_ORDER.indexOf(currentSponsor.tier) + 1) /
-                        SPONSOR_TIER_ORDER.length) *
-                      100
+                    ? (
+                        (SPONSOR_TIER_ORDER.indexOf(currentSponsor.tier) + 1) /
+                          SPONSOR_TIER_ORDER.length
+                      ) * 100
                     : 0
                 }%`,
               }}
@@ -271,7 +273,8 @@ function SponsorCard({
     useSettingsStore((state) => state.settings.preferredCurrency) || "USD";
 
   const tierColors: Record<string, string> = {
-    local: "border-green-100/30 dark:border-green-950/30 bg-green-50/40 dark:bg-green-950/10",
+    local:
+      "border-green-100/30 dark:border-green-950/30 bg-green-50/40 dark:bg-green-950/10",
     regional:
       "border-blue-100/30 dark:border-blue-950/30 bg-blue-50/40 dark:bg-blue-950/10",
     national:
@@ -279,7 +282,8 @@ function SponsorCard({
   };
 
   const badgeColors: Record<string, string> = {
-    local: "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20",
+    local:
+      "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20",
     regional:
       "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
     national:
@@ -293,8 +297,8 @@ function SponsorCard({
         status === "active"
           ? "bg-green-50/50 dark:bg-green-950/20 border-green-200 dark:border-green-900/30"
           : status === "available"
-            ? tierColors[sponsor.tier] ??
-              "bg-slate-50/50 dark:bg-slate-900/40 border-[#E5E7EB] dark:border-slate-800/50"
+            ? (tierColors[sponsor.tier] ??
+              "bg-slate-50/50 dark:bg-slate-900/40 border-[#E5E7EB] dark:border-slate-800/50")
             : status === "pending"
               ? "bg-indigo-50/50 dark:bg-indigo-950/20 border-indigo-200 dark:border-indigo-900/30 shadow-[0_0_15px_rgba(99,102,241,0.08)] animate-[pulse_3s_infinite]"
               : status === "cooldown"
@@ -389,7 +393,10 @@ function SponsorCard({
                 {lifetimeEarnings !== undefined && (
                   <div className="text-xs font-semibold text-green-600 dark:text-green-400">
                     {interpolate(t("sponsors.earned" as TranslationKey), {
-                      amount: formatCurrency(lifetimeEarnings, preferredCurrency),
+                      amount: formatCurrency(
+                        lifetimeEarnings,
+                        preferredCurrency,
+                      ),
                     })}
                   </div>
                 )}
@@ -454,60 +461,86 @@ function SponsorCard({
                 {t("sponsors.unlock_requirements" as TranslationKey)}
               </span>
               <div className="flex flex-col gap-2 w-full">
-                {sponsor.requirements.minWins && (() => {
-                  const current = (playerFlags.career_wins as number) ?? 0;
-                  const required = sponsor.requirements.minWins;
-                  const pct = Math.min(100, Math.round((current / required) * 100));
-                  const met = current >= required;
-                  return (
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center justify-between text-[10px] font-bold">
-                        <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
-                          <span aria-hidden="true">🏆</span>
-                          {interpolate(t("sponsors.req_wins" as TranslationKey), { count: required })}
-                        </span>
-                        <span className={met ? "text-green-500" : "text-slate-500 dark:text-slate-400"}>
-                          {current}/{required}
-                        </span>
+                {sponsor.requirements.minWins &&
+                  (() => {
+                    const current = (playerFlags.career_wins as number) ?? 0;
+                    const required = sponsor.requirements.minWins;
+                    const pct = Math.min(
+                      100,
+                      Math.round((current / required) * 100),
+                    );
+                    const met = current >= required;
+                    return (
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center justify-between text-[10px] font-bold">
+                          <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
+                            <span aria-hidden="true">🏆</span>
+                            {interpolate(
+                              t("sponsors.req_wins" as TranslationKey),
+                              { count: required },
+                            )}
+                          </span>
+                          <span
+                            className={
+                              met
+                                ? "text-green-500"
+                                : "text-slate-500 dark:text-slate-400"
+                            }
+                          >
+                            {current}/{required}
+                          </span>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${
+                              met ? "bg-green-500" : "bg-indigo-400"
+                            }`}
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
                       </div>
-                      <div className="h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all duration-500 ${
-                            met ? "bg-green-500" : "bg-indigo-400"
-                          }`}
-                          style={{ width: `${pct}%` }}
-                        />
+                    );
+                  })()}
+                {sponsor.requirements.minRating &&
+                  (() => {
+                    const current = (playerFlags.rating as number) ?? 1500;
+                    const required = sponsor.requirements.minRating;
+                    const pct = Math.min(
+                      100,
+                      Math.round(((current - 1500) / (required - 1500)) * 100),
+                    );
+                    const met = current >= required;
+                    return (
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center justify-between text-[10px] font-bold">
+                          <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
+                            <span aria-hidden="true">⭐</span>
+                            {interpolate(
+                              t("sponsors.req_rating" as TranslationKey),
+                              { rating: required },
+                            )}
+                          </span>
+                          <span
+                            className={
+                              met
+                                ? "text-green-500"
+                                : "text-slate-500 dark:text-slate-400"
+                            }
+                          >
+                            {current}/{required}
+                          </span>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${
+                              met ? "bg-green-500" : "bg-amber-400"
+                            }`}
+                            style={{ width: `${Math.max(0, pct)}%` }}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  );
-                })()}
-                {sponsor.requirements.minRating && (() => {
-                  const current = (playerFlags.rating as number) ?? 1500;
-                  const required = sponsor.requirements.minRating;
-                  const pct = Math.min(100, Math.round(((current - 1500) / (required - 1500)) * 100));
-                  const met = current >= required;
-                  return (
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center justify-between text-[10px] font-bold">
-                        <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
-                          <span aria-hidden="true">⭐</span>
-                          {interpolate(t("sponsors.req_rating" as TranslationKey), { rating: required })}
-                        </span>
-                        <span className={met ? "text-green-500" : "text-slate-500 dark:text-slate-400"}>
-                          {current}/{required}
-                        </span>
-                      </div>
-                      <div className="h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all duration-500 ${
-                            met ? "bg-green-500" : "bg-amber-400"
-                          }`}
-                          style={{ width: `${Math.max(0, pct)}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })()}
+                    );
+                  })()}
                 {sponsor.requirements.previousSponsor && (
                   <span className="bg-white/50 dark:bg-slate-900/50 px-2 py-1 rounded border border-slate-200 dark:border-slate-800 shadow-sm text-xs font-semibold text-slate-600 dark:text-slate-400">
                     <span aria-hidden="true">🤝</span>{" "}

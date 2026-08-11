@@ -1,10 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Joyride, STATUS, TooltipRenderProps, EventData } from "react-joyride";
 import { X } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  type EventData,
+  Joyride,
+  STATUS,
+  type TooltipRenderProps,
+} from "react-joyride";
 import { useSound } from "@/hooks/use-sound";
-import { useTranslation, type TranslationKey } from "@/i18n/use-translation";
+import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 
 function Tooltip({
   index,
@@ -53,7 +58,10 @@ function Tooltip({
 
       <div className="px-4 py-3 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
         <div className="text-xs font-mono font-bold text-slate-400 dark:text-slate-500">
-          {t("tour.step_progress" as TranslationKey, { current: index + 1, total: size })}
+          {t("tour.step_progress" as TranslationKey, {
+            current: index + 1,
+            total: size,
+          })}
         </div>
         <div className="flex gap-2">
           {index > 0 && (
@@ -80,7 +88,9 @@ function Tooltip({
             }}
             className="px-3.5 py-1.5 text-xs font-black rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white shadow-md shadow-indigo-500/20 active:scale-95 transition-all"
           >
-            {isLastStep ? t("tour.finish" as TranslationKey) : t("tour.next" as TranslationKey)}
+            {isLastStep
+              ? t("tour.finish" as TranslationKey)
+              : t("tour.next" as TranslationKey)}
           </button>
         </div>
       </div>
@@ -159,13 +169,13 @@ export function ProductTour({ run, onFinish }: ProductTourProps) {
           target: "#tour-rest-controls",
           title: t("tour.rest.title" as TranslationKey),
           content: t("tour.rest.content" as TranslationKey),
-        }
+        },
       ]}
       tooltipComponent={Tooltip}
       styles={{
         overlay: {
-          backgroundColor: 'rgba(0, 0, 0, 0.65)',
-        }
+          backgroundColor: "rgba(0, 0, 0, 0.65)",
+        },
       }}
     />
   );

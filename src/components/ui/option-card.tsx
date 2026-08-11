@@ -1,7 +1,7 @@
 "use client";
 
-import { useTranslation } from "@/i18n/use-translation";
 import type { TranslationKey } from "@/i18n/use-translation";
+import { useTranslation } from "@/i18n/use-translation";
 
 export interface BadgeProp {
   text: string;
@@ -142,7 +142,10 @@ export function OptionCard({
                 e.stopPropagation();
                 quantityControl.onIncrease();
               }}
-              disabled={quantityControl.count >= quantityControl.maxCount || quantityControl.count >= 4}
+              disabled={
+                quantityControl.count >= quantityControl.maxCount ||
+                quantityControl.count >= 4
+              }
               className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-indigo-100 dark:hover:bg-indigo-950/50 disabled:opacity-40 font-mono font-bold text-base transition-all active:scale-95"
             >
               +

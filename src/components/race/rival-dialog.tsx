@@ -1,10 +1,10 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { useTranslation } from "@/i18n/use-translation";
-import type { TranslationKey } from "@/i18n/use-translation";
 import type { Rival } from "@/engine/rivals/rival-types";
+import type { TranslationKey } from "@/i18n/use-translation";
+import { useTranslation } from "@/i18n/use-translation";
 
 interface RivalDialogProps {
   rival: Rival;
@@ -17,40 +17,45 @@ interface RivalDialogProps {
  * Rival speech bubble dialog shown during races.
  * Appears as a small card beside the leaderboard with auto-dismiss.
  */
-export function RivalDialog({ rival, text, context, onDismiss }: RivalDialogProps) {
+export function RivalDialog({
+  rival,
+  text,
+  context,
+  onDismiss,
+}: RivalDialogProps) {
   const { t, language } = useTranslation();
   const [isVisible, setIsVisible] = useState(true);
   const lang = (language === "id" ? "id" : "en") as "en" | "id";
-  
+
   const isPreRace = context === "pre_race";
   const isOvertake = context === "overtake_player";
   const isOvertaken = context === "overtaken_by_player";
-  
+
   const dismissDuration = isPreRace ? 4000 : 3500;
-  
+
   // Auto-dismiss after duration
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(false);
       setTimeout(onDismiss, 300); // Allow exit animation
     }, dismissDuration);
-    
+
     return () => clearTimeout(timer);
   }, [dismissDuration, onDismiss]);
-  
+
   // Determine the border color based on context
   const borderColor = isOvertake
     ? "border-emerald-500/50 bg-emerald-950/20"
     : isOvertaken
       ? "border-red-500/50 bg-red-950/20"
       : "border-orange-500/30 bg-orange-950/10";
-  
+
   const accentColor = isOvertake
     ? "text-emerald-400"
     : isOvertaken
       ? "text-red-400"
       : "text-orange-400";
-  
+
   return (
     <AnimatePresence>
       {isVisible && (
@@ -76,7 +81,7 @@ export function RivalDialog({ rival, text, context, onDismiss }: RivalDialogProp
           >
             {rival.avatar}
           </motion.div>
-          
+
           {/* Content */}
           <div className="flex-1 min-w-0">
             {/* Name + context badge */}
@@ -95,18 +100,20 @@ export function RivalDialog({ rival, text, context, onDismiss }: RivalDialogProp
                 </span>
               )}
             </div>
-            
+
             {/* Dialog text */}
             <p className={`text-xs leading-snug ${accentColor}`}>
               &ldquo;{text}&rdquo;
             </p>
           </div>
-          
+
           {/* Context icon */}
-          <div className={`shrink-0 text-lg ${isOvertake ? "animate-bounce" : ""}`}>
+          <div
+            className={`shrink-0 text-lg ${isOvertake ? "animate-bounce" : ""}`}
+          >
             {isOvertake ? "⚡" : isOvertaken ? "💨" : "💬"}
           </div>
-          
+
           {/* Shimmer effect for overtakes */}
           {(isOvertake || isOvertaken) && (
             <motion.div
@@ -137,16 +144,16 @@ interface RivalLineupProps {
 export function RivalLineup({ rivals, onIntroComplete }: RivalLineupProps) {
   const { t } = useTranslation();
   const [show, setShow] = useState(true);
-  
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setShow(false);
       setTimeout(onIntroComplete, 300);
     }, 3000);
-    
+
     return () => clearTimeout(timer);
   }, [onIntroComplete]);
-  
+
   return (
     <AnimatePresence>
       {show && (
@@ -171,9 +178,7 @@ export function RivalLineup({ rivals, onIntroComplete }: RivalLineupProps) {
               >
                 <span className="text-base">{rival.avatar}</span>
                 <div>
-                  <span className="font-bold text-white">
-                    {rival.name}
-                  </span>
+                  <span className="font-bold text-white">{rival.name}</span>
                   <span className="text-slate-400 ml-1">
                     &ldquo;{rival.nickName}&rdquo;
                   </span>
@@ -211,7 +216,7 @@ export function RivalStatusUpdate({
 }: RivalStatusUpdateProps) {
   const { t } = useTranslation();
   const [show, setShow] = useState(true);
-  
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setShow(false);
@@ -219,15 +224,18 @@ export function RivalStatusUpdate({
     }, 4000);
     return () => clearTimeout(timer);
   }, [onDismiss]);
-  
+
   const beatEmoji = playerBeatRival ? "🏆" : "💪";
   const beatText = playerBeatRival
     ? t("challenge.race.rival.victory" as TranslationKey)
     : t("challenge.race.rival.defeated" as TranslationKey);
-  
-  const marginText = margin < Infinity
-    ? t("challenge.race.rival.by_margin" as TranslationKey, { seconds: margin.toFixed(1) })
-    : t("challenge.race.rival.decisively" as TranslationKey);
+
+  const marginText =
+    margin < Infinity
+      ? t("challenge.race.rival.by_margin" as TranslationKey, {
+          seconds: margin.toFixed(1),
+        })
+      : t("challenge.race.rival.decisively" as TranslationKey);
 
   return (
     <AnimatePresence>
@@ -250,11 +258,12 @@ export function RivalStatusUpdate({
                 {rival.name} &ldquo;{rival.nickName}&rdquo;
               </p>
               <p className="text-[10px] text-slate-400">
-                {t("challenge.race.rival.relationship_level" as TranslationKey)}: {relationshipLevel}
+                {t("challenge.race.rival.relationship_level" as TranslationKey)}
+                : {relationshipLevel}
               </p>
             </div>
           </div>
-          
+
           <div className="flex items-center justify-between">
             <span className="text-sm font-black text-white flex items-center gap-1">
               {beatEmoji} {beatText}

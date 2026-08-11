@@ -25,7 +25,9 @@ export default function SponsorsPage() {
       <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-white">
         <div className="text-center space-y-4">
           <div className="animate-spin text-indigo-500 text-3xl">🔄</div>
-          <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-sm">Loading Sponsors...</p>
+          <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider text-sm">
+            Loading Sponsors...
+          </p>
         </div>
       </div>
     );
@@ -114,4 +116,3 @@ export default function SponsorsPage() {
     </motion.div>
   );
 }
-

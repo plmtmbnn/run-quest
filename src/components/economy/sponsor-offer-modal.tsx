@@ -7,6 +7,7 @@
 "use client";
 
 import type { Sponsor } from "@/economy/sponsorship-types";
+import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 
 interface SponsorOfferModalProps {
   sponsor: Sponsor;
@@ -21,6 +22,8 @@ export function SponsorOfferModal({
   onReject,
   onDefer,
 }: SponsorOfferModalProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
       <div className="bg-gray-900 rounded-lg max-w-2xl w-full overflow-hidden shadow-2xl border-2 border-gray-700">
@@ -38,31 +41,22 @@ export function SponsorOfferModal({
               Sponsorship Offer!
             </h2>
             <div
-              className="inline-block px-4 py-2 rounded-full text-sm font-semibold"
+              className="inline-block px-4 py-1 rounded-full text-lg font-bold shadow-lg"
               style={{
-                backgroundColor: `${sponsor.colors.primary}30`,
-                color: sponsor.colors.primary,
-                border: `2px solid ${sponsor.colors.primary}`,
+                backgroundColor: sponsor.colors.primary,
+                color: sponsor.colors.secondary,
               }}
             >
-              {sponsor.tier.toUpperCase()} TIER
+              {sponsor.name}
             </div>
+            <p className="text-gray-300 mt-3 text-sm italic max-w-md mx-auto">
+              "{sponsor.signature}"
+            </p>
           </div>
         </div>
 
-        {/* Content */}
-        <div className="px-6 py-6 space-y-6">
-          {/* Sponsor Info */}
-          <div className="text-center">
-            <h3 className="text-2xl font-bold text-white mb-2">
-              {sponsor.name}
-            </h3>
-            <p className="text-gray-300 text-lg italic mb-3">
-              "{sponsor.signature}"
-            </p>
-            <p className="text-gray-400">{sponsor.description}</p>
-          </div>
-
+        {/* Modal Body */}
+        <div className="p-6 space-y-6">
           {/* Benefits Grid */}
           <div className="bg-gray-800 rounded-lg p-5">
             <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
@@ -70,21 +64,27 @@ export function SponsorOfferModal({
             </h4>
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-gray-750 rounded p-3">
-                <div className="text-sm text-gray-400 mb-1">Per Training</div>
+                <div className="text-sm text-gray-400 mb-1">
+                  {t("sponsor_modal.per_training" as TranslationKey)}
+                </div>
                 <div className="text-xl font-bold text-green-400">
                   +${sponsor.benefits.trainingBonus}
                 </div>
               </div>
 
               <div className="bg-gray-750 rounded p-3">
-                <div className="text-sm text-gray-400 mb-1">Per Race</div>
+                <div className="text-sm text-gray-400 mb-1">
+                  {t("sponsor_modal.per_race" as TranslationKey)}
+                </div>
                 <div className="text-xl font-bold text-blue-400">
                   +${sponsor.benefits.raceCompletionBonus}
                 </div>
               </div>
 
               <div className="bg-gray-750 rounded p-3">
-                <div className="text-sm text-gray-400 mb-1">Per Victory</div>
+                <div className="text-sm text-gray-400 mb-1">
+                  {t("sponsor_modal.per_victory" as TranslationKey)}
+                </div>
                 <div className="text-xl font-bold text-yellow-400">
                   +${sponsor.benefits.winBonus}
                 </div>
@@ -92,7 +92,7 @@ export function SponsorOfferModal({
 
               <div className="bg-gray-750 rounded p-3">
                 <div className="text-sm text-gray-400 mb-1">
-                  Monthly Stipend
+                  {t("sponsor_modal.monthly_stipend" as TranslationKey)}
                 </div>
                 <div className="text-xl font-bold text-purple-400">
                   ${sponsor.benefits.monthlyStipend}/mo
@@ -121,7 +121,7 @@ export function SponsorOfferModal({
 
           {/* Decision Info */}
           <div className="text-center text-sm text-gray-400">
-            <p>You can accept, reject, or review this offer later.</p>
+            <p>{t("sponsor_modal.decision_info" as TranslationKey)}</p>
             <p className="mt-1">
               Rejected sponsors may approach you again after 30 days.
             </p>

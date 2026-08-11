@@ -1,14 +1,21 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { X, RotateCcw, Check, AlertTriangle } from "lucide-react";
-import { useState, useMemo, useCallback } from "react";
-import type { DailyActivity, WeeklyPlan, PlannedActivity } from "@/training/training-types";
-import { getActivityEnergyCost, isHardActivity } from "@/training/plan-templates";
-import { getWeekStartDay } from "@/training/weekly-plan-engine";
-import { useTranslation, type TranslationKey } from "@/i18n/use-translation";
-import type { RunnerState } from "@/runner/runner-types";
+import { AnimatePresence, motion } from "framer-motion";
+import { AlertTriangle, Check, RotateCcw, X } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+import type { RunnerState } from "@/runner/runner-types";
+import {
+  getActivityEnergyCost,
+  isHardActivity,
+} from "@/training/plan-templates";
+import type {
+  DailyActivity,
+  PlannedActivity,
+  WeeklyPlan,
+} from "@/training/training-types";
+import { getWeekStartDay } from "@/training/weekly-plan-engine";
 
 const ALL_ACTIVITIES: DailyActivity[] = [
   "Easy Run",
@@ -65,13 +72,16 @@ export function CustomPlanBuilder({
     "Full Rest",
   ]);
 
-  const handleActivityChange = useCallback((index: number, activity: DailyActivity) => {
-    setActivities((prev) => {
-      const updated = [...prev];
-      updated[index] = activity;
-      return updated;
-    });
-  }, []);
+  const handleActivityChange = useCallback(
+    (index: number, activity: DailyActivity) => {
+      setActivities((prev) => {
+        const updated = [...prev];
+        updated[index] = activity;
+        return updated;
+      });
+    },
+    [],
+  );
 
   const handleReset = useCallback(() => {
     setActivities([
@@ -107,10 +117,14 @@ export function CustomPlanBuilder({
     const list: string[] = [];
 
     if (hardDaysCount > 2) {
-      list.push("Too many quality sessions (>2 hard days increases injury risk)");
+      list.push(
+        "Too many quality sessions (>2 hard days increases injury risk)",
+      );
     }
     if (restDaysCount === 0) {
-      list.push("No rest days scheduled (Rest is required for muscle adaptation)");
+      list.push(
+        "No rest days scheduled (Rest is required for muscle adaptation)",
+      );
     }
 
     // Check adjacent hard days
@@ -120,7 +134,9 @@ export function CustomPlanBuilder({
 
     for (let i = 0; i < hardIndices.length - 1; i++) {
       if (hardIndices[i + 1] - hardIndices[i] === 1) {
-        list.push("Back-to-back quality sessions detected (Space hard days by 48 hours)");
+        list.push(
+          "Back-to-back quality sessions detected (Space hard days by 48 hours)",
+        );
         break;
       }
     }
@@ -129,13 +145,15 @@ export function CustomPlanBuilder({
   }, [activities, hardDaysCount, restDaysCount]);
 
   const handleApply = useCallback(() => {
-    const plannedActivities: PlannedActivity[] = activities.map((activity, index) => ({
-      dayIndex: weekStartDay + index,
-      dayOfWeek: index as 0 | 1 | 2 | 3 | 4 | 5 | 6,
-      activity,
-      isCompleted: false,
-      energyCost: getActivityEnergyCost(activity),
-    }));
+    const plannedActivities: PlannedActivity[] = activities.map(
+      (activity, index) => ({
+        dayIndex: weekStartDay + index,
+        dayOfWeek: index as 0 | 1 | 2 | 3 | 4 | 5 | 6,
+        activity,
+        isCompleted: false,
+        energyCost: getActivityEnergyCost(activity),
+      }),
+    );
 
     const customPlan: WeeklyPlan = {
       id: uuidv4(),
@@ -168,7 +186,8 @@ export function CustomPlanBuilder({
           <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800">
             <div>
               <h2 className="font-heading text-lg md:text-xl font-black text-slate-800 dark:text-white flex items-center gap-2">
-                <span>🛠️</span> {t("training.create_custom_plan" as TranslationKey)}
+                <span>🛠️</span>{" "}
+                {t("training.create_custom_plan" as TranslationKey)}
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                 Customize your weekly activities day by day
@@ -225,12 +244,19 @@ export function CustomPlanBuilder({
                     <select
                       value={activity}
                       disabled={isPast}
-                      onChange={(e) => handleActivityChange(idx, e.target.value as DailyActivity)}
+                      onChange={(e) =>
+                        handleActivityChange(
+                          idx,
+                          e.target.value as DailyActivity,
+                        )
+                      }
                       className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white text-xs md:text-sm font-semibold rounded-xl px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none disabled:opacity-50"
                     >
                       {ALL_ACTIVITIES.map((act) => (
                         <option key={act} value={act}>
-                          {t(`training.activities.${act.toLowerCase().replace(/ /g, "_")}` as TranslationKey) || act}
+                          {t(
+                            `training.activities.${act.toLowerCase().replace(/ /g, "_")}` as TranslationKey,
+                          ) || act}
                         </option>
                       ))}
                     </select>
@@ -240,8 +266,8 @@ export function CustomPlanBuilder({
                         cost === 0
                           ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
                           : isHard
-                          ? "bg-red-500/10 text-red-600 dark:text-red-400"
-                          : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                            ? "bg-red-500/10 text-red-600 dark:text-red-400"
+                            : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
                       }`}
                     >
                       <span>⚡</span>
@@ -292,7 +318,9 @@ export function CustomPlanBuilder({
               </span>
               <span
                 className={`text-sm md:text-base font-black font-mono ${
-                  hardDaysCount > 2 ? "text-red-500" : "text-slate-800 dark:text-white"
+                  hardDaysCount > 2
+                    ? "text-red-500"
+                    : "text-slate-800 dark:text-white"
                 }`}
               >
                 {hardDaysCount} / 2
@@ -304,7 +332,9 @@ export function CustomPlanBuilder({
               </span>
               <span
                 className={`text-sm md:text-base font-black font-mono ${
-                  restDaysCount === 0 ? "text-red-500" : "text-slate-800 dark:text-white"
+                  restDaysCount === 0
+                    ? "text-red-500"
+                    : "text-slate-800 dark:text-white"
                 }`}
               >
                 {restDaysCount}

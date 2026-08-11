@@ -3,10 +3,10 @@
 // Uses the game's DAY constants to determine month boundaries.
 // This function mutates the provided GameState and returns the updated state.
 
-import type { GameState } from "@/engine/timeline/time-types";
-import { DAYS_PER_MONTH } from "@/engine/timeline/time-types";
 import { formatCurrency } from "@/economy/currency-converter";
 import { recordTransaction } from "@/economy/earning-engine";
+import type { GameState } from "@/engine/timeline/time-types";
+import { DAYS_PER_MONTH } from "@/engine/timeline/time-types";
 
 /** Fixed monthly salary amount (could be derived from active job later) */
 const MONTHLY_SALARY = 500; // base amount in default currency units
@@ -22,12 +22,14 @@ export function processMonthlySalary(state: GameState): GameState {
     "work",
     MONTHLY_SALARY,
     state.dayIndex,
-    `Monthly salary (${formatCurrency(MONTHLY_SALARY, "USD")})`
+    `Monthly salary (${formatCurrency(MONTHLY_SALARY, "USD")})`,
   );
 
   // Update resources money to reflect new balance
-  const newResources = { ...state.resources, money: updatedEconomy.currentBalance };
+  const newResources = {
+    ...state.resources,
+    money: updatedEconomy.currentBalance,
+  };
 
   return { ...state, economy: updatedEconomy, resources: newResources };
 }
-

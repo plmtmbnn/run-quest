@@ -2,35 +2,39 @@
 // Zustand store for managing health state and injuries.
 
 import { create } from "zustand";
-import type { Injury, HealthState } from './injury-types';
-import { DEFAULT_HEALTH_STATE } from './injury-types';
-import { storageRepository } from '@/storage/storage-repository';
+import { storageRepository } from "@/storage/storage-repository";
+import type { HealthState, Injury } from "./injury-types";
+import { DEFAULT_HEALTH_STATE } from "./injury-types";
 
 interface HealthStore {
   healthState: HealthState;
-  
+
   // Injury management
   addInjury: (injury: Injury) => void;
   updateInjuryRecovery: (daysPassed: number) => void;
   removeInjury: (injuryId: string) => void;
   getActiveInjuries: () => Injury[];
   getMostSevereInjury: () => Injury | null;
-  
+
   // Status checks
   canTrain: () => boolean;
   canRace: () => boolean;
   getPerformanceModifier: () => number;
-  
+
   // Risk tracking
   incrementConsecutiveTrainingDays: () => void;
   resetConsecutiveTrainingDays: () => void;
   updateOvertrainLevel: (delta: number) => void;
   updateFatigueLevel: (delta: number) => void;
   addRestDay: () => void;
-  
+
   // Treatment
-  applyTreatment: (injuryId: string, treatmentType: string, recoverySpeedup: number) => void;
-  
+  applyTreatment: (
+    injuryId: string,
+    treatmentType: string,
+    recoverySpeedup: number,
+  ) => void;
+
   // Persistence
   loadFromStorage: () => void;
   saveToStorage: () => void;
@@ -40,7 +44,7 @@ interface HealthStore {
 /**
  * Storage key for health state.
  */
-const HEALTH_STORAGE_KEY = 'runquest.health';
+const HEALTH_STORAGE_KEY = "runquest.health";
 
 /**
  * Stored health state for persistence.
@@ -55,7 +59,8 @@ interface StoredHealthState {
  */
 function loadHealthStateFromStorage(): HealthState | null {
   try {
-    const stored = storageRepository.loadCustom<StoredHealthState>(HEALTH_STORAGE_KEY);
+    const stored =
+      storageRepository.loadCustom<StoredHealthState>(HEALTH_STORAGE_KEY);
     if (stored && stored.version === 1) {
       return stored.healthState;
     }
@@ -77,7 +82,7 @@ function saveHealthStateToStorage(healthState: HealthState): void {
     storageRepository.saveCustom(HEALTH_STORAGE_KEY, stored);
   } catch {
     // Storage write failed, silently fail
-    console.error('Failed to save health state to storage');
+    console.error("Failed to save health state to storage");
   }
 }
 
@@ -144,11 +149,16 @@ function getMostSevereInjuryFromState(healthState: HealthState): Injury | null {
   }
 
   // Severity order: critical > major > moderate > minor
-  const severityOrder: import('./injury-types').InjurySeverity[] = ['critical', 'major', 'moderate', 'minor'];
-  
+  const severityOrder: import("./injury-types").InjurySeverity[] = [
+    "critical",
+    "major",
+    "moderate",
+    "minor",
+  ];
+
   for (const severity of severityOrder) {
     const severeInjury = healthState.currentInjuries.find(
-      injury => injury.severity === severity
+      (injury) => injury.severity === severity,
     );
     if (severeInjury) {
       return severeInjury;
@@ -205,23 +215,28 @@ export const useHealthStore = create<HealthStore>((set, get) => ({
       let injuriesUpdated = false;
 
       // Update recovery progress for each injury
-      const updatedInjuries = updatedState.currentInjuries.map(injury => {
-        const newDaysElapsed = injury.daysElapsed + daysPassed;
-        
-        if (newDaysElapsed >= injury.daysToRecover) {
-          // Injury has healed
-          injuriesUpdated = true;
-          return null; // Will be filtered out
-        }
-        
-        return {
-          ...injury,
-          daysElapsed: newDaysElapsed,
-        };
-      }).filter(Boolean) as Injury[];
+      const updatedInjuries = updatedState.currentInjuries
+        .map((injury) => {
+          const newDaysElapsed = injury.daysElapsed + daysPassed;
+
+          if (newDaysElapsed >= injury.daysToRecover) {
+            // Injury has healed
+            injuriesUpdated = true;
+            return null; // Will be filtered out
+          }
+
+          return {
+            ...injury,
+            daysElapsed: newDaysElapsed,
+          };
+        })
+        .filter(Boolean) as Injury[];
 
       // Only update if there were changes
-      if (injuriesUpdated || updatedInjuries.length !== updatedState.currentInjuries.length) {
+      if (
+        injuriesUpdated ||
+        updatedInjuries.length !== updatedState.currentInjuries.length
+      ) {
         updatedState = {
           ...updatedState,
           currentInjuries: updatedInjuries,
@@ -238,7 +253,7 @@ export const useHealthStore = create<HealthStore>((set, get) => ({
       const updatedState = {
         ...state.healthState,
         currentInjuries: state.healthState.currentInjuries.filter(
-          injury => injury.id !== injuryId
+          (injury) => injury.id !== injuryId,
         ),
       };
       saveHealthStateToStorage(updatedState);
@@ -293,7 +308,10 @@ export const useHealthStore = create<HealthStore>((set, get) => ({
 
   updateOvertrainLevel(delta) {
     set((state) => {
-      const newOvertrainLevel = Math.max(0, Math.min(100, state.healthState.overtrainLevel + delta));
+      const newOvertrainLevel = Math.max(
+        0,
+        Math.min(100, state.healthState.overtrainLevel + delta),
+      );
       const updatedState = {
         ...state.healthState,
         overtrainLevel: newOvertrainLevel,
@@ -305,7 +323,10 @@ export const useHealthStore = create<HealthStore>((set, get) => ({
 
   updateFatigueLevel(delta) {
     set((state) => {
-      const newFatigueLevel = Math.max(0, Math.min(100, state.healthState.fatigueLevel + delta));
+      const newFatigueLevel = Math.max(
+        0,
+        Math.min(100, state.healthState.fatigueLevel + delta),
+      );
       const updatedState = {
         ...state.healthState,
         fatigueLevel: newFatigueLevel,
@@ -317,7 +338,9 @@ export const useHealthStore = create<HealthStore>((set, get) => ({
 
   addRestDay() {
     set((state) => {
-      const dayIndex = state.healthState.lastRestDay ? state.healthState.lastRestDay + 1 : 0;
+      const dayIndex = state.healthState.lastRestDay
+        ? state.healthState.lastRestDay + 1
+        : 0;
       const updatedState = {
         ...state.healthState,
         totalRestDays: state.healthState.totalRestDays + 1,
@@ -332,21 +355,26 @@ export const useHealthStore = create<HealthStore>((set, get) => ({
   // Treatment
   applyTreatment(injuryId, treatmentType, recoverySpeedup) {
     set((state) => {
-      const updatedInjuries = state.healthState.currentInjuries.map(injury => {
-        if (injury.id !== injuryId) {
-          return injury;
-        }
+      const updatedInjuries = state.healthState.currentInjuries.map(
+        (injury) => {
+          if (injury.id !== injuryId) {
+            return injury;
+          }
 
-        // Apply treatment effect
-        const newDaysToRecover = Math.max(1, Math.round(injury.daysToRecover * recoverySpeedup));
-        
-        return {
-          ...injury,
-          daysToRecover: newDaysToRecover,
-          isTreated: true,
-          treatmentType,
-        };
-      });
+          // Apply treatment effect
+          const newDaysToRecover = Math.max(
+            1,
+            Math.round(injury.daysToRecover * recoverySpeedup),
+          );
+
+          return {
+            ...injury,
+            daysToRecover: newDaysToRecover,
+            isTreated: true,
+            treatmentType,
+          };
+        },
+      );
 
       const updatedState = {
         ...state.healthState,

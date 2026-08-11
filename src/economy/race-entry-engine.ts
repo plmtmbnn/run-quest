@@ -4,12 +4,12 @@
  * Validates and processes race entry with fee and prerequisites.
  */
 
+import { formatCurrency } from "@/economy/currency-converter";
+import { useSettingsStore } from "@/store/settings-store";
 import type { GameState } from "../engine/timeline/time-types";
 import { spendRaceEntry } from "./earning-engine";
 import { getEntryFee } from "./economy-balance";
 import type { EconomyState, RaceTier } from "./economy-types";
-import { useSettingsStore } from "@/store/settings-store";
-import { formatCurrency } from "@/economy/currency-converter";
 
 /**
  * Prerequisites that may be required for a race.
@@ -88,7 +88,7 @@ export function validateRaceEntry(
     onlyRegister?: boolean;
     isRegistered?: boolean;
     distanceInKm?: number;
-  }
+  },
 ): EntryValidation {
   const blockers: EntryBlocker[] = [];
   const warnings: string[] = [];
@@ -97,10 +97,15 @@ export function validateRaceEntry(
   const isRegistered = options?.isRegistered ?? false;
 
   // Determine entry fee - if already registered, fee is 0
-  const entryFee = isRegistered ? 0 : (prerequisites?.entryFee ?? getEntryFee(raceTier));
-  const energyCost = onlyRegister ? 0 : getEnergyCostForDistance(options?.distanceInKm);
+  const entryFee = isRegistered
+    ? 0
+    : (prerequisites?.entryFee ?? getEntryFee(raceTier));
+  const energyCost = onlyRegister
+    ? 0
+    : getEnergyCostForDistance(options?.distanceInKm);
 
-  const preferredCurrency = useSettingsStore.getState().settings.preferredCurrency || "USD";
+  const preferredCurrency =
+    useSettingsStore.getState().settings.preferredCurrency || "USD";
   const entryFeeStr = formatCurrency(entryFee, preferredCurrency);
   const balanceStr = formatCurrency(economy.currentBalance, preferredCurrency);
 
@@ -121,22 +126,29 @@ export function validateRaceEntry(
     // Player can still enter but will have very high risk of DNF
     if (gameState.energy < energyCost * 0.3) {
       // Critical low energy - still allow but with explicit warning
-      warnings.push(`⚠️ CRITICAL: Starting with very low energy (${gameState.energy}/${energyCost} EP). Very high risk of DNF!`);
+      warnings.push(
+        `⚠️ CRITICAL: Starting with very low energy (${gameState.energy}/${energyCost} EP). Very high risk of DNF!`,
+      );
     } else if (gameState.energy < energyCost) {
       // Low energy - allow entry but warn
-      warnings.push(`⚠️ LOW ENERGY: Starting with insufficient energy (${gameState.energy}/${energyCost} EP). High risk of DNF!`);
+      warnings.push(
+        `⚠️ LOW ENERGY: Starting with insufficient energy (${gameState.energy}/${energyCost} EP). High risk of DNF!`,
+      );
     }
   }
 
   const hasMoney = economy.currentBalance >= entryFee;
-  const isNationalOrAbove = raceTier === "national" || raceTier === "international";
+  const isNationalOrAbove =
+    raceTier === "national" || raceTier === "international";
 
   // Check level
   if (prerequisites?.minLevel) {
     const level = gameState.skills.running ?? 0;
     if (level < prerequisites.minLevel) {
       if (hasMoney && isNationalOrAbove) {
-        warnings.push(`Recommended running skill ${prerequisites.minLevel} (you have ${level}).`);
+        warnings.push(
+          `Recommended running skill ${prerequisites.minLevel} (you have ${level}).`,
+        );
       } else {
         blockers.push({
           reason: `Running skill ${prerequisites.minLevel} required (have ${level})`,
@@ -153,7 +165,9 @@ export function validateRaceEntry(
     const rating = (gameState.flags.rating as number) ?? 0;
     if (rating < prerequisites.minRating) {
       if (hasMoney && isNationalOrAbove) {
-        warnings.push(`Recommended rating ${prerequisites.minRating} (you have ${rating}).`);
+        warnings.push(
+          `Recommended rating ${prerequisites.minRating} (you have ${rating}).`,
+        );
       } else {
         blockers.push({
           reason: `Rating ${prerequisites.minRating} required (have ${rating})`,
@@ -242,7 +256,7 @@ export function processRaceEntry(
     onlyRegister?: boolean;
     isRegistered?: boolean;
     distanceInKm?: number;
-  }
+  },
 ): {
   economy: EconomyState;
   gameState: GameState;
@@ -258,7 +272,7 @@ export function processRaceEntry(
     gameState,
     raceTier,
     prerequisites,
-    options
+    options,
   );
 
   if (!validation.eligible) {
@@ -266,17 +280,14 @@ export function processRaceEntry(
   }
 
   // Deduct entry fee if not registered yet
-  const entryFee = isRegistered ? 0 : (prerequisites?.entryFee ?? getEntryFee(raceTier));
+  const entryFee = isRegistered
+    ? 0
+    : (prerequisites?.entryFee ?? getEntryFee(raceTier));
   let updatedEconomy = economy;
   let success = true;
 
   if (entryFee > 0) {
-    const res = spendRaceEntry(
-      economy,
-      gameState,
-      entryFee,
-      raceName,
-    );
+    const res = spendRaceEntry(economy, gameState, entryFee, raceName);
     updatedEconomy = res.economy;
     success = res.success;
   }

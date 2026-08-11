@@ -26,7 +26,8 @@ export function EndorphinRushOverlay({
   useEffect(() => {
     if (rush && !rush.dismissed) {
       // Generate particles (fewer on mobile for performance)
-      const particleCount = typeof window !== "undefined" && window.innerWidth < 768 ? 12 : 20;
+      const particleCount =
+        typeof window !== "undefined" && window.innerWidth < 768 ? 12 : 20;
       setParticles(Array.from({ length: particleCount }, (_, i) => i));
 
       // Auto-dismiss after 2.5 seconds
@@ -99,7 +100,10 @@ export function EndorphinRushOverlay({
           <motion.div
             key={i}
             initial={{
-              x: typeof window !== "undefined" ? Math.random() * window.innerWidth : 0,
+              x:
+                typeof window !== "undefined"
+                  ? Math.random() * window.innerWidth
+                  : 0,
               y: typeof window !== "undefined" ? window.innerHeight + 50 : 0,
               opacity: 0,
             }}
@@ -141,7 +145,9 @@ export function EndorphinRushOverlay({
               transition={{ delay: 0.2 }}
             >
               {/* Icon */}
-              <div className="text-6xl sm:text-8xl mb-2 sm:mb-4 animate-pulse">⚡</div>
+              <div className="text-6xl sm:text-8xl mb-2 sm:mb-4 animate-pulse">
+                ⚡
+              </div>
 
               {/* Title */}
               <h2 className="text-3xl sm:text-5xl font-black text-white uppercase tracking-wider mb-2 sm:mb-3 drop-shadow-lg">
@@ -151,7 +157,9 @@ export function EndorphinRushOverlay({
               </h2>
 
               {/* Message */}
-              <p className={`text-base sm:text-xl font-bold ${ENDORPHIN_COLORS.text} mb-3 sm:mb-4`}>
+              <p
+                className={`text-base sm:text-xl font-bold ${ENDORPHIN_COLORS.text} mb-3 sm:mb-4`}
+              >
                 {messages[rush.intensity][lang]}
               </p>
 
@@ -205,7 +213,10 @@ export function EndorphinRushOverlay({
               className="mt-4 sm:mt-6"
             >
               <p className="text-xs sm:text-sm text-yellow-400 font-semibold">
-                ⚠️ {lang === "en" ? "High risk - crash may follow" : "Risiko tinggi - mungkin crash setelahnya"}
+                ⚠️{" "}
+                {lang === "en"
+                  ? "High risk - crash may follow"
+                  : "Risiko tinggi - mungkin crash setelahnya"}
               </p>
             </motion.div>
           )}

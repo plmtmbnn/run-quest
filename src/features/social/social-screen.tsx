@@ -177,7 +177,10 @@ export function SocialScreen() {
         wins: 0,
         losses: 0,
       };
-      const currentRivalRp = Math.max(0, rival.baseRp + stats.losses * 40 - stats.wins * 25);
+      const currentRivalRp = Math.max(
+        0,
+        rival.baseRp + stats.losses * 40 - stats.wins * 25,
+      );
       const { tier, division } = getTierAndDivision(currentRivalRp);
       return {
         id: rival.id,
@@ -283,7 +286,9 @@ export function SocialScreen() {
                   {tab === "stats" && "⚔️"}
                   {tab === "feed" && "📡"}
                 </span>
-                <span className={`${isActive ? "block" : "hidden sm:block"} truncate`}>
+                <span
+                  className={`${isActive ? "block" : "hidden sm:block"} truncate`}
+                >
                   {t(`social.tabs.${tab}` as TranslationKey)}
                 </span>
               </button>
@@ -299,22 +304,29 @@ export function SocialScreen() {
           <div className="flex flex-col gap-5">
             {/* Scope Filter Pills */}
             <div className="flex justify-center gap-2 flex-wrap">
-              {(["regional", "global", "rivals"] as LeaderboardScope[]).map((sc) => (
-                <button
-                  key={sc}
-                  type="button"
-                  onClick={() => handleScopeChange(sc)}
-                  className={`px-4 py-2 text-xs font-black rounded-full transition-all border min-h-[40px] cursor-pointer ${
-                    scope === sc
-                      ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white shadow-xs"
-                      : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800"
-                  }`}
-                >
-                  {sc === "regional" && (region ? `${region} Division` : t("social.scope.regional" as TranslationKey))}
-                  {sc === "global" && t("social.scope.global" as TranslationKey)}
-                  {sc === "rivals" && t("social.scope.rivals" as TranslationKey)}
-                </button>
-              ))}
+              {(["regional", "global", "rivals"] as LeaderboardScope[]).map(
+                (sc) => (
+                  <button
+                    key={sc}
+                    type="button"
+                    onClick={() => handleScopeChange(sc)}
+                    className={`px-4 py-2 text-xs font-black rounded-full transition-all border min-h-[40px] cursor-pointer ${
+                      scope === sc
+                        ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-slate-900 dark:border-white shadow-xs"
+                        : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800"
+                    }`}
+                  >
+                    {sc === "regional" &&
+                      (region
+                        ? `${region} Division`
+                        : t("social.scope.regional" as TranslationKey))}
+                    {sc === "global" &&
+                      t("social.scope.global" as TranslationKey)}
+                    {sc === "rivals" &&
+                      t("social.scope.rivals" as TranslationKey)}
+                  </button>
+                ),
+              )}
             </div>
 
             {/* Region picker if regional and no region set */}
@@ -355,10 +367,18 @@ export function SocialScreen() {
               /* The Leaderboard List */
               <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm overflow-hidden flex flex-col">
                 <div className="grid grid-cols-12 gap-1 px-4 sm:px-5 py-3.5 bg-slate-100/70 dark:bg-slate-800/50 border-b border-slate-200/60 dark:border-slate-800 font-extrabold text-[10px] text-slate-400 uppercase tracking-widest">
-                  <span className="col-span-2 text-center">Rank</span>
-                  <span className="col-span-6">Runner</span>
-                  <span className="col-span-2 text-center">Tier</span>
-                  <span className="col-span-2 text-right">RP</span>
+                  <span className="col-span-2 text-center">
+                    {t("social_table.rank" as TranslationKey)}
+                  </span>
+                  <span className="col-span-6">
+                    {t("social_table.runner" as TranslationKey)}
+                  </span>
+                  <span className="col-span-2 text-center">
+                    {t("social_table.tier" as TranslationKey)}
+                  </span>
+                  <span className="col-span-2 text-right">
+                    {t("social_table.rp" as TranslationKey)}
+                  </span>
                 </div>
                 <div className="divide-y divide-slate-100 dark:divide-slate-800/80">
                   {(scope === "regional"
@@ -475,7 +495,9 @@ export function SocialScreen() {
                       </div>
                     </div>
                     <div className="bg-white/10 px-3.5 py-2 rounded-2xl border border-white/10 text-[10px] uppercase tracking-wider font-extrabold text-center shrink-0 w-full sm:w-auto">
-                      <span className="text-slate-300">{t("social.club.bonus_status" as TranslationKey)}</span>
+                      <span className="text-slate-300">
+                        {t("social.club.bonus_status" as TranslationKey)}
+                      </span>
                       <span className="block text-indigo-200 font-bold mt-0.5">
                         +5 Attribute Boost
                       </span>
@@ -580,7 +602,8 @@ export function SocialScreen() {
                   {t("social.stats.league_rank" as TranslationKey)}
                 </span>
                 <span className="text-lg sm:text-xl font-black text-slate-900 dark:text-white font-heading truncate">
-                  {playerTierInfo.tier} {playerTierInfo.division && `Div ${playerTierInfo.division}`}
+                  {playerTierInfo.tier}{" "}
+                  {playerTierInfo.division && `Div ${playerTierInfo.division}`}
                 </span>
                 <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
                   {profile.rankPoints || 0} Rank Points
@@ -631,7 +654,11 @@ export function SocialScreen() {
                     {getWinStreak(profile)}
                   </span>
                   <span className="text-[10px] font-bold text-slate-500 uppercase">
-                    {getWinStreak(profile) === 1 ? "Race" : getWinStreak(profile) > 1 ? "Races" : "—"}
+                    {getWinStreak(profile) === 1
+                      ? "Race"
+                      : getWinStreak(profile) > 1
+                        ? "Races"
+                        : "—"}
                   </span>
                 </div>
 
@@ -645,8 +672,12 @@ export function SocialScreen() {
                     if (delta === null) {
                       return (
                         <>
-                          <span className="text-2xl font-black text-slate-400">—</span>
-                          <span className="text-[10px] font-bold text-slate-500 uppercase">N/A</span>
+                          <span className="text-2xl font-black text-slate-400">
+                            —
+                          </span>
+                          <span className="text-[10px] font-bold text-slate-500 uppercase">
+                            N/A
+                          </span>
                         </>
                       );
                     }
@@ -700,7 +731,8 @@ export function SocialScreen() {
                     </div>
                   </div>
                   <div className="font-mono font-black text-sm text-red-600 dark:text-red-400">
-                    {profile.currentNemesis.wins || 0}W - {profile.currentNemesis.losses || 0}L
+                    {profile.currentNemesis.wins || 0}W -{" "}
+                    {profile.currentNemesis.losses || 0}L
                   </div>
                 </div>
               )}
@@ -712,9 +744,15 @@ export function SocialScreen() {
                   { id: "kenji_nakamura", name: "Kenji Nakamura", emoji: "🏃" },
                   { id: "sarah_chen", name: "Sarah Chen", emoji: "🏃‍♀️" },
                   { id: "alex_santos", name: "Alex Santos", emoji: "🏃‍♂️" },
-                  { id: "maria_gonzalez", name: "Maria Gonzalez", emoji: "🏃‍♀️" },
+                  {
+                    id: "maria_gonzalez",
+                    name: "Maria Gonzalez",
+                    emoji: "🏃‍♀️",
+                  },
                 ].map((rival) => {
-                  const relationship = profile.rivalRelationships?.[rival.id] || {
+                  const relationship = profile.rivalRelationships?.[
+                    rival.id
+                  ] || {
                     wins: 0,
                     losses: 0,
                     relationshipLevel: 0,
@@ -723,9 +761,13 @@ export function SocialScreen() {
 
                   const totalRaces = relationship.wins + relationship.losses;
                   const winRate =
-                    totalRaces > 0 ? Math.round((relationship.wins / totalRaces) * 100) : null;
-                  const isWinning = totalRaces > 0 && relationship.wins > relationship.losses;
-                  const isEven = totalRaces > 0 && relationship.wins === relationship.losses;
+                    totalRaces > 0
+                      ? Math.round((relationship.wins / totalRaces) * 100)
+                      : null;
+                  const isWinning =
+                    totalRaces > 0 && relationship.wins > relationship.losses;
+                  const isEven =
+                    totalRaces > 0 && relationship.wins === relationship.losses;
 
                   return (
                     <div
@@ -742,7 +784,9 @@ export function SocialScreen() {
                     >
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2.5 min-w-0">
-                          <span className="text-xl shrink-0">{rival.emoji}</span>
+                          <span className="text-xl shrink-0">
+                            {rival.emoji}
+                          </span>
                           <div className="min-w-0">
                             <h5 className="font-bold text-slate-900 dark:text-white leading-tight truncate">
                               {rival.name}
@@ -767,7 +811,10 @@ export function SocialScreen() {
                               </span>
                             ) : (
                               <span className="text-[10px] font-bold text-slate-400">
-                                🤝 {t("social.stats.no_encounters" as TranslationKey)}
+                                🤝{" "}
+                                {t(
+                                  "social.stats.no_encounters" as TranslationKey,
+                                )}
                               </span>
                             )}
                           </div>
@@ -778,7 +825,8 @@ export function SocialScreen() {
                           </span>
                           {relationship.closestMargin < Infinity && (
                             <div className="text-[9px] text-slate-400 font-mono mt-0.5">
-                              Margin: {Math.floor(relationship.closestMargin / 60)}m{" "}
+                              Margin:{" "}
+                              {Math.floor(relationship.closestMargin / 60)}m{" "}
                               {Math.floor(relationship.closestMargin % 60)}s
                             </div>
                           )}

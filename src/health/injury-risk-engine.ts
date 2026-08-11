@@ -1,10 +1,14 @@
 // injury-risk-engine.ts
 // Core injury risk calculation and injury determination logic.
 
-import type { InjuryType, InjurySeverity } from './injury-types';
-import { getAllInjuryDefinitions, getInjuryDefinitionsBySeverity, type HealthState } from './injury-types';
-import type { RunnerProfile } from '@/runner/runner-types';
-import type { TrainingActivity } from '@/training/training-types';
+import type { RunnerProfile } from "@/runner/runner-types";
+import type { TrainingActivity } from "@/training/training-types";
+import type { InjurySeverity, InjuryType } from "./injury-types";
+import {
+  getAllInjuryDefinitions,
+  getInjuryDefinitionsBySeverity,
+  type HealthState,
+} from "./injury-types";
 
 /**
  * Risk factors affecting injury probability.
@@ -39,7 +43,7 @@ export interface RiskFactors {
  * Activity details for risk calculation.
  */
 export interface ActivityDetails {
-  type: 'training' | 'racing';
+  type: "training" | "racing";
   distance?: number;
   intensity?: number;
   duration?: number;
@@ -56,7 +60,7 @@ export interface ActivityDetails {
 /**
  * Default risk factors.
  */
-const DEFAULT_RISK_FACTORS: Omit<RiskFactors, 'totalRisk'> = {
+const DEFAULT_RISK_FACTORS: Omit<RiskFactors, "totalRisk"> = {
   baseRisk: 5, // Base 5% injury risk
   trainingFactors: {
     consecutiveDays: 0,
@@ -85,9 +89,9 @@ const DEFAULT_RISK_FACTORS: Omit<RiskFactors, 'totalRisk'> = {
  * Risk thresholds for different severity levels.
  */
 const SEVERITY_THRESHOLDS = {
-  minor: 0.7,    // 70% chance of minor injury when injury occurs
+  minor: 0.7, // 70% chance of minor injury when injury occurs
   moderate: 0.2, // 20% chance of moderate injury when injury occurs
-  major: 0.08,   // 8% chance of major injury when injury occurs
+  major: 0.08, // 8% chance of major injury when injury occurs
   critical: 0.02, // 2% chance of critical injury when injury occurs
 };
 
@@ -97,9 +101,9 @@ const SEVERITY_THRESHOLDS = {
 function calculateTrainingRiskFactors(
   healthState: HealthState,
   runnerProfile: RunnerProfile,
-  activityDetails: ActivityDetails
-): RiskFactors['trainingFactors'] {
-  const factors: RiskFactors['trainingFactors'] = {
+  activityDetails: ActivityDetails,
+): RiskFactors["trainingFactors"] {
+  const factors: RiskFactors["trainingFactors"] = {
     consecutiveDays: 0,
     weeklyVolume: 0,
     intensitySpike: 0,
@@ -128,7 +132,8 @@ function calculateTrainingRiskFactors(
   }
 
   // Inadequate recovery risk
-  const daysSinceLastRest = activityDetails.daysSinceLastRest ?? healthState.consecutiveTrainingDays;
+  const daysSinceLastRest =
+    activityDetails.daysSinceLastRest ?? healthState.consecutiveTrainingDays;
   if (daysSinceLastRest >= 7) {
     factors.inadequateRecovery = 15; // +15% risk if no rest in past week
   } else if (daysSinceLastRest >= 4) {
@@ -138,7 +143,10 @@ function calculateTrainingRiskFactors(
   // Low fitness risk (training above current level)
   if (runnerProfile.currentFitness && runnerProfile.currentFitness < 50) {
     factors.lowFitness = 25; // +25% risk if fitness is low
-  } else if (runnerProfile.currentFitness && runnerProfile.currentFitness < 70) {
+  } else if (
+    runnerProfile.currentFitness &&
+    runnerProfile.currentFitness < 70
+  ) {
     factors.lowFitness = 15; // +15% risk if fitness is moderate
   }
 
@@ -151,9 +159,9 @@ function calculateTrainingRiskFactors(
 function calculateRacingRiskFactors(
   healthState: HealthState,
   runnerProfile: RunnerProfile,
-  activityDetails: ActivityDetails
-): RiskFactors['racingFactors'] {
-  const factors: RiskFactors['racingFactors'] = {
+  activityDetails: ActivityDetails,
+): RiskFactors["racingFactors"] {
+  const factors: RiskFactors["racingFactors"] = {
     lengthVsFitness: 0,
     weather: 0,
     pushedPace: 0,
@@ -164,21 +172,29 @@ function calculateRacingRiskFactors(
   // Race length vs fitness risk
   if (activityDetails.distance) {
     // Simplified: longer races are riskier
-    if (activityDetails.distance >= 42.2) { // Marathon distance
+    if (activityDetails.distance >= 42.2) {
+      // Marathon distance
       factors.lengthVsFitness = 30; // +30% risk for marathon
-    } else if (activityDetails.distance >= 21.1) { // Half marathon
+    } else if (activityDetails.distance >= 21.1) {
+      // Half marathon
       factors.lengthVsFitness = 20; // +20% risk for half marathon
-    } else if (activityDetails.distance >= 10) { // 10K+
+    } else if (activityDetails.distance >= 10) {
+      // 10K+
       factors.lengthVsFitness = 10; // +10% risk for 10K+
     }
   }
 
   // Weather conditions risk
   if (activityDetails.weatherCondition) {
-    const extremeConditions = ['extreme_heat', 'extreme_cold', 'heavy_rain', 'storm'];
+    const extremeConditions = [
+      "extreme_heat",
+      "extreme_cold",
+      "heavy_rain",
+      "storm",
+    ];
     if (extremeConditions.includes(activityDetails.weatherCondition)) {
       factors.weather = 15; // +15% risk for extreme weather
-    } else if (activityDetails.weatherCondition !== 'ideal') {
+    } else if (activityDetails.weatherCondition !== "ideal") {
       factors.weather = 5; // +5% risk for non-ideal conditions
     }
   }
@@ -189,7 +205,8 @@ function calculateRacingRiskFactors(
   }
 
   // Inadequate preparation risk
-  const daysSinceLastRest = activityDetails.daysSinceLastRest ?? healthState.consecutiveTrainingDays;
+  const daysSinceLastRest =
+    activityDetails.daysSinceLastRest ?? healthState.consecutiveTrainingDays;
   if (daysSinceLastRest && daysSinceLastRest < 3) {
     factors.inadequatePrep = 0; // Good prep
   } else if (daysSinceLastRest && daysSinceLastRest < 5) {
@@ -211,9 +228,9 @@ function calculateRacingRiskFactors(
  */
 function calculatePreventionModifiers(
   healthState: HealthState,
-  activityDetails: ActivityDetails
-): RiskFactors['preventionModifiers'] {
-  const modifiers: RiskFactors['preventionModifiers'] = {
+  activityDetails: ActivityDetails,
+): RiskFactors["preventionModifiers"] {
+  const modifiers: RiskFactors["preventionModifiers"] = {
     restDays: 0,
     equipment: 0,
     progression: 0,
@@ -260,24 +277,29 @@ function calculatePreventionModifiers(
 export function calculateInjuryRisk(
   healthState: HealthState,
   runnerProfile: RunnerProfile,
-  activityDetails: ActivityDetails
+  activityDetails: ActivityDetails,
 ): RiskFactors {
   const baseFactors = { ...DEFAULT_RISK_FACTORS };
 
   // Calculate activity-specific factors
-  if (activityDetails.type === 'training') {
+  if (activityDetails.type === "training") {
     baseFactors.trainingFactors = calculateTrainingRiskFactors(
-      healthState, runnerProfile, activityDetails
+      healthState,
+      runnerProfile,
+      activityDetails,
     );
   } else {
     baseFactors.racingFactors = calculateRacingRiskFactors(
-      healthState, runnerProfile, activityDetails
+      healthState,
+      runnerProfile,
+      activityDetails,
     );
   }
 
   // Calculate prevention modifiers
   baseFactors.preventionModifiers = calculatePreventionModifiers(
-    healthState, activityDetails
+    healthState,
+    activityDetails,
   );
 
   // Calculate total risk
@@ -292,11 +314,14 @@ export function calculateInjuryRisk(
 /**
  * Calculate the total injury risk percentage from all factors.
  */
-function calculateTotalRisk(factors: Omit<RiskFactors, 'totalRisk'>, activityType: 'training' | 'racing'): number {
+function calculateTotalRisk(
+  factors: Omit<RiskFactors, "totalRisk">,
+  activityType: "training" | "racing",
+): number {
   let totalRisk = factors.baseRisk;
 
   // Add training or racing factors
-  if (activityType === 'training') {
+  if (activityType === "training") {
     totalRisk += factors.trainingFactors.consecutiveDays;
     totalRisk += factors.trainingFactors.weeklyVolume;
     totalRisk += factors.trainingFactors.intensitySpike;
@@ -334,7 +359,7 @@ export function rollForInjury(riskPercentage: number): {
   severity: InjurySeverity | null;
 } {
   const risk = Math.random() * 100; // Random number between 0-100
-  
+
   if (risk > riskPercentage) {
     // No injury
     return {
@@ -347,24 +372,35 @@ export function rollForInjury(riskPercentage: number): {
   // Injury occurred! Determine severity and type
   const severityRoll = Math.random();
   let severity: InjurySeverity;
-  
+
   if (severityRoll < SEVERITY_THRESHOLDS.critical) {
-    severity = 'critical';
-  } else if (severityRoll < SEVERITY_THRESHOLDS.critical + SEVERITY_THRESHOLDS.major) {
-    severity = 'major';
-  } else if (severityRoll < SEVERITY_THRESHOLDS.critical + SEVERITY_THRESHOLDS.major + SEVERITY_THRESHOLDS.moderate) {
-    severity = 'moderate';
+    severity = "critical";
+  } else if (
+    severityRoll <
+    SEVERITY_THRESHOLDS.critical + SEVERITY_THRESHOLDS.major
+  ) {
+    severity = "major";
+  } else if (
+    severityRoll <
+    SEVERITY_THRESHOLDS.critical +
+      SEVERITY_THRESHOLDS.major +
+      SEVERITY_THRESHOLDS.moderate
+  ) {
+    severity = "moderate";
   } else {
-    severity = 'minor';
+    severity = "minor";
   }
 
   // Get available injury types for this severity
   const availableInjuries = getInjuryDefinitionsBySeverity(severity);
-  
+
   // Select a random injury type weighted by riskWeight
-  const totalWeight = availableInjuries.reduce((sum, injury) => sum + injury.riskWeight, 0);
+  const totalWeight = availableInjuries.reduce(
+    (sum, injury) => sum + injury.riskWeight,
+    0,
+  );
   let weightRoll = Math.random() * totalWeight;
-  
+
   let selectedInjury = availableInjuries[0]; // Default to first
   for (const injury of availableInjuries) {
     weightRoll -= injury.riskWeight;
@@ -391,19 +427,21 @@ export function rollForInjury(riskPercentage: number): {
 export function createInjury(
   type: InjuryType,
   severity: InjurySeverity,
-  dayIndex: number
-): import('./injury-types').Injury {
+  dayIndex: number,
+): import("./injury-types").Injury {
   const definition = getAllInjuryDefinitions().find(
-    def => def.type === type && def.severity === severity
+    (def) => def.type === type && def.severity === severity,
   );
-  
+
   if (!definition) {
     throw new Error(`Unknown injury type: ${type} with severity: ${severity}`);
   }
 
   // Add some randomness to recovery time (±20%)
   const recoveryVariation = 1 + (Math.random() * 0.4 - 0.2); // ±20%
-  const daysToRecover = Math.round(definition.baseRecoveryDays * recoveryVariation);
+  const daysToRecover = Math.round(
+    definition.baseRecoveryDays * recoveryVariation,
+  );
 
   return {
     id: `injury_${type}_${dayIndex}_${Math.random().toString(36).substr(2, 9)}`,
@@ -479,17 +517,24 @@ export function getPerformanceModifier(healthState: HealthState): number {
 /**
  * Get the most severe current injury.
  */
-export function getMostSevereInjury(healthState: HealthState): import('./injury-types').Injury | null {
+export function getMostSevereInjury(
+  healthState: HealthState,
+): import("./injury-types").Injury | null {
   if (healthState.currentInjuries.length === 0) {
     return null;
   }
 
   // Severity order: critical > major > moderate > minor
-  const severityOrder: InjurySeverity[] = ['critical', 'major', 'moderate', 'minor'];
-  
+  const severityOrder: InjurySeverity[] = [
+    "critical",
+    "major",
+    "moderate",
+    "minor",
+  ];
+
   for (const severity of severityOrder) {
     const severeInjury = healthState.currentInjuries.find(
-      injury => injury.severity === severity
+      (injury) => injury.severity === severity,
     );
     if (severeInjury) {
       return severeInjury;

@@ -1,10 +1,15 @@
 // race-injury-integration.ts
 // Integration of injury system with race simulation.
 
-import type { SimulationResult, SimulationState } from '@/types/engine';
-import { useHealthStore } from './health-store';
-import { calculateInjuryRisk, rollForInjury, createInjury, canRaceWithInjuries } from './injury-risk-engine';
-import type { RunnerProfile } from '@/runner/runner-types';
+import type { RunnerProfile } from "@/runner/runner-types";
+import type { SimulationResult, SimulationState } from "@/types/engine";
+import { useHealthStore } from "./health-store";
+import {
+  calculateInjuryRisk,
+  canRaceWithInjuries,
+  createInjury,
+  rollForInjury,
+} from "./injury-risk-engine";
 
 /**
  * Race details for injury risk calculation.
@@ -58,7 +63,7 @@ export function applyInjuryPerformancePenalty(runnerStats: {
   [key: string]: any;
 } {
   const performanceModifier = getRacePerformanceModifier();
-  
+
   if (performanceModifier >= 1.0) {
     // No penalty
     return {
@@ -87,14 +92,14 @@ export function applyInjuryPerformancePenalty(runnerStats: {
 export function checkForRaceInjury(
   raceDetails: RaceInjuryDetails,
   runnerProfile: RunnerProfile,
-  dayIndex: number
-): import('./injury-types').Injury | null {
+  dayIndex: number,
+): import("./injury-types").Injury | null {
   const healthStore = useHealthStore.getState();
   const healthState = healthStore.healthState;
 
   // Calculate injury risk based on race details
   const activityDetails = {
-    type: 'racing' as const,
+    type: "racing" as const,
     distance: raceDetails.distance,
     raceTier: raceDetails.raceTier,
     weatherCondition: raceDetails.weatherCondition,
@@ -106,31 +111,35 @@ export function checkForRaceInjury(
     isFollowingTrainingPlan: raceDetails.isFollowingTrainingPlan,
   };
 
-  const injuryRisk = calculateInjuryRisk(healthState, runnerProfile, activityDetails);
-  
+  const injuryRisk = calculateInjuryRisk(
+    healthState,
+    runnerProfile,
+    activityDetails,
+  );
+
   // Higher injury risk for races than training
   // Races are more intense, so multiply risk by 1.5
   const adjustedRisk = Math.min(95, injuryRisk.totalRisk * 1.5);
-  
+
   // Even higher risk if pushing pace
-  const finalRisk = raceDetails.isPushingPace 
-    ? Math.min(95, adjustedRisk * 1.2) 
+  const finalRisk = raceDetails.isPushingPace
+    ? Math.min(95, adjustedRisk * 1.2)
     : adjustedRisk;
 
   // Roll for injury
   const injuryResult = rollForInjury(finalRisk);
-  
+
   if (injuryResult.injured) {
     const injury = createInjury(
       injuryResult.injuryType!,
       injuryResult.severity!,
-      dayIndex
+      dayIndex,
     );
-    
+
     // Add injury to health state
     healthStore.addInjury(injury);
     healthStore.saveToStorage();
-    
+
     return injury;
   }
 
@@ -144,27 +153,27 @@ export function checkForRaceInjury(
  */
 export function updateHealthAfterRace(
   raceDetails: RaceInjuryDetails,
-  dayIndex: number
+  dayIndex: number,
 ): void {
   const healthStore = useHealthStore.getState();
 
   // Increment consecutive training days (racing counts as activity)
   healthStore.incrementConsecutiveTrainingDays();
-  
+
   // Update overtraining level based on race intensity
   // Races are more intense than training, so higher overtraining increase
   const overtrainDelta = Math.min(20, raceDetails.distance * 0.5); // Cap at +20
   healthStore.updateOvertrainLevel(overtrainDelta);
-  
+
   // Update fatigue level based on race distance and intensity
   const fatigueDelta = Math.min(30, raceDetails.distance * 1.5); // Cap at +30
   healthStore.updateFatigueLevel(fatigueDelta);
-  
+
   // If this was a very intense race (pushing pace), add extra fatigue
   if (raceDetails.isPushingPace) {
     healthStore.updateFatigueLevel(10);
   }
-  
+
   healthStore.saveToStorage();
 }
 
@@ -176,7 +185,7 @@ export function updateHealthAfterRace(
  */
 export function getRaceInjuryRiskAssessment(
   raceDetails: RaceInjuryDetails,
-  runnerProfile: RunnerProfile
+  runnerProfile: RunnerProfile,
 ): {
   riskPercentage: number;
   riskFactors: string[];
@@ -186,7 +195,7 @@ export function getRaceInjuryRiskAssessment(
   const healthState = healthStore.healthState;
 
   const activityDetails = {
-    type: 'racing' as const,
+    type: "racing" as const,
     distance: raceDetails.distance,
     raceTier: raceDetails.raceTier,
     weatherCondition: raceDetails.weatherCondition,
@@ -198,9 +207,13 @@ export function getRaceInjuryRiskAssessment(
     isFollowingTrainingPlan: raceDetails.isFollowingTrainingPlan,
   };
 
-  const injuryRisk = calculateInjuryRisk(healthState, runnerProfile, activityDetails);
-  const finalRisk = raceDetails.isPushingPace 
-    ? Math.min(95, injuryRisk.totalRisk * 1.5 * 1.2) 
+  const injuryRisk = calculateInjuryRisk(
+    healthState,
+    runnerProfile,
+    activityDetails,
+  );
+  const finalRisk = raceDetails.isPushingPace
+    ? Math.min(95, injuryRisk.totalRisk * 1.5 * 1.2)
     : Math.min(95, injuryRisk.totalRisk * 1.5);
 
   // Generate risk factors
@@ -208,33 +221,33 @@ export function getRaceInjuryRiskAssessment(
   const recommendations: string[] = [];
 
   if (healthState.overtrainLevel > 70) {
-    riskFactors.push('High overtraining level');
-    recommendations.push('Take rest days to reduce overtraining');
+    riskFactors.push("High overtraining level");
+    recommendations.push("Take rest days to reduce overtraining");
   }
 
   if (healthState.fatigueLevel > 70) {
-    riskFactors.push('High fatigue level');
-    recommendations.push('Get adequate rest and recovery');
+    riskFactors.push("High fatigue level");
+    recommendations.push("Get adequate rest and recovery");
   }
 
   if (healthState.consecutiveTrainingDays > 5) {
-    riskFactors.push('Many consecutive training days');
-    recommendations.push('Take a rest day to recover');
+    riskFactors.push("Many consecutive training days");
+    recommendations.push("Take a rest day to recover");
   }
 
   if (raceDetails.isPushingPace) {
-    riskFactors.push('Pushing pace increases injury risk');
-    recommendations.push('Consider a more conservative pacing strategy');
+    riskFactors.push("Pushing pace increases injury risk");
+    recommendations.push("Consider a more conservative pacing strategy");
   }
 
   if (raceDetails.distance >= 21.1) {
-    riskFactors.push('Long race distance');
-    recommendations.push('Ensure proper preparation for long races');
+    riskFactors.push("Long race distance");
+    recommendations.push("Ensure proper preparation for long races");
   }
 
-  if (raceDetails.weatherCondition !== 'ideal') {
-    riskFactors.push('Non-ideal weather conditions');
-    recommendations.push('Check weather and adjust strategy accordingly');
+  if (raceDetails.weatherCondition !== "ideal") {
+    riskFactors.push("Non-ideal weather conditions");
+    recommendations.push("Check weather and adjust strategy accordingly");
   }
 
   return {

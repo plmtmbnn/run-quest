@@ -40,7 +40,7 @@ export const processAdaptationQueue = (currentDayIndex: number): void => {
 
   if (typeof window !== "undefined") {
     window.dispatchEvent(
-      new CustomEvent("runner-state-updated", { detail: updatedRunnerState })
+      new CustomEvent("runner-state-updated", { detail: updatedRunnerState }),
     );
   }
 

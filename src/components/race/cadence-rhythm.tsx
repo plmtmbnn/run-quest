@@ -30,7 +30,9 @@ export function CadenceRhythm({
   const beatIntervalMs = Math.round(60000 / spm);
 
   const [isMinimized, setIsMinimized] = useState(false);
-  const [lastAccuracy, setLastAccuracy] = useState<RhythmHitAccuracy | null>(null);
+  const [lastAccuracy, setLastAccuracy] = useState<RhythmHitAccuracy | null>(
+    null,
+  );
   const [combo, setCombo] = useState(rhythmState?.comboCount ?? 0);
   const [isBeating, setIsBeating] = useState(false);
 
@@ -75,9 +77,7 @@ export function CadenceRhythm({
     const timeToNextBeat = beatIntervalMs - timeSinceLastBeat;
     // Difference relative to nearest beat
     const timeDiffMs =
-      timeSinceLastBeat < timeToNextBeat
-        ? timeSinceLastBeat
-        : -timeToNextBeat;
+      timeSinceLastBeat < timeToNextBeat ? timeSinceLastBeat : -timeToNextBeat;
 
     const result = evaluateRhythmHit(timeDiffMs, combo);
     setLastAccuracy(result.accuracy);
@@ -180,7 +180,8 @@ export function CadenceRhythm({
 
             {/* Timing Guidance & Input Tip */}
             <p className="text-[11px] text-slate-500 dark:text-slate-400 text-center font-medium">
-              Tap in rhythm with footfalls <span className="font-mono font-bold">(Spacebar)</span>
+              Tap in rhythm with footfalls{" "}
+              <span className="font-mono font-bold">(Spacebar)</span>
             </p>
 
             {/* Accuracy & Combo Display */}

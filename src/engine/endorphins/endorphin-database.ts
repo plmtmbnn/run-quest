@@ -110,7 +110,8 @@ export function calculateWithdrawalEffects(
   // Withdrawal gets worse the longer you go without
   const daysMultiplier = Math.min(1 + daysSinceUse * 0.1, 2);
 
-  const basePenalty = (addictionLevel / 100) * 15 * penaltyMultiplier * daysMultiplier;
+  const basePenalty =
+    (addictionLevel / 100) * 15 * penaltyMultiplier * daysMultiplier;
 
   const effects: WithdrawalEffects = {
     energyPenalty: Math.round(basePenalty * 1.2),
@@ -163,9 +164,7 @@ export function calculateCravingIntensity(
 /**
  * Get endorphin crash effects when rush ends
  */
-export function getEndorphinCrashEffects(
-  intensity: EndorphinIntensity,
-): {
+export function getEndorphinCrashEffects(intensity: EndorphinIntensity): {
   energyDrain: number;
   fatiguePenalty: number;
   confidenceDrop: number;

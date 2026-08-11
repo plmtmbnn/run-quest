@@ -1,10 +1,9 @@
 import dynamic from "next/dynamic";
 
-const HowToPlayScreen = dynamic(
-  () =>
-    import("@/features/how-to-play/how-to-play-screen").then(
-      (mod) => mod.HowToPlayScreen,
-    ),
+const HowToPlayScreen = dynamic(() =>
+  import("@/features/how-to-play/how-to-play-screen").then(
+    (mod) => mod.HowToPlayScreen,
+  ),
 );
 
 export const metadata = {

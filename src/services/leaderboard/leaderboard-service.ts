@@ -75,42 +75,181 @@ const INITIAL_ACTIVITIES: ActivityFeedItem[] = [
   },
 ];
 
-const INITIAL_MOCK_LEADERBOARDS: Record<LeaderboardCategory, LeaderboardEntry[]> = {
+const INITIAL_MOCK_LEADERBOARDS: Record<
+  LeaderboardCategory,
+  LeaderboardEntry[]
+> = {
   daily: [
-    { rank: 1, playerId: "p_elena", playerName: "Elena Rostova", avatarColor: "#ec4899", scoreOrTime: "18:12", numericValue: 1092, distance: "5K", level: 24 },
-    { rank: 2, playerId: "p_marcus", playerName: "Marcus Vance", avatarColor: "#ef4444", scoreOrTime: "18:45", numericValue: 1125, distance: "5K", level: 22 },
-    { rank: 3, playerId: "p_jake", playerName: "Jake Miller", avatarColor: "#22c55e", scoreOrTime: "19:30", numericValue: 1170, distance: "5K", level: 18 },
-    { rank: 4, playerId: "p_sarah", playerName: "Sarah Chen", avatarColor: "#3b82f6", scoreOrTime: "19:55", numericValue: 1195, distance: "5K", level: 19 },
-    { rank: 5, playerId: "p_david", playerName: "David Kim", avatarColor: "#a855f7", scoreOrTime: "20:10", numericValue: 1210, distance: "5K", level: 15 },
+    {
+      rank: 1,
+      playerId: "p_elena",
+      playerName: "Elena Rostova",
+      avatarColor: "#ec4899",
+      scoreOrTime: "18:12",
+      numericValue: 1092,
+      distance: "5K",
+      level: 24,
+    },
+    {
+      rank: 2,
+      playerId: "p_marcus",
+      playerName: "Marcus Vance",
+      avatarColor: "#ef4444",
+      scoreOrTime: "18:45",
+      numericValue: 1125,
+      distance: "5K",
+      level: 22,
+    },
+    {
+      rank: 3,
+      playerId: "p_jake",
+      playerName: "Jake Miller",
+      avatarColor: "#22c55e",
+      scoreOrTime: "19:30",
+      numericValue: 1170,
+      distance: "5K",
+      level: 18,
+    },
+    {
+      rank: 4,
+      playerId: "p_sarah",
+      playerName: "Sarah Chen",
+      avatarColor: "#3b82f6",
+      scoreOrTime: "19:55",
+      numericValue: 1195,
+      distance: "5K",
+      level: 19,
+    },
+    {
+      rank: 5,
+      playerId: "p_david",
+      playerName: "David Kim",
+      avatarColor: "#a855f7",
+      scoreOrTime: "20:10",
+      numericValue: 1210,
+      distance: "5K",
+      level: 15,
+    },
   ],
   weekly: [
-    { rank: 1, playerId: "p_marcus", playerName: "Marcus Vance", avatarColor: "#ef4444", scoreOrTime: "38:40", numericValue: 2320, distance: "10K", level: 22 },
-    { rank: 2, playerId: "p_elena", playerName: "Elena Rostova", avatarColor: "#ec4899", scoreOrTime: "39:15", numericValue: 2355, distance: "10K", level: 24 },
-    { rank: 3, playerId: "p_sarah", playerName: "Sarah Chen", avatarColor: "#3b82f6", scoreOrTime: "40:02", numericValue: 2402, distance: "10K", level: 19 },
+    {
+      rank: 1,
+      playerId: "p_marcus",
+      playerName: "Marcus Vance",
+      avatarColor: "#ef4444",
+      scoreOrTime: "38:40",
+      numericValue: 2320,
+      distance: "10K",
+      level: 22,
+    },
+    {
+      rank: 2,
+      playerId: "p_elena",
+      playerName: "Elena Rostova",
+      avatarColor: "#ec4899",
+      scoreOrTime: "39:15",
+      numericValue: 2355,
+      distance: "10K",
+      level: 24,
+    },
+    {
+      rank: 3,
+      playerId: "p_sarah",
+      playerName: "Sarah Chen",
+      avatarColor: "#3b82f6",
+      scoreOrTime: "40:02",
+      numericValue: 2402,
+      distance: "10K",
+      level: 19,
+    },
   ],
   all_time: [
-    { rank: 1, playerId: "p_elena", playerName: "Elena Rostova", avatarColor: "#ec4899", scoreOrTime: "17:45", numericValue: 1065, distance: "5K", level: 24 },
-    { rank: 2, playerId: "p_marcus", playerName: "Marcus Vance", avatarColor: "#ef4444", scoreOrTime: "17:58", numericValue: 1078, distance: "5K", level: 22 },
+    {
+      rank: 1,
+      playerId: "p_elena",
+      playerName: "Elena Rostova",
+      avatarColor: "#ec4899",
+      scoreOrTime: "17:45",
+      numericValue: 1065,
+      distance: "5K",
+      level: 24,
+    },
+    {
+      rank: 2,
+      playerId: "p_marcus",
+      playerName: "Marcus Vance",
+      avatarColor: "#ef4444",
+      scoreOrTime: "17:58",
+      numericValue: 1078,
+      distance: "5K",
+      level: 22,
+    },
   ],
   rising: [
-    { rank: 1, playerId: "p_jake", playerName: "Jake Miller", avatarColor: "#22c55e", scoreOrTime: "-85s PB", numericValue: 85, distance: "5K", level: 18 },
-    { rank: 2, playerId: "p_david", playerName: "David Kim", avatarColor: "#a855f7", scoreOrTime: "-62s PB", numericValue: 62, distance: "5K", level: 15 },
+    {
+      rank: 1,
+      playerId: "p_jake",
+      playerName: "Jake Miller",
+      avatarColor: "#22c55e",
+      scoreOrTime: "-85s PB",
+      numericValue: 85,
+      distance: "5K",
+      level: 18,
+    },
+    {
+      rank: 2,
+      playerId: "p_david",
+      playerName: "David Kim",
+      avatarColor: "#a855f7",
+      scoreOrTime: "-62s PB",
+      numericValue: 62,
+      distance: "5K",
+      level: 15,
+    },
   ],
   most_active: [
-    { rank: 1, playerId: "p_elena", playerName: "Elena Rostova", avatarColor: "#ec4899", scoreOrTime: "142 races", numericValue: 142, distance: "All", level: 24 },
-    { rank: 2, playerId: "p_marcus", playerName: "Marcus Vance", avatarColor: "#ef4444", scoreOrTime: "128 races", numericValue: 128, distance: "All", level: 22 },
+    {
+      rank: 1,
+      playerId: "p_elena",
+      playerName: "Elena Rostova",
+      avatarColor: "#ec4899",
+      scoreOrTime: "142 races",
+      numericValue: 142,
+      distance: "All",
+      level: 24,
+    },
+    {
+      rank: 2,
+      playerId: "p_marcus",
+      playerName: "Marcus Vance",
+      avatarColor: "#ef4444",
+      scoreOrTime: "128 races",
+      numericValue: 128,
+      distance: "All",
+      level: 22,
+    },
   ],
 };
 
 let activeFeedMemory: ActivityFeedItem[] | null = null;
 
 export class LeaderboardService {
-  static getLeaderboard(category: LeaderboardCategory, playerInfo?: { id: string; name: string; timeSec?: number; distance?: string }): LeaderboardEntry[] {
+  static getLeaderboard(
+    category: LeaderboardCategory,
+    playerInfo?: {
+      id: string;
+      name: string;
+      timeSec?: number;
+      distance?: string;
+    },
+  ): LeaderboardEntry[] {
     let list = [...INITIAL_MOCK_LEADERBOARDS[category]];
 
     if (typeof window !== "undefined") {
       try {
-        const cached = localStorage.getItem(`${STORAGE_KEY_LEADERBOARD}_${category}`);
+        const cached = localStorage.getItem(
+          `${STORAGE_KEY_LEADERBOARD}_${category}`,
+        );
         if (cached) {
           list = JSON.parse(cached);
         }
@@ -166,20 +305,25 @@ export class LeaderboardService {
     return activeFeedMemory;
   }
 
-  static pushActivity(item: Omit<ActivityFeedItem, "id" | "timestamp">): ActivityFeedItem {
+  static pushActivity(
+    item: Omit<ActivityFeedItem, "id" | "timestamp">,
+  ): ActivityFeedItem {
     const newItem: ActivityFeedItem = {
       ...item,
       id: `act_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
       timestamp: Date.now(),
     };
 
-    const current = this.getActivityFeed();
+    const current = LeaderboardService.getActivityFeed();
     const updated = [newItem, ...current].slice(0, 100);
     activeFeedMemory = updated;
 
     if (typeof window !== "undefined") {
       try {
-        localStorage.setItem(STORAGE_KEY_ACTIVITY_FEED, JSON.stringify(updated));
+        localStorage.setItem(
+          STORAGE_KEY_ACTIVITY_FEED,
+          JSON.stringify(updated),
+        );
       } catch (e) {
         console.warn("Failed to persist activity feed", e);
       }

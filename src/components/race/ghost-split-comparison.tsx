@@ -1,12 +1,11 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown, ChevronUp, TrendingDown, TrendingUp } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, ChevronUp, TrendingUp, TrendingDown } from "lucide-react";
 import { useTranslation } from "@/i18n/use-translation";
 import { loadGhostRun } from "@/social/ghost-engine";
-import type { SimulationState } from "@/types/engine";
-import type { DailyChallenge } from "@/types/engine";
+import type { DailyChallenge, SimulationState } from "@/types/engine";
 
 interface GhostSplitComparisonProps {
   /** Current challenge data */
@@ -50,13 +49,20 @@ export function GhostSplitComparison({
 }: GhostSplitComparisonProps) {
   const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [availableGhosts, setAvailableGhosts] = useState<{ runnerName: string; splits: number[]; finishTime: number; recordedAt: string | number }[]>([]);
+  const [availableGhosts, setAvailableGhosts] = useState<
+    {
+      runnerName: string;
+      splits: number[];
+      finishTime: number;
+      recordedAt: string | number;
+    }[]
+  >([]);
   const [selectedGhostIndex, setSelectedGhostIndex] = useState(0);
 
   // Load available ghosts for this challenge
   useEffect(() => {
     if (!challenge?.id) return;
-    
+
     // Try to load ghost runs for this challenge
     const ghost = loadGhostRun(challenge.id, challenge.race.distance);
     if (ghost) {
@@ -68,19 +74,24 @@ export function GhostSplitComparison({
         setAvailableGhosts([ghostNoDistance]);
       }
     }
-    
+
     // If activeGhost is provided, add it to the list
     if (activeGhost) {
-      setAvailableGhosts(prev => {
+      setAvailableGhosts((prev) => {
         // Check if already exists
-        const exists = prev.some(g => g.runnerName === activeGhost.runnerName);
+        const exists = prev.some(
+          (g) => g.runnerName === activeGhost.runnerName,
+        );
         if (!exists) {
-          return [...prev, {
-            runnerName: activeGhost.runnerName,
-            splits: activeGhost.splits,
-            finishTime: activeGhost.splits.reduce((a, b) => a + b, 0),
-            recordedAt: new Date().toISOString()
-          }];
+          return [
+            ...prev,
+            {
+              runnerName: activeGhost.runnerName,
+              splits: activeGhost.splits,
+              finishTime: activeGhost.splits.reduce((a, b) => a + b, 0),
+              recordedAt: new Date().toISOString(),
+            },
+          ];
         }
         return prev;
       });
@@ -93,7 +104,7 @@ export function GhostSplitComparison({
       return {
         runnerName: activeGhost.runnerName,
         splits: activeGhost.splits,
-        finishTime: activeGhost.splits.reduce((a, b) => a + b, 0)
+        finishTime: activeGhost.splits.reduce((a, b) => a + b, 0),
       };
     }
     return availableGhosts[selectedGhostIndex] || null;
@@ -102,34 +113,35 @@ export function GhostSplitComparison({
   // Calculate split data for comparison
   const splitData: SplitData[] = useMemo(() => {
     if (!selectedGhost || !stateLog || stateLog.length === 0) return [];
-    
+
     const splits: SplitData[] = [];
-    
+
     // Start from km 1 (index 1 in stateLog)
     for (let i = 1; i < stateLog.length && i <= challenge.race.distance; i++) {
       const currentState = stateLog[i];
       const prevState = stateLog[i - 1];
-      
+
       if (!currentState || !prevState) continue;
-      
-      const playerSplitTime = currentState.accumulatedTime - prevState.accumulatedTime;
+
+      const playerSplitTime =
+        currentState.accumulatedTime - prevState.accumulatedTime;
       const ghostSplitTime = selectedGhost.splits[i - 1] || 0; // splits array is 0-indexed for km 1
-      
+
       splits.push({
         km: i,
         playerTime: playerSplitTime,
         ghostTime: ghostSplitTime,
-        delta: playerSplitTime - ghostSplitTime
+        delta: playerSplitTime - ghostSplitTime,
       });
     }
-    
+
     return splits;
   }, [selectedGhost, stateLog, challenge.race.distance]);
 
   // Get current delta (for live display)
   const currentDelta = useMemo(() => {
     if (!selectedGhost || splitData.length === 0) return null;
-    
+
     // Find the most recent split
     const latestSplit = splitData[splitData.length - 1];
     return latestSplit?.delta || 0;
@@ -137,15 +149,22 @@ export function GhostSplitComparison({
 
   // Calculate cumulative comparison
   const cumulativeData = useMemo(() => {
-    if (!selectedGhost || splitData.length === 0) return { playerTotal: 0, ghostTotal: 0, delta: 0 };
-    
-    const playerTotal = splitData.reduce((sum, split) => sum + split.playerTime, 0);
-    const ghostTotal = splitData.reduce((sum, split) => sum + split.ghostTime, 0);
-    
+    if (!selectedGhost || splitData.length === 0)
+      return { playerTotal: 0, ghostTotal: 0, delta: 0 };
+
+    const playerTotal = splitData.reduce(
+      (sum, split) => sum + split.playerTime,
+      0,
+    );
+    const ghostTotal = splitData.reduce(
+      (sum, split) => sum + split.ghostTime,
+      0,
+    );
+
     return {
       playerTotal,
       ghostTotal,
-      delta: playerTotal - ghostTotal
+      delta: playerTotal - ghostTotal,
     };
   }, [selectedGhost, splitData]);
 
@@ -180,7 +199,7 @@ export function GhostSplitComparison({
 
   // Toggle expanded view
   const toggleExpanded = useCallback(() => {
-    setIsExpanded(prev => !prev);
+    setIsExpanded((prev) => !prev);
   }, []);
 
   // Change selected ghost
@@ -218,7 +237,8 @@ export function GhostSplitComparison({
               {t("race.ghost_splits.title" as any)}
             </h3>
             <p className="text-[11px] text-slate-400">
-              {lang === "en" ? "vs" : "vs"} {selectedGhost?.runnerName || "Ghost"}
+              {lang === "en" ? "vs" : "vs"}{" "}
+              {selectedGhost?.runnerName || "Ghost"}
             </p>
           </div>
         </div>
@@ -241,7 +261,11 @@ export function GhostSplitComparison({
             transition={{ duration: 0.2 }}
             className="text-slate-400"
           >
-            {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            {isExpanded ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
           </motion.span>
         </div>
       </motion.div>
@@ -298,8 +322,8 @@ export function GhostSplitComparison({
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
                       className={`grid grid-cols-12 gap-1 items-center py-1.5 px-2 rounded-lg ${
-                        isCurrentKm 
-                          ? "bg-orange-500/10 border border-orange-500/30" 
+                        isCurrentKm
+                          ? "bg-orange-500/10 border border-orange-500/30"
                           : "hover:bg-slate-700/20"
                       }`}
                     >
@@ -312,7 +336,9 @@ export function GhostSplitComparison({
                       <span className="col-span-4 text-center font-mono text-sm">
                         {formatTime(split.ghostTime)}
                       </span>
-                      <span className={`col-span-2 text-center font-mono text-sm ${getDeltaColor(split.delta)}`}>
+                      <span
+                        className={`col-span-2 text-center font-mono text-sm ${getDeltaColor(split.delta)}`}
+                      >
                         {formatDelta(split.delta)}
                       </span>
                     </motion.div>
@@ -327,26 +353,36 @@ export function GhostSplitComparison({
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                   {lang === "en" ? "Overall" : "Total"}
                 </span>
-                <span className={`text-sm font-bold ${getDeltaColor(cumulativeData.delta)}`}>
+                <span
+                  className={`text-sm font-bold ${getDeltaColor(cumulativeData.delta)}`}
+                >
                   {formatDelta(cumulativeData.delta)}
                 </span>
               </div>
-              
+
               {/* Mini progress bar */}
               <div className="w-full bg-slate-700/50 rounded-full h-2 overflow-hidden">
                 <motion.div
                   className={`h-full rounded-full ${cumulativeData.delta > 0 ? "bg-red-500" : "bg-emerald-500"}`}
                   initial={{ width: 0 }}
-                  animate={{ width: `${Math.min(100, Math.abs(cumulativeData.delta) / 10 * 100)}%` }}
+                  animate={{
+                    width: `${Math.min(100, (Math.abs(cumulativeData.delta) / 10) * 100)}%`,
+                  }}
                   transition={{ duration: 0.5 }}
                 />
               </div>
               <p className="text-[10px] text-slate-500 mt-1">
-                {cumulativeData.delta > 0 
-                  ? (lang === "en" ? "Behind ghost" : "Di belakang hantu")
-                  : cumulativeData.delta < 0 
-                    ? (lang === "en" ? "Ahead of ghost" : "Di depan hantu")
-                    : (lang === "en" ? "Tied with ghost" : "Sama dengan hantu")}
+                {cumulativeData.delta > 0
+                  ? lang === "en"
+                    ? "Behind ghost"
+                    : "Di belakang hantu"
+                  : cumulativeData.delta < 0
+                    ? lang === "en"
+                      ? "Ahead of ghost"
+                      : "Di depan hantu"
+                    : lang === "en"
+                      ? "Tied with ghost"
+                      : "Sama dengan hantu"}
               </p>
             </div>
 
@@ -356,8 +392,8 @@ export function GhostSplitComparison({
                 {lang === "en" ? "Pace Comparison" : "Perbandingan Pace"}
               </h4>
               <PaceSparkline
-                playerPaces={splitData.map(s => s.playerTime)}
-                ghostPaces={splitData.map(s => s.ghostTime)}
+                playerPaces={splitData.map((s) => s.playerTime)}
+                ghostPaces={splitData.map((s) => s.ghostTime)}
                 currentKm={currentKm}
               />
             </div>
@@ -377,15 +413,19 @@ interface PaceSparklineProps {
   currentKm: number;
 }
 
-function PaceSparkline({ playerPaces, ghostPaces, currentKm }: PaceSparklineProps) {
+function PaceSparkline({
+  playerPaces,
+  ghostPaces,
+  currentKm,
+}: PaceSparklineProps) {
   const maxPace = useMemo(() => {
     const allPaces = [...playerPaces, ...ghostPaces];
-    return Math.max(...allPaces.filter(p => p > 0), 1);
+    return Math.max(...allPaces.filter((p) => p > 0), 1);
   }, [playerPaces, ghostPaces]);
 
   const minPace = useMemo(() => {
     const allPaces = [...playerPaces, ...ghostPaces];
-    return Math.min(...allPaces.filter(p => p > 0), maxPace);
+    return Math.min(...allPaces.filter((p) => p > 0), maxPace);
   }, [playerPaces, ghostPaces, maxPace]);
 
   const paceRange = maxPace - minPace || 1;

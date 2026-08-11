@@ -1,6 +1,6 @@
 /**
  * Weather Generation Engine
- * 
+ *
  * Generates deterministic but varied weather conditions for races based on:
  * - Race schedule ID (ensures same race has consistent weather)
  * - Day index (seasonal variations)
@@ -9,7 +9,7 @@
  */
 
 import type { RaceTier } from "@/economy/economy-types";
-import type { Weather, Environment, TimeOfDay } from "@/types/engine";
+import type { Environment, TimeOfDay, Weather } from "@/types/engine";
 import { SeededRandom } from "@/utils/random/seeded-random";
 
 export interface WeatherCondition {
@@ -38,7 +38,7 @@ export function generateRaceWeather(
   scheduleId: string,
   dayIndex: number,
   tier: RaceTier = "local",
-  region?: string
+  region?: string,
 ): WeatherCondition {
   // Create composite seed for this specific race occurrence
   const compositeSeed = `${scheduleId}_${dayIndex}_${region || "default"}`;
@@ -50,7 +50,7 @@ export function generateRaceWeather(
 
   // Base weather probabilities adjusted by season
   const weatherProbabilities = getSeasonalWeatherProbabilities(season);
-  
+
   // Higher tier races have slightly higher chance of challenging weather
   const tierChallengeModifier = getTierChallengeModifier(tier);
   adjustProbabilitiesForTier(weatherProbabilities, tierChallengeModifier);
@@ -65,7 +65,12 @@ export function generateRaceWeather(
   const humidity = generateHumidity(weather, random);
 
   // Generate wind
-  const windDirections: Array<"north" | "south" | "east" | "west"> = ["north", "south", "east", "west"];
+  const windDirections: Array<"north" | "south" | "east" | "west"> = [
+    "north",
+    "south",
+    "east",
+    "west",
+  ];
   const windDirection = random.pick(windDirections);
   const windSpeed = generateWindSpeed(weather, random);
 
@@ -174,7 +179,9 @@ export function getWeatherImpact(conditions: WeatherCondition): WeatherImpact {
 /**
  * Convert WeatherCondition to Environment (for compatibility)
  */
-export function weatherToEnvironment(conditions: WeatherCondition): Environment {
+export function weatherToEnvironment(
+  conditions: WeatherCondition,
+): Environment {
   return {
     weather: conditions.weather,
     temperature: conditions.temperature,
@@ -187,13 +194,17 @@ export function weatherToEnvironment(conditions: WeatherCondition): Environment 
 /**
  * Get severity level of weather conditions
  */
-export function getWeatherSeverity(conditions: WeatherCondition): "optimal" | "challenging" | "extreme" {
+export function getWeatherSeverity(
+  conditions: WeatherCondition,
+): "optimal" | "challenging" | "extreme" {
   const impact = getWeatherImpact(conditions);
-  
+
   // Calculate overall difficulty
-  const overallImpact = (2 - impact.paceModifier) + 
-                        (impact.staminaDrainModifier - 1) + 
-                        (impact.hydrationNeedModifier - 1);
+  const overallImpact =
+    2 -
+    impact.paceModifier +
+    (impact.staminaDrainModifier - 1) +
+    (impact.hydrationNeedModifier - 1);
 
   if (overallImpact > 1.0) return "extreme";
   if (overallImpact > 0.3) return "challenging";
@@ -208,7 +219,7 @@ function hashString(str: string): number {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash; // Convert to 32bit integer
   }
   return Math.abs(hash);
@@ -222,40 +233,44 @@ interface WeatherProbability {
 function getSeasonalWeatherProbabilities(season: number): WeatherProbability[] {
   // Season: 0=spring, 1=summer, 2=fall, 3=winter
   const baseProbabilities: Record<number, WeatherProbability[]> = {
-    0: [ // Spring - mixed weather
+    0: [
+      // Spring - mixed weather
       { weather: "sunny", weight: 0.25 },
-      { weather: "cloudy", weight: 0.30 },
+      { weather: "cloudy", weight: 0.3 },
       { weather: "rain", weight: 0.25 },
       { weather: "storm", weight: 0.05 },
       { weather: "hot", weight: 0.05 },
       { weather: "cold", weight: 0.05 },
       { weather: "fog", weight: 0.05 },
     ],
-    1: [ // Summer - hot and sunny
-      { weather: "sunny", weight: 0.40 },
-      { weather: "cloudy", weight: 0.20 },
-      { weather: "rain", weight: 0.10 },
+    1: [
+      // Summer - hot and sunny
+      { weather: "sunny", weight: 0.4 },
+      { weather: "cloudy", weight: 0.2 },
+      { weather: "rain", weight: 0.1 },
       { weather: "storm", weight: 0.05 },
-      { weather: "hot", weight: 0.20 },
+      { weather: "hot", weight: 0.2 },
       { weather: "cold", weight: 0.02 },
       { weather: "fog", weight: 0.03 },
     ],
-    2: [ // Fall - cooler, more rain
-      { weather: "sunny", weight: 0.20 },
-      { weather: "cloudy", weight: 0.30 },
+    2: [
+      // Fall - cooler, more rain
+      { weather: "sunny", weight: 0.2 },
+      { weather: "cloudy", weight: 0.3 },
       { weather: "rain", weight: 0.25 },
       { weather: "storm", weight: 0.08 },
       { weather: "hot", weight: 0.02 },
-      { weather: "cold", weight: 0.10 },
+      { weather: "cold", weight: 0.1 },
       { weather: "fog", weight: 0.05 },
     ],
-    3: [ // Winter - cold and harsh
+    3: [
+      // Winter - cold and harsh
       { weather: "sunny", weight: 0.15 },
       { weather: "cloudy", weight: 0.35 },
       { weather: "rain", weight: 0.15 },
-      { weather: "storm", weight: 0.10 },
+      { weather: "storm", weight: 0.1 },
       { weather: "hot", weight: 0.01 },
-      { weather: "cold", weight: 0.20 },
+      { weather: "cold", weight: 0.2 },
       { weather: "fog", weight: 0.04 },
     ],
   };
@@ -276,7 +291,7 @@ function getTierChallengeModifier(tier: RaceTier): number {
 
 function adjustProbabilitiesForTier(
   probabilities: WeatherProbability[],
-  challengeModifier: number
+  challengeModifier: number,
 ): void {
   if (challengeModifier <= 0) return;
 
@@ -286,9 +301,9 @@ function adjustProbabilitiesForTier(
 
   for (const prob of probabilities) {
     if (easyWeathers.includes(prob.weather)) {
-      prob.weight *= (1 - challengeModifier);
+      prob.weight *= 1 - challengeModifier;
     } else if (challengingWeathers.includes(prob.weather)) {
-      prob.weight *= (1 + challengeModifier);
+      prob.weight *= 1 + challengeModifier;
     }
   }
 
@@ -301,7 +316,7 @@ function adjustProbabilitiesForTier(
 
 function selectWeightedWeather(
   random: SeededRandom,
-  probabilities: WeatherProbability[]
+  probabilities: WeatherProbability[],
 ): Weather {
   let roll = random.next();
   for (const prob of probabilities) {
@@ -314,21 +329,29 @@ function selectWeightedWeather(
   return probabilities[0].weather;
 }
 
-function generateTemperature(weather: Weather, season: number, random: SeededRandom): number {
+function generateTemperature(
+  weather: Weather,
+  season: number,
+  random: SeededRandom,
+): number {
   const baseTemps: Record<number, [number, number]> = {
     0: [12, 22], // Spring
     1: [22, 35], // Summer
     2: [10, 20], // Fall
-    3: [0, 12],  // Winter
+    3: [0, 12], // Winter
   };
 
   const [min, max] = baseTemps[season] || baseTemps[0];
 
   switch (weather) {
     case "hot":
-      return Math.floor(random.nextRange(Math.max(min + 15, 30), Math.max(max, 38)));
+      return Math.floor(
+        random.nextRange(Math.max(min + 15, 30), Math.max(max, 38)),
+      );
     case "cold":
-      return Math.floor(random.nextRange(Math.min(min, 5), Math.min(max - 10, 12)));
+      return Math.floor(
+        random.nextRange(Math.min(min, 5), Math.min(max - 10, 12)),
+      );
     case "rain":
     case "storm":
       return Math.floor(random.nextRange(min, max - 5));

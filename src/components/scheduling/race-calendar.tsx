@@ -2,18 +2,24 @@
 
 import { motion } from "framer-motion";
 import { Calendar, Clock, DollarSign, Trophy, Users } from "lucide-react";
-import { useState, useMemo } from "react";
-import type { RaceOccurrence } from "../../scheduling/race-calendar-types";
-import { useSettingsStore } from "@/store/settings-store";
-import { useTimelineStore } from "@/store/timeline-store";
+import { useMemo, useState } from "react";
 import { formatCurrency } from "@/economy/currency-converter";
 import { formatGameDate } from "@/engine/timeline/calendar";
-import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { useSound } from "@/hooks/use-sound";
-import { getRegistrationStatus, getStatusLabel } from "@/scheduling/race-registration-status";
+import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+import {
+  getRegistrationStatus,
+  getStatusLabel,
+} from "@/scheduling/race-registration-status";
+import { useSettingsStore } from "@/store/settings-store";
+import { useTimelineStore } from "@/store/timeline-store";
+import type { RaceOccurrence } from "../../scheduling/race-calendar-types";
 
 // Interpolate {placeholder} tokens in translation strings.
-function interpolate(template: string, vars: Record<string, string | number>): string {
+function interpolate(
+  template: string,
+  vars: Record<string, string | number>,
+): string {
   return template.replace(/\{(\w+)\}/g, (_, key: string) =>
     key in vars ? String(vars[key]) : `{${key}}`,
   );
@@ -104,9 +110,24 @@ interface RaceCalendarProps {
 type TabType = "today" | "registered" | "upcoming";
 
 const TAB_CONFIG = [
-  { id: "today" as const, labelKey: "race_calendar.tabs.today" as TranslationKey, icon: "🏁", ariaBase: "Today's races" },
-  { id: "registered" as const, labelKey: "race_calendar.tabs.registered" as TranslationKey, icon: "🎟️", ariaBase: "My registered races" },
-  { id: "upcoming" as const, labelKey: "race_calendar.tabs.upcoming" as TranslationKey, icon: "🔮", ariaBase: "Upcoming races" },
+  {
+    id: "today" as const,
+    labelKey: "race_calendar.tabs.today" as TranslationKey,
+    icon: "🏁",
+    ariaBase: "Today's races",
+  },
+  {
+    id: "registered" as const,
+    labelKey: "race_calendar.tabs.registered" as TranslationKey,
+    icon: "🎟️",
+    ariaBase: "My registered races",
+  },
+  {
+    id: "upcoming" as const,
+    labelKey: "race_calendar.tabs.upcoming" as TranslationKey,
+    icon: "🔮",
+    ariaBase: "Upcoming races",
+  },
 ] as const;
 
 export function RaceCalendar({
@@ -148,7 +169,7 @@ export function RaceCalendar({
               ? registeredRaces.length
               : upcomingRaces.length,
       })),
-    [todayRaces.length, registeredRaces.length, upcomingRaces.length]
+    [todayRaces.length, registeredRaces.length, upcomingRaces.length],
   );
 
   const tabPanelId = `race-calendar-panel-${activeTab}`;
@@ -215,10 +236,15 @@ export function RaceCalendar({
                   focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40
                 `}
               >
-                <span aria-hidden="true" className="text-xs sm:text-sm shrink-0">
+                <span
+                  aria-hidden="true"
+                  className="text-xs sm:text-sm shrink-0"
+                >
                   {tab.icon}
                 </span>
-                <span className={`${isActive ? "block" : "hidden sm:block"} truncate`}>
+                <span
+                  className={`${isActive ? "block" : "hidden sm:block"} truncate`}
+                >
                   {t(tab.labelKey)}
                 </span>
                 {tab.count > 0 && (
@@ -255,7 +281,9 @@ export function RaceCalendar({
               <EmptyState
                 icon="😴"
                 title={t("race_calendar.empty.today_title" as TranslationKey)}
-                description={t("race_calendar.empty.today_desc" as TranslationKey)}
+                description={t(
+                  "race_calendar.empty.today_desc" as TranslationKey,
+                )}
               />
             ) : (
               <motion.div
@@ -283,7 +311,9 @@ export function RaceCalendar({
             {registeredRaces.length === 0 ? (
               <EmptyState
                 icon="🎟️"
-                title={t("race_calendar.empty.registered_title" as TranslationKey)}
+                title={t(
+                  "race_calendar.empty.registered_title" as TranslationKey,
+                )}
                 description={t(
                   "race_calendar.empty.registered_desc" as TranslationKey,
                 )}
@@ -316,7 +346,9 @@ export function RaceCalendar({
             {upcomingRaces.length === 0 ? (
               <EmptyState
                 icon="🔮"
-                title={t("race_calendar.empty.upcoming_title" as TranslationKey)}
+                title={t(
+                  "race_calendar.empty.upcoming_title" as TranslationKey,
+                )}
                 description={t(
                   "race_calendar.empty.upcoming_desc" as TranslationKey,
                 )}
@@ -430,13 +462,15 @@ function RaceCard({
       role="button"
       className={`
         w-full text-left rounded-[2rem] border border-[#E5E7EB] dark:border-slate-800 p-4 sm:p-5 transition-all duration-200 shadow-sm flex flex-col gap-4 cursor-pointer
-        ${isDisabled
-          ? "bg-slate-50/70 dark:bg-slate-950/40 opacity-60"
-          : race.isFull
-            ? `bg-amber-50/40 dark:bg-amber-950/10 ${tier.border} ${tier.glow}`
-            : isRaceDay
-              ? `bg-emerald-50/40 dark:bg-emerald-950/10 ${tier.border} ${tier.glow} ring-2 ring-emerald-400/30 dark:ring-emerald-400/20 animate-pulse-ring`
-              : `${tier.bg} ${tier.border} hover:${tier.glow} hover:shadow-md`}
+        ${
+          isDisabled
+            ? "bg-slate-50/70 dark:bg-slate-950/40 opacity-60"
+            : race.isFull
+              ? `bg-amber-50/40 dark:bg-amber-950/10 ${tier.border} ${tier.glow}`
+              : isRaceDay
+                ? `bg-emerald-50/40 dark:bg-emerald-950/10 ${tier.border} ${tier.glow} ring-2 ring-emerald-400/30 dark:ring-emerald-400/20 animate-pulse-ring`
+                : `${tier.bg} ${tier.border} hover:${tier.glow} hover:shadow-md`
+        }
         focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40
       `}
     >
@@ -465,12 +499,14 @@ function RaceCard({
             <h3 className="font-heading font-black text-sm md:text-base text-slate-800 dark:text-white tracking-tight truncate">
               {race.name}
             </h3>
-            
+
             {/* Encouraging message for today's races */}
             {isRaceDay && !isDisabled ? (
               <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-1 italic">
                 {race.isRegistered
-                  ? t("race_calendar.encouragement.ready_to_run" as TranslationKey)
+                  ? t(
+                      "race_calendar.encouragement.ready_to_run" as TranslationKey,
+                    )
                   : t("race_calendar.encouragement.race_day" as TranslationKey)}
               </p>
             ) : (
@@ -525,7 +561,8 @@ function RaceCard({
 
           {isSoon && !isDisabled && (
             <span className="text-[9px] font-bold uppercase px-2.5 py-1 rounded-xl tracking-wider bg-blue-50/40 dark:bg-blue-950/10 text-blue-700 dark:text-blue-300 border border-blue-100/30 dark:border-blue-950/30 flex items-center gap-1">
-              <Clock className="w-3 h-3" /> {interpolate(
+              <Clock className="w-3 h-3" />{" "}
+              {interpolate(
                 t("race_calendar.status.in_days" as TranslationKey),
                 { days: daysUntil },
               )}
@@ -540,9 +577,8 @@ function RaceCard({
 
           {race.isFull && (
             <span className="text-[9px] font-bold uppercase px-2.5 py-1 rounded-xl tracking-wider bg-amber-50/40 dark:bg-amber-950/10 text-amber-700 dark:text-amber-300 border border-amber-100/30 dark:border-amber-950/30 flex items-center gap-1">
-              <Users className="w-3 h-3" /> {t(
-                "race_calendar.status.full" as TranslationKey,
-              )}
+              <Users className="w-3 h-3" />{" "}
+              {t("race_calendar.status.full" as TranslationKey)}
             </span>
           )}
 
@@ -574,11 +610,11 @@ function UpcomingRaceCard({
   const preferredCurrency =
     useSettingsStore((state) => state.settings.preferredCurrency) || "USD";
   const currentDayIndex = useTimelineStore.getState().gameState?.dayIndex ?? 0;
-  
+
   // Use new registration status engine
   const registrationInfo = getRegistrationStatus(race, currentDayIndex);
   const statusLabel = getStatusLabel(race, currentDayIndex, t);
-  
+
   const daysFromNow = race.dayIndex - currentDayIndex;
   const isRegistered = race.isRegistered;
 
@@ -654,15 +690,10 @@ function UpcomingRaceCard({
             {race.name}
           </h4>
           <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-            <span
-              className={`text-[10px] capitalize font-bold ${tier.text}`}
-            >
+            <span className={`text-[10px] capitalize font-bold ${tier.text}`}>
               {race.tier}
             </span>
-            <span
-              className="text-slate-400 text-[10px]"
-              aria-hidden="true"
-            >
+            <span className="text-slate-400 text-[10px]" aria-hidden="true">
               •
             </span>
             <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
@@ -670,10 +701,7 @@ function UpcomingRaceCard({
             </span>
             {isRegistered && (
               <>
-                <span
-                  className="text-slate-400 text-[10px]"
-                  aria-hidden="true"
-                >
+                <span className="text-slate-400 text-[10px]" aria-hidden="true">
                   •
                 </span>
                 <span className="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50/40 dark:bg-indigo-950/10 px-1.5 py-0.5 rounded border border-indigo-100/30 dark:border-indigo-950/30">
@@ -683,10 +711,7 @@ function UpcomingRaceCard({
             )}
             {daysFromNow > 0 && !isRegistered && (
               <>
-                <span
-                  className="text-slate-400 text-[10px]"
-                  aria-hidden="true"
-                >
+                <span className="text-slate-400 text-[10px]" aria-hidden="true">
                   •
                 </span>
                 <span className="text-[9px] text-slate-500 dark:text-slate-400 font-mono">
@@ -702,7 +727,7 @@ function UpcomingRaceCard({
       </div>
       <div className="text-right shrink-0 ml-4 flex flex-col items-end gap-1">
         <div
-          className={`text-xs font-extbold flex items-center justify-end gap-1 ${statusLabel.color} ${statusLabel.animated ? 'animate-pulse' : ''}`}
+          className={`text-xs font-extbold flex items-center justify-end gap-1 ${statusLabel.color} ${statusLabel.animated ? "animate-pulse" : ""}`}
         >
           {registrationInfo.canRegister && <Calendar className="w-3 h-3" />}
           {statusLabel.text}

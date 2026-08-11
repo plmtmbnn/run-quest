@@ -1,70 +1,109 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Activity, Flame, Gauge, TrendingUp, FastForward, Play } from "lucide-react";
+import {
+  Activity,
+  FastForward,
+  Flame,
+  Gauge,
+  Play,
+  TrendingUp,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { analyzeRace } from "@/coach/coach-analysis";
+import { BetResultsPopup } from "@/components/race/bet-results-popup";
+import { BodyStressAvatar } from "@/components/race/body-stress-avatar";
 import { BreakingPointOverlay } from "@/components/race/breaking-point";
+import { BreathingControl } from "@/components/race/breathing-control";
+import { CadenceRhythm } from "@/components/race/cadence-rhythm";
+import {
+  ComboStreak,
+  getComboMultiplier,
+} from "@/components/race/combo-streak";
 import { CriticalAlert, getAlertLevel } from "@/components/race/critical-alert";
 import { DesperationOverlay } from "@/components/race/desperation-mode";
+import { EnhancedStandings } from "@/components/race/enhanced-standings";
 import { FinalKick, type KickTiming } from "@/components/race/final-kick";
 import { FinishLineSequence } from "@/components/race/finish-line-sequence";
-import { HeartRateMonitor } from "@/components/race/heart-rate-monitor";
-import { PRCelebration, usePRDetection } from "@/components/race/pr-celebration";
-import { MentalCommentary, useCommentaryQueue } from "@/components/race/mental-commentary";
-import { MicroAchievementPopup } from "@/components/race/micro-achievement-popup";
-import { PaceProjector } from "@/components/race/pace-projector";
-import { SplitCallout, useSplitCalloutQueue } from "@/components/race/split-callout";
-import { TrackPositionVisualizer } from "@/components/race/track-position-visualizer";
-import { HorizontalTrackProgress } from "@/components/race/horizontal-track-progress";
-import { MobileRaceNavbar } from "@/components/race/mobile-race-navbar";
-import { EnhancedStandings } from "@/components/race/enhanced-standings";
-import { checkRaceAchievements, type RaceAchievement } from "@/engine/achievements/race-achievements";
-import { advanceSimulation } from "@/engine/simulation/engine";
 import { FlowStateMeter } from "@/components/race/flow-state-meter";
-import { CadenceRhythm } from "@/components/race/cadence-rhythm";
-import { ParallaxEnvironment } from "@/components/race/parallax-environment";
-import { WeatherParticles } from "@/components/race/weather-particles";
-import { BreathingControl } from "@/components/race/breathing-control";
-import { BodyStressAvatar } from "@/components/race/body-stress-avatar";
-import { useSound } from "@/hooks/use-sound";
-import { ScreenTour } from "@/components/tour/screen-tour";
-
-import { DailyChallenge } from "@/types/engine";
-import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
-import { getRunnerState, useRunnerStore } from "@/runner/runner-store";
-import { getEnergyCostForDistance } from "@/economy/race-entry-engine";
-import { generateDailyChallenge } from "@/services/challenge/generator";
-import { useGameStore } from "@/store/game-store";
-import { usePlayerStore } from "@/store/player-store";
-import { usePreparationStore } from "@/store/preparation-store";
-import { useShopStore } from "@/shop/shop-store";
-import { useTimelineStore } from "@/store/timeline-store";
-import { BetResultsPopup } from "@/components/race/bet-results-popup";
-
+import {
+  calculateGhostDistanceAtTime,
+  getGhostGapMeters,
+} from "@/components/race/ghost-runner";
 import { GhostSplitComparison } from "@/components/race/ghost-split-comparison";
-import { PhotoFinish, isPhotoFinish } from "@/components/race/photo-finish";
+import { HeartRateMonitor } from "@/components/race/heart-rate-monitor";
+import { HorizontalTrackProgress } from "@/components/race/horizontal-track-progress";
+import { LiveActivityFeed } from "@/components/race/live-activity-feed";
+import {
+  LiveRewardTicker,
+  type RewardPopupItem,
+} from "@/components/race/live-reward-ticker";
+import {
+  MentalCommentary,
+  useCommentaryQueue,
+} from "@/components/race/mental-commentary";
+import { MicroAchievementPopup } from "@/components/race/micro-achievement-popup";
+import { MilestoneMarkers } from "@/components/race/milestone-markers";
+import { MobileRaceNavbar } from "@/components/race/mobile-race-navbar";
+import { PaceProjector } from "@/components/race/pace-projector";
+import { ParallaxEnvironment } from "@/components/race/parallax-environment";
+import { isPhotoFinish, PhotoFinish } from "@/components/race/photo-finish";
+import {
+  PRCelebration,
+  usePRDetection,
+} from "@/components/race/pr-celebration";
 import { ResultCardGenerator } from "@/components/race/result-card-generator";
-import { RivalDialog, RivalLineup, RivalStatusUpdate } from "@/components/race/rival-dialog";
-import { SelfBetPanel, type BetTarget, type PlacedBet } from "@/components/race/self-bet-panel";
+import {
+  RivalDialog,
+  RivalLineup,
+  RivalStatusUpdate,
+} from "@/components/race/rival-dialog";
+import { RivalProximityAlert } from "@/components/race/rival-proximity-alert";
+import {
+  type BetTarget,
+  type PlacedBet,
+  SelfBetPanel,
+} from "@/components/race/self-bet-panel";
+import { SpectatorMode } from "@/components/race/spectator-mode";
+import {
+  SplitCallout,
+  useSplitCalloutQueue,
+} from "@/components/race/split-callout";
+import { TrackPositionVisualizer } from "@/components/race/track-position-visualizer";
 import { WeatherAlert } from "@/components/race/weather-alert";
-import { selectRivalsForRace, generateRivalDialog, getRivalMilestoneText, updateRivalRelationship, type Rival } from "@/engine/rivals/rival-engine";
-
+import { WeatherParticles } from "@/components/race/weather-particles";
+import { ScreenTour } from "@/components/tour/screen-tour";
+import { getRouteProfile } from "@/data/route-profiles";
 import { formatCurrency } from "@/economy/currency-converter";
 import { recordTransaction } from "@/economy/earning-engine";
+import { getEnergyCostForDistance } from "@/economy/race-entry-engine";
+import {
+  checkRaceAchievements,
+  getUpcomingMilestoneMarkers,
+  type RaceAchievement,
+} from "@/engine/achievements/race-achievements";
+import {
+  generateRivalDialog,
+  getRivalMilestoneText,
+  type Rival,
+  selectRivalsForRace,
+  updateRivalRelationship,
+} from "@/engine/rivals/rival-engine";
+import { advanceSimulation } from "@/engine/simulation/engine";
+import { useSound } from "@/hooks/use-sound";
+import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+import { getRunnerState, useRunnerStore } from "@/runner/runner-store";
+import { generateDailyChallenge } from "@/services/challenge/generator";
+import { useShopStore } from "@/shop/shop-store";
+import { useGameStore } from "@/store/game-store";
 import { useGhostStore } from "@/store/ghost-store";
-import { calculateGhostDistanceAtTime, getGhostGapMeters } from "@/components/race/ghost-runner";
-import { LiveActivityFeed } from "@/components/race/live-activity-feed";
-import { RivalProximityAlert } from "@/components/race/rival-proximity-alert";
-import { SpectatorMode } from "@/components/race/spectator-mode";
-import { getRouteProfile } from "@/data/route-profiles";
-import { MilestoneMarkers } from "@/components/race/milestone-markers";
-import { getUpcomingMilestoneMarkers } from "@/engine/achievements/race-achievements";
-import { ComboStreak, getComboMultiplier } from "@/components/race/combo-streak";
-import { LiveRewardTicker, type RewardPopupItem } from "@/components/race/live-reward-ticker";
+import { usePlayerStore } from "@/store/player-store";
+import { usePreparationStore } from "@/store/preparation-store";
+import { useTimelineStore } from "@/store/timeline-store";
 import type {
   ActiveBreakingPoint,
+  DailyChallenge,
   DecisionCard,
   DecisionPrompt,
   DesperationMode,
@@ -75,7 +114,9 @@ import type {
 } from "@/types/engine";
 
 // Helper for determining route profile based on challenge characteristics
-function getRouteProfileForChallenge(challenge: DailyChallenge): string | undefined {
+function getRouteProfileForChallenge(
+  challenge: DailyChallenge,
+): string | undefined {
   if (challenge.race.routeProfileId) {
     return challenge.race.routeProfileId;
   }
@@ -85,30 +126,113 @@ function getRouteProfileForChallenge(challenge: DailyChallenge): string | undefi
   const surface = challenge.race.surface;
 
   // World Major routes - based on race name/description patterns
-  if (name.includes("boston") || name.includes("heartbreak") || desc.includes("boston")) return "boston_marathon";
-  if (name.includes("berlin") || name.includes("fastest course") || desc.includes("berlin")) return "berlin_marathon";
-  if (name.includes("london") || name.includes("thames") || name.includes("greenwich") || desc.includes("london")) return "london_marathon";
-  if (name.includes("new york") || name.includes("ny") || name.includes("five boroughs") || name.includes("verrazzano") || desc.includes("new york")) return "nyc_marathon";
-  if (name.includes("tokyo") || name.includes("shinjuku") || name.includes("ginza") || desc.includes("tokyo")) return "tokyo_marathon";
-  if (name.includes("chicago") || name.includes("lakefront") || name.includes("windy city") || desc.includes("chicago")) return "chicago_marathon";
+  if (
+    name.includes("boston") ||
+    name.includes("heartbreak") ||
+    desc.includes("boston")
+  )
+    return "boston_marathon";
+  if (
+    name.includes("berlin") ||
+    name.includes("fastest course") ||
+    desc.includes("berlin")
+  )
+    return "berlin_marathon";
+  if (
+    name.includes("london") ||
+    name.includes("thames") ||
+    name.includes("greenwich") ||
+    desc.includes("london")
+  )
+    return "london_marathon";
+  if (
+    name.includes("new york") ||
+    name.includes("ny") ||
+    name.includes("five boroughs") ||
+    name.includes("verrazzano") ||
+    desc.includes("new york")
+  )
+    return "nyc_marathon";
+  if (
+    name.includes("tokyo") ||
+    name.includes("shinjuku") ||
+    name.includes("ginza") ||
+    desc.includes("tokyo")
+  )
+    return "tokyo_marathon";
+  if (
+    name.includes("chicago") ||
+    name.includes("lakefront") ||
+    name.includes("windy city") ||
+    desc.includes("chicago")
+  )
+    return "chicago_marathon";
 
   // Indonesian Signature routes
-  if (name.includes("bromo") || name.includes("tenos") || desc.includes("bromo")) return "bromo_ultra";
-  if (name.includes("rinjani") || name.includes("sembalun") || desc.includes("rinjani")) return "rinjani_skyrace";
-  if (name.includes("bandung") || name.includes("dago") || desc.includes("bandung")) return "bandung_hills";
-  if (name.includes("tahura") || name.includes("pine forest") || desc.includes("tahura")) return "tahura_forest";
-  if (name.includes("bali") || name.includes("kuta") || name.includes("sanur") || name.includes("beach") || desc.includes("bali")) return "bali_coastal";
-  if (name.includes("arjuno") || name.includes("welirang") || desc.includes("arjuno")) return "arjuno_ultra";
+  if (
+    name.includes("bromo") ||
+    name.includes("tenos") ||
+    desc.includes("bromo")
+  )
+    return "bromo_ultra";
+  if (
+    name.includes("rinjani") ||
+    name.includes("sembalun") ||
+    desc.includes("rinjani")
+  )
+    return "rinjani_skyrace";
+  if (
+    name.includes("bandung") ||
+    name.includes("dago") ||
+    desc.includes("bandung")
+  )
+    return "bandung_hills";
+  if (
+    name.includes("tahura") ||
+    name.includes("pine forest") ||
+    desc.includes("tahura")
+  )
+    return "tahura_forest";
+  if (
+    name.includes("bali") ||
+    name.includes("kuta") ||
+    name.includes("sanur") ||
+    name.includes("beach") ||
+    desc.includes("bali")
+  )
+    return "bali_coastal";
+  if (
+    name.includes("arjuno") ||
+    name.includes("welirang") ||
+    desc.includes("arjuno")
+  )
+    return "arjuno_ultra";
 
   // Generic fallbacks based on surface & terrain keywords
   if (surface === "track") return "generic_track";
   if (surface === "trail") {
-    if (name.includes("mountain") || name.includes("peak") || desc.includes("mountain")) return "generic_mountain_trail";
+    if (
+      name.includes("mountain") ||
+      name.includes("peak") ||
+      desc.includes("mountain")
+    )
+      return "generic_mountain_trail";
     return "generic_forest_trail";
   }
-  if (name.includes("coastal") || name.includes("beach") || desc.includes("coastal")) return "generic_coastal";
-  if (name.includes("tea") || name.includes("plantation")) return "generic_plantation";
-  if (name.includes("city") || name.includes("marathon") || name.includes("run")) return "generic_flat_city";
+  if (
+    name.includes("coastal") ||
+    name.includes("beach") ||
+    desc.includes("coastal")
+  )
+    return "generic_coastal";
+  if (name.includes("tea") || name.includes("plantation"))
+    return "generic_plantation";
+  if (
+    name.includes("city") ||
+    name.includes("marathon") ||
+    name.includes("run")
+  )
+    return "generic_flat_city";
 
   return undefined;
 }
@@ -135,25 +259,58 @@ export function RaceScreen() {
     selectedPacingRef.current = selectedPacing;
   }, [selectedPacing]);
 
-  const CONSUMABLE_META: Record<string, { label: string; icon: string; boostType: string }> = {
+  const CONSUMABLE_META: Record<
+    string,
+    { label: string; icon: string; boostType: string }
+  > = {
     water: { label: "Purified Water", icon: "💧", boostType: "+20 Hydration" },
     energy_bar: { label: "Energy Bar", icon: "🍫", boostType: "+25 Stamina" },
-    electrolyte: { label: "Electrolytes", icon: "⚡", boostType: "+35 Hydration" },
-    electrolytes: { label: "Electrolytes", icon: "⚡", boostType: "+35 Hydration" },
-    salt_tablets: { label: "Salt Tablets", icon: "🧂", boostType: "+20 Hydration" },
+    electrolyte: {
+      label: "Electrolytes",
+      icon: "⚡",
+      boostType: "+35 Hydration",
+    },
+    electrolytes: {
+      label: "Electrolytes",
+      icon: "⚡",
+      boostType: "+35 Hydration",
+    },
+    salt_tablets: {
+      label: "Salt Tablets",
+      icon: "🧂",
+      boostType: "+20 Hydration",
+    },
     energy_gel: { label: "Energy Gel", icon: "🔋", boostType: "+30 Stamina" },
     caffeine: { label: "Caffeine Shot", icon: "🧠", boostType: "+25 Focus" },
-    hydration_mix: { label: "Pro Hydration", icon: "🥤", boostType: "+40 Hydration" },
+    hydration_mix: {
+      label: "Pro Hydration",
+      icon: "🥤",
+      boostType: "+40 Hydration",
+    },
     caffeine_gum: { label: "Caffeine Gum", icon: "⚡", boostType: "+20 Focus" },
-    beetroot_juice: { label: "Beetroot Juice", icon: "🧃", boostType: "+20 Stamina" },
-    isotonic_drink: { label: "Isotonic", icon: "🥤", boostType: "+30 Hydration" },
+    beetroot_juice: {
+      label: "Beetroot Juice",
+      icon: "🧃",
+      boostType: "+20 Stamina",
+    },
+    isotonic_drink: {
+      label: "Isotonic",
+      icon: "🥤",
+      boostType: "+30 Hydration",
+    },
     protein_bar: { label: "Protein Bar", icon: "🍫", boostType: "+25 Stamina" },
     carb_chews: { label: "Carb Chews", icon: "🍬", boostType: "+30 Energy" },
-    endurance_gel_plus: { label: "Enduro Gel+", icon: "⚡", boostType: "+35 Stamina" },
+    endurance_gel_plus: {
+      label: "Enduro Gel+",
+      icon: "⚡",
+      boostType: "+35 Stamina",
+    },
   };
 
   // Active Consumables state initialized directly from player's preparation selection
-  const [activeConsumables, setActiveConsumables] = useState<Record<string, number>>(() => {
+  const [activeConsumables, setActiveConsumables] = useState<
+    Record<string, number>
+  >(() => {
     const initial: Record<string, number> = {};
     const selectedList = preparation.nutrition || [];
     const quantities = preparation.nutritionQuantities || {};
@@ -181,15 +338,18 @@ export function RaceScreen() {
   const [isFinished, setIsFinished] = useState(false);
   const [runningEvents, setRunningEvents] = useState<RaceEvent[]>([]);
   // Define the stats reducer
-  const statsReducer = (state: typeof initialStats, action: { type: string; payload: Partial<typeof initialStats> }) => {
+  const statsReducer = (
+    state: typeof initialStats,
+    action: { type: string; payload: Partial<typeof initialStats> },
+  ) => {
     switch (action.type) {
-      case 'UPDATE':
+      case "UPDATE":
         return { ...state, ...action.payload };
       default:
         return state;
     }
   };
-  
+
   const initialStats = {
     energy: 100,
     hydration: 100,
@@ -202,7 +362,7 @@ export function RaceScreen() {
     riskLevel: 20,
     pace: 0,
   };
-  
+
   const [stats, dispatchStats] = useReducer(statsReducer, initialStats);
 
   // State elements for decision moments
@@ -226,8 +386,13 @@ export function RaceScreen() {
   );
 
   // ── Micro-Achievement system ─────────────────────────────────────────────
-  type AchievementQueueItem = RaceAchievement & { isFirstTime: boolean; instanceId: string };
-  const [achievementQueue, setAchievementQueue] = useState<AchievementQueueItem[]>([]);
+  type AchievementQueueItem = RaceAchievement & {
+    isFirstTime: boolean;
+    instanceId: string;
+  };
+  const [achievementQueue, setAchievementQueue] = useState<
+    AchievementQueueItem[]
+  >([]);
   /** IDs of achievements already earned this race (prevents re-triggering) */
   const earnedAchievementsRef = useRef<Set<string>>(new Set());
   /** Pace per km, used for negative split / fastest km detection */
@@ -242,7 +407,9 @@ export function RaceScreen() {
 
   // -- Bet on Yourself system
   const [placedBets, setPlacedBets] = useState<PlacedBet[]>([]);
-  const [betResults, setBetResults] = useState<Array<PlacedBet & { payout: number; won: boolean }>>([]);
+  const [betResults, setBetResults] = useState<
+    Array<PlacedBet & { payout: number; won: boolean }>
+  >([]);
   const [showBetResults, setShowBetResults] = useState(false);
   const hadBreakingPointRef = useRef(false);
 
@@ -250,17 +417,21 @@ export function RaceScreen() {
   const [isPhotoFinishMode, setIsPhotoFinishMode] = useState(false);
   const prevDistancesRef = useRef<Map<string, number>>(new Map());
   const [showResultCard, setShowResultCard] = useState(false);
-  const playerName = player?.name || `Runner #${player?.id.slice(0, 5).toUpperCase() || "00000"}`;
+  const playerName =
+    player?.name ||
+    `Runner #${player?.id.slice(0, 5).toUpperCase() || "00000"}`;
 
   // -- Dynamic Weather System (Sprint 34 – Task 5)
   /** The currently active weather transition to show an alert for, or null */
-  const [activeWeatherTransition, setActiveWeatherTransition] = useState<import("@/types/engine").WeatherTransition | null>(null);
+  const [activeWeatherTransition, setActiveWeatherTransition] = useState<
+    import("@/types/engine").WeatherTransition | null
+  >(null);
   /** The live weather icon shown in the header (updated after each transition) */
-  const [currentWeatherDisplay, setCurrentWeatherDisplay] = useState(challenge.environment.weather);
+  const [currentWeatherDisplay, setCurrentWeatherDisplay] = useState(
+    challenge.environment.weather,
+  );
   /** Tracks which transition IDs have already fired, so they don't re-trigger */
   const firedTransitionIdsRef = useRef<Set<string>>(new Set());
-
-
 
   // -- Rivalry system
   const [raceRivals, setRaceRivals] = useState<Rival[]>([]);
@@ -281,10 +452,12 @@ export function RaceScreen() {
   const simStateRef = useRef<SimulationState | null>(null);
 
   // ── Mental Commentary system ─────────────────────────────────────────────
-  const { activeCommentary, triggerCommentary, dismissCommentary } = useCommentaryQueue();
+  const { activeCommentary, triggerCommentary, dismissCommentary } =
+    useCommentaryQueue();
 
   // ── Split Callout system ─────────────────────────────────────────────────
-  const { activeSplit, triggerSplitCallout, dismissSplitCallout } = useSplitCalloutQueue();
+  const { activeSplit, triggerSplitCallout, dismissSplitCallout } =
+    useSplitCalloutQueue();
   const previousCumulativeTimeRef = useRef(0);
 
   // ── Critical Alert system ─────────────────────────────────────────────────
@@ -298,7 +471,7 @@ export function RaceScreen() {
   const { isNewPR, previousTime } = usePRDetection(
     simResult?.finishTime || 0,
     challenge.race.distance,
-    runnerState.profile
+    runnerState.profile,
   );
   const fullStateLogRef = useRef<
     Omit<SimulationState, "accumulatedStateLog">[]
@@ -384,7 +557,7 @@ export function RaceScreen() {
         router.push("/preparation");
         return;
       }
-      
+
       const seed = Number.parseInt(challenge.date.replace(/-/g, ""), 10) || 42;
       const input = {
         player: { id: "player_local" },
@@ -411,7 +584,9 @@ export function RaceScreen() {
       }
 
       // Helper function to update the state log
-      const updateStateLog = (newLog: Omit<SimulationState, "accumulatedStateLog">[]) => {
+      const updateStateLog = (
+        newLog: Omit<SimulationState, "accumulatedStateLog">[],
+      ) => {
         if (newLog.length >= fullStateLogRef.current.length) {
           fullStateLogRef.current = newLog;
         }
@@ -448,22 +623,24 @@ export function RaceScreen() {
         updateStateLog(nextStep.result.stateLog || []);
         setTargetKm(nextStep.result.stateLog.length - 1);
         setPendingPrompt(null);
-        
+
         // ✅ Award XP for race completion
-        import("@/runner/xp-rewards").then(({ awardRaceCompletionXPFromSimulation }) => {
-          const totalEntrants = challenge.totalEntrants || 100;
-          const distance = challenge.race.distance;
-          const tier = challenge.tier || "local";
-          const isChampionship = challenge.isChampionship || false;
-          
-          awardRaceCompletionXPFromSimulation(
-            nextStep.result,
-            totalEntrants,
-            distance,
-            tier,
-            isChampionship
-          );
-        });
+        import("@/runner/xp-rewards").then(
+          ({ awardRaceCompletionXPFromSimulation }) => {
+            const totalEntrants = challenge.totalEntrants || 100;
+            const distance = challenge.race.distance;
+            const tier = challenge.tier || "local";
+            const isChampionship = challenge.isChampionship || false;
+
+            awardRaceCompletionXPFromSimulation(
+              nextStep.result,
+              totalEntrants,
+              distance,
+              tier,
+              isChampionship,
+            );
+          },
+        );
       }
     },
     [challenge, preparation, router, runnerState, activeGhost],
@@ -477,7 +654,7 @@ export function RaceScreen() {
       handleAdvance();
     }
   }, [handleAdvance]);
-  
+
   // Select rivals for this race on mount
   useEffect(() => {
     if (raceRivals.length === 0 && runnerState.profile) {
@@ -516,18 +693,18 @@ export function RaceScreen() {
         return;
       } else if (pendingPrompt) {
         setActiveDecision(pendingPrompt.decisionCard);
-        
+
         // Variable countdown based on speed for different playstyles
         // Strategic (1x): longer time to think deliberately (40s)
         // Balanced (2x): moderate time (28s)
         // Fast (5x): quick reactions needed (16s)
         const countdownConfig: Record<1 | 2 | 5, number> = {
-          1: 40,   // Strategic - contemplative decisions
-          2: 28,   // Balanced - standard
-          5: 16,   // Fast - urgent, reactive
+          1: 40, // Strategic - contemplative decisions
+          2: 28, // Balanced - standard
+          5: 16, // Fast - urgent, reactive
         };
         setCountdown(countdownConfig[simSpeed] || 30);
-        
+
         setPendingPrompt(null); // Clear prompt to avoid trigger loop
         return;
       } else if (
@@ -539,7 +716,7 @@ export function RaceScreen() {
         return;
       } else if (simResult) {
         setIsFinished(true);
-        
+
         // Trigger finish line sequence
         setShowFinishSequence(true);
 
@@ -558,23 +735,34 @@ export function RaceScreen() {
         );
 
         // ── Update rival relationships after XP/leveling are persisted ─────
-        if (raceRivals.length > 0 && simResult.stateLog && simResult.stateLog.length > 0) {
+        if (
+          raceRivals.length > 0 &&
+          simResult.stateLog &&
+          simResult.stateLog.length > 0
+        ) {
           const playerFinishTime = simResult.finishTime;
           const playerOutcome = simResult.outcome;
-          const playerIsDNF = playerOutcome === "dnf" || playerOutcome === "dns";
+          const playerIsDNF =
+            playerOutcome === "dnf" || playerOutcome === "dns";
           const finalState = simResult.stateLog[simResult.stateLog.length - 1];
-          
+
           const freshState = getRunnerState();
-          const updatedRelationships = { ...(freshState.profile.rivalRelationships || {}) };
-          
+          const updatedRelationships = {
+            ...(freshState.profile.rivalRelationships || {}),
+          };
+
           for (const rival of raceRivals) {
-            const rivalOpponent = finalState.opponents?.find(o => o.id === rival.id);
+            const rivalOpponent = finalState.opponents?.find(
+              (o) => o.id === rival.id,
+            );
             if (rivalOpponent) {
               const rivalFinishTime = rivalOpponent.accumulatedTime;
               const rivalIsDNF = rivalOpponent.isDNF || false;
               const margin = Math.abs(playerFinishTime - rivalFinishTime);
-              const playerBeatRival = !playerIsDNF && (rivalIsDNF || playerFinishTime < rivalFinishTime);
-              
+              const playerBeatRival =
+                !playerIsDNF &&
+                (rivalIsDNF || playerFinishTime < rivalFinishTime);
+
               const existingRel = updatedRelationships[rival.id];
               const updatedRel = updateRivalRelationship(
                 existingRel,
@@ -582,7 +770,7 @@ export function RaceScreen() {
                 margin,
               );
               updatedRelationships[rival.id] = updatedRel;
-              
+
               if (raceRivals.indexOf(rival) === 0) {
                 setActiveRivalStatus({
                   rival,
@@ -609,42 +797,78 @@ export function RaceScreen() {
         if (currentBets.length > 0) {
           const lastStateLog = simResult.stateLog;
           const lastState = lastStateLog[lastStateLog.length - 1];
-          const isTop3 = ["gold", "silver", "bronze"].includes(simResult.outcome);
+          const isTop3 = ["gold", "silver", "bronze"].includes(
+            simResult.outcome,
+          );
           const isWin = simResult.outcome === "gold";
-          const isDNF = simResult.outcome === "dnf" || simResult.outcome === "dns";
+          const isDNF =
+            simResult.outcome === "dnf" || simResult.outcome === "dns";
 
           // Negative split: compare first half vs second half accumulated times
           const halfIdx = Math.floor(lastStateLog.length / 2);
-          const firstHalfPaces = lastStateLog.slice(1, halfIdx + 1).map((s, i) => {
-            const prev = lastStateLog[i];
-            return s.accumulatedTime - prev.accumulatedTime;
-          });
-          const secondHalfPaces = lastStateLog.slice(halfIdx + 1).map((s, i) => {
-            const prev = lastStateLog[halfIdx + i];
-            return s.accumulatedTime - prev.accumulatedTime;
-          });
-          const avgFirst = firstHalfPaces.length > 0 ? firstHalfPaces.reduce((a, b) => a + b, 0) / firstHalfPaces.length : 999;
-          const avgSecond = secondHalfPaces.length > 0 ? secondHalfPaces.reduce((a, b) => a + b, 0) / secondHalfPaces.length : 999;
+          const firstHalfPaces = lastStateLog
+            .slice(1, halfIdx + 1)
+            .map((s, i) => {
+              const prev = lastStateLog[i];
+              return s.accumulatedTime - prev.accumulatedTime;
+            });
+          const secondHalfPaces = lastStateLog
+            .slice(halfIdx + 1)
+            .map((s, i) => {
+              const prev = lastStateLog[halfIdx + i];
+              return s.accumulatedTime - prev.accumulatedTime;
+            });
+          const avgFirst =
+            firstHalfPaces.length > 0
+              ? firstHalfPaces.reduce((a, b) => a + b, 0) /
+                firstHalfPaces.length
+              : 999;
+          const avgSecond =
+            secondHalfPaces.length > 0
+              ? secondHalfPaces.reduce((a, b) => a + b, 0) /
+                secondHalfPaces.length
+              : 999;
           const isNegativeSplit = avgSecond < avgFirst;
 
           // PB check
           const pbForDistance = runnerState.profile.runHistory
             ?.filter((r) => r.distance === challenge.race.distance)
             .sort((a, b) => a.finishTime - b.finishTime)[0]?.finishTime;
-          const beatsPB = pbForDistance ? simResult.finishTime < pbForDistance : false;
+          const beatsPB = pbForDistance
+            ? simResult.finishTime < pbForDistance
+            : false;
 
           const settled = currentBets.map((bet) => {
             let won = false;
             switch (bet.target.id) {
-              case "top_3": won = isTop3 && !isDNF; break;
-              case "win": won = isWin; break;
-              case "no_dnf": won = !isDNF; break;
-              case "negative_split": won = isNegativeSplit && !isDNF; break;
-              case "beat_pb": won = beatsPB; break;
-              case "clean_race": won = !hadBreakingPointRef.current && !isDNF; break;
+              case "top_3":
+                won = isTop3 && !isDNF;
+                break;
+              case "win":
+                won = isWin;
+                break;
+              case "no_dnf":
+                won = !isDNF;
+                break;
+              case "negative_split":
+                won = isNegativeSplit && !isDNF;
+                break;
+              case "beat_pb":
+                won = beatsPB;
+                break;
+              case "clean_race":
+                won = !hadBreakingPointRef.current && !isDNF;
+                break;
             }
-            const payout = won ? Math.round(bet.wager * bet.target.multiplier) : 0;
-            return { ...bet, won, payout, status: (won ? "won" : "lost") as PlacedBet["status"] };
+            const payout = won
+              ? Math.round(bet.wager * bet.target.multiplier)
+              : 0;
+            return {
+              ...bet,
+              won,
+              payout,
+              status: (won ? "won" : "lost") as PlacedBet["status"],
+            };
           });
 
           setBetResults(settled);
@@ -670,14 +894,17 @@ export function RaceScreen() {
             useTimelineStore.getState().setGameState((prev) => ({
               ...prev!,
               economy: updatedEconomy,
-              resources: { ...prev!.resources, money: updatedEconomy.currentBalance },
+              resources: {
+                ...prev!.resources,
+                money: updatedEconomy.currentBalance,
+              },
             }));
           }
 
           setShowBetResults(true);
           // Check if this qualifies for photo finish
           const photoFinishEligible = isPhotoFinish(simResult, playerName);
-          
+
           if (photoFinishEligible) {
             // Show photo finish animation first, then bet results, then redirect
             setIsPhotoFinishMode(true);
@@ -685,16 +912,20 @@ export function RaceScreen() {
             setTimeout(() => {
               setIsPhotoFinishMode(false);
               setShowBetResults(true);
-              setTimeout(() => { router.push("/result"); }, 4000);
+              setTimeout(() => {
+                router.push("/result");
+              }, 4000);
             }, 4000);
           } else {
             // Delay redirect so bet popup is visible
-            setTimeout(() => { router.push("/result"); }, 4000);
+            setTimeout(() => {
+              router.push("/result");
+            }, 4000);
           }
         } else {
           // Check if this qualifies for photo finish (no bets case)
           const photoFinishEligible = isPhotoFinish(simResult, playerName);
-          
+
           if (photoFinishEligible) {
             // Show photo finish animation first, then redirect
             setIsPhotoFinishMode(true);
@@ -715,23 +946,22 @@ export function RaceScreen() {
 
     // Ticker needs to advance (with subtle 5% slow-mo in The Zone)
     const isZoneActive = simState?.flowState?.isInTheZone ?? false;
-    
+
     // Base intervals per speed: 10 seconds per KM for slowest speed (1x)
     // 1x: 10 seconds/km (slowest speed)
-    // 2x: 5 seconds/km (balanced pace)  
+    // 2x: 5 seconds/km (balanced pace)
     // 5x: 2 seconds/km (fast-paced)
     const SPEED_INTERVALS: Record<1 | 2 | 5, number> = {
-      1: 10000,  // 10 sec/km (slowest speed)
-      2: 5000,   // 5 sec/km
-      5: 2000,   // 2 sec/km
+      1: 10000, // 10 sec/km (slowest speed)
+      2: 5000, // 5 sec/km
+      5: 2000, // 2 sec/km
     };
-    
+
     const baseInterval = SPEED_INTERVALS[simSpeed] || 10000;
     const intervalMs = baseInterval * (isZoneActive ? 1.05 : 1.0);
     const timer = setTimeout(() => {
       const nextKmValue = currentKm + 1;
       setCurrentKm(nextKmValue);
-
 
       // Extract events resolved at nextKmValue
       const events = simResult
@@ -751,7 +981,9 @@ export function RaceScreen() {
         const maxEvents = maxEventsConfig[simSpeed] || 3;
         setRunningEvents((prev) => {
           const newEvents = [...prev, ...matchedEvents];
-          return newEvents.length > maxEvents ? newEvents.slice(newEvents.length - maxEvents) : newEvents;
+          return newEvents.length > maxEvents
+            ? newEvents.slice(newEvents.length - maxEvents)
+            : newEvents;
         });
       }
 
@@ -771,7 +1003,9 @@ export function RaceScreen() {
         // ── Split Callout trigger ─────────────────────────────────────────
         // Throttle frequency by simSpeed: 1x (every 1 km), 2x (every 2 km), 5x (every 5 km / final km)
         const splitInterval = simSpeed === 5 ? 5 : simSpeed === 2 ? 2 : 1;
-        const isKmForSplit = nextKmValue % splitInterval === 0 || nextKmValue === Math.floor(challenge.race.distance);
+        const isKmForSplit =
+          nextKmValue % splitInterval === 0 ||
+          nextKmValue === Math.floor(challenge.race.distance);
 
         if (nextKmValue > 0 && elapsedSeconds > 0 && isKmForSplit) {
           const comparisonTime = undefined;
@@ -779,12 +1013,12 @@ export function RaceScreen() {
             nextKmValue,
             elapsedSeconds,
             snapshot.accumulatedTime,
-            comparisonTime
+            comparisonTime,
           );
         }
 
         dispatchStats({
-          type: 'UPDATE',
+          type: "UPDATE",
           payload: {
             energy: Math.max(0, Math.round(snapshot.energy)),
             hydration: Math.max(0, Math.round(snapshot.hydration)),
@@ -796,18 +1030,37 @@ export function RaceScreen() {
             paceStability: Math.round(snapshot.paceStability ?? 80),
             riskLevel: Math.round(snapshot.riskLevel ?? 20),
             pace: elapsedSeconds,
-          }
+          },
         });
 
         // ── Achievement detection ──────────────────────────────────────────
         // Compute current player position by sorting all runners together
-        type RunnerEntry = { id: string; distanceCovered: number; accumulatedTime: number };
+        type RunnerEntry = {
+          id: string;
+          distanceCovered: number;
+          accumulatedTime: number;
+        };
         const allRunners: RunnerEntry[] = [
-          { id: "player_local", distanceCovered: snapshot.distanceCovered, accumulatedTime: snapshot.accumulatedTime },
-          ...(snapshot.opponents ?? []).map((o) => ({ id: o.id, distanceCovered: o.distanceCovered, accumulatedTime: o.accumulatedTime })),
+          {
+            id: "player_local",
+            distanceCovered: snapshot.distanceCovered,
+            accumulatedTime: snapshot.accumulatedTime,
+          },
+          ...(snapshot.opponents ?? []).map((o) => ({
+            id: o.id,
+            distanceCovered: o.distanceCovered,
+            accumulatedTime: o.accumulatedTime,
+          })),
         ];
-        allRunners.sort((a, b) => b.distanceCovered - a.distanceCovered || a.accumulatedTime - b.accumulatedTime);
-        const playerPos = Math.max(1, allRunners.findIndex((r) => r.id === "player_local") + 1);
+        allRunners.sort(
+          (a, b) =>
+            b.distanceCovered - a.distanceCovered ||
+            a.accumulatedTime - b.accumulatedTime,
+        );
+        const playerPos = Math.max(
+          1,
+          allRunners.findIndex((r) => r.id === "player_local") + 1,
+        );
         const prevPos = prevPlayerPositionRef.current;
 
         // ── Rival overtake detection ────────────────────────────────────────
@@ -816,27 +1069,64 @@ export function RaceScreen() {
         if (allowRivalPopups && snapshot.opponents && prevSnapshot?.opponents) {
           const currentOpponents = snapshot.opponents;
           const prevOpponents = prevSnapshot.opponents;
-          
-          const currentPositions = [...currentOpponents, { id: "player_local", distanceCovered: snapshot.distanceCovered, accumulatedTime: snapshot.accumulatedTime }]
-            .sort((a, b) => b.distanceCovered - a.distanceCovered || a.accumulatedTime - b.accumulatedTime);
-          
-          const prevPositions = [...prevOpponents, { id: "player_local", distanceCovered: prevSnapshot.distanceCovered, accumulatedTime: prevSnapshot.accumulatedTime }]
-            .sort((a, b) => b.distanceCovered - a.distanceCovered || a.accumulatedTime - b.accumulatedTime);
-          
+
+          const currentPositions = [
+            ...currentOpponents,
+            {
+              id: "player_local",
+              distanceCovered: snapshot.distanceCovered,
+              accumulatedTime: snapshot.accumulatedTime,
+            },
+          ].sort(
+            (a, b) =>
+              b.distanceCovered - a.distanceCovered ||
+              a.accumulatedTime - b.accumulatedTime,
+          );
+
+          const prevPositions = [
+            ...prevOpponents,
+            {
+              id: "player_local",
+              distanceCovered: prevSnapshot.distanceCovered,
+              accumulatedTime: prevSnapshot.accumulatedTime,
+            },
+          ].sort(
+            (a, b) =>
+              b.distanceCovered - a.distanceCovered ||
+              a.accumulatedTime - b.accumulatedTime,
+          );
+
           for (const rival of raceRivals) {
             const rivalId = rival.id;
-            const currentRivalIndex = currentPositions.findIndex(r => r.id === rivalId);
-            const prevRivalIndex = prevPositions.findIndex(r => r.id === rivalId);
-            const currentPlayerIndex = currentPositions.findIndex(r => r.id === "player_local");
-            const prevPlayerIndex = prevPositions.findIndex(r => r.id === "player_local");
-            
-            if (prevRivalIndex !== -1 && currentRivalIndex !== -1 && 
-                prevPlayerIndex !== -1 && currentPlayerIndex !== -1) {
-              if (prevRivalIndex < prevPlayerIndex && currentRivalIndex > currentPlayerIndex) {
+            const currentRivalIndex = currentPositions.findIndex(
+              (r) => r.id === rivalId,
+            );
+            const prevRivalIndex = prevPositions.findIndex(
+              (r) => r.id === rivalId,
+            );
+            const currentPlayerIndex = currentPositions.findIndex(
+              (r) => r.id === "player_local",
+            );
+            const prevPlayerIndex = prevPositions.findIndex(
+              (r) => r.id === "player_local",
+            );
+
+            if (
+              prevRivalIndex !== -1 &&
+              currentRivalIndex !== -1 &&
+              prevPlayerIndex !== -1 &&
+              currentPlayerIndex !== -1
+            ) {
+              if (
+                prevRivalIndex < prevPlayerIndex &&
+                currentRivalIndex > currentPlayerIndex
+              ) {
                 if (!overtakenRivalsRef.current.has(rivalId)) {
                   const dialog = generateRivalDialog(rival, "overtake_player", {
                     km: nextKmValue,
-                    relationshipLevel: runnerState.profile.rivalRelationships?.[rivalId]?.relationshipLevel ?? 0,
+                    relationshipLevel:
+                      runnerState.profile.rivalRelationships?.[rivalId]
+                        ?.relationshipLevel ?? 0,
                   });
                   setActiveRivalDialog({
                     rival,
@@ -844,25 +1134,33 @@ export function RaceScreen() {
                     context: "overtake_player",
                   });
                   overtakenRivalsRef.current.add(rivalId);
-                  
+
                   if (snapshot) {
                     triggerCommentary("overtake_rival", nextKmValue, snapshot);
                   }
                 }
-              }
-              else if (prevRivalIndex > prevPlayerIndex && currentRivalIndex < currentPlayerIndex) {
+              } else if (
+                prevRivalIndex > prevPlayerIndex &&
+                currentRivalIndex < currentPlayerIndex
+              ) {
                 if (!overtakenRivalsRef.current.has(rivalId)) {
-                  const dialog = generateRivalDialog(rival, "overtaken_by_player", {
-                    km: nextKmValue,
-                    relationshipLevel: runnerState.profile.rivalRelationships?.[rivalId]?.relationshipLevel ?? 0,
-                  });
+                  const dialog = generateRivalDialog(
+                    rival,
+                    "overtaken_by_player",
+                    {
+                      km: nextKmValue,
+                      relationshipLevel:
+                        runnerState.profile.rivalRelationships?.[rivalId]
+                          ?.relationshipLevel ?? 0,
+                    },
+                  );
                   setActiveRivalDialog({
                     rival,
                     text: dialog.text,
                     context: "overtaken_by_player",
                   });
                   overtakenRivalsRef.current.add(rivalId);
-                  
+
                   if (snapshot) {
                     triggerCommentary("being_overtaken", nextKmValue, snapshot);
                   }
@@ -892,21 +1190,32 @@ export function RaceScreen() {
         if (newAchievements.length > 0) {
           // Limit achievement popup queue size based on speed to prevent clutter
           const maxQueueSize = simSpeed === 5 ? 1 : simSpeed === 2 ? 2 : 3;
-          const queueItems: AchievementQueueItem[] = newAchievements.slice(0, maxQueueSize).map((a) => ({
-            ...a,
-            isFirstTime: !earnedSet.has(a.id),
-            instanceId: `${a.id}-${nextKmValue}-${Date.now()}`,
-          }));
+          const queueItems: AchievementQueueItem[] = newAchievements
+            .slice(0, maxQueueSize)
+            .map((a) => ({
+              ...a,
+              isFirstTime: !earnedSet.has(a.id),
+              instanceId: `${a.id}-${nextKmValue}-${Date.now()}`,
+            }));
           newAchievements.forEach((a) => earnedSet.add(a.id));
-          setAchievementQueue((prev) => [...prev.slice(-(maxQueueSize - 1)), ...queueItems]);
+          setAchievementQueue((prev) => [
+            ...prev.slice(-(maxQueueSize - 1)),
+            ...queueItems,
+          ]);
         }
 
         prevPlayerPositionRef.current = playerPos;
 
         // ── Weather Transition detection (Sprint 34 – Task 5) ────────────────
-        if (challenge.weatherTransitions && challenge.weatherTransitions.length > 0) {
+        if (
+          challenge.weatherTransitions &&
+          challenge.weatherTransitions.length > 0
+        ) {
           for (const wt of challenge.weatherTransitions) {
-            if (wt.km === nextKmValue && !firedTransitionIdsRef.current.has(wt.id)) {
+            if (
+              wt.km === nextKmValue &&
+              !firedTransitionIdsRef.current.has(wt.id)
+            ) {
               firedTransitionIdsRef.current.add(wt.id);
               setActiveWeatherTransition(wt);
               setCurrentWeatherDisplay(wt.to);
@@ -915,31 +1224,54 @@ export function RaceScreen() {
         }
 
         // ── Final kick detection ───────────────────────────────────────────
-        const tickerMetersRemaining = (challenge.race.distance - snapshot.distanceCovered) * 1000;
+        const tickerMetersRemaining =
+          (challenge.race.distance - snapshot.distanceCovered) * 1000;
         if (tickerMetersRemaining <= 500 && !isFinalKick) {
           setIsFinalKick(true);
           triggerCommentary("final_kick", nextKmValue, snapshot);
         }
-        
+
         // ── Mental Commentary triggers (Speed Throttled) ───────────────────────
         const halfwayPoint = challenge.race.distance / 2;
         if (simSpeed === 1) {
-          if (nextKmValue <= 0.1) triggerCommentary("race_start", nextKmValue, snapshot);
-          if (Math.abs(nextKmValue - halfwayPoint) < 0.1) triggerCommentary("halfway", nextKmValue, snapshot);
-          if (snapshot.energy < 30 && snapshot.energy > 15) triggerCommentary("low_energy", nextKmValue, snapshot);
-          if (snapshot.muscleFatigue > 70) triggerCommentary("high_fatigue", nextKmValue, snapshot);
-          if (snapshot.distanceCovered >= challenge.race.distance - 2.1 && snapshot.distanceCovered <= challenge.race.distance - 1.9) triggerCommentary("final_2km", nextKmValue, snapshot);
+          if (nextKmValue <= 0.1)
+            triggerCommentary("race_start", nextKmValue, snapshot);
+          if (Math.abs(nextKmValue - halfwayPoint) < 0.1)
+            triggerCommentary("halfway", nextKmValue, snapshot);
+          if (snapshot.energy < 30 && snapshot.energy > 15)
+            triggerCommentary("low_energy", nextKmValue, snapshot);
+          if (snapshot.muscleFatigue > 70)
+            triggerCommentary("high_fatigue", nextKmValue, snapshot);
+          if (
+            snapshot.distanceCovered >= challenge.race.distance - 2.1 &&
+            snapshot.distanceCovered <= challenge.race.distance - 1.9
+          )
+            triggerCommentary("final_2km", nextKmValue, snapshot);
         } else if (simSpeed === 2) {
-          if (nextKmValue <= 0.1) triggerCommentary("race_start", nextKmValue, snapshot);
-          if (Math.abs(nextKmValue - halfwayPoint) < 0.1) triggerCommentary("halfway", nextKmValue, snapshot);
-          if (snapshot.distanceCovered >= challenge.race.distance - 2.1 && snapshot.distanceCovered <= challenge.race.distance - 1.9) triggerCommentary("final_2km", nextKmValue, snapshot);
+          if (nextKmValue <= 0.1)
+            triggerCommentary("race_start", nextKmValue, snapshot);
+          if (Math.abs(nextKmValue - halfwayPoint) < 0.1)
+            triggerCommentary("halfway", nextKmValue, snapshot);
+          if (
+            snapshot.distanceCovered >= challenge.race.distance - 2.1 &&
+            snapshot.distanceCovered <= challenge.race.distance - 1.9
+          )
+            triggerCommentary("final_2km", nextKmValue, snapshot);
         } else {
           // 5x speed: Critical milestones only
-          if (nextKmValue <= 0.1) triggerCommentary("race_start", nextKmValue, snapshot);
-          if (snapshot.distanceCovered >= challenge.race.distance - 2.1 && snapshot.distanceCovered <= challenge.race.distance - 1.9) triggerCommentary("final_2km", nextKmValue, snapshot);
+          if (nextKmValue <= 0.1)
+            triggerCommentary("race_start", nextKmValue, snapshot);
+          if (
+            snapshot.distanceCovered >= challenge.race.distance - 2.1 &&
+            snapshot.distanceCovered <= challenge.race.distance - 1.9
+          )
+            triggerCommentary("final_2km", nextKmValue, snapshot);
         }
-        
-        if (snapshot.activeBreakingPoint && !snapshot.activeBreakingPoint.resolved) {
+
+        if (
+          snapshot.activeBreakingPoint &&
+          !snapshot.activeBreakingPoint.resolved
+        ) {
           triggerCommentary("breaking_point", nextKmValue, snapshot);
         }
         if (snapshot.desperationMode && !snapshot.hasTriggeredDesperation) {
@@ -1016,7 +1348,6 @@ export function RaceScreen() {
     handleAdvance(choiceId);
   };
 
-
   const consumeItem = (itemKey: string) => {
     const qty = activeConsumables[itemKey] || 0;
     if (qty <= 0 || isFinished) return;
@@ -1035,14 +1366,23 @@ export function RaceScreen() {
     }
 
     // 4. Calculate boost values based on item
-    const isIronStomach = runnerState.profile.activePerks?.includes("iron_stomach");
+    const isIronStomach =
+      runnerState.profile.activePerks?.includes("iron_stomach");
     let staminaBoost = 0;
     let hydrationBoost = 0;
     let focusBoost = 0;
-    const meta = CONSUMABLE_META[itemKey] || { label: itemKey, boostType: "+Boost" };
+    const meta = CONSUMABLE_META[itemKey] || {
+      label: itemKey,
+      boostType: "+Boost",
+    };
     const label = `Consumed ${meta.label}`;
     const desc = `${meta.label} (${meta.boostType})`;
-    const effects = { stamina: staminaBoost, hydration: hydrationBoost, morale: focusBoost, pace: 0 };
+    const effects = {
+      stamina: staminaBoost,
+      hydration: hydrationBoost,
+      morale: focusBoost,
+      pace: 0,
+    };
 
     if (itemKey === "energy_gel") {
       staminaBoost = isIronStomach ? 50 : 30;
@@ -1069,13 +1409,22 @@ export function RaceScreen() {
 
     if (simStateRef.current) {
       if (staminaBoost > 0) {
-        simStateRef.current.energy = Math.min(100, simStateRef.current.energy + staminaBoost);
+        simStateRef.current.energy = Math.min(
+          100,
+          simStateRef.current.energy + staminaBoost,
+        );
       }
       if (hydrationBoost > 0) {
-        simStateRef.current.hydration = Math.min(100, (simStateRef.current.hydration || 80) + hydrationBoost);
+        simStateRef.current.hydration = Math.min(
+          100,
+          (simStateRef.current.hydration || 80) + hydrationBoost,
+        );
       }
       if (focusBoost > 0) {
-        simStateRef.current.focus = Math.min(100, simStateRef.current.focus + focusBoost);
+        simStateRef.current.focus = Math.min(
+          100,
+          simStateRef.current.focus + focusBoost,
+        );
       }
     }
 
@@ -1108,9 +1457,9 @@ export function RaceScreen() {
   // Handle Burn Reserves emergency action
   const handleBurnReserves = useCallback(() => {
     if (hasBurnedReserves || !simState) return;
-    
+
     setHasBurnedReserves(true);
-    
+
     // Boost energy by 20%
     dispatchStats({
       type: "UPDATE",
@@ -1119,7 +1468,7 @@ export function RaceScreen() {
         energy: Math.min(100, stats.energy + 20),
       },
     });
-    
+
     // Add event to log
     setRunningEvents((prev) => [
       ...prev,
@@ -1136,56 +1485,54 @@ export function RaceScreen() {
         effect: { stamina: 20, hydration: 0, morale: 0, pace: 0 },
       },
     ]);
-    
+
     // Trigger commentary
     triggerCommentary("desperation", currentKm, simState);
   }, [hasBurnedReserves, simState, stats, currentKm, triggerCommentary]);
 
   // Handle final kick timing result
-  const handleKick = useCallback(
-    (timing: KickTiming) => {
-      const boostMap: Record<KickTiming, number> = { perfect: 0.5, good: 0.2, miss: 0 };
-      const boost = boostMap[timing];
-      if (boost > 0) {
-        setKickTotalBoost((prev) => prev + boost);
-      }
-      if (timing === "perfect") {
-        setKickPerfectCount((prev) => prev + 1);
-      }
-    },
-    [],
-  );
+  const handleKick = useCallback((timing: KickTiming) => {
+    const boostMap: Record<KickTiming, number> = {
+      perfect: 0.5,
+      good: 0.2,
+      miss: 0,
+    };
+    const boost = boostMap[timing];
+    if (boost > 0) {
+      setKickTotalBoost((prev) => prev + boost);
+    }
+    if (timing === "perfect") {
+      setKickPerfectCount((prev) => prev + 1);
+    }
+  }, []);
 
   // Bet callbacks
-  const handlePlaceBet = useCallback(
-    (target: BetTarget, wager: number) => {
-      const newBet: PlacedBet = {
-        id: `bet-${Date.now()}`,
-        target,
+  const handlePlaceBet = useCallback((target: BetTarget, wager: number) => {
+    const newBet: PlacedBet = {
+      id: `bet-${Date.now()}`,
+      target,
+      wager,
+      status: "pending",
+    };
+    // Deduct wager from economy immediately
+    const gameState = useTimelineStore.getState().gameState;
+    if (gameState) {
+      const { economy } = recordTransaction(
+        gameState.economy,
+        "spend",
+        "race_entry",
         wager,
-        status: "pending",
-      };
-      // Deduct wager from economy immediately
-      const gameState = useTimelineStore.getState().gameState;
-      if (gameState) {
-        const { economy } = recordTransaction(
-          gameState.economy,
-          "spend",
-          "race_entry",
-          wager,
-          gameState.dayIndex,
-          `Bet placed: ${target.label}`,
-        );
-        useTimelineStore.getState().setGameState((prev) => ({
-          ...prev!,
-          economy,
-          resources: { ...prev!.resources, money: economy.currentBalance },
-        }));
-      }
-      setPlacedBets((prev) => [...prev, newBet]);
-    },
-    [],
-  );
+        gameState.dayIndex,
+        `Bet placed: ${target.label}`,
+      );
+      useTimelineStore.getState().setGameState((prev) => ({
+        ...prev!,
+        economy,
+        resources: { ...prev!.resources, money: economy.currentBalance },
+      }));
+    }
+    setPlacedBets((prev) => [...prev, newBet]);
+  }, []);
 
   const handleCancelBet = useCallback(
     (betId: string) => {
@@ -1233,12 +1580,12 @@ export function RaceScreen() {
   // Compute live runners list for leaderboard and progress visualizer
   // Use current snapshot, or fall back to the most recent available snapshot
   let currentSnapshot = fullStateLogRef.current[currentKm];
-  
+
   // If current km doesn't have data yet, use the last available snapshot
   if (!currentSnapshot && fullStateLogRef.current.length > 0) {
     const lastAvailableIndex = Math.min(
       currentKm,
-      fullStateLogRef.current.length - 1
+      fullStateLogRef.current.length - 1,
     );
     currentSnapshot = fullStateLogRef.current[lastAvailableIndex];
   }
@@ -1325,8 +1672,6 @@ export function RaceScreen() {
     };
   });
 
-
-
   return (
     <div className="min-h-screen bg-[#fffdf8] dark:bg-[#090d16] text-slate-900 dark:text-white flex flex-col justify-between overflow-hidden relative">
       {/* Environmental Parallax Background */}
@@ -1356,7 +1701,9 @@ export function RaceScreen() {
       <LiveActivityFeed isRaceActive={!isFinished} />
       <RivalProximityAlert
         playerDistanceKm={currentKm}
-        rivals={runners.filter((r) => !r.isPlayer && !r.isGhost).map((r) => ({ id: r.id, name: r.name, distanceKm: r.distance }))}
+        rivals={runners
+          .filter((r) => !r.isPlayer && !r.isGhost)
+          .map((r) => ({ id: r.id, name: r.name, distanceKm: r.distance }))}
         isRaceActive={!isFinished}
       />
       <SpectatorMode
@@ -1366,11 +1713,24 @@ export function RaceScreen() {
       />
       <MilestoneMarkers
         currentKm={currentKm}
-        markers={getUpcomingMilestoneMarkers(currentKm, challenge.race.distance, 1, player?.statistics?.currentStreak ?? 0)}
+        markers={getUpcomingMilestoneMarkers(
+          currentKm,
+          challenge.race.distance,
+          1,
+          player?.statistics?.currentStreak ?? 0,
+        )}
         isRaceActive={!isFinished}
       />
-      <ComboStreak comboCount={0} winStreak={player?.statistics?.currentStreak ?? 0} />
-      <LiveRewardTicker totalXpGained={0} totalMoneyGained={0} popups={[]} isRaceActive={!isFinished} />
+      <ComboStreak
+        comboCount={0}
+        winStreak={player?.statistics?.currentStreak ?? 0}
+      />
+      <LiveRewardTicker
+        totalXpGained={0}
+        totalMoneyGained={0}
+        popups={[]}
+        isRaceActive={!isFinished}
+      />
 
       {/* Header */}
       <header className="px-4 md:px-6 py-4 md:py-6 border-b border-slate-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/50 backdrop-blur-md">
@@ -1412,13 +1772,16 @@ export function RaceScreen() {
             {/* Speed Controls */}
             <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-full p-0.5 border border-slate-200 dark:border-slate-700">
               {([1, 2, 5] as const).map((speed) => {
-                const speedLabels: Record<1 | 2 | 5, { label: string; desc: string }> = {
+                const speedLabels: Record<
+                  1 | 2 | 5,
+                  { label: string; desc: string }
+                > = {
                   1: { label: "🐢 Strategic", desc: "20s/km - Deep strategy" },
                   2: { label: "⚖️ Balanced", desc: "10s/km - Paced gameplay" },
                   5: { label: "⚡ Fast", desc: "5s/km - Reactive intensity" },
                 };
                 const config = speedLabels[speed];
-                
+
                 return (
                   <button
                     key={speed}
@@ -1426,8 +1789,8 @@ export function RaceScreen() {
                       setSimSpeed(speed);
                     }}
                     className={`flex items-center justify-center w-6 h-6 md:w-7 md:h-7 rounded-full text-[10px] md:text-xs font-bold transition-all relative ${
-                      simSpeed === speed 
-                        ? "bg-white dark:bg-slate-600 text-slate-800 dark:text-white shadow-sm" 
+                      simSpeed === speed
+                        ? "bg-white dark:bg-slate-600 text-slate-800 dark:text-white shadow-sm"
                         : "text-slate-400 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                     }`}
                     title={config.desc}
@@ -1439,22 +1802,27 @@ export function RaceScreen() {
             </div>
             <div className="flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1 md:py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-600 dark:text-orange-400 text-[10px] md:text-xs font-semibold">
               <Activity className="h-3.5 md:h-4.5 w-3.5 md:w-4.5 animate-pulse" />
-              <span className="hidden sm:inline">{t("challenge.race.simulating" as TranslationKey)}</span>
+              <span className="hidden sm:inline">
+                {t("challenge.race.simulating" as TranslationKey)}
+              </span>
               <span className="sm:hidden">Live</span>
             </div>
           </div>
         </div>
       </header>
- 
+
       {/* Main content area */}
       <main className="flex-grow max-w-4xl w-full mx-auto px-4 md:px-6 py-4 md:py-8 flex flex-col justify-center gap-4 md:gap-6 relative">
         {/* Distance Tracker & Visual Track Progress */}
-        <div id="tour-race-simulation" className="flex flex-col gap-4 md:gap-5 items-center justify-center bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[2rem] p-4 md:p-6 shadow-sm">
+        <div
+          id="tour-race-simulation"
+          className="flex flex-col gap-4 md:gap-5 items-center justify-center bg-white dark:bg-gray-900 border border-slate-200 dark:border-gray-800 rounded-[2rem] p-4 md:p-6 shadow-sm"
+        >
           {/* Distance Circular Tracker - Sprint 40 Enhanced */}
           <div className="relative w-40 h-40 md:w-48 md:h-48 flex items-center justify-center group">
             {/* Background glow ring */}
             <div className="absolute inset-0 rounded-full border-[6px] border-orange-500/10 dark:border-orange-500/20 scale-105 animate-pulse" />
-            
+
             {/* Outer track (unfilled background) */}
             <svg
               className="w-full h-full transform -rotate-90 drop-shadow-sm"
@@ -1462,7 +1830,7 @@ export function RaceScreen() {
               aria-label="Race progress circle"
             >
               <title>Race progress circle</title>
-              
+
               {/* Track background */}
               <circle
                 cx="50%"
@@ -1471,7 +1839,7 @@ export function RaceScreen() {
                 className="stroke-slate-100 dark:stroke-slate-800/40 fill-none"
                 strokeWidth="12"
               />
-              
+
               {/* Progress track with gradient color based on player energy */}
               <motion.circle
                 cx="50%"
@@ -1479,23 +1847,23 @@ export function RaceScreen() {
                 r="48%"
                 className={`
                   stroke-orange-500 fill-none transition-all duration-300 drop-shadow-md
-                  ${stats.energy > 70 ? 'stroke-emerald-500' : stats.energy > 40 ? 'stroke-amber-500' : 'stroke-rose-500'}
+                  ${stats.energy > 70 ? "stroke-emerald-500" : stats.energy > 40 ? "stroke-amber-500" : "stroke-rose-500"}
                 `}
                 strokeWidth="12"
                 strokeDasharray="301.6"
                 strokeDashoffset={201.6 - (301.6 * progressPercentage) / 100}
                 initial={{ strokeDashoffset: 201.6 }}
-                animate={{ 
+                animate={{
                   strokeDashoffset: 201.6 - (301.6 * progressPercentage) / 100,
                 }}
                 transition={{
                   duration: (isPaused ? 0 : 1.5) / simSpeed,
-                  ease: "linear"
+                  ease: "linear",
                 }}
                 strokeLinecap="round"
               />
             </svg>
-            
+
             {/* Inner content with enhanced info */}
             <div className="absolute flex flex-col items-center justify-center text-center min-w-[120px]">
               {/* Current Km */}
@@ -1507,15 +1875,17 @@ export function RaceScreen() {
                   /{challenge.race.distance}
                 </span>
               </div>
-              
+
               {/* Km indicator */}
               <p className="text-[10px] md:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                 km
               </p>
-              
+
               {/* Pace display in inner circle */}
               <div className="mt-1 flex items-center gap-1 bg-slate-100/60 dark:bg-slate-800/60 px-2 py-1 rounded-full border border-slate-200 dark:border-slate-700 backdrop-blur-sm">
-                <span className="text-[9px] font-bold text-slate-600 dark:text-slate-300">PACE</span>
+                <span className="text-[9px] font-bold text-slate-600 dark:text-slate-300">
+                  PACE
+                </span>
                 <span className="text-[10px] font-black text-orange-600 dark:text-orange-400 font-mono">
                   {formatPace(stats.pace)}
                 </span>
@@ -1531,7 +1901,10 @@ export function RaceScreen() {
               raceDistance={challenge.race.distance}
               simSpeed={simSpeed}
               isPaused={isPaused}
-              routeProfile={getRouteProfile(getRouteProfileForChallenge(challenge), challenge.race.surface)}
+              routeProfile={getRouteProfile(
+                getRouteProfileForChallenge(challenge),
+                challenge.race.surface,
+              )}
               surface={challenge.race.surface}
               playerEnergy={stats.energy}
             />
@@ -1559,14 +1932,16 @@ export function RaceScreen() {
             distanceCovered={currentKm}
             totalDistance={challenge.race.distance}
             accumulatedTime={currentSnapshot?.accumulatedTime ?? 0}
-            personalBest={runnerState.profile.runHistory?.length
-              ? (() => {
-                  const pbs = runnerState.profile.runHistory
-                    ?.filter(r => r.distance === challenge.race.distance)
-                    .sort((a, b) => a.finishTime - b.finishTime);
-                  return pbs.length > 0 ? pbs[0].finishTime : undefined;
-                })()
-              : undefined}
+            personalBest={
+              runnerState.profile.runHistory?.length
+                ? (() => {
+                    const pbs = runnerState.profile.runHistory
+                      ?.filter((r) => r.distance === challenge.race.distance)
+                      .sort((a, b) => a.finishTime - b.finishTime);
+                    return pbs.length > 0 ? pbs[0].finishTime : undefined;
+                  })()
+                : undefined
+            }
             isPaused={isPaused}
             simSpeed={simSpeed}
           />
@@ -1594,7 +1969,9 @@ export function RaceScreen() {
               {/* Bet on Yourself Panel */}
               <div className="mb-2">
                 <SelfBetPanel
-                  currentBalance={useTimelineStore((s) => s.gameState?.economy.currentBalance ?? 0)}
+                  currentBalance={useTimelineStore(
+                    (s) => s.gameState?.economy.currentBalance ?? 0,
+                  )}
                   placedBets={placedBets}
                   onPlaceBet={handlePlaceBet}
                   onCancelBet={handleCancelBet}
@@ -1688,7 +2065,11 @@ export function RaceScreen() {
                     <span>🥤</span> Active Consumables
                   </h4>
                   <span className="text-[10px] font-mono font-bold text-indigo-500 dark:text-indigo-400">
-                    {Object.values(activeConsumables).reduce((a, b) => a + b, 0)} items remaining
+                    {Object.values(activeConsumables).reduce(
+                      (a, b) => a + b,
+                      0,
+                    )}{" "}
+                    items remaining
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-2 mt-1">
@@ -1715,7 +2096,8 @@ export function RaceScreen() {
                       >
                         <span>{meta.icon}</span>
                         <span>
-                          {meta.label} <span className="font-mono font-black">({qty})</span>
+                          {meta.label}{" "}
+                          <span className="font-mono font-black">({qty})</span>
                         </span>
                       </button>
                     );
@@ -1729,11 +2111,11 @@ export function RaceScreen() {
               <h4 className="text-xs md:text-sm uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
                 <span>🏆</span> Live Standings
               </h4>
-              
+
               {/* Enhanced Standings Component */}
               <div className="bg-slate-50 dark:bg-slate-950/40 rounded-[1.5rem] border border-slate-150 dark:border-gray-800 overflow-hidden">
-                <EnhancedStandings 
-                  runners={runnersWithPreviousDistance} 
+                <EnhancedStandings
+                  runners={runnersWithPreviousDistance}
                   raceDistance={challenge.race.distance}
                   showMobileVersion={false}
                 />
@@ -1769,7 +2151,9 @@ export function RaceScreen() {
                 </span>
                 <div className="flex items-center gap-1 text-amber-655 dark:text-amber-500">
                   <Flame className="h-4 w-4 md:h-4.5 md:w-4.5" />
-                  <span className="text-base md:text-lg font-bold">{stats.energy}%</span>
+                  <span className="text-base md:text-lg font-bold">
+                    {stats.energy}%
+                  </span>
                 </div>
               </div>
               <div className="border border-slate-200 dark:border-gray-800 rounded-[1.5rem] p-3 md:p-4 flex flex-col items-center bg-slate-50/50 dark:bg-gray-950/20">
@@ -1778,7 +2162,9 @@ export function RaceScreen() {
                 </span>
                 <div className="flex items-center gap-1 text-blue-650 dark:text-blue-500">
                   <Activity className="h-4 w-4 md:h-4.5 md:w-4.5" />
-                  <span className="text-base md:text-lg font-bold">{stats.hydration}%</span>
+                  <span className="text-base md:text-lg font-bold">
+                    {stats.hydration}%
+                  </span>
                 </div>
               </div>
               <div className="border border-slate-200 dark:border-gray-800 rounded-[1.5rem] p-3 md:p-4 flex flex-col items-center bg-slate-50/50 dark:bg-gray-950/20">
@@ -1787,14 +2173,18 @@ export function RaceScreen() {
                 </span>
                 <div className="flex items-center gap-1 text-purple-650 dark:text-purple-550">
                   <TrendingUp className="h-4 w-4 md:h-4.5 md:w-4.5" />
-                  <span className="text-base md:text-lg font-bold">{stats.focus}%</span>
+                  <span className="text-base md:text-lg font-bold">
+                    {stats.focus}%
+                  </span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Sub-attributes / Indicators */}
-          <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 border-t border-slate-100 dark:border-gray-800 pt-4 md:pt-6 transition-opacity duration-500 ${simState?.flowState?.isInTheZone ? "opacity-35 hover:opacity-100" : "opacity-100"}`}>
+          <div
+            className={`grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 border-t border-slate-100 dark:border-gray-800 pt-4 md:pt-6 transition-opacity duration-500 ${simState?.flowState?.isInTheZone ? "opacity-35 hover:opacity-100" : "opacity-100"}`}
+          >
             <div className="flex flex-col gap-2 md:gap-3">
               <span className="text-xs md:text-sm uppercase font-extrabold tracking-widest text-slate-400 dark:text-gray-500">
                 Fatigue & Stability
@@ -1802,7 +2192,9 @@ export function RaceScreen() {
               <div className="flex flex-col gap-2 md:gap-2.5 text-xs md:text-sm">
                 <div>
                   <div className="flex justify-between font-semibold mb-1 text-slate-700 dark:text-gray-300">
-                    <span>Muscle Fatigue</span>
+                    <span>
+                      {t("race_custom.muscle_fatigue" as TranslationKey)}
+                    </span>
                     <span>{stats.muscleFatigue}%</span>
                   </div>
                   <div className="w-full bg-slate-100 dark:bg-gray-950 h-2 rounded-full overflow-hidden">
@@ -1814,7 +2206,9 @@ export function RaceScreen() {
                 </div>
                 <div>
                   <div className="flex justify-between font-semibold mb-1 text-slate-700 dark:text-gray-300">
-                    <span>Mental Fatigue</span>
+                    <span>
+                      {t("race_custom.mental_fatigue" as TranslationKey)}
+                    </span>
                     <span>{stats.mentalFatigue}%</span>
                   </div>
                   <div className="w-full bg-slate-100 dark:bg-gray-950 h-2 rounded-full overflow-hidden">
@@ -1826,7 +2220,9 @@ export function RaceScreen() {
                 </div>
                 <div>
                   <div className="flex justify-between font-semibold mb-1 text-slate-700 dark:text-gray-300">
-                    <span>Pace Stability</span>
+                    <span>
+                      {t("race_custom.pace_stability" as TranslationKey)}
+                    </span>
                     <span>{stats.paceStability}%</span>
                   </div>
                   <div className="w-full bg-slate-100 dark:bg-gray-950 h-2 rounded-full overflow-hidden">
@@ -2128,7 +2524,10 @@ export function RaceScreen() {
               lang={lang}
               betResults={betResults}
               earnedAchievements={[]}
-              spectatorCount={Math.max(12, (runnerState?.profile?.level ?? 1) * 6)}
+              spectatorCount={Math.max(
+                12,
+                (runnerState?.profile?.level ?? 1) * 6,
+              )}
               onDownloadComplete={() => setShowResultCard(false)}
               onCopyComplete={() => setShowResultCard(false)}
             />
@@ -2186,7 +2585,9 @@ export function RaceScreen() {
       <MicroAchievementPopup
         queue={achievementQueue}
         onDismiss={(instanceId) =>
-          setAchievementQueue((prev) => prev.filter((a) => a.instanceId !== instanceId))
+          setAchievementQueue((prev) =>
+            prev.filter((a) => a.instanceId !== instanceId),
+          )
         }
       />
 
@@ -2214,22 +2615,25 @@ export function RaceScreen() {
       </AnimatePresence>
 
       {/* Critical Alert — DNF warning system */}
-      {simState && !isFinished && (() => {
-        const alertLevel = getAlertLevel(simState.energy);
-        if (!alertLevel) return null;
-        
-        const distanceRemaining = challenge.race.distance - simState.distanceCovered;
-        
-        return (
-          <CriticalAlert
-            level={alertLevel}
-            energy={simState.energy}
-            distanceRemaining={distanceRemaining}
-            onBurnReserves={handleBurnReserves}
-            hasBurnedReserves={hasBurnedReserves}
-          />
-        );
-      })()}
+      {simState &&
+        !isFinished &&
+        (() => {
+          const alertLevel = getAlertLevel(simState.energy);
+          if (!alertLevel) return null;
+
+          const distanceRemaining =
+            challenge.race.distance - simState.distanceCovered;
+
+          return (
+            <CriticalAlert
+              level={alertLevel}
+              energy={simState.energy}
+              distanceRemaining={distanceRemaining}
+              onBurnReserves={handleBurnReserves}
+              hasBurnedReserves={hasBurnedReserves}
+            />
+          );
+        })()}
 
       {/* Mental Commentary Overlay — motivational internal monologue */}
       <MentalCommentary
@@ -2253,7 +2657,7 @@ export function RaceScreen() {
         <FinishLineSequence
           finalTime={simResult.finishTime}
           initialHeartRate={Math.round(
-            150 + (simState.muscleFatigue * 0.8) + (simState.mentalFatigue * 0.5)
+            150 + simState.muscleFatigue * 0.8 + simState.mentalFatigue * 0.5,
           )}
           onComplete={() => {
             setShowFinishSequence(false);
@@ -2287,8 +2691,12 @@ export function RaceScreen() {
           hydration: stats.hydration,
           focus: stats.focus,
           pace: stats.pace,
-          heartRate: simState 
-            ? Math.round(150 + (simState.muscleFatigue * 0.8) + (simState.mentalFatigue * 0.5))
+          heartRate: simState
+            ? Math.round(
+                150 +
+                  simState.muscleFatigue * 0.8 +
+                  simState.mentalFatigue * 0.5,
+              )
             : 140,
         }}
         currentKm={currentKm}
@@ -2319,7 +2727,9 @@ export function RaceScreen() {
           {
             target: "#tour-race-simulation",
             title: t("tour.screens.race.simulation.title" as TranslationKey),
-            content: t("tour.screens.race.simulation.content" as TranslationKey),
+            content: t(
+              "tour.screens.race.simulation.content" as TranslationKey,
+            ),
           },
         ]}
       />

@@ -3,11 +3,15 @@
 import { motion } from "framer-motion";
 import { useCallback, useRef, useState } from "react";
 import { formatCurrency } from "@/economy/currency-converter";
-import { useSettingsStore } from "@/store/settings-store";
-import type { SimulationResult, Outcome, Grade } from "@/types/engine";
-import type { DailyChallenge } from "@/types/engine";
-import type { PlacedBet } from "./self-bet-panel";
 import type { RaceAchievement } from "@/engine/achievements/race-achievements";
+import { useSettingsStore } from "@/store/settings-store";
+import type {
+  DailyChallenge,
+  Grade,
+  Outcome,
+  SimulationResult,
+} from "@/types/engine";
+import type { PlacedBet } from "./self-bet-panel";
 
 interface ResultCardGeneratorProps {
   /** The challenge data */
@@ -65,7 +69,9 @@ export function ResultCardGenerator({
   );
   const [isDownloading, setIsDownloading] = useState(false);
   const [isCopying, setIsCopying] = useState(false);
-  const [showTooltip, setShowTooltip] = useState<"download" | "copy" | null>(null);
+  const [showTooltip, setShowTooltip] = useState<"download" | "copy" | null>(
+    null,
+  );
 
   // Extract final standings
   const finalState = result.stateLog?.[result.stateLog.length - 1];
@@ -74,20 +80,28 @@ export function ResultCardGenerator({
   // Get player position
   const getPlayerPosition = (): number => {
     if (!finalState || !finalState.opponents) return 1;
-    
+
     const allRunners = [
-      { id: "player_local", time: result.finishTime, isDNF: result.outcome === "dnf" },
-      ...finalState.opponents.map(o => ({ id: o.id, time: o.accumulatedTime, isDNF: o.isDNF }))
+      {
+        id: "player_local",
+        time: result.finishTime,
+        isDNF: result.outcome === "dnf",
+      },
+      ...finalState.opponents.map((o) => ({
+        id: o.id,
+        time: o.accumulatedTime,
+        isDNF: o.isDNF,
+      })),
     ];
-    
+
     // Sort: DNF last, then by time
     allRunners.sort((a, b) => {
       if (a.isDNF && !b.isDNF) return 1;
       if (!a.isDNF && b.isDNF) return -1;
       return a.time - b.time;
     });
-    
-    return allRunners.findIndex(r => r.id === "player_local") + 1;
+
+    return allRunners.findIndex((r) => r.id === "player_local") + 1;
   };
 
   const playerPosition = getPlayerPosition();
@@ -127,8 +141,22 @@ export function ResultCardGenerator({
   // Get outcome text
   const getOutcomeText = (outcome: Outcome, lang: "en" | "id") => {
     const outcomes = {
-      en: { gold: "1st Place", silver: "2nd Place", bronze: "3rd Place", finish: "Finished", dnf: "DNF", dns: "DNS" },
-      id: { gold: "Juara 1", silver: "Juara 2", bronze: "Juara 3", finish: "Finish", dnf: "DNF", dns: "DNS" }
+      en: {
+        gold: "1st Place",
+        silver: "2nd Place",
+        bronze: "3rd Place",
+        finish: "Finished",
+        dnf: "DNF",
+        dns: "DNS",
+      },
+      id: {
+        gold: "Juara 1",
+        silver: "Juara 2",
+        bronze: "Juara 3",
+        finish: "Finish",
+        dnf: "DNF",
+        dns: "DNS",
+      },
     };
     return outcomes[lang][outcome] || outcome;
   };
@@ -142,11 +170,14 @@ export function ResultCardGenerator({
     position: getOutcomeText(result.outcome, lang),
     totalRunners,
     medal: getMedal(playerPosition, result.outcome),
-    achievements: earnedAchievements.slice(0, 3).map(a => a.title[lang]),
-    betResults: betResults.filter(b => b.won).map(b => 
-      lang === "en" ? `+${formatCurrency(b.payout, preferredCurrency)} (${b.target.label})` : 
-      `+${formatCurrency(b.payout, preferredCurrency)} (${b.target.label})`
-    ),
+    achievements: earnedAchievements.slice(0, 3).map((a) => a.title[lang]),
+    betResults: betResults
+      .filter((b) => b.won)
+      .map((b) =>
+        lang === "en"
+          ? `+${formatCurrency(b.payout, preferredCurrency)} (${b.target.label})`
+          : `+${formatCurrency(b.payout, preferredCurrency)} (${b.target.label})`,
+      ),
     pbInfo: getPBInfo(),
     hashtag: `#RunQuest`,
   };
@@ -154,25 +185,25 @@ export function ResultCardGenerator({
   // Download card as PNG using html-to-image
   const handleDownload = useCallback(async () => {
     if (!cardRef.current) return;
-    
+
     setIsDownloading(true);
     setShowTooltip(null);
-    
+
     try {
       // Import html-to-image dynamically to avoid SSR issues
       const { toPng } = await import("html-to-image");
-      
+
       const dataUrl = await toPng(cardRef.current, {
         cacheBust: true,
         quality: 1,
         pixelRatio: 2,
       });
-      
+
       const link = document.createElement("a");
       link.download = `runquest-result-${challenge.date}.png`;
       link.href = dataUrl;
       link.click();
-      
+
       onDownloadComplete?.();
     } catch (error) {
       console.error("Failed to generate card image:", error);
@@ -186,27 +217,27 @@ export function ResultCardGenerator({
   // Copy card to clipboard using html-to-image
   const handleCopy = useCallback(async () => {
     if (!cardRef.current) return;
-    
+
     setIsCopying(true);
     setShowTooltip(null);
-    
+
     try {
       // Import html-to-image dynamically to avoid SSR issues
       const { toBlob, toPng } = await import("html-to-image");
-      
+
       const blob = await toBlob(cardRef.current, {
         cacheBust: true,
         quality: 1,
         pixelRatio: 2,
       });
-      
+
       if (blob) {
         await navigator.clipboard.write([
           new ClipboardItem({
             [blob.type]: blob,
           }),
         ]);
-        
+
         onCopyComplete?.();
       }
     } catch (error) {
@@ -239,7 +270,8 @@ export function ResultCardGenerator({
       copied: "Copied!",
       downloading: "Saving...",
       share_title: "Share Your Victory!",
-      share_desc: "Download or copy your race result card to share with friends.",
+      share_desc:
+        "Download or copy your race result card to share with friends.",
     },
     id: {
       download: "Unduh Kartu",
@@ -247,8 +279,9 @@ export function ResultCardGenerator({
       copied: "Tersalin!",
       downloading: "Menyimpan...",
       share_title: "Bagikan Kemenanganmu!",
-      share_desc: "Unduh atau salin kartu hasil balapan untuk dibagikan kepada teman.",
-    }
+      share_desc:
+        "Unduh atau salin kartu hasil balapan untuk dibagikan kepada teman.",
+    },
   };
 
   const t = translations[lang];
@@ -256,13 +289,14 @@ export function ResultCardGenerator({
   return (
     <div className="flex flex-col gap-4">
       {/* Card Preview */}
-      <div 
+      <div
         ref={cardRef}
         className="relative overflow-hidden rounded-3xl border-4 border-slate-800 dark:border-slate-600 bg-gradient-to-br from-orange-900/20 via-slate-900 to-orange-900/20 p-6 shadow-2xl"
         style={{
           width: "400px",
           maxWidth: "100%",
-          background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
+          background:
+            "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
         }}
       >
         {/* Header */}
@@ -412,7 +446,8 @@ export function ResultCardGenerator({
           className="text-center pt-4 border-t border-slate-700/40"
         >
           <p className="text-slate-500 text-xs">
-            {cardData.hashtag} • {new Date().toLocaleDateString(lang === "en" ? "en-US" : "id-ID")}
+            {cardData.hashtag} •{" "}
+            {new Date().toLocaleDateString(lang === "en" ? "en-US" : "id-ID")}
           </p>
         </motion.div>
 
@@ -502,28 +537,31 @@ export function ResultCardGenerator({
  */
 export function useResultCardGenerator() {
   const cardRef = useRef<HTMLDivElement>(null);
-  
-  const generateCard = useCallback(async (
-    challenge: DailyChallenge,
-    result: SimulationResult,
-    playerName: string,
-    lang: "en" | "id" = "en"
-  ) => {
-    if (!cardRef.current) return null;
-    
-    try {
-      const { toPng } = await import("html-to-image");
-      const dataUrl = await toPng(cardRef.current, {
-        cacheBust: true,
-        quality: 1,
-        pixelRatio: 2,
-      });
-      return dataUrl;
-    } catch (error) {
-      console.error("Failed to generate card:", error);
-      return null;
-    }
-  }, []);
+
+  const generateCard = useCallback(
+    async (
+      challenge: DailyChallenge,
+      result: SimulationResult,
+      playerName: string,
+      lang: "en" | "id" = "en",
+    ) => {
+      if (!cardRef.current) return null;
+
+      try {
+        const { toPng } = await import("html-to-image");
+        const dataUrl = await toPng(cardRef.current, {
+          cacheBust: true,
+          quality: 1,
+          pixelRatio: 2,
+        });
+        return dataUrl;
+      } catch (error) {
+        console.error("Failed to generate card:", error);
+        return null;
+      }
+    },
+    [],
+  );
 
   return { cardRef, generateCard };
 }

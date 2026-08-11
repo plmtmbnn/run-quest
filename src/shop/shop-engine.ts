@@ -1,6 +1,7 @@
 // shop-engine.ts
 // Validation and processing engine for Centralized Shop purchases
 
+import type { Gear, Nutrition, Shoe } from "@/types/engine";
 import { getItemById } from "./shop-catalog";
 import type {
   PlayerInventory,
@@ -8,7 +9,6 @@ import type {
   PurchaseResult,
   ShopCategory,
 } from "./shop-types";
-import type { Shoe, Nutrition, Gear } from "@/types/engine";
 
 export function validatePurchase(
   itemId: string,
@@ -43,10 +43,7 @@ export function validatePurchase(
   return { valid: true };
 }
 
-export function canAffordItem(
-  price: number,
-  currentBalance: number,
-): boolean {
+export function canAffordItem(price: number, currentBalance: number): boolean {
   return currentBalance >= price;
 }
 
@@ -84,7 +81,7 @@ export function processPurchase(
   }
 
   const newBalance = currentBalance - totalPrice;
-  let newQuantity: number | undefined = undefined;
+  let newQuantity: number | undefined;
 
   if (category === "shoes") {
     inventory.shoes[itemId as Shoe] = true;

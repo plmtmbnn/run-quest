@@ -1,7 +1,7 @@
 // src/lib/firebase.ts
-import { initializeApp, getApps } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getApps, initializeApp } from "firebase/app";
 import type { Firestore } from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
 
 const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 
@@ -26,11 +26,11 @@ if (apiKey) {
     getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
   db = getFirestore(app);
   console.log(
-    `[Firebase] Connected to Firestore (Project: ${firebaseConfig.projectId})`
+    `[Firebase] Connected to Firestore (Project: ${firebaseConfig.projectId})`,
   );
 } else {
   console.warn(
-    "[Firebase] API Key missing in environment. Firestore features are disabled."
+    "[Firebase] API Key missing in environment. Firestore features are disabled.",
   );
 }
 

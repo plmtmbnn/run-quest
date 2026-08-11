@@ -92,10 +92,13 @@ describe("Recurring Expenses Engine", () => {
 
   describe("getActiveBenefits", () => {
     it("aggregates benefits from active optional expenses", () => {
-      const benefits = getActiveBenefits(["gym_membership", "personal_coaching"]);
+      const benefits = getActiveBenefits([
+        "gym_membership",
+        "personal_coaching",
+      ]);
       // gym (+5%) + personal_coaching (+10%) = 15%
       expect(benefits.trainingEffectiveness).toBeCloseTo(0.15);
-      expect(benefits.xpBonus).toBeCloseTo(0.10);
+      expect(benefits.xpBonus).toBeCloseTo(0.1);
     });
   });
 
@@ -105,26 +108,34 @@ describe("Recurring Expenses Engine", () => {
       expect(store.expenseState.activeExpenses).not.toContain("gym_membership");
 
       store.toggleExpense("gym_membership");
-      expect(useExpenseStore.getState().expenseState.activeExpenses).toContain("gym_membership");
+      expect(useExpenseStore.getState().expenseState.activeExpenses).toContain(
+        "gym_membership",
+      );
 
       store.toggleExpense("gym_membership");
-      expect(useExpenseStore.getState().expenseState.activeExpenses).not.toContain("gym_membership");
+      expect(
+        useExpenseStore.getState().expenseState.activeExpenses,
+      ).not.toContain("gym_membership");
     });
 
     it("cannot toggle mandatory living expenses", () => {
       const store = useExpenseStore.getState();
       store.toggleExpense("living_expenses");
-      expect(useExpenseStore.getState().expenseState.activeExpenses).not.toContain("living_expenses");
+      expect(
+        useExpenseStore.getState().expenseState.activeExpenses,
+      ).not.toContain("living_expenses");
     });
 
     it("tracks payment history and unpaid status in store", () => {
       const store = useExpenseStore.getState();
-      
+
       // Process with sufficient funds on day 30 (monthly due day)
       const res1 = store.processScheduledExpenses(30, 1000, 1);
       expect(res1.canAfford).toBe(true);
       expect(useExpenseStore.getState().hasUnpaidExpenses()).toBe(false);
-      expect(useExpenseStore.getState().expenseState.expenseHistory).toHaveLength(1);
+      expect(
+        useExpenseStore.getState().expenseState.expenseHistory,
+      ).toHaveLength(1);
 
       // Process with insufficient funds on day 60
       const res2 = store.processScheduledExpenses(60, 50, 1);

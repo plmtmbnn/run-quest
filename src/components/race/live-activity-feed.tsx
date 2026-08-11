@@ -1,16 +1,21 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Globe, X } from "lucide-react";
-import { LeaderboardService, type ActivityFeedItem } from "@/services/leaderboard/leaderboard-service";
+import { AnimatePresence, motion } from "framer-motion";
+import { Globe, Trophy, X } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import {
+  type ActivityFeedItem,
+  LeaderboardService,
+} from "@/services/leaderboard/leaderboard-service";
 
 interface MiniLiveActivityFeedProps {
   isRaceActive: boolean;
 }
 
 export function LiveActivityFeed({ isRaceActive }: MiniLiveActivityFeedProps) {
-  const [currentEvent, setCurrentEvent] = useState<ActivityFeedItem | null>(null);
+  const [currentEvent, setCurrentEvent] = useState<ActivityFeedItem | null>(
+    null,
+  );
   const [isDismissed, setIsDismissed] = useState(false);
 
   useEffect(() => {

@@ -1,8 +1,16 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  AlertTriangle,
+  ArrowDown,
+  ArrowUp,
+  ShieldAlert,
+  Volume2,
+  VolumeX,
+  Zap,
+} from "lucide-react";
 import React, { useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { AlertTriangle, ArrowUp, ArrowDown, Zap, ShieldAlert, Volume2, VolumeX } from "lucide-react";
 import { useSettingsStore } from "@/store/settings-store";
 
 export interface RivalProximityData {
@@ -19,18 +27,29 @@ interface RivalProximityAlertProps {
 }
 
 export type ProximityZone = "close" | "near" | "medium" | "far";
-export type ThreatDirection = "behind" | "ahead" | "side_by_side" | "overtaking" | "overtaken";
+export type ThreatDirection =
+  | "behind"
+  | "ahead"
+  | "side_by_side"
+  | "overtaking"
+  | "overtaken";
 
 /**
  * Web Audio synthetic sound manager for proximity alerts
  */
-function playProximityTone(type: "footstep" | "chime" | "warning", isMuted: boolean) {
+function playProximityTone(
+  type: "footstep" | "chime" | "warning",
+  isMuted: boolean,
+) {
   if (isMuted || typeof window === "undefined") return;
   try {
-    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const AudioCtx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext })
+        .webkitAudioContext;
     if (!AudioCtx) return;
     const ctx = new AudioCtx();
-    
+
     if (type === "footstep") {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -71,23 +90,33 @@ function playProximityTone(type: "footstep" | "chime" | "warning", isMuted: bool
   }
 }
 
-export function RivalProximityAlert({ playerDistanceKm, rivals, isRaceActive }: RivalProximityAlertProps) {
+export function RivalProximityAlert({
+  playerDistanceKm,
+  rivals,
+  isRaceActive,
+}: RivalProximityAlertProps) {
   const soundEnabled = useSettingsStore((s) => s.settings.sound);
   const lastAlertTimeRef = useRef(0);
 
-  const activeRivals = isRaceActive && rivals && rivals.length > 0 ? rivals : null;
+  const activeRivals =
+    isRaceActive && rivals && rivals.length > 0 ? rivals : null;
 
   // Find nearest rival
   const targetRival = activeRivals
-    ? (activeRivals as RivalProximityData[]).reduce<RivalProximityData | null>((acc, r) => {
-        const gapMeters = (r.distanceKm - playerDistanceKm) * 1000;
-        if (!acc) return r;
-        const accGap = (acc.distanceKm - playerDistanceKm) * 1000;
-        return Math.abs(gapMeters) < Math.abs(accGap) ? r : acc;
-      }, null)
+    ? (activeRivals as RivalProximityData[]).reduce<RivalProximityData | null>(
+        (acc, r) => {
+          const gapMeters = (r.distanceKm - playerDistanceKm) * 1000;
+          if (!acc) return r;
+          const accGap = (acc.distanceKm - playerDistanceKm) * 1000;
+          return Math.abs(gapMeters) < Math.abs(accGap) ? r : acc;
+        },
+        null,
+      )
     : null;
 
-  const minGapMeters = targetRival ? (targetRival.distanceKm - playerDistanceKm) * 1000 : 0;
+  const minGapMeters = targetRival
+    ? (targetRival.distanceKm - playerDistanceKm) * 1000
+    : 0;
   const absGapMeters = Math.abs(Math.round(minGapMeters));
   const isOutOfRange = !targetRival || absGapMeters > 200;
 
@@ -147,10 +176,18 @@ export function RivalProximityAlert({ playerDistanceKm, rivals, isRaceActive }: 
           <div className="flex flex-col min-w-[130px]">
             <div className="flex items-center justify-between gap-1">
               <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">
-                {zone === "close" ? "IMMEDIATE THREAT" : zone === "near" ? "APPROACHING" : "RIVAL PROXIMITY"}
+                {zone === "close"
+                  ? "IMMEDIATE THREAT"
+                  : zone === "near"
+                    ? "APPROACHING"
+                    : "RIVAL PROXIMITY"}
               </span>
               <span className="text-[9px] font-mono font-bold text-amber-400">
-                {soundEnabled ? <Volume2 className="w-3 h-3 inline" /> : <VolumeX className="w-3 h-3 inline text-slate-500" />}
+                {soundEnabled ? (
+                  <Volume2 className="w-3 h-3 inline" />
+                ) : (
+                  <VolumeX className="w-3 h-3 inline text-slate-500" />
+                )}
               </span>
             </div>
             <p className="font-heading font-black text-xs text-white truncate">
@@ -160,8 +197,8 @@ export function RivalProximityAlert({ playerDistanceKm, rivals, isRaceActive }: 
               {isSideBySide
                 ? "HEAD TO HEAD!"
                 : isBehind
-                ? `${absGapMeters}m behind you!`
-                : `${absGapMeters}m ahead!`}
+                  ? `${absGapMeters}m behind you!`
+                  : `${absGapMeters}m ahead!`}
             </p>
           </div>
         </motion.div>

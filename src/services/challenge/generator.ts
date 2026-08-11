@@ -1,10 +1,10 @@
+import type { RaceTier } from "@/economy/economy-types";
 import { generateRaceAnalysis } from "@/engine/intelligence/intelligence-engine";
-import { generateWeatherTransitions } from "@/engine/weather/weather-transitions";
 import {
   generateRaceWeather,
   weatherToEnvironment,
 } from "@/engine/race/weather-engine";
-import type { RaceTier } from "@/economy/economy-types";
+import { generateWeatherTransitions } from "@/engine/weather/weather-transitions";
 import type {
   Checkpoint,
   DailyChallenge,
@@ -337,7 +337,11 @@ function generateScenarioForEntry(
   const analysis = generateRaceAnalysis(scenarioBase, seed);
 
   // Pre-roll weather transitions for this race (Sprint 34 – Task 5)
-  const weatherTransitions = generateWeatherTransitions(weather, distance, seed);
+  const weatherTransitions = generateWeatherTransitions(
+    weather,
+    distance,
+    seed,
+  );
 
   return {
     ...scenarioBase,
@@ -535,7 +539,7 @@ export function generateRaceChallenge(params: {
     scheduleId,
     dayIndex,
     tier,
-    region
+    region,
   );
   const environment = weatherToEnvironment(weatherConditions);
 
@@ -653,7 +657,7 @@ export function generateRaceChallenge(params: {
   const weatherTransitions = generateWeatherTransitions(
     environment.weather,
     distance,
-    seed
+    seed,
   );
 
   return {
@@ -670,7 +674,7 @@ function hashString(str: string): number {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash; // Convert to 32bit integer
   }
   return Math.abs(hash);

@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Eye, Heart, Flame, Sparkles, MessageCircle } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Eye, Flame, Heart, MessageCircle, Sparkles } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { useSettingsStore } from "@/store/settings-store";
 
 export interface SpectatorReaction {
@@ -20,14 +20,22 @@ interface SpectatorModeProps {
   recentEvent?: "overtake" | "breaking_point" | "pb_pace" | "bad_pace" | null;
 }
 
-export function calculateSpectatorCount(playerLevel: number, currentKm: number): number {
+export function calculateSpectatorCount(
+  playerLevel: number,
+  currentKm: number,
+): number {
   const base = Math.max(5, playerLevel * 6);
   const distanceMultiplier = 1 + currentKm * 0.1;
   const variation = (Math.sin(currentKm * 3) + 1) * 0.15 + 0.85;
   return Math.round(base * distanceMultiplier * variation);
 }
 
-export function SpectatorMode({ playerLevel, currentKm, isRaceActive, recentEvent }: SpectatorModeProps) {
+export function SpectatorMode({
+  playerLevel,
+  currentKm,
+  isRaceActive,
+  recentEvent,
+}: SpectatorModeProps) {
   const [spectatorCount, setSpectatorCount] = useState(12);
   const [reactions, setReactions] = useState<SpectatorReaction[]>([]);
   const [showDrawer, setShowDrawer] = useState(false);
@@ -44,13 +52,37 @@ export function SpectatorMode({ playerLevel, currentKm, isRaceActive, recentEven
 
     let reaction: SpectatorReaction | null = null;
     if (recentEvent === "overtake") {
-      reaction = { id: `react_${Date.now()}`, emoji: "👏", text: "+12 cheers!", count: 12, type: "positive" };
+      reaction = {
+        id: `react_${Date.now()}`,
+        emoji: "👏",
+        text: "+12 cheers!",
+        count: 12,
+        type: "positive",
+      };
     } else if (recentEvent === "pb_pace") {
-      reaction = { id: `react_${Date.now()}`, emoji: "🔥", text: "PB Pace!", count: 18, type: "positive" };
+      reaction = {
+        id: `react_${Date.now()}`,
+        emoji: "🔥",
+        text: "PB Pace!",
+        count: 18,
+        type: "positive",
+      };
     } else if (recentEvent === "breaking_point") {
-      reaction = { id: `react_${Date.now()}`, emoji: "😬", text: "Crowd gasps...", count: 8, type: "negative" };
+      reaction = {
+        id: `react_${Date.now()}`,
+        emoji: "😬",
+        text: "Crowd gasps...",
+        count: 8,
+        type: "negative",
+      };
     } else if (recentEvent === "bad_pace") {
-      reaction = { id: `react_${Date.now()}`, emoji: "💪", text: "Keep pushing!", count: 5, type: "neutral" };
+      reaction = {
+        id: `react_${Date.now()}`,
+        emoji: "💪",
+        text: "Keep pushing!",
+        count: 5,
+        type: "neutral",
+      };
     }
 
     if (reaction) {
@@ -73,7 +105,9 @@ export function SpectatorMode({ playerLevel, currentKm, isRaceActive, recentEven
         className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/80 border border-slate-700/80 text-white shadow-lg backdrop-blur-md hover:bg-slate-800 transition-all active:scale-95 cursor-pointer"
       >
         <Eye className="w-4 h-4 text-sky-400 animate-pulse" />
-        <span className="text-xs font-mono font-bold">{spectatorCount} watching</span>
+        <span className="text-xs font-mono font-bold">
+          {spectatorCount} watching
+        </span>
       </button>
 
       {/* Floating Reaction Popups */}
@@ -89,8 +123,8 @@ export function SpectatorMode({ playerLevel, currentKm, isRaceActive, recentEven
                 react.type === "positive"
                   ? "bg-emerald-950/80 border-emerald-500/60 text-emerald-200"
                   : react.type === "negative"
-                  ? "bg-rose-950/80 border-rose-500/60 text-rose-200"
-                  : "bg-slate-900/80 border-slate-700 text-slate-200"
+                    ? "bg-rose-950/80 border-rose-500/60 text-rose-200"
+                    : "bg-slate-900/80 border-slate-700 text-slate-200"
               }`}
             >
               <span className="text-base">{react.emoji}</span>

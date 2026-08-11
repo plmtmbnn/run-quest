@@ -1,16 +1,16 @@
 // src/lib/firebaseService.ts
 import {
-  collection,
   addDoc,
-  serverTimestamp,
+  collection,
   doc,
-  setDoc,
+  getCountFromServer,
   getDoc,
   increment,
-  getCountFromServer,
+  serverTimestamp,
+  setDoc,
 } from "firebase/firestore";
-import { db } from "./firebase";
 import type { StoredPlayer } from "@/storage/types";
+import { db } from "./firebase";
 
 export interface GlobalStatsData {
   runners_created: number;
@@ -61,7 +61,9 @@ export async function getGlobalStats(): Promise<GlobalStatsData> {
     if (runnersCreated === 0 || racesRegistered === 0) {
       try {
         const runnersSnap = await getCountFromServer(collection(db, "runners"));
-        const racesSnap = await getCountFromServer(collection(db, "raceResults"));
+        const racesSnap = await getCountFromServer(
+          collection(db, "raceResults"),
+        );
         if (runnersCreated === 0) runnersCreated = runnersSnap.data().count;
         if (racesRegistered === 0) racesRegistered = racesSnap.data().count;
       } catch (countErr) {
@@ -104,7 +106,7 @@ export async function recordNewRunner(player: StoredPlayer) {
     console.log(
       "[Firebase] Upserting new runner document (nationality:",
       player.nationality ?? "default",
-      ")"
+      ")",
     );
     const runnersCol = collection(db, "runners");
     const docRef = await addDoc(runnersCol, {
@@ -113,7 +115,7 @@ export async function recordNewRunner(player: StoredPlayer) {
     });
 
     console.log(
-      `[Firebase] New runner saved (Doc ID: ${docRef.id}). Updating stats/global.runners_created...`
+      `[Firebase] New runner saved (Doc ID: ${docRef.id}). Updating stats/global.runners_created...`,
     );
     const statsRef = doc(db, "stats", "global");
     await setDoc(
@@ -123,9 +125,11 @@ export async function recordNewRunner(player: StoredPlayer) {
         races_registered: increment(0),
         last_updated: serverTimestamp(),
       },
-      { merge: true }
+      { merge: true },
     );
-    console.log("[Firebase] Successfully incremented stats/global.runners_created!");
+    console.log(
+      "[Firebase] Successfully incremented stats/global.runners_created!",
+    );
   } catch (e) {
     console.error("[Firebase] recordNewRunner error:", e);
   }
@@ -155,7 +159,7 @@ export async function recordRaceFinished(race: {
     });
 
     console.log(
-      `[Firebase] Race result saved (Doc ID: ${docRef.id}). Updating stats/global.races_registered...`
+      `[Firebase] Race result saved (Doc ID: ${docRef.id}). Updating stats/global.races_registered...`,
     );
     const statsRef = doc(db, "stats", "global");
     await setDoc(
@@ -165,9 +169,11 @@ export async function recordRaceFinished(race: {
         runners_created: increment(0),
         last_updated: serverTimestamp(),
       },
-      { merge: true }
+      { merge: true },
     );
-    console.log("[Firebase] Successfully incremented stats/global.races_registered!");
+    console.log(
+      "[Firebase] Successfully incremented stats/global.races_registered!",
+    );
   } catch (e) {
     console.error("[Firebase] recordRaceFinished error:", e);
   }

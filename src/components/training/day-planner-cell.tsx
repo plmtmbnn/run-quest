@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { DailyActivity } from "@/training/training-types";
 import { getActivityEnergyCost } from "@/training/plan-templates";
+import type { DailyActivity } from "@/training/training-types";
 
 interface DayPlannerCellProps {
   dayIndex: number;
@@ -32,19 +32,44 @@ export function DayPlannerCell({
   isExpanded,
 }: DayPlannerCellProps) {
   // Activity metadata for display
-  const activityMeta: Record<DailyActivity, { emoji: string; color: string }> = {
-    "Recovery Run": { emoji: "🚶", color: "text-green-600 dark:text-green-400" },
-    "Easy Run": { emoji: "🏃", color: "text-blue-600 dark:text-blue-400" },
-    "Tempo Run": { emoji: "⚡", color: "text-orange-600 dark:text-orange-400" },
-    "Interval Training": { emoji: "🔥", color: "text-red-600 dark:text-red-400" },
-    "Long Run": { emoji: "🏃♂️", color: "text-purple-600 dark:text-purple-400" },
-    "Hill Repeats": { emoji: "⛰️", color: "text-amber-600 dark:text-amber-400" },
-    "Strength Training": { emoji: "💪", color: "text-cyan-600 dark:text-cyan-400" },
-    "Mobility Session": { emoji: "🧘", color: "text-emerald-600 dark:text-emerald-400" },
-    "Full Rest": { emoji: "😴", color: "text-slate-600 dark:text-slate-400" },
-  };
+  const activityMeta: Record<DailyActivity, { emoji: string; color: string }> =
+    {
+      "Recovery Run": {
+        emoji: "🚶",
+        color: "text-green-600 dark:text-green-400",
+      },
+      "Easy Run": { emoji: "🏃", color: "text-blue-600 dark:text-blue-400" },
+      "Tempo Run": {
+        emoji: "⚡",
+        color: "text-orange-600 dark:text-orange-400",
+      },
+      "Interval Training": {
+        emoji: "🔥",
+        color: "text-red-600 dark:text-red-400",
+      },
+      "Long Run": {
+        emoji: "🏃♂️",
+        color: "text-purple-600 dark:text-purple-400",
+      },
+      "Hill Repeats": {
+        emoji: "⛰️",
+        color: "text-amber-600 dark:text-amber-400",
+      },
+      "Strength Training": {
+        emoji: "💪",
+        color: "text-cyan-600 dark:text-cyan-400",
+      },
+      "Mobility Session": {
+        emoji: "🧘",
+        color: "text-emerald-600 dark:text-emerald-400",
+      },
+      "Full Rest": { emoji: "😴", color: "text-slate-600 dark:text-slate-400" },
+    };
 
-  const meta = activityMeta[plannedActivity] || { emoji: "❓", color: "text-slate-400" };
+  const meta = activityMeta[plannedActivity] || {
+    emoji: "❓",
+    color: "text-slate-400",
+  };
   const displayActivity = actualActivity || plannedActivity;
   const displayMeta = activityMeta[displayActivity] || meta;
 
@@ -106,7 +131,9 @@ export function DayPlannerCell({
 
         <div className="mt-2.5 flex items-center gap-2">
           <div className="flex items-center justify-center min-w-[36px] min-h-[36px] bg-white dark:bg-slate-900 rounded-full border border-slate-200 dark:border-slate-700 shadow-sm shrink-0">
-            <span className={`text-lg ${displayMeta.color}`}>{displayMeta.emoji}</span>
+            <span className={`text-lg ${displayMeta.color}`}>
+              {displayMeta.emoji}
+            </span>
           </div>
           <div className="flex-1 min-w-0">
             <span className="font-bold text-sm text-slate-800 dark:text-white truncate">

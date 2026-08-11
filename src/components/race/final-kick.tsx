@@ -25,10 +25,21 @@ const WINDOW_MS = 600; // 0.6s window to tap
  * Shows a timed "KICK!" button at each 100m checkpoint. Timing quality
  * (perfect / good / miss) determines the pace bonus granted.
  */
-export function FinalKick({ metersRemaining, onKick, totalBoost, perfectCount, isPaused }: FinalKickProps) {
+export function FinalKick({
+  metersRemaining,
+  onKick,
+  totalBoost,
+  perfectCount,
+  isPaused,
+}: FinalKickProps) {
   const [activeWindow, setActiveWindow] = useState<number | null>(null); // which checkpoint is active
-  const [lastResult, setLastResult] = useState<{ timing: KickTiming; checkpoint: number } | null>(null);
-  const [firedCheckpoints, setFiredCheckpoints] = useState<Set<number>>(new Set());
+  const [lastResult, setLastResult] = useState<{
+    timing: KickTiming;
+    checkpoint: number;
+  } | null>(null);
+  const [firedCheckpoints, setFiredCheckpoints] = useState<Set<number>>(
+    new Set(),
+  );
   const windowTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const windowOpenTimeRef = useRef<number>(0);
 
@@ -80,7 +91,12 @@ export function FinalKick({ metersRemaining, onKick, totalBoost, perfectCount, i
   const handleKickPress = useCallback(() => {
     if (activeWindow === null) return;
     const elapsed = Date.now() - windowOpenTimeRef.current;
-    const timing: KickTiming = elapsed < WINDOW_MS * 0.4 ? "perfect" : elapsed < WINDOW_MS * 0.75 ? "good" : "miss";
+    const timing: KickTiming =
+      elapsed < WINDOW_MS * 0.4
+        ? "perfect"
+        : elapsed < WINDOW_MS * 0.75
+          ? "good"
+          : "miss";
     const checkpoint = activeWindow;
     setActiveWindow(null);
     if (windowTimerRef.current) clearTimeout(windowTimerRef.current);
@@ -88,7 +104,12 @@ export function FinalKick({ metersRemaining, onKick, totalBoost, perfectCount, i
   }, [activeWindow, handleKickResult]);
 
   const isPerfectRun = perfectCount === 5;
-  const boostColor = totalBoost >= 2 ? "text-emerald-400" : totalBoost >= 1 ? "text-amber-400" : "text-slate-400";
+  const boostColor =
+    totalBoost >= 2
+      ? "text-emerald-400"
+      : totalBoost >= 1
+        ? "text-amber-400"
+        : "text-slate-400";
 
   return (
     <motion.div
@@ -109,7 +130,11 @@ export function FinalKick({ metersRemaining, onKick, totalBoost, perfectCount, i
         {/* Animated background pulse */}
         <motion.div
           animate={{ opacity: [0.15, 0.35, 0.15] }}
-          transition={{ duration: 1.2, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+          transition={{
+            duration: 1.2,
+            repeat: Number.POSITIVE_INFINITY,
+            ease: "easeInOut",
+          }}
           className="absolute inset-0 bg-gradient-to-r from-orange-500/20 via-red-500/30 to-orange-500/20 pointer-events-none rounded-2xl"
         />
 
@@ -126,14 +151,22 @@ export function FinalKick({ metersRemaining, onKick, totalBoost, perfectCount, i
               </motion.span>
               <div>
                 <motion.p
-                  animate={{ textShadow: ["0 0 6px #f97316", "0 0 20px #f97316", "0 0 6px #f97316"] }}
+                  animate={{
+                    textShadow: [
+                      "0 0 6px #f97316",
+                      "0 0 20px #f97316",
+                      "0 0 6px #f97316",
+                    ],
+                  }}
                   transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY }}
                   className="text-sm font-black uppercase tracking-widest text-orange-400"
                 >
                   FINAL KICK!
                 </motion.p>
                 <p className="text-[10px] text-red-300/80">
-                  {metersRemaining > 0 ? `${Math.round(metersRemaining)}m to finish` : "FINISH!"}
+                  {metersRemaining > 0
+                    ? `${Math.round(metersRemaining)}m to finish`
+                    : "FINISH!"}
                 </p>
               </div>
             </div>
@@ -141,13 +174,17 @@ export function FinalKick({ metersRemaining, onKick, totalBoost, perfectCount, i
             {/* Stats */}
             <div className="flex items-center gap-3 text-right">
               <div>
-                <p className="text-[9px] uppercase tracking-wider text-slate-400">Boost</p>
+                <p className="text-[9px] uppercase tracking-wider text-slate-400">
+                  Boost
+                </p>
                 <p className={`text-sm font-black font-mono ${boostColor}`}>
                   -{totalBoost.toFixed(1)}s
                 </p>
               </div>
               <div>
-                <p className="text-[9px] uppercase tracking-wider text-slate-400">Perfect</p>
+                <p className="text-[9px] uppercase tracking-wider text-slate-400">
+                  Perfect
+                </p>
                 <p className="text-sm font-black text-amber-400">
                   {perfectCount}/5
                 </p>
@@ -172,8 +209,22 @@ export function FinalKick({ metersRemaining, onKick, totalBoost, perfectCount, i
               return (
                 <motion.div
                   key={cp}
-                  animate={isActive ? { scale: [1, 1.3, 1], boxShadow: ["0 0 0 0 #f97316", "0 0 0 6px #f97316aa", "0 0 0 0 #f97316"] } : {}}
-                  transition={{ duration: 0.5, repeat: isActive ? Number.POSITIVE_INFINITY : 0 }}
+                  animate={
+                    isActive
+                      ? {
+                          scale: [1, 1.3, 1],
+                          boxShadow: [
+                            "0 0 0 0 #f97316",
+                            "0 0 0 6px #f97316aa",
+                            "0 0 0 0 #f97316",
+                          ],
+                        }
+                      : {}
+                  }
+                  transition={{
+                    duration: 0.5,
+                    repeat: isActive ? Number.POSITIVE_INFINITY : 0,
+                  }}
                   className={`
                     w-6 h-6 rounded-full border-2 flex items-center justify-center text-[9px] font-black
                     ${fired ? "bg-orange-500 border-orange-400 text-white" : "bg-slate-800 border-slate-600 text-slate-500"}
@@ -201,7 +252,10 @@ export function FinalKick({ metersRemaining, onKick, totalBoost, perfectCount, i
               >
                 <motion.span
                   animate={{ scale: [1, 1.08, 1] }}
-                  transition={{ duration: 0.3, repeat: Number.POSITIVE_INFINITY }}
+                  transition={{
+                    duration: 0.3,
+                    repeat: Number.POSITIVE_INFINITY,
+                  }}
                 >
                   ⚡ KICK!
                 </motion.span>

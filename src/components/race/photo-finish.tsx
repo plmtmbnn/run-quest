@@ -1,9 +1,8 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { SimulationResult } from "@/types/engine";
-import type { DailyChallenge } from "@/types/engine";
+import type { DailyChallenge, SimulationResult } from "@/types/engine";
 
 interface PhotoFinishProps {
   /** The simulation result containing final standings */
@@ -22,7 +21,13 @@ interface PhotoFinishProps {
  * Full-screen overlay that triggers when a race ends with a very close margin (< 1 second).
  * Shows a dramatic slow-motion photo finish animation with split-screen comparison.
  */
-export function PhotoFinish({ result, challenge, playerName, lang, onComplete }: PhotoFinishProps) {
+export function PhotoFinish({
+  result,
+  challenge,
+  playerName,
+  lang,
+  onComplete,
+}: PhotoFinishProps) {
   const [isPlaying, setIsPlaying] = useState(true);
   const [showWinner, setShowWinner] = useState(false);
   const [replayCount, setReplayCount] = useState(0);
@@ -31,50 +36,58 @@ export function PhotoFinish({ result, challenge, playerName, lang, onComplete }:
 
   // Extract final standings from result
   const finalState = result.stateLog?.[result.stateLog.length - 1];
-  
+
   // Get player and closest opponent for photo finish
   const getPhotoFinishParticipants = () => {
-    if (!finalState || !finalState.opponents) return { player: null, opponent: null, margin: 0 };
-    
-    const player = finalState.opponents.find(o => o.id === "player_local") || {
+    if (!finalState || !finalState.opponents)
+      return { player: null, opponent: null, margin: 0 };
+
+    const player = finalState.opponents.find(
+      (o) => o.id === "player_local",
+    ) || {
       id: "player_local",
       name: playerName,
       distanceCovered: finalState.distanceCovered,
       accumulatedTime: result.finishTime,
       isDNF: false,
     };
-    
+
     // Find closest opponent (non-DNF, smallest time difference)
-    const validOpponents = finalState.opponents.filter(o => !o.isDNF && o.id !== "player_local");
-    
-    if (validOpponents.length === 0) return { player, opponent: null, margin: 0 };
-    
-    const opponentsWithMargin = validOpponents.map(opp => ({
+    const validOpponents = finalState.opponents.filter(
+      (o) => !o.isDNF && o.id !== "player_local",
+    );
+
+    if (validOpponents.length === 0)
+      return { player, opponent: null, margin: 0 };
+
+    const opponentsWithMargin = validOpponents.map((opp) => ({
       opp,
-      margin: Math.abs(result.finishTime - opp.accumulatedTime)
+      margin: Math.abs(result.finishTime - opp.accumulatedTime),
     }));
-    
+
     opponentsWithMargin.sort((a, b) => a.margin - b.margin);
     const closest = opponentsWithMargin[0];
-    
+
     return {
       player,
       opponent: closest.opp,
-      margin: closest.margin
+      margin: closest.margin,
     };
   };
 
   const { player, opponent, margin } = getPhotoFinishParticipants();
-  
+
   // Determine winner
   const determineWinner = () => {
     if (!player || !opponent) return playerName;
-    return player.accumulatedTime <= opponent.accumulatedTime ? playerName : opponent.name;
+    return player.accumulatedTime <= opponent.accumulatedTime
+      ? playerName
+      : opponent.name;
   };
 
   const winner = determineWinner();
   const isPlayerWinner = winner === playerName;
-  
+
   // Format time difference
   const formatMargin = (seconds: number) => {
     if (seconds < 0.01) return "0.001s";
@@ -108,9 +121,9 @@ export function PhotoFinish({ result, challenge, playerName, lang, onComplete }:
 
   const handleReplay = useCallback(() => {
     setShowWinner(false);
-    setReplayCount(prev => prev + 1);
+    setReplayCount((prev) => prev + 1);
     startTimeRef.current = Date.now();
-    
+
     setTimeout(() => {
       setShowWinner(true);
     }, 2000);
@@ -139,7 +152,7 @@ export function PhotoFinish({ result, challenge, playerName, lang, onComplete }:
       by_margin: "dengan selisih {margin}",
       replay: "Tonton Lagi",
       skip: "Lanjut",
-    }
+    },
   };
 
   const t = translations[lang];
@@ -199,7 +212,6 @@ export function PhotoFinish({ result, challenge, playerName, lang, onComplete }:
 
         {/* Main photo finish container */}
         <div className="relative overflow-hidden rounded-3xl border border-slate-700/60 bg-slate-900/80 shadow-2xl shadow-orange-500/10">
-          
           {/* Header */}
           <motion.div
             initial={{ y: -20, opacity: 0 }}
@@ -210,7 +222,12 @@ export function PhotoFinish({ result, challenge, playerName, lang, onComplete }:
             <motion.h1
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 400, damping: 20, delay: 0.3 }}
+              transition={{
+                type: "spring",
+                stiffness: 400,
+                damping: 20,
+                delay: 0.3,
+              }}
               className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500 uppercase tracking-wider"
             >
               {t.photo_finish}
@@ -222,12 +239,16 @@ export function PhotoFinish({ result, challenge, playerName, lang, onComplete }:
 
           {/* Split screen comparison */}
           <div className="relative flex h-64 md:h-80 bg-slate-800/50">
-            
             {/* Player side */}
             <motion.div
               initial={{ x: -100, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.5, type: "spring", stiffness: 200, damping: 20 }}
+              transition={{
+                delay: 0.5,
+                type: "spring",
+                stiffness: 200,
+                damping: 20,
+              }}
               className="flex-1 flex flex-col items-center justify-center p-4 border-r border-slate-700/40"
             >
               <motion.div
@@ -239,7 +260,10 @@ export function PhotoFinish({ result, challenge, playerName, lang, onComplete }:
                 <div className="text-4xl mb-2">🏃♂️</div>
                 <p className="text-white font-bold text-lg">{playerName}</p>
                 <p className="text-slate-400 text-sm">
-                  {new Date(player.accumulatedTime * 1000).toISOString().substring(14, 19)}.{String(player.accumulatedTime % 1).padStart(3, '0')}
+                  {new Date(player.accumulatedTime * 1000)
+                    .toISOString()
+                    .substring(14, 19)}
+                  .{String(player.accumulatedTime % 1).padStart(3, "0")}
                 </p>
               </motion.div>
             </motion.div>
@@ -248,7 +272,12 @@ export function PhotoFinish({ result, challenge, playerName, lang, onComplete }:
             <motion.div
               initial={{ x: 100, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.5, type: "spring", stiffness: 200, damping: 20 }}
+              transition={{
+                delay: 0.5,
+                type: "spring",
+                stiffness: 200,
+                damping: 20,
+              }}
               className="flex-1 flex flex-col items-center justify-center p-4"
             >
               <motion.div
@@ -260,7 +289,10 @@ export function PhotoFinish({ result, challenge, playerName, lang, onComplete }:
                 <div className="text-4xl mb-2">🏃♂️</div>
                 <p className="text-white font-bold text-lg">{opponent.name}</p>
                 <p className="text-slate-400 text-sm">
-                  {new Date(opponent.accumulatedTime * 1000).toISOString().substring(14, 19)}.{String(opponent.accumulatedTime % 1).padStart(3, '0')}
+                  {new Date(opponent.accumulatedTime * 1000)
+                    .toISOString()
+                    .substring(14, 19)}
+                  .{String(opponent.accumulatedTime % 1).padStart(3, "0")}
                 </p>
               </motion.div>
             </motion.div>
@@ -271,10 +303,10 @@ export function PhotoFinish({ result, challenge, playerName, lang, onComplete }:
                 <motion.div
                   initial={{ left: "-10%" }}
                   animate={{ left: "110%" }}
-                  transition={{ 
+                  transition={{
                     duration: 2,
                     ease: "linear",
-                    delay: 0.8
+                    delay: 0.8,
                   }}
                   className="absolute top-0 bottom-0 w-1 bg-white/80 shadow-[0_0_20px_white]"
                 />
@@ -299,7 +331,7 @@ export function PhotoFinish({ result, challenge, playerName, lang, onComplete }:
                   >
                     {isPlayerWinner ? "🏆" : "🥈"}
                   </motion.div>
-                  
+
                   <motion.h2
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
@@ -308,7 +340,7 @@ export function PhotoFinish({ result, challenge, playerName, lang, onComplete }:
                   >
                     {t.winner}
                   </motion.h2>
-                  
+
                   <motion.p
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
@@ -317,14 +349,14 @@ export function PhotoFinish({ result, challenge, playerName, lang, onComplete }:
                   >
                     {winner}
                   </motion.p>
-                  
+
                   <motion.p
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.4 }}
                     className="text-slate-400 text-sm mt-2"
                   >
-                    {t.by_margin.replace('{margin}', formatMargin(margin))}
+                    {t.by_margin.replace("{margin}", formatMargin(margin))}
                   </motion.p>
                 </motion.div>
               )}
@@ -345,7 +377,7 @@ export function PhotoFinish({ result, challenge, playerName, lang, onComplete }:
             >
               {t.replay}
             </motion.button>
-            
+
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={handleSkip}
@@ -363,27 +395,32 @@ export function PhotoFinish({ result, challenge, playerName, lang, onComplete }:
 /**
  * Helper function to check if a race result qualifies for photo finish
  */
-export function isPhotoFinish(result: SimulationResult, playerName: string = "You"): boolean {
+export function isPhotoFinish(
+  result: SimulationResult,
+  playerName: string = "You",
+): boolean {
   const finalState = result.stateLog?.[result.stateLog.length - 1];
   if (!finalState || !finalState.opponents) return false;
-  
+
   // Find player and closest opponent
-  const player = finalState.opponents.find(o => o.id === "player_local") || {
+  const player = finalState.opponents.find((o) => o.id === "player_local") || {
     id: "player_local",
     accumulatedTime: result.finishTime,
   };
-  
-  const validOpponents = finalState.opponents.filter(o => !o.isDNF && o.id !== "player_local");
+
+  const validOpponents = finalState.opponents.filter(
+    (o) => !o.isDNF && o.id !== "player_local",
+  );
   if (validOpponents.length === 0) return false;
-  
+
   const closestOpponent = validOpponents.reduce((closest, opp) => {
     const margin = Math.abs(result.finishTime - opp.accumulatedTime);
     const closestMargin = Math.abs(result.finishTime - closest.accumulatedTime);
     return margin < closestMargin ? opp : closest;
   }, validOpponents[0]);
-  
+
   const margin = Math.abs(result.finishTime - closestOpponent.accumulatedTime);
-  
+
   // Photo finish if margin is less than 1 second
   return margin < 1.0 && margin > 0.01;
 }

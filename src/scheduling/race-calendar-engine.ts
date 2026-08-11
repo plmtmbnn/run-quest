@@ -14,12 +14,15 @@ import {
   DAYS_PER_YEAR,
 } from "../engine/timeline/time-types";
 import type {
+  CategoryId,
   RaceOccurrence,
   RaceSchedule,
   SchedulingState,
-  CategoryId,
 } from "./race-calendar-types";
-import { RACE_SCHEDULES, RACE_SCHEDULES_GETTER } from "./race-schedule-database";
+import {
+  RACE_SCHEDULES,
+  RACE_SCHEDULES_GETTER,
+} from "./race-schedule-database";
 
 /**
  * Build the composite registration key for a specific race occurrence.
@@ -240,22 +243,23 @@ function isRaceOnDay(schedule: RaceSchedule, dayIndex: number): boolean {
       // Daily races are low-tier training races, allow every day
       return true;
 
-    case "weekly":
+    case "weekly": {
       // Check day of week (0=Sunday, 6=Saturday)
       // Sprint 29: Enforce weekend-only for weekly races
       if (sched.dayOfWeek === undefined) return false;
       const targetDay = sched.dayOfWeek % DAYS_PER_WEEK;
       const currentDay = dayIndex % DAYS_PER_WEEK;
-      
+
       // Only allow if it matches the schedule AND is a weekend
       return currentDay === targetDay && isWeekend(dayIndex);
+    }
 
     case "monthly": {
       // Check day of month (1-28)
       // Sprint 29: Ensure monthly races fall on weekends
       if (sched.dayOfMonth === undefined) return false;
       const dayOfMonth = (dayIndex % DAYS_PER_MONTH) + 1; // 1-based
-      
+
       // Only allow if it's the right day of month AND a weekend
       return dayOfMonth === sched.dayOfMonth && isWeekend(dayIndex);
     }
@@ -265,7 +269,7 @@ function isRaceOnDay(schedule: RaceSchedule, dayIndex: number): boolean {
       // Sprint 29: Ensure seasonal races fall on weekends
       if (sched.dayOfYear === undefined) return false;
       const dayOfYear = dayIndex % DAYS_PER_YEAR;
-      
+
       // Only allow if it's the right day of year AND a weekend
       return dayOfYear === sched.dayOfYear && isWeekend(dayIndex);
     }
@@ -275,16 +279,17 @@ function isRaceOnDay(schedule: RaceSchedule, dayIndex: number): boolean {
       // Sprint 29: Ensure annual races fall on weekends
       if (sched.dayOfYear === undefined) return false;
       const dayOfYearAnnual = dayIndex % DAYS_PER_YEAR;
-      
+
       // Only allow if it's the right day of year AND a weekend
       return dayOfYearAnnual === sched.dayOfYear && isWeekend(dayIndex);
     }
 
-    case "one_time":
+    case "one_time": {
       // Runs on specific explicit day(s)
       // Sprint 29: Ensure one-time events fall on weekends
       const isSpecificDay = sched.specificDays?.includes(dayIndex) ?? false;
       return isSpecificDay && isWeekend(dayIndex);
+    }
 
     default:
       return false;
@@ -489,7 +494,9 @@ export function getRegisteredRaces(
   // Gather all registered race occurrences.
   // Registration keys are now composite: `{scheduleId}_m{month}_y{year}`.
   // Strip the suffix to find the underlying RaceSchedule definition.
-  for (const [compositeKey, regVal] of Object.entries(schedulingState.registered)) {
+  for (const [compositeKey, regVal] of Object.entries(
+    schedulingState.registered,
+  )) {
     // Strip composite suffix (e.g. "_m0_y0") to get base schedule id
     const baseScheduleId = compositeKey.replace(/_m\d+_y\d+$/, "");
     const schedule = RACE_SCHEDULES.find((s) => s.id === baseScheduleId);
@@ -512,8 +519,11 @@ export function getRegisteredRaces(
     const instanceKey = occurrence.registrationInstanceId;
     const completedDay =
       schedulingState.completedRaces[instanceKey] ??
-      schedulingState.completedRaces[`${occurrence.scheduleId}_${occurrence.dayIndex}`] ??
-      (schedulingState.completedRaces[occurrence.scheduleId] === occurrence.dayIndex
+      schedulingState.completedRaces[
+        `${occurrence.scheduleId}_${occurrence.dayIndex}`
+      ] ??
+      (schedulingState.completedRaces[occurrence.scheduleId] ===
+      occurrence.dayIndex
         ? occurrence.dayIndex
         : undefined);
     occurrence.isCompleted = completedDay !== undefined;
@@ -526,7 +536,6 @@ export function getRegisteredRaces(
 
   return registered;
 }
-
 
 // Re-export for convenience
 export { RACE_SCHEDULES };

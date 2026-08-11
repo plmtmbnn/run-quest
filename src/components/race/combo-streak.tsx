@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Flame, Zap, Crown, Award } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Award, Crown, Flame, Zap } from "lucide-react";
+import React, { useEffect, useState } from "react";
 
 interface ComboStreakProps {
   comboCount: number;
@@ -18,15 +18,43 @@ export function getComboMultiplier(combo: number): number {
   return 1.0;
 }
 
-export function getComboStatusText(combo: number): { label: string; color: string; icon: string } {
-  if (combo >= 16) return { label: "Legendary 👑", color: "from-red-500 to-rose-600 text-white", icon: "👑" };
-  if (combo >= 11) return { label: "Unstoppable ⚡", color: "from-orange-500 to-amber-500 text-white", icon: "⚡" };
-  if (combo >= 6) return { label: "On Fire 🔥", color: "from-amber-400 to-yellow-500 text-slate-900", icon: "🔥" };
-  if (combo >= 3) return { label: "Flowing ✨", color: "from-blue-400 to-cyan-400 text-slate-900", icon: "✨" };
+export function getComboStatusText(combo: number): {
+  label: string;
+  color: string;
+  icon: string;
+} {
+  if (combo >= 16)
+    return {
+      label: "Legendary 👑",
+      color: "from-red-500 to-rose-600 text-white",
+      icon: "👑",
+    };
+  if (combo >= 11)
+    return {
+      label: "Unstoppable ⚡",
+      color: "from-orange-500 to-amber-500 text-white",
+      icon: "⚡",
+    };
+  if (combo >= 6)
+    return {
+      label: "On Fire 🔥",
+      color: "from-amber-400 to-yellow-500 text-slate-900",
+      icon: "🔥",
+    };
+  if (combo >= 3)
+    return {
+      label: "Flowing ✨",
+      color: "from-blue-400 to-cyan-400 text-slate-900",
+      icon: "✨",
+    };
   return { label: "Standard", color: "bg-slate-800 text-slate-300", icon: "" };
 }
 
-export function ComboStreak({ comboCount, winStreak, isComboBroken }: ComboStreakProps) {
+export function ComboStreak({
+  comboCount,
+  winStreak,
+  isComboBroken,
+}: ComboStreakProps) {
   const [showBreakBanner, setShowBreakBanner] = useState(false);
 
   useEffect(() => {
@@ -65,7 +93,9 @@ export function ComboStreak({ comboCount, winStreak, isComboBroken }: ComboStrea
           className={`px-3.5 py-1 rounded-full bg-gradient-to-r ${status.color} shadow-lg border border-white/20 flex items-center gap-2 backdrop-blur-md`}
         >
           <Flame className="w-4 h-4 animate-bounce" />
-          <span className="font-mono font-black text-sm">{comboCount}x COMBO</span>
+          <span className="font-mono font-black text-sm">
+            {comboCount}x COMBO
+          </span>
           <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-black/30">
             ×{multiplier} XP
           </span>

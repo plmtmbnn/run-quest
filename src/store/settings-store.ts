@@ -142,7 +142,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
 
   resetAllData() {
     const currentSettings = get().settings;
-    
+
     // Preserve these user preferences across resets
     const preservedPreferences = {
       language: currentSettings.language,
@@ -164,10 +164,10 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     } catch (e) {
       console.warn("Error resetting in-memory stores:", e);
     }
-    
+
     // 2. Clear all game data from storage completely
     storageRepository.clearAll();
-    
+
     // 3. Restore preserved preferences
     const restoredSettings: StoredSettings = {
       ...DEFAULT_SETTINGS,
@@ -175,7 +175,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
       hasCompletedOnboarding: false,
     };
     storageRepository.saveSettings(restoredSettings);
-    
+
     // 4. Redirect to root to reinitialize fresh game state
     if (typeof window !== "undefined") {
       window.location.href = "/";

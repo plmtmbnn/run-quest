@@ -1,6 +1,6 @@
 /**
  * Centralized XP Reward System
- * 
+ *
  * All XP rewards must go through this module to ensure:
  * 1. XP never decreases or resets
  * 2. Consistent reward calculations
@@ -8,10 +8,10 @@
  * 4. Event dispatching for UI updates
  */
 
-import { awardXP, applyXPReward } from './progression-engine';
-import { loadRunnerState, saveRunnerState } from './runner-persistence';
-import { safelyAwardXP, getXPState } from './xp-tracker';
-import type { RunnerState } from './runner-types';
+import { applyXPReward, awardXP } from "./progression-engine";
+import { loadRunnerState, saveRunnerState } from "./runner-persistence";
+import type { RunnerState } from "./runner-types";
+import { getXPState, safelyAwardXP } from "./xp-tracker";
 
 /**
  * XP rewards by training activity type
@@ -45,15 +45,17 @@ export const XP_BY_RACE_TIER_REGISTRATION = {
  * XP rewards for job activities
  */
 export const XP_BY_JOB_ACTIVITY = {
-  get_job: 20,      // Getting a new job
-  work: 5,          // Working for a day
-  change_job: 15,   // Switching jobs
+  get_job: 20, // Getting a new job
+  work: 5, // Working for a day
+  change_job: 15, // Switching jobs
 } as const;
 
 /**
  * Award XP for training activity
  */
-export function awardTrainingXP(activity: keyof typeof XP_BY_TRAINING_ACTIVITY): number {
+export function awardTrainingXP(
+  activity: keyof typeof XP_BY_TRAINING_ACTIVITY,
+): number {
   const xp = XP_BY_TRAINING_ACTIVITY[activity] || 15;
   safelyAwardXP(xp, `training:${activity}`);
   return xp;
@@ -62,7 +64,9 @@ export function awardTrainingXP(activity: keyof typeof XP_BY_TRAINING_ACTIVITY):
 /**
  * Award XP for race registration
  */
-export function awardRegistrationXP(tier: keyof typeof XP_BY_RACE_TIER_REGISTRATION): number {
+export function awardRegistrationXP(
+  tier: keyof typeof XP_BY_RACE_TIER_REGISTRATION,
+): number {
   const xp = XP_BY_RACE_TIER_REGISTRATION[tier] || 10;
   safelyAwardXP(xp, `registration:${tier}`);
   return xp;
@@ -83,7 +87,7 @@ export function awardJobXP(action: keyof typeof XP_BY_JOB_ACTIVITY): number {
  */
 export function calculatePlacementFromState(
   playerFinishTime: number,
-  opponents: Array<{ accumulatedTime: number; isDNF: boolean }> | undefined
+  opponents: Array<{ accumulatedTime: number; isDNF: boolean }> | undefined,
 ): number {
   if (!opponents || opponents.length === 0) {
     return 1; // Solo race, player wins by default
@@ -110,12 +114,18 @@ export function awardRaceCompletionXP(
   totalEntrants: number,
   distance: number,
   tier: "local" | "regional" | "state" | "national" | "international",
-  isChampionship: boolean = false
+  isChampionship: boolean = false,
 ): number {
   // Use the existing calculation from progression-engine
-  const { calculateRaceXP } = require('./progression-engine');
-  const xp = calculateRaceXP(placement, totalEntrants, distance, tier, isChampionship);
-  
+  const { calculateRaceXP } = require("./progression-engine");
+  const xp = calculateRaceXP(
+    placement,
+    totalEntrants,
+    distance,
+    tier,
+    isChampionship,
+  );
+
   safelyAwardXP(xp, `race:${tier}:placement:${placement}`);
   return xp;
 }
@@ -125,17 +135,31 @@ export function awardRaceCompletionXP(
  * Convenience wrapper that calculates placement automatically
  */
 export function awardRaceCompletionXPFromSimulation(
-  simResult: { finishTime: number; stateLog: Array<{ opponents?: Array<{ accumulatedTime: number; isDNF: boolean }> }> },
+  simResult: {
+    finishTime: number;
+    stateLog: Array<{
+      opponents?: Array<{ accumulatedTime: number; isDNF: boolean }>;
+    }>;
+  },
   totalEntrants: number,
   distance: number,
   tier: "local" | "regional" | "state" | "national" | "international",
-  isChampionship: boolean = false
+  isChampionship: boolean = false,
 ): number {
   // Get final state with opponent data
   const finalState = simResult.stateLog[simResult.stateLog.length - 1];
-  const placement = calculatePlacementFromState(simResult.finishTime, finalState?.opponents);
-  
-  return awardRaceCompletionXP(placement, totalEntrants, distance, tier, isChampionship);
+  const placement = calculatePlacementFromState(
+    simResult.finishTime,
+    finalState?.opponents,
+  );
+
+  return awardRaceCompletionXP(
+    placement,
+    totalEntrants,
+    distance,
+    tier,
+    isChampionship,
+  );
 }
 
 /**
@@ -143,12 +167,12 @@ export function awardRaceCompletionXPFromSimulation(
  */
 export function awardBonusXP(amount: number, reason: string): number {
   if (amount < 0) {
-    if (process.env.NODE_ENV !== 'production') {
-      console.warn('⚠️ Attempted to award negative bonus XP:', amount);
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("⚠️ Attempted to award negative bonus XP:", amount);
     }
     return 0;
   }
-  
+
   safelyAwardXP(amount, `bonus:${reason}`);
   return amount;
 }
@@ -156,12 +180,15 @@ export function awardBonusXP(amount: number, reason: string): number {
 /**
  * Safely ensure runner XP is preserved (utility for debugging)
  */
-export function ensureXPPreserved(beforeState: RunnerState, afterState: RunnerState): RunnerState {
+export function ensureXPPreserved(
+  beforeState: RunnerState,
+  afterState: RunnerState,
+): RunnerState {
   if (afterState.profile.xp < beforeState.profile.xp) {
-    console.error('⚠️ XP LOSS DETECTED! Restoring previous values.');
-    console.error('Before:', beforeState.profile.xp, beforeState.profile.level);
-    console.error('After:', afterState.profile.xp, afterState.profile.level);
-    
+    console.error("⚠️ XP LOSS DETECTED! Restoring previous values.");
+    console.error("Before:", beforeState.profile.xp, beforeState.profile.level);
+    console.error("After:", afterState.profile.xp, afterState.profile.level);
+
     return {
       ...afterState,
       profile: {
@@ -180,7 +207,7 @@ export function ensureXPPreserved(beforeState: RunnerState, afterState: RunnerSt
  */
 export function logXPState(context: string): void {
   const currentState = loadRunnerState();
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== "production") {
     console.log(`📊 [XP-DEBUG] ${context}:`, {
       xp: currentState.profile.xp,
       level: currentState.profile.level,

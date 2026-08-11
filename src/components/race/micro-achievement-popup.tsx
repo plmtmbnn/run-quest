@@ -14,7 +14,10 @@ interface MicroAchievementPopupProps {
  * Renders up to 3 simultaneously visible achievement popups stacked from the
  * top-right corner. Each auto-dismisses after 2.5 seconds.
  */
-export function MicroAchievementPopup({ queue, onDismiss }: MicroAchievementPopupProps) {
+export function MicroAchievementPopup({
+  queue,
+  onDismiss,
+}: MicroAchievementPopupProps) {
   // Only show the top 3 from the queue
   const visible = queue.slice(0, 3);
 
@@ -40,7 +43,11 @@ interface SingleAchievementProps {
   onDismiss: () => void;
 }
 
-function SingleAchievement({ achievement, stackIndex, onDismiss }: SingleAchievementProps) {
+function SingleAchievement({
+  achievement,
+  stackIndex,
+  onDismiss,
+}: SingleAchievementProps) {
   const [shouldShow, setShouldShow] = useState(true);
 
   useEffect(() => {
@@ -64,7 +71,10 @@ function SingleAchievement({ achievement, stackIndex, onDismiss }: SingleAchieve
         opacity: 1,
         scale: 1,
         // Stack visually — items below are slightly smaller
-        ...(stackIndex > 0 && { opacity: 1 - stackIndex * 0.1, scale: 1 - stackIndex * 0.03 }),
+        ...(stackIndex > 0 && {
+          opacity: 1 - stackIndex * 0.1,
+          scale: 1 - stackIndex * 0.03,
+        }),
       }}
       exit={{ x: 80, opacity: 0, scale: 0.9 }}
       transition={{ type: "spring", stiffness: 380, damping: 30 }}
@@ -85,7 +95,12 @@ function SingleAchievement({ achievement, stackIndex, onDismiss }: SingleAchieve
         <motion.div
           initial={{ scale: 0.5, rotate: -15 }}
           animate={{ scale: 1, rotate: 0 }}
-          transition={{ type: "spring", stiffness: 500, damping: 20, delay: 0.05 }}
+          transition={{
+            type: "spring",
+            stiffness: 500,
+            damping: 20,
+            delay: 0.05,
+          }}
           className="shrink-0 w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-900/50 border border-orange-200 dark:border-orange-800 flex items-center justify-center text-xl shadow-sm"
         >
           {achievement.icon}
@@ -101,7 +116,12 @@ function SingleAchievement({ achievement, stackIndex, onDismiss }: SingleAchieve
               <motion.span
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 600, damping: 15, delay: 0.15 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 600,
+                  damping: 15,
+                  delay: 0.15,
+                }}
                 className="text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-amber-400/20 border border-amber-400/40 text-amber-600 dark:text-amber-400"
               >
                 🏆 FIRST!

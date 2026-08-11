@@ -1,15 +1,13 @@
 import { describe, expect, it } from "vitest";
+import { createInitialState } from "@/engine/timeline";
 import {
-  DEFAULT_SCHEDULING_STATE,
-} from "@/scheduling/race-calendar-types";
-import {
+  getRegisteredRaces,
   getTodaysRaces,
   getUpcomingRaces,
-  getRegisteredRaces,
-  registerForRace,
   makeRegistrationKey,
+  registerForRace,
 } from "@/scheduling/race-calendar-engine";
-import { createInitialState } from "@/engine/timeline";
+import { DEFAULT_SCHEDULING_STATE } from "@/scheduling/race-calendar-types";
 
 describe("Race Calendar Scheduling Engine", () => {
   it("returns available races for today's dayIndex", () => {
@@ -23,13 +21,19 @@ describe("Race Calendar Scheduling Engine", () => {
   it("registers for a race and lists it in getRegisteredRaces", () => {
     let schedulingState = DEFAULT_SCHEDULING_STATE;
 
-    schedulingState = registerForRace(schedulingState, "monthly_nusantara_10k", 27);
+    schedulingState = registerForRace(
+      schedulingState,
+      "monthly_nusantara_10k",
+      27,
+    );
     const key = makeRegistrationKey("monthly_nusantara_10k", 27);
     expect(schedulingState.registered[key]).toBe(27);
 
     const registered = getRegisteredRaces(schedulingState, 0);
     expect(registered.length).toBeGreaterThan(0);
-    expect(registered.some((r) => r.scheduleId === "monthly_nusantara_10k")).toBe(true);
+    expect(
+      registered.some((r) => r.scheduleId === "monthly_nusantara_10k"),
+    ).toBe(true);
   });
 
   it("filters upcoming races within horizon", () => {

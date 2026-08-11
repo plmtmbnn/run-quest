@@ -74,8 +74,12 @@ export function getScheduledStoryEvents(
   const championshipWon =
     storyProgress.championshipResults[championshipId]?.won ?? false;
   const championshipNotified =
-    storyProgress.viewedStoryBeats.includes(`championship_available:${championshipId}`) ||
-    storyProgress.viewedStoryBeats.includes(`championship_available_${chapter.number}`);
+    storyProgress.viewedStoryBeats.includes(
+      `championship_available:${championshipId}`,
+    ) ||
+    storyProgress.viewedStoryBeats.includes(
+      `championship_available_${chapter.number}`,
+    );
 
   if (!championshipWon && !championshipNotified) {
     const championshipDay =

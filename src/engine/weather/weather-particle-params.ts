@@ -1,6 +1,12 @@
 import type { Weather, Wind } from "@/types/engine";
 
-export type WeatherEffectCategory = "rain" | "snow" | "wind" | "fog" | "heat" | "clear";
+export type WeatherEffectCategory =
+  | "rain"
+  | "snow"
+  | "wind"
+  | "fog"
+  | "heat"
+  | "clear";
 
 export interface WeatherParticleConfig {
   category: WeatherEffectCategory;

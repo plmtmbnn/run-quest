@@ -1,6 +1,6 @@
 /**
  * Race Music Track Definitions
- * 
+ *
  * This module defines the adaptive music system for races.
  * Uses Web Audio API for procedural generation (no external audio files required).
  * Music adapts to race phases: start, mid_race, final_kick, crisis, victory.
@@ -8,7 +8,12 @@
 
 import type { PacingPlan } from "@/types/engine";
 
-export type RacePhase = "start" | "mid_race" | "final_kick" | "crisis" | "victory";
+export type RacePhase =
+  | "start"
+  | "mid_race"
+  | "final_kick"
+  | "crisis"
+  | "victory";
 
 export type RaceMusicPhase = RacePhase | "none";
 
@@ -24,9 +29,9 @@ export interface RaceMusicTrack {
    * Synth parameters for Web Audio API generation
    */
   synthParams: {
-    baseFrequency: number;      // Base frequency in Hz
+    baseFrequency: number; // Base frequency in Hz
     rhythmPattern: "steady" | "accelerating" | "intense" | "minimal";
-    intensity: number;          // 0-1 intensity level
+    intensity: number; // 0-1 intensity level
     waveType: "sine" | "square" | "sawtooth" | "triangle";
     harmonicComplexity: number; // 1-5, higher = more harmonics
   };
@@ -104,7 +109,7 @@ export const RACE_TRACKS: Record<RacePhase, RaceMusicTrack> = {
       },
     },
   },
-  
+
   mid_race: {
     id: "mid_race",
     name: "Steady Rhythm",
@@ -136,7 +141,7 @@ export const RACE_TRACKS: Record<RacePhase, RaceMusicTrack> = {
       },
     },
   },
-  
+
   final_kick: {
     id: "final_kick",
     name: "High Intensity",
@@ -168,7 +173,7 @@ export const RACE_TRACKS: Record<RacePhase, RaceMusicTrack> = {
       },
     },
   },
-  
+
   crisis: {
     id: "crisis",
     name: "Desperation",
@@ -195,7 +200,7 @@ export const RACE_TRACKS: Record<RacePhase, RaceMusicTrack> = {
       },
     },
   },
-  
+
   victory: {
     id: "victory",
     name: "Triumphant",
@@ -215,7 +220,7 @@ export const RACE_TRACKS: Record<RacePhase, RaceMusicTrack> = {
         volume: 0.3,
       },
       melody: {
-        frequencies: [523.25, 659.25, 783.99, 1046.50], // C5, E5, G5, C6
+        frequencies: [523.25, 659.25, 783.99, 1046.5], // C5, E5, G5, C6
         waveType: "sine",
         volume: 0.3,
         pattern: [0, 1, 2, 3, 2, 1, 0, 3],
@@ -233,31 +238,39 @@ export const RACE_TRACKS: Record<RacePhase, RaceMusicTrack> = {
  * Determine the current race phase based on progress and stats
  */
 export function getRacePhase(stats: RaceMusicStats): RaceMusicPhase {
-  const { currentKm, totalDistance, energy, focus, confidence, momentum, riskLevel } = stats;
-  
+  const {
+    currentKm,
+    totalDistance,
+    energy,
+    focus,
+    confidence,
+    momentum,
+    riskLevel,
+  } = stats;
+
   // Calculate progress percentage
   const progress = currentKm / totalDistance;
-  
+
   // Crisis mode: low energy, low focus, high risk
   if (energy < 20 || (focus < 30 && riskLevel > 70)) {
     return "crisis";
   }
-  
+
   // Victory phase (race just finished)
   if (currentKm >= totalDistance) {
     return "victory";
   }
-  
+
   // Final kick phase: last 20% of race
   if (progress > 0.8) {
     return "final_kick";
   }
-  
+
   // Start phase: first 20% of race
   if (progress < 0.2) {
     return "start";
   }
-  
+
   // Mid race phase
   return "mid_race";
 }
@@ -273,7 +286,7 @@ export function getTrackForPhase(phase: RaceMusicPhase): RaceMusicTrack | null {
 /**
  * Sound effect types for race atmosphere
  */
-export type RaceSoundEffect = 
+export type RaceSoundEffect =
   | "heartbeat"
   | "crowd_ambient"
   | "crowd_cheer"
@@ -360,27 +373,33 @@ export const SOUND_EFFECTS: Record<RaceSoundEffect, SoundEffectConfig> = {
  */
 export function shouldPlaySoundEffect(
   effectType: RaceSoundEffect,
-  stats: RaceMusicStats
+  stats: RaceMusicStats,
 ): boolean {
   const config = SOUND_EFFECTS[effectType];
   if (!config.enabled) return false;
-  
+
   const { currentKm, totalDistance, energy } = stats;
   const progress = currentKm / totalDistance;
   const { conditions } = config;
-  
+
   if (conditions?.minEnergy !== undefined && energy < conditions.minEnergy) {
     return false;
   }
   if (conditions?.maxEnergy !== undefined && energy > conditions.maxEnergy) {
     return false;
   }
-  if (conditions?.minProgress !== undefined && progress < conditions.minProgress) {
+  if (
+    conditions?.minProgress !== undefined &&
+    progress < conditions.minProgress
+  ) {
     return false;
   }
-  if (conditions?.maxProgress !== undefined && progress > conditions.maxProgress) {
+  if (
+    conditions?.maxProgress !== undefined &&
+    progress > conditions.maxProgress
+  ) {
     return false;
   }
-  
+
   return true;
 }

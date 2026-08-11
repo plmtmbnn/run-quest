@@ -631,7 +631,10 @@ export const DECISION_DATABASE: Record<string, DecisionCard> = {
     choices: [
       {
         id: "nitrate_surge",
-        label: { en: "Capitalize with Tempo Surge", id: "Manfaatkan Lonjakan Tempo" },
+        label: {
+          en: "Capitalize with Tempo Surge",
+          id: "Manfaatkan Lonjakan Tempo",
+        },
         description: {
           en: "Increase speed while oxygen utilization is optimal.",
           id: "Tingkatkan kecepatan saat penggunaan oksigen optimal.",

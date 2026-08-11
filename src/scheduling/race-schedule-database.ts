@@ -1,8 +1,8 @@
-import type { RaceSchedule } from "./race-calendar-types";
-import { formatCurrency } from "../economy/currency-converter";
-import { useSettingsStore } from "../store/settings-store";
 import type { CurrencyCode } from "../economy/currency-config";
 import { DEFAULT_CURRENCY } from "../economy/currency-config";
+import { formatCurrency } from "../economy/currency-converter";
+import { useSettingsStore } from "../store/settings-store";
+import type { RaceSchedule } from "./race-calendar-types";
 
 /**
  * Helper function to get current preferred currency safely

@@ -32,21 +32,33 @@ export const WEATHER_TRANSITION_TEMPLATES: TransitionTemplate[] = [
     from: "sunny",
     to: "cloudy",
     transitionDuration: 2,
-    effect: { temperatureDelta: -3, energyCostMultiplier: 0.95, moraleModifier: 5 },
+    effect: {
+      temperatureDelta: -3,
+      energyCostMultiplier: 0.95,
+      moraleModifier: 5,
+    },
     weight: 0.35,
   },
   {
     from: "sunny",
     to: "rain",
     transitionDuration: 1,
-    effect: { temperatureDelta: -5, energyCostMultiplier: 1.15, moraleModifier: -10 },
+    effect: {
+      temperatureDelta: -5,
+      energyCostMultiplier: 1.15,
+      moraleModifier: -10,
+    },
     weight: 0.2,
   },
   {
     from: "sunny",
     to: "hot",
     transitionDuration: 2,
-    effect: { temperatureDelta: 6, energyCostMultiplier: 1.2, moraleModifier: -5 },
+    effect: {
+      temperatureDelta: 6,
+      energyCostMultiplier: 1.2,
+      moraleModifier: -5,
+    },
     weight: 0.15,
   },
   // ── Cloudy ────────────────────────────────────────────────────────────────
@@ -54,21 +66,33 @@ export const WEATHER_TRANSITION_TEMPLATES: TransitionTemplate[] = [
     from: "cloudy",
     to: "rain",
     transitionDuration: 1,
-    effect: { temperatureDelta: -2, energyCostMultiplier: 1.15, moraleModifier: -5 },
+    effect: {
+      temperatureDelta: -2,
+      energyCostMultiplier: 1.15,
+      moraleModifier: -5,
+    },
     weight: 0.35,
   },
   {
     from: "cloudy",
     to: "sunny",
     transitionDuration: 2,
-    effect: { temperatureDelta: 4, energyCostMultiplier: 1.05, moraleModifier: 10 },
+    effect: {
+      temperatureDelta: 4,
+      energyCostMultiplier: 1.05,
+      moraleModifier: 10,
+    },
     weight: 0.2,
   },
   {
     from: "cloudy",
     to: "fog",
     transitionDuration: 1,
-    effect: { temperatureDelta: -1, energyCostMultiplier: 1.05, moraleModifier: -5 },
+    effect: {
+      temperatureDelta: -1,
+      energyCostMultiplier: 1.05,
+      moraleModifier: -5,
+    },
     weight: 0.15,
   },
   // ── Rain ──────────────────────────────────────────────────────────────────
@@ -76,14 +100,22 @@ export const WEATHER_TRANSITION_TEMPLATES: TransitionTemplate[] = [
     from: "rain",
     to: "storm",
     transitionDuration: 1,
-    effect: { temperatureDelta: -2, energyCostMultiplier: 1.3, moraleModifier: -15 },
+    effect: {
+      temperatureDelta: -2,
+      energyCostMultiplier: 1.3,
+      moraleModifier: -15,
+    },
     weight: 0.2,
   },
   {
     from: "rain",
     to: "cloudy",
     transitionDuration: 2,
-    effect: { temperatureDelta: 2, energyCostMultiplier: 1.05, moraleModifier: 5 },
+    effect: {
+      temperatureDelta: 2,
+      energyCostMultiplier: 1.05,
+      moraleModifier: 5,
+    },
     weight: 0.35,
   },
   // ── Storm ─────────────────────────────────────────────────────────────────
@@ -91,7 +123,11 @@ export const WEATHER_TRANSITION_TEMPLATES: TransitionTemplate[] = [
     from: "storm",
     to: "rain",
     transitionDuration: 2,
-    effect: { temperatureDelta: 1, energyCostMultiplier: 1.1, moraleModifier: 10 },
+    effect: {
+      temperatureDelta: 1,
+      energyCostMultiplier: 1.1,
+      moraleModifier: 10,
+    },
     weight: 0.4,
   },
   // ── Hot ───────────────────────────────────────────────────────────────────
@@ -99,14 +135,22 @@ export const WEATHER_TRANSITION_TEMPLATES: TransitionTemplate[] = [
     from: "hot",
     to: "cloudy",
     transitionDuration: 2,
-    effect: { temperatureDelta: -4, energyCostMultiplier: 0.95, moraleModifier: 8 },
+    effect: {
+      temperatureDelta: -4,
+      energyCostMultiplier: 0.95,
+      moraleModifier: 8,
+    },
     weight: 0.3,
   },
   {
     from: "hot",
     to: "sunny",
     transitionDuration: 1,
-    effect: { temperatureDelta: -2, energyCostMultiplier: 1.0, moraleModifier: 5 },
+    effect: {
+      temperatureDelta: -2,
+      energyCostMultiplier: 1.0,
+      moraleModifier: 5,
+    },
     weight: 0.2,
   },
   // ── Cold ──────────────────────────────────────────────────────────────────
@@ -114,14 +158,22 @@ export const WEATHER_TRANSITION_TEMPLATES: TransitionTemplate[] = [
     from: "cold",
     to: "cloudy",
     transitionDuration: 2,
-    effect: { temperatureDelta: 3, energyCostMultiplier: 0.97, moraleModifier: 5 },
+    effect: {
+      temperatureDelta: 3,
+      energyCostMultiplier: 0.97,
+      moraleModifier: 5,
+    },
     weight: 0.3,
   },
   {
     from: "cold",
     to: "fog",
     transitionDuration: 1,
-    effect: { temperatureDelta: 0, energyCostMultiplier: 1.05, moraleModifier: -5 },
+    effect: {
+      temperatureDelta: 0,
+      energyCostMultiplier: 1.05,
+      moraleModifier: -5,
+    },
     weight: 0.2,
   },
   // ── Fog ───────────────────────────────────────────────────────────────────
@@ -129,14 +181,22 @@ export const WEATHER_TRANSITION_TEMPLATES: TransitionTemplate[] = [
     from: "fog",
     to: "cloudy",
     transitionDuration: 2,
-    effect: { temperatureDelta: 2, energyCostMultiplier: 0.97, moraleModifier: 8 },
+    effect: {
+      temperatureDelta: 2,
+      energyCostMultiplier: 0.97,
+      moraleModifier: 8,
+    },
     weight: 0.35,
   },
   {
     from: "fog",
     to: "sunny",
     transitionDuration: 2,
-    effect: { temperatureDelta: 5, energyCostMultiplier: 1.0, moraleModifier: 12 },
+    effect: {
+      temperatureDelta: 5,
+      energyCostMultiplier: 1.0,
+      moraleModifier: 12,
+    },
     weight: 0.2,
   },
 ];

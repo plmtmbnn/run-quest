@@ -1,12 +1,19 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Wallet, AlertTriangle, CheckCircle2, ChevronRight, Plane, Hotel } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  ChevronRight,
+  Hotel,
+  Plane,
+  Wallet,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { formatCurrency } from "@/economy/currency-converter";
 import { calculateLivingBreakdown } from "@/economy/recurring-expenses";
-import { useTranslation, type TranslationKey } from "@/i18n/use-translation";
+import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { loadRunnerState } from "@/runner/runner-persistence";
 import { useExpenseStore } from "@/store/expense-store";
 import { useSettingsStore } from "@/store/settings-store";
@@ -35,7 +42,10 @@ export function ExpenseWidget() {
     monthlyExpenses > 0 ? Math.floor(currentBalance / monthlyExpenses) : 999;
   const isUnpaid = hasUnpaidExpenses();
 
-  const livingBreakdown = calculateLivingBreakdown(runnerLevel, registeredCount);
+  const livingBreakdown = calculateLivingBreakdown(
+    runnerLevel,
+    registeredCount,
+  );
 
   return (
     <motion.div
@@ -83,9 +93,18 @@ export function ExpenseWidget() {
                   <Plane className="w-3 h-3 text-amber-500 flex-shrink-0" />
                   <Hotel className="w-3 h-3 text-amber-500 flex-shrink-0" />
                   <span>
-                    {(t("expenses.race_logistics_active" as TranslationKey) || "")
+                    {(
+                      t("expenses.race_logistics_active" as TranslationKey) ||
+                      ""
+                    )
                       .replace("{count}", String(registeredCount))
-                      .replace("{amount}", formatCurrency(livingBreakdown.travelLogistics, preferredCurrency))}
+                      .replace(
+                        "{amount}",
+                        formatCurrency(
+                          livingBreakdown.travelLogistics,
+                          preferredCurrency,
+                        ),
+                      )}
                   </span>
                 </div>
               ) : (
@@ -109,10 +128,9 @@ export function ExpenseWidget() {
               ) : monthsAffordable >= 1 ? (
                 <span className="text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1">
                   <AlertTriangle className="w-3.5 h-3.5" />
-                  {(t("expenses.status_warning_monthly" as TranslationKey) || "").replace(
-                    "{months}",
-                    String(monthsAffordable)
-                  )}
+                  {(
+                    t("expenses.status_warning_monthly" as TranslationKey) || ""
+                  ).replace("{months}", String(monthsAffordable))}
                 </span>
               ) : (
                 <span className="text-rose-600 dark:text-rose-400 font-semibold flex items-center gap-1">
@@ -138,4 +156,3 @@ export function ExpenseWidget() {
     </motion.div>
   );
 }
-

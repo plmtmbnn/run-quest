@@ -1,10 +1,10 @@
 // runner-engine.ts
 // Business logic and calculations for the Runner Profile.
 
-import { loadRunnerState, saveRunnerState } from "./runner-persistence";
-import type { RunnerProfile, RunnerState } from "./runner-types";
 // Import from progression-engine for consistency
 import { awardXP } from "./progression-engine";
+import { loadRunnerState, saveRunnerState } from "./runner-persistence";
+import type { RunnerProfile, RunnerState } from "./runner-types";
 import { safelyAwardXP } from "./xp-tracker";
 
 /**
@@ -200,7 +200,7 @@ export const completeRace = (
   if (finalXpGained > 0) {
     // Use the new XP tracker to prevent race conditions
     safelyAwardXP(finalXpGained, `race:complete`);
-    
+
     // Update profile with new XP values from tracker
     const currentState = loadRunnerState();
     updatedProfile = {

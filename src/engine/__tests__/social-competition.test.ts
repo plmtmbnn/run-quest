@@ -1,13 +1,16 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { calculateGhostDistanceAtTime, getGhostGapMeters } from "../../components/race/ghost-runner";
-import type { GhostRunner } from "../../store/ghost-store";
-import { LeaderboardService } from "../../services/leaderboard/leaderboard-service";
-import { calculateSpectatorCount } from "../../components/race/spectator-mode";
-import { getUpcomingMilestoneMarkers } from "../achievements/race-achievements";
+import { beforeEach, describe, expect, it } from "vitest";
 import { getComboMultiplier } from "../../components/race/combo-streak";
+import {
+  calculateGhostDistanceAtTime,
+  getGhostGapMeters,
+} from "../../components/race/ghost-runner";
+import { calculateSpectatorCount } from "../../components/race/spectator-mode";
 import { earnRacePrize } from "../../economy/earning-engine";
 import type { EconomyState } from "../../economy/economy-types";
 import { DEFAULT_SPONSORSHIP_STATE } from "../../economy/sponsorship-types";
+import { LeaderboardService } from "../../services/leaderboard/leaderboard-service";
+import type { GhostRunner } from "../../store/ghost-store";
+import { getUpcomingMilestoneMarkers } from "../achievements/race-achievements";
 import { DEFAULT_GAME_STATE, type GameState } from "../timeline/time-types";
 
 describe("Sprint 37: Social Competition & Community Engagement Tests", () => {
@@ -70,7 +73,9 @@ describe("Sprint 37: Social Competition & Community Engagement Tests", () => {
       });
       const updatedFeed = LeaderboardService.getActivityFeed();
       expect(updatedFeed.length).toBeGreaterThan(initialCount);
-      expect(updatedFeed.some((item) => item.playerName === "Test Runner")).toBe(true);
+      expect(
+        updatedFeed.some((item) => item.playerName === "Test Runner"),
+      ).toBe(true);
     });
   });
 
@@ -124,9 +129,33 @@ describe("Sprint 37: Social Competition & Community Engagement Tests", () => {
     };
 
     it("applies streak bonus multipliers to prize money", () => {
-      const noStreakResult = earnRacePrize(mockEconomy, mockGameState, 100, 10, 1, "5K Championship", 0);
-      const streak2Result = earnRacePrize(mockEconomy, mockGameState, 100, 10, 1, "5K Championship", 2);
-      const streak5Result = earnRacePrize(mockEconomy, mockGameState, 100, 10, 1, "5K Championship", 5);
+      const noStreakResult = earnRacePrize(
+        mockEconomy,
+        mockGameState,
+        100,
+        10,
+        1,
+        "5K Championship",
+        0,
+      );
+      const streak2Result = earnRacePrize(
+        mockEconomy,
+        mockGameState,
+        100,
+        10,
+        1,
+        "5K Championship",
+        2,
+      );
+      const streak5Result = earnRacePrize(
+        mockEconomy,
+        mockGameState,
+        100,
+        10,
+        1,
+        "5K Championship",
+        5,
+      );
 
       expect(streak2Result.prize).toBeGreaterThan(noStreakResult.prize);
       expect(streak5Result.prize).toBeGreaterThan(streak2Result.prize);

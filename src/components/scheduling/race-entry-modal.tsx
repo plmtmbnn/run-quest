@@ -6,16 +6,25 @@
 
 "use client";
 
+import { useEffect, useState } from "react";
 import { formatCurrency } from "@/economy/currency-converter";
-import { useSettingsStore } from "@/store/settings-store";
-import { useTimelineStore } from "@/store/timeline-store";
 import { formatGameDate } from "@/engine/timeline/calendar";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+import { useSettingsStore } from "@/store/settings-store";
+import { useTimelineStore } from "@/store/timeline-store";
 import type { EntryValidation } from "../../economy/race-entry-engine";
-import { useEffect, useState } from "react";
 import { getEnergyCostForDistance } from "../../economy/race-entry-engine";
-import type { CategoryId, RaceCategory, RaceOccurrence } from "../../scheduling/race-calendar-types";
-import { calculateDynamicEntrants, getFillRatePercentage, isRaceNearlyFull, isRaceFull } from "../../scheduling/race-entrants-engine";
+import type {
+  CategoryId,
+  RaceCategory,
+  RaceOccurrence,
+} from "../../scheduling/race-calendar-types";
+import {
+  calculateDynamicEntrants,
+  getFillRatePercentage,
+  isRaceFull,
+  isRaceNearlyFull,
+} from "../../scheduling/race-entrants-engine";
 
 // Interpolate {placeholder} tokens in translation strings.
 function interpolate(
@@ -48,7 +57,9 @@ export function RaceEntryModal({
   const { t } = useTranslation();
   const preferredCurrency =
     useSettingsStore((state) => state.settings.preferredCurrency) || "USD";
-  const currentDayIndex = useTimelineStore((state) => state.gameState?.dayIndex ?? 0);
+  const currentDayIndex = useTimelineStore(
+    (state) => state.gameState?.dayIndex ?? 0,
+  );
 
   // Close on Escape
   useEffect(() => {
@@ -64,16 +75,18 @@ export function RaceEntryModal({
 
   const categories = race.categories ?? [];
   const [selectedCatId, setSelectedCatId] = useState<CategoryId>(
-    race.selectedCategoryId || (categories[0]?.id ?? "5k")
+    race.selectedCategoryId || (categories[0]?.id ?? "5k"),
   );
 
   const activeCategory: RaceCategory | undefined = categories.find(
-    (c) => c.id === selectedCatId
+    (c) => c.id === selectedCatId,
   );
 
   const activeEntryFee = activeCategory ? activeCategory.fee : race.entryFee;
   const activeMaxEntrants = activeCategory?.maxEntrants ?? race.maxEntrants;
-  const activePrizeInfo = activeCategory ? activeCategory.prizeInfo : `Est. Pool: ${formatCurrency(race.prizePool, preferredCurrency, { compact: true })}`;
+  const activePrizeInfo = activeCategory
+    ? activeCategory.prizeInfo
+    : `Est. Pool: ${formatCurrency(race.prizePool, preferredCurrency, { compact: true })}`;
   const activeDistance = activeCategory ? activeCategory.distance : 5;
   const activeEnergyCost = getEnergyCostForDistance(activeDistance);
 
@@ -81,26 +94,73 @@ export function RaceEntryModal({
   const hasAllPrereqs = validation.blockers.length === 0;
   const isRaceDay = race.dayIndex === currentDayIndex;
 
-  const dynamicEntrants = calculateDynamicEntrants(race, currentDayIndex, race.dayIndex, selectedCatId);
-  const isFull = isRaceFull(race, currentDayIndex, race.dayIndex, selectedCatId) || (typeof activeMaxEntrants === "number" && dynamicEntrants >= activeMaxEntrants);
+  const dynamicEntrants = calculateDynamicEntrants(
+    race,
+    currentDayIndex,
+    race.dayIndex,
+    selectedCatId,
+  );
+  const isFull =
+    isRaceFull(race, currentDayIndex, race.dayIndex, selectedCatId) ||
+    (typeof activeMaxEntrants === "number" &&
+      dynamicEntrants >= activeMaxEntrants);
 
   const getButtonState = () => {
-    if (race.isCompleted) return { disabled: true, text: t("race_entry.button.completed" as TranslationKey), color: "" };
+    if (race.isCompleted)
+      return {
+        disabled: true,
+        text: t("race_entry.button.completed" as TranslationKey),
+        color: "",
+      };
     if (race.isRegistered) {
       if (isRaceDay) {
-        return { disabled: false, text: t("race_entry.button.start_race" as TranslationKey), color: "bg-indigo-600 hover:bg-indigo-700 text-white" };
+        return {
+          disabled: false,
+          text: t("race_entry.button.start_race" as TranslationKey),
+          color: "bg-indigo-600 hover:bg-indigo-700 text-white",
+        };
       } else {
-        return { disabled: true, text: t("race_entry.button.already_registered" as TranslationKey), color: "" };
+        return {
+          disabled: true,
+          text: t("race_entry.button.already_registered" as TranslationKey),
+          color: "",
+        };
       }
     }
-    if (isFull) return { disabled: true, text: t("race_entry.button.race_full" as TranslationKey), color: "" };
-    if (!canAfford) return { disabled: true, text: interpolate(t("race_entry.need_more" as TranslationKey), { amount: formatCurrency(activeEntryFee - currentBalance, preferredCurrency, { compact: true }) }), color: "" };
-    if (!hasAllPrereqs) return { disabled: true, text: t("race_entry.button.requirements_not_met" as TranslationKey), color: "" };
+    if (isFull)
+      return {
+        disabled: true,
+        text: t("race_entry.button.race_full" as TranslationKey),
+        color: "",
+      };
+    if (!canAfford)
+      return {
+        disabled: true,
+        text: interpolate(t("race_entry.need_more" as TranslationKey), {
+          amount: formatCurrency(
+            activeEntryFee - currentBalance,
+            preferredCurrency,
+            { compact: true },
+          ),
+        }),
+        color: "",
+      };
+    if (!hasAllPrereqs)
+      return {
+        disabled: true,
+        text: t("race_entry.button.requirements_not_met" as TranslationKey),
+        color: "",
+      };
 
     return {
       disabled: false,
-      text: interpolate(t("race_entry.button.enter_race" as TranslationKey), { fee: formatCurrency(activeEntryFee, preferredCurrency, { compact: true }) }),
-      color: "bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-lg shadow-emerald-500/20"
+      text: interpolate(t("race_entry.button.enter_race" as TranslationKey), {
+        fee: formatCurrency(activeEntryFee, preferredCurrency, {
+          compact: true,
+        }),
+      }),
+      color:
+        "bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-lg shadow-emerald-500/20",
     };
   };
 
@@ -115,13 +175,20 @@ export function RaceEntryModal({
         aria-labelledby={MODAL_TITLE_ID}
         className="max-w-lg w-full max-h-[90vh] flex flex-col rounded-[2rem] border border-[#E5E7EB] dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-hidden"
       >
-
         {/* Header - Fixed */}
         <div className="text-center p-6 shrink-0 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 z-10">
-          <span className={`text-4xl ${race.color}`} aria-hidden="true">{race.icon}</span>
-          <h2 id={MODAL_TITLE_ID} className="text-2xl font-black font-heading text-slate-800 dark:text-white mt-2">{race.name}</h2>
+          <span className={`text-4xl ${race.color}`} aria-hidden="true">
+            {race.icon}
+          </span>
+          <h2
+            id={MODAL_TITLE_ID}
+            className="text-2xl font-black font-heading text-slate-800 dark:text-white mt-2"
+          >
+            {race.name}
+          </h2>
           <p className="text-sm text-slate-500 dark:text-gray-400 mt-1 capitalize">
-            {t(`race_tiers.${race.tier}` as TranslationKey)} Event • {formatGameDate(race.dayIndex)}
+            {t(`race_tiers.${race.tier}` as TranslationKey)} Event •{" "}
+            {formatGameDate(race.dayIndex)}
           </p>
         </div>
 
@@ -148,9 +215,15 @@ export function RaceEntryModal({
                           : "bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600"
                       } ${race.isRegistered ? "opacity-60 cursor-not-allowed" : ""}`}
                     >
-                      <span className="text-xs font-black uppercase tracking-wider">{cat.name}</span>
-                      <span className={`text-[10px] mt-0.5 font-semibold ${isSelected ? "text-indigo-100" : "text-slate-400 dark:text-slate-500"}`}>
-                        {formatCurrency(cat.fee, preferredCurrency, { compact: true })}
+                      <span className="text-xs font-black uppercase tracking-wider">
+                        {cat.name}
+                      </span>
+                      <span
+                        className={`text-[10px] mt-0.5 font-semibold ${isSelected ? "text-indigo-100" : "text-slate-400 dark:text-slate-500"}`}
+                      >
+                        {formatCurrency(cat.fee, preferredCurrency, {
+                          compact: true,
+                        })}
                       </span>
                     </button>
                   );
@@ -160,7 +233,9 @@ export function RaceEntryModal({
           )}
 
           {/* Description */}
-          <p className="text-slate-600 dark:text-slate-300 text-sm text-center">{race.description}</p>
+          <p className="text-slate-600 dark:text-slate-300 text-sm text-center">
+            {race.description}
+          </p>
 
           {/* Cost Breakdown */}
           <div className="rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-[#E5E7EB] dark:border-slate-700 p-4 space-y-2">
@@ -175,7 +250,9 @@ export function RaceEntryModal({
               <span
                 className={`font-bold ${canAfford ? "text-yellow-600 dark:text-yellow-400" : "text-red-500 dark:text-red-400"}`}
               >
-                {formatCurrency(activeEntryFee, preferredCurrency, { compact: true })}
+                {formatCurrency(activeEntryFee, preferredCurrency, {
+                  compact: true,
+                })}
               </span>
             </div>
 
@@ -183,7 +260,9 @@ export function RaceEntryModal({
               <span className="text-slate-500 dark:text-gray-400">
                 {t("race_entry.energy_required" as TranslationKey)}
               </span>
-              <span className="font-bold text-blue-600 dark:text-blue-400">{activeEnergyCost} EP</span>
+              <span className="font-bold text-blue-600 dark:text-blue-400">
+                {activeEnergyCost} EP
+              </span>
             </div>
 
             <div className="flex justify-between text-sm">
@@ -193,7 +272,9 @@ export function RaceEntryModal({
               <span
                 className={`font-bold ${canAfford ? "text-green-600 dark:text-green-400" : "text-red-500 dark:text-red-400"}`}
               >
-                {formatCurrency(currentBalance, preferredCurrency, { compact: true })}
+                {formatCurrency(currentBalance, preferredCurrency, {
+                  compact: true,
+                })}
               </span>
             </div>
 
@@ -217,16 +298,24 @@ export function RaceEntryModal({
                   <div className="flex items-center gap-2">
                     <span
                       className={
-                        isFull ? "text-red-500 dark:text-red-400 font-bold" : "text-slate-600 dark:text-gray-300 font-mono font-bold"
+                        isFull
+                          ? "text-red-500 dark:text-red-400 font-bold"
+                          : "text-slate-600 dark:text-gray-300 font-mono font-bold"
                       }
                     >
                       {dynamicEntrants}/{activeMaxEntrants}
                     </span>
-                    {isRaceNearlyFull(race, currentDayIndex, race.dayIndex, selectedCatId) && !isFull && (
-                      <span className="px-2 py-0.5 bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 text-[9px] font-bold uppercase tracking-wider rounded">
-                        {t("race_entry.almost_full" as TranslationKey)}
-                      </span>
-                    )}
+                    {isRaceNearlyFull(
+                      race,
+                      currentDayIndex,
+                      race.dayIndex,
+                      selectedCatId,
+                    ) &&
+                      !isFull && (
+                        <span className="px-2 py-0.5 bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 text-[9px] font-bold uppercase tracking-wider rounded">
+                          {t("race_entry.almost_full" as TranslationKey)}
+                        </span>
+                      )}
                     {isFull && (
                       <span className="px-2 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-[9px] font-bold uppercase tracking-wider rounded">
                         {t("race_entry.full" as TranslationKey)}
@@ -237,85 +326,121 @@ export function RaceEntryModal({
                 {/* Fill Rate Visual Bar */}
                 <div className="pt-1">
                   <div className="h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className={`h-full transition-all duration-500 ${
-                        getFillRatePercentage(race, currentDayIndex, race.dayIndex, selectedCatId) >= 90 ? "bg-rose-500" :
-                        getFillRatePercentage(race, currentDayIndex, race.dayIndex, selectedCatId) >= 70 ? "bg-amber-500" :
-                        "bg-emerald-500"
+                        getFillRatePercentage(
+                          race,
+                          currentDayIndex,
+                          race.dayIndex,
+                          selectedCatId,
+                        ) >= 90
+                          ? "bg-rose-500"
+                          : getFillRatePercentage(
+                                race,
+                                currentDayIndex,
+                                race.dayIndex,
+                                selectedCatId,
+                              ) >= 70
+                            ? "bg-amber-500"
+                            : "bg-emerald-500"
                       }`}
-                      style={{ width: `${getFillRatePercentage(race, currentDayIndex, race.dayIndex, selectedCatId)}%` }}
+                      style={{
+                        width: `${getFillRatePercentage(race, currentDayIndex, race.dayIndex, selectedCatId)}%`,
+                      }}
                     />
                   </div>
                   <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 text-center font-mono font-bold">
-                    {getFillRatePercentage(race, currentDayIndex, race.dayIndex, selectedCatId)}% {t("race_entry.registered" as TranslationKey)}
+                    {getFillRatePercentage(
+                      race,
+                      currentDayIndex,
+                      race.dayIndex,
+                      selectedCatId,
+                    )}
+                    % {t("race_entry.registered" as TranslationKey)}
                   </p>
                 </div>
               </>
             )}
           </div>
 
-        {/* Prerequisites Blockers */}
-        {validation.blockers.length > 0 && (
-          <div className="rounded-xl bg-red-50/40 dark:bg-red-500/10 border border-red-100/30 dark:border-red-500/30 p-3 space-y-2">
-            <h3 className="font-bold text-red-600 dark:text-red-400 text-sm">
-              ❌ {t("race_entry.requirements_not_met" as TranslationKey)}
-            </h3>
-            {validation.blockers.map((blocker, idx) => (
-              <div key={idx} className="flex items-start gap-2 text-sm">
-                <span className="text-red-600 dark:text-red-400 mt-0.5">•</span>
-                <div>
-                  <p className="text-slate-700 dark:text-gray-300">{blocker.reason}</p>
-                  {blocker.howToResolve && (
-                    <p className="text-slate-500 dark:text-gray-500 text-xs italic mt-0.5">
-                      💡 {blocker.howToResolve}
+          {/* Prerequisites Blockers */}
+          {validation.blockers.length > 0 && (
+            <div className="rounded-xl bg-red-50/40 dark:bg-red-500/10 border border-red-100/30 dark:border-red-500/30 p-3 space-y-2">
+              <h3 className="font-bold text-red-600 dark:text-red-400 text-sm">
+                ❌ {t("race_entry.requirements_not_met" as TranslationKey)}
+              </h3>
+              {validation.blockers.map((blocker, idx) => (
+                <div key={idx} className="flex items-start gap-2 text-sm">
+                  <span className="text-red-600 dark:text-red-400 mt-0.5">
+                    •
+                  </span>
+                  <div>
+                    <p className="text-slate-700 dark:text-gray-300">
+                      {blocker.reason}
                     </p>
-                  )}
+                    {blocker.howToResolve && (
+                      <p className="text-slate-500 dark:text-gray-500 text-xs italic mt-0.5">
+                        💡 {blocker.howToResolve}
+                      </p>
+                    )}
+                  </div>
                 </div>
+              ))}
+            </div>
+          )}
+
+          {/* Warnings */}
+          {validation.warnings.length > 0 && hasAllPrereqs && (
+            <div className="rounded-xl bg-amber-50/40 dark:bg-yellow-500/10 border border-amber-100/30 dark:border-yellow-500/30 p-3">
+              {validation.warnings.map((w, idx) => (
+                <p
+                  key={idx}
+                  className="text-amber-700 dark:text-yellow-300 text-sm"
+                >
+                  {w}
+                </p>
+              ))}
+            </div>
+          )}
+
+          {/* Prize Distribution */}
+          <div className="rounded-xl bg-slate-50 dark:bg-gray-800/30 p-3 border border-[#E5E7EB] dark:border-slate-800/0">
+            <h3 className="font-bold text-slate-800 dark:text-white text-xs mb-2">
+              🏆 {t("race_entry.prize_distribution" as TranslationKey)}
+            </h3>
+            <div className="grid grid-cols-5 gap-1 text-center text-xs">
+              <div>
+                <div className="text-yellow-500 dark:text-yellow-400 font-bold">
+                  1st
+                </div>
+                <div className="text-slate-500 dark:text-gray-400">40%</div>
               </div>
-            ))}
-          </div>
-        )}
-
-        {/* Warnings */}
-        {validation.warnings.length > 0 && hasAllPrereqs && (
-          <div className="rounded-xl bg-amber-50/40 dark:bg-yellow-500/10 border border-amber-100/30 dark:border-yellow-500/30 p-3">
-            {validation.warnings.map((w, idx) => (
-              <p key={idx} className="text-amber-700 dark:text-yellow-300 text-sm">
-                {w}
-              </p>
-            ))}
-          </div>
-        )}
-
-        {/* Prize Distribution */}
-        <div className="rounded-xl bg-slate-50 dark:bg-gray-800/30 p-3 border border-[#E5E7EB] dark:border-slate-800/0">
-          <h3 className="font-bold text-slate-800 dark:text-white text-xs mb-2">
-            🏆 {t("race_entry.prize_distribution" as TranslationKey)}
-          </h3>
-          <div className="grid grid-cols-5 gap-1 text-center text-xs">
-            <div>
-              <div className="text-yellow-500 dark:text-yellow-400 font-bold">1st</div>
-              <div className="text-slate-500 dark:text-gray-400">40%</div>
-            </div>
-            <div>
-              <div className="text-slate-400 dark:text-gray-300 font-bold">2nd</div>
-              <div className="text-slate-500 dark:text-gray-400">25%</div>
-            </div>
-            <div>
-              <div className="text-orange-500 dark:text-orange-400 font-bold">3rd</div>
-              <div className="text-slate-500 dark:text-gray-400">15%</div>
-            </div>
-            <div>
-              <div className="text-slate-400 dark:text-gray-400 font-bold">4th</div>
-              <div className="text-slate-400 dark:text-gray-500">10%</div>
-            </div>
-            <div>
-              <div className="text-slate-400 dark:text-gray-400 font-bold">5th</div>
-              <div className="text-slate-400 dark:text-gray-500">5%</div>
+              <div>
+                <div className="text-slate-400 dark:text-gray-300 font-bold">
+                  2nd
+                </div>
+                <div className="text-slate-500 dark:text-gray-400">25%</div>
+              </div>
+              <div>
+                <div className="text-orange-500 dark:text-orange-400 font-bold">
+                  3rd
+                </div>
+                <div className="text-slate-500 dark:text-gray-400">15%</div>
+              </div>
+              <div>
+                <div className="text-slate-400 dark:text-gray-400 font-bold">
+                  4th
+                </div>
+                <div className="text-slate-400 dark:text-gray-500">10%</div>
+              </div>
+              <div>
+                <div className="text-slate-400 dark:text-gray-400 font-bold">
+                  5th
+                </div>
+                <div className="text-slate-400 dark:text-gray-500">5%</div>
+              </div>
             </div>
           </div>
-        </div>
-
         </div>
 
         {/* Actions - Fixed */}

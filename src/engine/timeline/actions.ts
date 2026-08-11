@@ -256,15 +256,17 @@ export function applyAction(state: GameState, action: Action): GameState {
     // Extract work type from action metadata if provided, or default to active job
     const age = deriveDate(updatedState).age;
     const defaultJob = age >= 18 ? "full_time" : "part_time";
-    const activeJobId = (updatedState.flags.activeJobId as WorkTypeId) || defaultJob;
-    const workTypeId = (action as any).workTypeId as WorkTypeId | undefined || activeJobId;
+    const activeJobId =
+      (updatedState.flags.activeJobId as WorkTypeId) || defaultJob;
+    const workTypeId =
+      ((action as any).workTypeId as WorkTypeId | undefined) || activeJobId;
 
     const { economy: newEconomy } = earnFromWork(
       updatedState.economy,
       updatedState,
       workTypeId,
     );
-    
+
     // ✅ Award XP for working (5 XP per work session) - SYNCHRONOUS to prevent race conditions
     if (typeof window !== "undefined") {
       try {
@@ -272,12 +274,12 @@ export function applyAction(state: GameState, action: Action): GameState {
         awardJobXP("work");
       } catch (error) {
         // Silently fail if xp-rewards module is not available
-        if (process.env.NODE_ENV !== 'production') {
-          console.warn('Failed to award work XP:', error);
+        if (process.env.NODE_ENV !== "production") {
+          console.warn("Failed to award work XP:", error);
         }
       }
     }
-    
+
     updatedState = {
       ...updatedState,
       economy: newEconomy,

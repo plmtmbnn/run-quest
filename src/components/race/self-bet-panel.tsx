@@ -122,20 +122,34 @@ export function SelfBetPanel({
   const maxWager = Math.floor(currentBalance * MAX_BALANCE_FRACTION);
   const totalWagered = placedBets.reduce((sum, b) => sum + b.wager, 0);
   const remainingBalance = currentBalance - totalWagered;
-  const canAddBet = placedBets.length < MAX_BETS && !isLocked && remainingBalance >= MIN_WAGER;
+  const canAddBet =
+    placedBets.length < MAX_BETS && !isLocked && remainingBalance >= MIN_WAGER;
 
   const placedIds = new Set(placedBets.map((b) => b.target.id));
 
   function handlePlace() {
     setError("");
-    if (!selectedTarget) { setError("Pick a bet type first."); return; }
-    const wager = Number.parseInt(wagerInput, 10);
-    if (!wager || wager < MIN_WAGER) { setError(`Minimum wager is ${formatCurrency(MIN_WAGER, preferredCurrency)}.`); return; }
-    if (wager > Math.min(maxWager, remainingBalance)) {
-      setError(`Max wager is ${formatCurrency(Math.min(maxWager, remainingBalance), preferredCurrency)}.`);
+    if (!selectedTarget) {
+      setError("Pick a bet type first.");
       return;
     }
-    if (hasBreakingPoint) { setError("Cannot bet with a severe injury."); return; }
+    const wager = Number.parseInt(wagerInput, 10);
+    if (!wager || wager < MIN_WAGER) {
+      setError(
+        `Minimum wager is ${formatCurrency(MIN_WAGER, preferredCurrency)}.`,
+      );
+      return;
+    }
+    if (wager > Math.min(maxWager, remainingBalance)) {
+      setError(
+        `Max wager is ${formatCurrency(Math.min(maxWager, remainingBalance), preferredCurrency)}.`,
+      );
+      return;
+    }
+    if (hasBreakingPoint) {
+      setError("Cannot bet with a severe injury.");
+      return;
+    }
     onPlaceBet(selectedTarget, wager);
     setSelectedTarget(null);
     setWagerInput("");
@@ -184,7 +198,6 @@ export function SelfBetPanel({
             className="overflow-hidden"
           >
             <div className="mt-2 rounded-2xl border border-amber-400/30 bg-gradient-to-b from-amber-950/20 to-slate-950/60 p-4 flex flex-col gap-4">
-
               {/* Balance info */}
               <div className="flex items-center justify-between text-xs">
                 <span className="text-slate-400">Available</span>
@@ -196,9 +209,13 @@ export function SelfBetPanel({
               {/* Active bets */}
               {placedBets.length > 0 && (
                 <div className="flex flex-col gap-2">
-                  <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400">Active Bets</span>
+                  <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400">
+                    Active Bets
+                  </span>
                   {placedBets.map((bet) => {
-                    const payout = Math.round(bet.wager * bet.target.multiplier);
+                    const payout = Math.round(
+                      bet.wager * bet.target.multiplier,
+                    );
                     return (
                       <div
                         key={bet.id}
@@ -207,9 +224,13 @@ export function SelfBetPanel({
                         <div className="flex items-center gap-2">
                           <span>{bet.target.emoji}</span>
                           <div>
-                            <p className="text-xs font-bold text-amber-200">{bet.target.label}</p>
+                            <p className="text-xs font-bold text-amber-200">
+                              {bet.target.label}
+                            </p>
                             <p className="text-[10px] text-slate-400">
-                              {formatCurrency(bet.wager, preferredCurrency)} → {formatCurrency(payout, preferredCurrency)} ({bet.target.multiplier}x)
+                              {formatCurrency(bet.wager, preferredCurrency)} →{" "}
+                              {formatCurrency(payout, preferredCurrency)} (
+                              {bet.target.multiplier}x)
                             </p>
                           </div>
                         </div>
@@ -245,21 +266,30 @@ export function SelfBetPanel({
                           key={target.id}
                           type="button"
                           disabled={alreadyPlaced}
-                          onClick={() => setSelectedTarget(isSelected ? null : target)}
+                          onClick={() =>
+                            setSelectedTarget(isSelected ? null : target)
+                          }
                           className={`flex flex-col items-start gap-1 p-2.5 rounded-xl border text-left transition-all
-                            ${isSelected
-                              ? "border-amber-400 bg-amber-900/40 shadow-sm shadow-amber-500/20"
-                              : alreadyPlaced
-                                ? "border-slate-700 bg-slate-900/20 opacity-40 cursor-not-allowed"
-                                : "border-slate-700/60 bg-slate-900/30 hover:border-amber-600/60 hover:bg-amber-950/30"
+                            ${
+                              isSelected
+                                ? "border-amber-400 bg-amber-900/40 shadow-sm shadow-amber-500/20"
+                                : alreadyPlaced
+                                  ? "border-slate-700 bg-slate-900/20 opacity-40 cursor-not-allowed"
+                                  : "border-slate-700/60 bg-slate-900/30 hover:border-amber-600/60 hover:bg-amber-950/30"
                             }`}
                         >
                           <div className="flex items-center gap-1.5">
                             <span className="text-base">{target.emoji}</span>
-                            <span className="text-[11px] font-black text-white leading-tight">{target.label}</span>
+                            <span className="text-[11px] font-black text-white leading-tight">
+                              {target.label}
+                            </span>
                           </div>
-                          <span className="text-[9px] text-amber-400 font-bold">{target.multiplier}x payout</span>
-                          <span className="text-[9px] text-slate-400 leading-tight">{target.description}</span>
+                          <span className="text-[9px] text-amber-400 font-bold">
+                            {target.multiplier}x payout
+                          </span>
+                          <span className="text-[9px] text-slate-400 leading-tight">
+                            {target.description}
+                          </span>
                         </button>
                       );
                     })}
@@ -275,14 +305,20 @@ export function SelfBetPanel({
                       <div className="flex items-center gap-2">
                         <div className="flex-1 flex items-center bg-slate-900 border border-slate-700 rounded-xl overflow-hidden">
                           <span className="px-3 text-slate-400 text-sm font-bold">
-                            {formatCurrency(1, preferredCurrency).replace("1.00", "").replace("1", "").trim() || "$"}
+                            {formatCurrency(1, preferredCurrency)
+                              .replace("1.00", "")
+                              .replace("1", "")
+                              .trim() || "$"}
                           </span>
                           <input
                             type="number"
                             min={MIN_WAGER}
                             max={Math.min(maxWager, remainingBalance)}
                             value={wagerInput}
-                            onChange={(e) => { setWagerInput(e.target.value); setError(""); }}
+                            onChange={(e) => {
+                              setWagerInput(e.target.value);
+                              setError("");
+                            }}
                             placeholder={String(MIN_WAGER)}
                             className="flex-1 bg-transparent text-white text-sm font-mono font-bold py-2.5 outline-none pr-3"
                           />
@@ -299,9 +335,18 @@ export function SelfBetPanel({
                       {/* Payout preview */}
                       {wagerInput && Number(wagerInput) >= MIN_WAGER && (
                         <p className="text-xs text-center text-emerald-400 font-bold">
-                          {formatCurrency(Number(wagerInput), preferredCurrency)} →{" "}
+                          {formatCurrency(
+                            Number(wagerInput),
+                            preferredCurrency,
+                          )}{" "}
+                          →{" "}
                           <span className="text-emerald-300">
-                            {formatCurrency(Math.round(Number(wagerInput) * selectedTarget.multiplier), preferredCurrency)}
+                            {formatCurrency(
+                              Math.round(
+                                Number(wagerInput) * selectedTarget.multiplier,
+                              ),
+                              preferredCurrency,
+                            )}
                           </span>{" "}
                           ({selectedTarget.multiplier}x)
                         </p>
@@ -313,17 +358,29 @@ export function SelfBetPanel({
                         min={MIN_WAGER}
                         max={Math.min(maxWager, remainingBalance)}
                         value={wagerInput || MIN_WAGER}
-                        onChange={(e) => { setWagerInput(e.target.value); setError(""); }}
+                        onChange={(e) => {
+                          setWagerInput(e.target.value);
+                          setError("");
+                        }}
                         className="w-full accent-amber-500"
                       />
                       <div className="flex justify-between text-[9px] text-slate-500">
-                        <span>{formatCurrency(MIN_WAGER, preferredCurrency)}</span>
-                        <span>{formatCurrency(Math.min(maxWager, remainingBalance), preferredCurrency)}</span>
+                        <span>
+                          {formatCurrency(MIN_WAGER, preferredCurrency)}
+                        </span>
+                        <span>
+                          {formatCurrency(
+                            Math.min(maxWager, remainingBalance),
+                            preferredCurrency,
+                          )}
+                        </span>
                       </div>
 
                       {/* Error */}
                       {error && (
-                        <p className="text-xs text-red-400 font-bold text-center">{error}</p>
+                        <p className="text-xs text-red-400 font-bold text-center">
+                          {error}
+                        </p>
                       )}
 
                       {remainingBalance < 100 && (

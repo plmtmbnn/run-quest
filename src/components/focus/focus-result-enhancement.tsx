@@ -1,14 +1,26 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Trophy, RotateCcw, TrendingUp, Target, Award, Flame, Clock, Medal } from "lucide-react";
-import { useFocusProgressionStore, type Distance } from "@/store/focus-progression-store";
-import { useGameStore } from "@/store/game-store";
+import {
+  Award,
+  Clock,
+  Flame,
+  Medal,
+  RotateCcw,
+  Target,
+  TrendingUp,
+  Trophy,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { checkChallengeCompletion } from "@/engine/focus/challenge-generator";
 import { useSound } from "@/hooks/use-sound";
-import type { SimulationResult, Outcome } from "@/types/engine";
+import {
+  type Distance,
+  useFocusProgressionStore,
+} from "@/store/focus-progression-store";
+import { useGameStore } from "@/store/game-store";
+import type { Outcome, SimulationResult } from "@/types/engine";
 
 interface FocusResultEnhancementProps {
   result: SimulationResult;
@@ -31,7 +43,7 @@ export function FocusResultEnhancement({
 }: FocusResultEnhancementProps) {
   const router = useRouter();
   const { playSound } = useSound();
-  
+
   const {
     personalBests,
     updatePersonalBest,
@@ -42,17 +54,17 @@ export function FocusResultEnhancement({
     completeChallenge,
     sessionStats,
   } = useFocusProgressionStore();
-  
+
   const currentPB = personalBests[distance];
   const finishTime = result.finishTime;
   const isNewPB = !currentPB || finishTime < currentPB.time;
   const isPodium = position <= 3;
   const isWin = position === 1;
-  
+
   useEffect(() => {
     // Record race result
     recordRaceResult(distance, finishTime, position, 50); // Assuming 50 runners
-    
+
     // Check for personal best
     if (isNewPB) {
       playSound("success");
@@ -65,7 +77,7 @@ export function FocusResultEnhancement({
         isPR: true,
       });
     }
-    
+
     // Check completed challenges
     availableChallenges.forEach((challenge) => {
       if (challenge.distance === distance && !challenge.completed) {
@@ -74,11 +86,11 @@ export function FocusResultEnhancement({
           position: position,
           splits: [], // Would need to extract from stateLog
         });
-        
+
         if (completed) {
           playSound("success");
           completeChallenge(challenge.id);
-          
+
           // Award achievement if reward type is achievement
           if (challenge.reward.type === "achievement") {
             addAchievement({
@@ -93,24 +105,24 @@ export function FocusResultEnhancement({
         }
       }
     });
-    
+
     // Check for progression unlocks
     checkAndUnlockProgression();
   }, []);
-  
+
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = Math.floor(seconds % 60);
-    
+
     if (hours > 0) {
       return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     }
     return `${minutes}:${secs.toString().padStart(2, "0")}`;
   };
-  
+
   const timeDifference = currentPB ? finishTime - currentPB.time : 0;
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -119,16 +131,18 @@ export function FocusResultEnhancement({
     >
       <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className={`p-6 rounded-t-2xl ${
-          isWin 
-            ? "bg-gradient-to-r from-amber-400 to-yellow-500" 
-            : isPodium 
-            ? "bg-gradient-to-r from-indigo-500 to-purple-600"
-            : "bg-gradient-to-r from-slate-600 to-slate-700"
-        }`}>
+        <div
+          className={`p-6 rounded-t-2xl ${
+            isWin
+              ? "bg-gradient-to-r from-amber-400 to-yellow-500"
+              : isPodium
+                ? "bg-gradient-to-r from-indigo-500 to-purple-600"
+                : "bg-gradient-to-r from-slate-600 to-slate-700"
+          }`}
+        >
           <div className="text-center text-white">
             <div className="text-6xl mb-2">
-              {isWin ? "🥇" : isPodium ? position === 2 ? "🥈" : "🥉" : "🏁"}
+              {isWin ? "🥇" : isPodium ? (position === 2 ? "🥈" : "🥉") : "🏁"}
             </div>
             <h2 className="font-heading font-black text-3xl mb-1">
               {isWin ? "VICTORY!" : isPodium ? "PODIUM!" : "RACE COMPLETE"}
@@ -152,7 +166,7 @@ export function FocusResultEnhancement({
             <div className="font-mono font-bold text-5xl text-slate-900 dark:text-white">
               {formatTime(finishTime)}
             </div>
-            
+
             {isNewPB && (
               <motion.div
                 initial={{ scale: 0 }}
@@ -163,14 +177,17 @@ export function FocusResultEnhancement({
                 <span className="font-bold text-sm">NEW PERSONAL BEST!</span>
               </motion.div>
             )}
-            
+
             {!isNewPB && currentPB && (
-              <div className={`mt-3 text-sm font-mono font-bold ${
-                timeDifference > 0 
-                  ? "text-rose-600 dark:text-rose-400" 
-                  : "text-emerald-600 dark:text-emerald-400"
-              }`}>
-                {timeDifference > 0 ? "+" : ""}{formatTime(Math.abs(timeDifference))} vs PB
+              <div
+                className={`mt-3 text-sm font-mono font-bold ${
+                  timeDifference > 0
+                    ? "text-rose-600 dark:text-rose-400"
+                    : "text-emerald-600 dark:text-emerald-400"
+                }`}
+              >
+                {timeDifference > 0 ? "+" : ""}
+                {formatTime(Math.abs(timeDifference))} vs PB
               </div>
             )}
           </div>
@@ -184,7 +201,7 @@ export function FocusResultEnhancement({
                 Position
               </div>
             </div>
-            
+
             <div className="text-center p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
               <Clock className="w-5 h-5 mx-auto mb-2 text-indigo-500" />
               <div className="font-mono font-bold text-2xl">{distance}K</div>
@@ -192,11 +209,15 @@ export function FocusResultEnhancement({
                 Distance
               </div>
             </div>
-            
+
             <div className="text-center p-4 bg-slate-50 dark:bg-slate-800 rounded-xl">
               <TrendingUp className="w-5 h-5 mx-auto mb-2 text-indigo-500" />
               <div className="font-mono font-bold text-2xl">
-                {Math.floor((finishTime / distance) / 60)}:{String(Math.floor((finishTime / distance) % 60)).padStart(2, "0")}
+                {Math.floor(finishTime / distance / 60)}:
+                {String(Math.floor((finishTime / distance) % 60)).padStart(
+                  2,
+                  "0",
+                )}
               </div>
               <div className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">
                 Avg Pace
@@ -251,7 +272,7 @@ export function FocusResultEnhancement({
               <RotateCcw className="w-5 h-5" />
               RACE AGAIN
             </button>
-            
+
             <button
               onClick={() => {
                 playSound("click");
@@ -266,8 +287,12 @@ export function FocusResultEnhancement({
           {/* Motivational Message */}
           <div className="text-center text-sm text-slate-600 dark:text-slate-400">
             {isNewPB && "You're getting faster! Keep pushing your limits."}
-            {!isNewPB && isPodium && "Great race! Can you beat your personal best next time?"}
-            {!isNewPB && !isPodium && "Every race makes you stronger. Try again!"}
+            {!isNewPB &&
+              isPodium &&
+              "Great race! Can you beat your personal best next time?"}
+            {!isNewPB &&
+              !isPodium &&
+              "Every race makes you stronger. Try again!"}
           </div>
         </div>
       </div>

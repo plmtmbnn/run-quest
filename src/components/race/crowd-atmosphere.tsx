@@ -1,8 +1,12 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
-import { useCrowdAtmosphereNoise, type CrowdMood, type CrowdState } from "@/hooks/use-crowd-atmosphere-noise";
+import {
+  type CrowdMood,
+  type CrowdState,
+  useCrowdAtmosphereNoise,
+} from "@/hooks/use-crowd-atmosphere-noise";
 
 interface CrowdAtmosphereProps {
   /** Current kilometer */
@@ -34,7 +38,7 @@ interface FloatingEmoji {
 
 /**
  * Virtual Crowd & Atmosphere System
- * 
+ *
  * Displays visual crowd effects and manages crowd audio:
  * - Crowd intensity meter
  * - Density dots at screen edges
@@ -58,12 +62,13 @@ export function CrowdAtmosphere({
     dominantMood: "supportive",
     density: 20,
   });
-  
+
   const [floatingEmojis, setFloatingEmojis] = useState<FloatingEmoji[]>([]);
   const [lastPosition, setLastPosition] = useState(playerPosition);
   const [showUnderdogBoost, setShowUnderdogBoost] = useState(false);
-  
-  const { playCheerBurst, playUnderdogCheer, playFinishRoar } = useCrowdAtmosphereNoise(crowdState);
+
+  const { playCheerBurst, playUnderdogCheer, playFinishRoar } =
+    useCrowdAtmosphereNoise(crowdState);
 
   // Calculate crowd intensity based on race conditions
   useEffect(() => {
@@ -83,14 +88,14 @@ export function CrowdAtmosphere({
       mood = "excited";
       addFloatingEmoji("🔥");
       playCheerBurst("excited");
-      
+
       // Underdog bonus (if player was in 3rd or worse and overtook)
       if (lastPosition >= 3) {
         setShowUnderdogBoost(true);
         playUnderdogCheer();
         setTimeout(() => setShowUnderdogBoost(false), 2000);
       }
-      
+
       onPositionChange?.(lastPosition, playerPosition);
     }
 
@@ -140,19 +145,28 @@ export function CrowdAtmosphere({
 
     setCrowdState({ intensity, dominantMood: mood, density });
     setLastPosition(playerPosition);
-  }, [currentKm, playerPosition, energy, momentum, isBreakingPoint, totalDistance, totalRunners, isPaused]);
+  }, [
+    currentKm,
+    playerPosition,
+    energy,
+    momentum,
+    isBreakingPoint,
+    totalDistance,
+    totalRunners,
+    isPaused,
+  ]);
 
   // Add floating emoji
   const addFloatingEmoji = useCallback((emoji: string) => {
     const id = `emoji-${Date.now()}-${Math.random()}`;
     const x = 10 + Math.random() * 80; // 10% to 90% across screen
     const y = 60 + Math.random() * 30; // Start from middle-bottom
-    
-    setFloatingEmojis(prev => [...prev, { id, emoji, x, y }]);
-    
+
+    setFloatingEmojis((prev) => [...prev, { id, emoji, x, y }]);
+
     // Remove after animation
     setTimeout(() => {
-      setFloatingEmojis(prev => prev.filter(e => e.id !== id));
+      setFloatingEmojis((prev) => prev.filter((e) => e.id !== id));
     }, 2000);
   }, []);
 
@@ -169,34 +183,42 @@ export function CrowdAtmosphere({
   // Occasional random reactions based on intensity
   useEffect(() => {
     if (isPaused || crowdState.intensity < 40) return;
-    
+
     const interval = setInterval(() => {
       if (Math.random() < crowdState.intensity / 200) {
         const emojis = ["👏", "🏃", "💪"];
         addFloatingEmoji(emojis[Math.floor(Math.random() * emojis.length)]);
       }
     }, 2000);
-    
+
     return () => clearInterval(interval);
   }, [crowdState.intensity, isPaused, addFloatingEmoji]);
 
   // Get crowd meter color based on mood
   const getMoodColor = () => {
     switch (crowdState.dominantMood) {
-      case "celebratory": return "bg-yellow-500";
-      case "excited": return "bg-orange-500";
-      case "supportive": return "bg-blue-500";
-      case "tense": return "bg-gray-500";
+      case "celebratory":
+        return "bg-yellow-500";
+      case "excited":
+        return "bg-orange-500";
+      case "supportive":
+        return "bg-blue-500";
+      case "tense":
+        return "bg-gray-500";
     }
   };
 
   // Get crowd meter gradient
   const getMoodGradient = () => {
     switch (crowdState.dominantMood) {
-      case "celebratory": return "from-yellow-400 to-orange-500";
-      case "excited": return "from-orange-400 to-red-500";
-      case "supportive": return "from-blue-400 to-purple-500";
-      case "tense": return "from-gray-400 to-gray-600";
+      case "celebratory":
+        return "from-yellow-400 to-orange-500";
+      case "excited":
+        return "from-orange-400 to-red-500";
+      case "supportive":
+        return "from-blue-400 to-purple-500";
+      case "tense":
+        return "from-gray-400 to-gray-600";
     }
   };
 
@@ -217,7 +239,7 @@ export function CrowdAtmosphere({
               {Math.round(crowdState.intensity)}%
             </span>
           </div>
-          
+
           <div className="h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
             <motion.div
               animate={{ width: `${crowdState.intensity}%` }}
@@ -237,7 +259,11 @@ export function CrowdAtmosphere({
           <motion.div
             key={emoji.id}
             initial={{ opacity: 0, y: emoji.y, x: `${emoji.x}%`, scale: 0.5 }}
-            animate={{ opacity: [0, 1, 1, 0], y: emoji.y - 100, scale: [0.5, 1.2, 1, 0.8] }}
+            animate={{
+              opacity: [0, 1, 1, 0],
+              y: emoji.y - 100,
+              scale: [0.5, 1.2, 1, 0.8],
+            }}
             exit={{ opacity: 0 }}
             transition={{ duration: 2, ease: "easeOut" }}
             className="absolute text-2xl z-20 pointer-events-none"
@@ -261,7 +287,9 @@ export function CrowdAtmosphere({
               <div className="flex items-center gap-2">
                 <span className="text-2xl">🚀</span>
                 <div>
-                  <p className="font-black text-lg uppercase tracking-wider">Underdog Power!</p>
+                  <p className="font-black text-lg uppercase tracking-wider">
+                    Underdog Power!
+                  </p>
                   <p className="text-xs opacity-90">The crowd is behind you!</p>
                 </div>
               </div>
@@ -271,9 +299,7 @@ export function CrowdAtmosphere({
       </AnimatePresence>
 
       {/* Cheer Burst (when intensity > 80) */}
-      {crowdState.intensity > 80 && (
-        <CheerBurstEffect />
-      )}
+      {crowdState.intensity > 80 && <CheerBurstEffect />}
     </div>
   );
 }
@@ -283,7 +309,7 @@ export function CrowdAtmosphere({
  */
 function CrowdDensityDots({ density }: { density: number }) {
   const dotCount = Math.floor(density / 10);
-  
+
   return (
     <>
       {/* Left side dots */}
@@ -298,7 +324,7 @@ function CrowdDensityDots({ density }: { density: number }) {
           />
         ))}
       </div>
-      
+
       {/* Right side dots */}
       <div className="absolute right-0 top-0 bottom-0 w-8 flex flex-col justify-around py-4">
         {Array.from({ length: dotCount }).map((_, i) => (
@@ -326,7 +352,7 @@ function CheerBurstEffect() {
         const radius = 150;
         const x = Math.cos((angle * Math.PI) / 180) * radius;
         const y = Math.sin((angle * Math.PI) / 180) * radius;
-        
+
         return (
           <motion.div
             key={i}

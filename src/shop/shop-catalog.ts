@@ -373,7 +373,10 @@ export const GEAR_CATALOG: ShopItem[] = [
   {
     id: "sunglasses",
     category: "gear",
-    name: { en: "Polarized Sport Sunglasses", id: "Kacamata Olahraga Polarized" },
+    name: {
+      en: "Polarized Sport Sunglasses",
+      id: "Kacamata Olahraga Polarized",
+    },
     description: {
       en: "Reduces glare and eye strain in direct sunlight.",
       id: "Mengurangi silau dan ketegangan mata di bawah terik matahari.",

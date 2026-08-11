@@ -5,7 +5,11 @@ import { persist } from "zustand/middleware";
 export type Distance = 5 | 10 | 21.1 | 42.2;
 
 // Difficulty levels
-export type Difficulty = "recreational" | "competitive" | "elite" | "professional";
+export type Difficulty =
+  | "recreational"
+  | "competitive"
+  | "elite"
+  | "professional";
 
 // Achievement types
 export interface Achievement {
@@ -58,26 +62,26 @@ export interface FocusProgressionState {
   unlockedDistances: Distance[];
   unlockedDifficulties: Difficulty[];
   currentDifficulty: Difficulty;
-  
+
   // Personal Bests
   personalBests: Record<Distance, PersonalBest | null>;
-  
+
   // Achievements
   achievements: Achievement[];
-  
+
   // Challenges
   availableChallenges: RaceChallenge[];
   completedChallenges: string[]; // challenge IDs
-  
+
   // Cumulative stats
   totalRaces: number;
   totalDistance: number;
   totalPodiums: number;
   bestFinishes: Record<Distance, number>; // best position per distance
-  
+
   // Session tracking
   sessionStats: SessionStats;
-  
+
   // Actions
   unlockDistance: (distance: Distance) => void;
   unlockDifficulty: (difficulty: Difficulty) => void;
@@ -87,7 +91,12 @@ export interface FocusProgressionState {
   completeChallenge: (challengeId: string) => void;
   updateSessionStats: (stats: Partial<SessionStats>) => void;
   resetSessionStats: () => void;
-  recordRaceResult: (distance: Distance, time: number, position: number, totalRunners: number) => void;
+  recordRaceResult: (
+    distance: Distance,
+    time: number,
+    position: number,
+    totalRunners: number,
+  ) => void;
   checkAndUnlockProgression: () => void;
   reset: () => void;
 }
@@ -142,18 +151,18 @@ export const useFocusProgressionStore = create<FocusProgressionState>()(
       unlockedDistances: [5],
       unlockedDifficulties: ["recreational"],
       currentDifficulty: "recreational",
-      
+
       personalBests: {
         5: null,
         10: null,
         21.1: null,
         42.2: null,
       },
-      
+
       achievements: [],
       availableChallenges: INITIAL_CHALLENGES,
       completedChallenges: [],
-      
+
       totalRaces: 0,
       totalDistance: 0,
       totalPodiums: 0,
@@ -163,9 +172,9 @@ export const useFocusProgressionStore = create<FocusProgressionState>()(
         21.1: 999,
         42.2: 999,
       },
-      
+
       sessionStats: INITIAL_SESSION_STATS,
-      
+
       // Actions
       unlockDistance: (distance) =>
         set((state) => ({
@@ -173,22 +182,21 @@ export const useFocusProgressionStore = create<FocusProgressionState>()(
             ? state.unlockedDistances
             : [...state.unlockedDistances, distance].sort((a, b) => a - b),
         })),
-      
+
       unlockDifficulty: (difficulty) =>
         set((state) => ({
           unlockedDifficulties: state.unlockedDifficulties.includes(difficulty)
             ? state.unlockedDifficulties
             : [...state.unlockedDifficulties, difficulty],
         })),
-      
-      setDifficulty: (difficulty) =>
-        set({ currentDifficulty: difficulty }),
-      
+
+      setDifficulty: (difficulty) => set({ currentDifficulty: difficulty }),
+
       updatePersonalBest: (pb) =>
         set((state) => {
           const currentPB = state.personalBests[pb.distance];
           const isNewPB = !currentPB || pb.time < currentPB.time;
-          
+
           if (isNewPB) {
             return {
               personalBests: {
@@ -201,45 +209,47 @@ export const useFocusProgressionStore = create<FocusProgressionState>()(
               },
             };
           }
-          
+
           return state;
         }),
-      
+
       addAchievement: (achievement) =>
         set((state) => ({
           achievements: [...state.achievements, achievement],
         })),
-      
+
       completeChallenge: (challengeId) =>
         set((state) => ({
           completedChallenges: [...state.completedChallenges, challengeId],
           availableChallenges: state.availableChallenges.map((c) =>
-            c.id === challengeId ? { ...c, completed: true } : c
+            c.id === challengeId ? { ...c, completed: true } : c,
           ),
         })),
-      
+
       updateSessionStats: (stats) =>
         set((state) => ({
           sessionStats: { ...state.sessionStats, ...stats },
         })),
-      
+
       resetSessionStats: () =>
         set({
           sessionStats: { ...INITIAL_SESSION_STATS, startedAt: Date.now() },
         }),
-      
+
       recordRaceResult: (distance, time, position, totalRunners) =>
         set((state) => {
           const isPodium = position <= 3;
           const newBestFinish = position < state.bestFinishes[distance];
-          
+
           // Update cumulative stats
           const updates: Partial<FocusProgressionState> = {
             totalRaces: state.totalRaces + 1,
             totalDistance: state.totalDistance + distance,
-            totalPodiums: isPodium ? state.totalPodiums + 1 : state.totalPodiums,
+            totalPodiums: isPodium
+              ? state.totalPodiums + 1
+              : state.totalPodiums,
           };
-          
+
           // Update best finish
           if (newBestFinish) {
             updates.bestFinishes = {
@@ -247,7 +257,7 @@ export const useFocusProgressionStore = create<FocusProgressionState>()(
               [distance]: position,
             };
           }
-          
+
           // Update session stats
           updates.sessionStats = {
             ...state.sessionStats,
@@ -257,13 +267,13 @@ export const useFocusProgressionStore = create<FocusProgressionState>()(
               : state.sessionStats.podiumFinishes,
             totalDistance: state.sessionStats.totalDistance + distance,
           };
-          
+
           return updates;
         }),
-      
+
       checkAndUnlockProgression: () => {
         const state = get();
-        
+
         // Auto-unlock 10K if player has finished 5K in top 50%
         if (!state.unlockedDistances.includes(10)) {
           const best5K = state.bestFinishes[5];
@@ -272,15 +282,16 @@ export const useFocusProgressionStore = create<FocusProgressionState>()(
             get().unlockDistance(10);
           }
         }
-        
+
         // Unlock Half Marathon after 3 podiums in 10K
         if (!state.unlockedDistances.includes(21.1)) {
-          const podiumsIn10K = state.totalPodiums >= 3 && state.unlockedDistances.includes(10);
+          const podiumsIn10K =
+            state.totalPodiums >= 3 && state.unlockedDistances.includes(10);
           if (podiumsIn10K) {
             get().unlockDistance(21.1);
           }
         }
-        
+
         // Unlock Marathon after sub-90min Half
         if (!state.unlockedDistances.includes(42.2)) {
           const halfPB = state.personalBests[21.1];
@@ -288,24 +299,35 @@ export const useFocusProgressionStore = create<FocusProgressionState>()(
             get().unlockDistance(42.2);
           }
         }
-        
+
         // Unlock competitive difficulty after 5 races
-        if (!state.unlockedDifficulties.includes("competitive") && state.totalRaces >= 5) {
+        if (
+          !state.unlockedDifficulties.includes("competitive") &&
+          state.totalRaces >= 5
+        ) {
           get().unlockDifficulty("competitive");
         }
-        
+
         // Unlock elite after 10 podiums
-        if (!state.unlockedDifficulties.includes("elite") && state.totalPodiums >= 10) {
+        if (
+          !state.unlockedDifficulties.includes("elite") &&
+          state.totalPodiums >= 10
+        ) {
           get().unlockDifficulty("elite");
         }
-        
+
         // Unlock professional after 5 wins
-        const totalWins = Object.values(state.bestFinishes).filter((pos) => pos === 1).length;
-        if (!state.unlockedDifficulties.includes("professional") && totalWins >= 5) {
+        const totalWins = Object.values(state.bestFinishes).filter(
+          (pos) => pos === 1,
+        ).length;
+        if (
+          !state.unlockedDifficulties.includes("professional") &&
+          totalWins >= 5
+        ) {
           get().unlockDifficulty("professional");
         }
       },
-      
+
       reset: () =>
         set({
           unlockedDistances: [5],
@@ -324,6 +346,6 @@ export const useFocusProgressionStore = create<FocusProgressionState>()(
     }),
     {
       name: "runquest.focus-progression",
-    }
-  )
+    },
+  ),
 );

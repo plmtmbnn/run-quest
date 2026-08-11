@@ -1,8 +1,8 @@
 "use client";
 
+import { Activity, Globe2, RefreshCw, Trophy, Users } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Users, Trophy, Globe2, RefreshCw, Activity } from "lucide-react";
-import { getGlobalStats, type GlobalStatsData } from "@/lib/firebaseService";
+import { type GlobalStatsData, getGlobalStats } from "@/lib/firebaseService";
 
 interface GlobalCommunityStatsProps {
   compact?: boolean;
@@ -34,7 +34,7 @@ function AnimatedCount({
       const elapsed = now - start;
       const progress = Math.min(elapsed / duration, 1);
       // ease-out cubic
-      const eased = 1 - Math.pow(1 - progress, 3);
+      const eased = 1 - (1 - progress) ** 3;
       setDisplay(Math.round(target * eased));
       if (progress < 1) {
         rafRef.current = requestAnimationFrame(tick);

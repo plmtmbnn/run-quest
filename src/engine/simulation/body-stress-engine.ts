@@ -1,6 +1,12 @@
 import type { ActiveBreakingPoint, SimulationState } from "@/types/engine";
 
-export type BodyZoneId = "head" | "lungs" | "core" | "quads" | "calves" | "feet";
+export type BodyZoneId =
+  | "head"
+  | "lungs"
+  | "core"
+  | "quads"
+  | "calves"
+  | "feet";
 export type StressLevel = "normal" | "fatigued" | "stressed" | "critical";
 
 export interface ZoneStressInfo {
@@ -46,23 +52,40 @@ export function calculateBodyStress(
   const totalDistance = state.totalDistance ?? 10;
 
   // 1. Head (Mental fatigue + Focus drop)
-  const headVal = Math.min(100, Math.max(0, mentalFatigue * 0.6 + (100 - focus) * 0.4));
+  const headVal = Math.min(
+    100,
+    Math.max(0, mentalFatigue * 0.6 + (100 - focus) * 0.4),
+  );
   // 2. Lungs (Dehydration + Energy depletion)
-  const lungsVal = Math.min(100, Math.max(0, (100 - hydration) * 0.5 + (100 - energy) * 0.5));
+  const lungsVal = Math.min(
+    100,
+    Math.max(0, (100 - hydration) * 0.5 + (100 - energy) * 0.5),
+  );
   // 3. Core (Overall fatigue + Risk level)
   const coreVal = Math.min(100, Math.max(0, fatigue * 0.7 + riskLevel * 0.3));
   // 4. Quads (Muscle fatigue + Climb segment strain)
-  const quadsVal = Math.min(100, Math.max(0, muscleFatigue * 0.85 + (isClimbSegment ? 15 : 0)));
+  const quadsVal = Math.min(
+    100,
+    Math.max(0, muscleFatigue * 0.85 + (isClimbSegment ? 15 : 0)),
+  );
   // 5. Calves (Muscle fatigue + Sprint pace strain)
-  const calvesVal = Math.min(100, Math.max(0, muscleFatigue * 0.75 + (isSprintPace ? 20 : 0)));
+  const calvesVal = Math.min(
+    100,
+    Math.max(0, muscleFatigue * 0.75 + (isSprintPace ? 20 : 0)),
+  );
   // 6. Feet (Distance progress % + Shoe durability penalty)
   const feetVal = Math.min(
     100,
-    Math.max(0, (distanceCovered / Math.max(1, totalDistance)) * 45 + (shoePenalty ? 25 : 10)),
+    Math.max(
+      0,
+      (distanceCovered / Math.max(1, totalDistance)) * 45 +
+        (shoePenalty ? 25 : 10),
+    ),
   );
 
   // Check active breaking points for injury mapping
-  const activeBp: ActiveBreakingPoint | null = state.activeBreakingPoint ?? null;
+  const activeBp: ActiveBreakingPoint | null =
+    state.activeBreakingPoint ?? null;
 
   const injuredZones: Partial<Record<BodyZoneId, string>> = {};
   if (activeBp && !activeBp.resolved) {
@@ -83,7 +106,11 @@ export function calculateBodyStress(
     }
   }
 
-  const createZoneInfo = (zoneId: BodyZoneId, label: string, val: number): ZoneStressInfo => {
+  const createZoneInfo = (
+    zoneId: BodyZoneId,
+    label: string,
+    val: number,
+  ): ZoneStressInfo => {
     const percentage = Math.round(val);
     const hasInjury = !!injuredZones[zoneId];
     return {

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ScreenTour } from "@/components/tour/screen-tour";
 import { formatCurrency } from "@/economy/currency-converter";
 import { useSound } from "@/hooks/use-sound";
 import type { TranslationKey } from "@/i18n/use-translation";
@@ -22,16 +23,15 @@ import { useTranslation } from "@/i18n/use-translation";
 import { useRunnerStore } from "@/runner/runner-store";
 import {
   GEAR_CATALOG,
+  getItemsByCategory,
   NUTRITION_CATALOG,
   SHOES_CATALOG,
-  getItemsByCategory,
 } from "@/shop/shop-catalog";
 import { migrateToShopSystem } from "@/shop/shop-migration";
 import { useShopStore } from "@/shop/shop-store";
 import type { ShopCategory, ShopItem } from "@/shop/shop-types";
 import { useSettingsStore } from "@/store/settings-store";
 import { useTimelineStore } from "@/store/timeline-store";
-import { ScreenTour } from "@/components/tour/screen-tour";
 
 export function ShopScreen() {
   const router = useRouter();
@@ -120,14 +120,14 @@ export function ShopScreen() {
 
   // Compute inventory summary statistics
   const ownedShoesCount = SHOES_CATALOG.filter((s) =>
-    hasItem("shoes", s.id)
+    hasItem("shoes", s.id),
   ).length;
   const ownedGearCount = GEAR_CATALOG.filter((g) =>
-    hasItem("gear", g.id)
+    hasItem("gear", g.id),
   ).length;
   const totalNutritionStock = NUTRITION_CATALOG.reduce(
     (total, n) => total + getItemQuantity("nutrition", n.id),
-    0
+    0,
   );
 
   const categoryIcons: Record<ShopCategory, React.ReactNode> = {
@@ -200,7 +200,10 @@ export function ShopScreen() {
           </div>
 
           {/* Level & Balance Pill */}
-          <div id="tour-shop-balance" className="flex items-center gap-2 shrink-0">
+          <div
+            id="tour-shop-balance"
+            className="flex items-center gap-2 shrink-0"
+          >
             <button
               type="button"
               onClick={() => setRunTour(true)}
@@ -307,7 +310,10 @@ export function ShopScreen() {
         )}
 
         {/* Category Navigation Tabs */}
-        <div id="tour-shop-categories" className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none border-b border-slate-200 dark:border-slate-800">
+        <div
+          id="tour-shop-categories"
+          className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none border-b border-slate-200 dark:border-slate-800"
+        >
           {(["shoes", "nutrition", "gear"] as ShopCategory[]).map((cat) => {
             const isActive = activeCategory === cat;
             return (
@@ -336,7 +342,10 @@ export function ShopScreen() {
         </div>
 
         {/* Item Cards Grid */}
-        <div id="tour-shop-items" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+        <div
+          id="tour-shop-items"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5"
+        >
           {items.map((item) => {
             const isOwned =
               isMounted &&
@@ -405,17 +414,20 @@ export function ShopScreen() {
                     <div className="flex flex-wrap gap-1.5 mb-4">
                       {item.stats.paceBonus ? (
                         <span className="flex items-center gap-1 text-[10px] font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-lg border border-blue-200/50 dark:border-blue-800/50">
-                          <Zap className="h-3 w-3" />+{item.stats.paceBonus}% Pace
+                          <Zap className="h-3 w-3" />+{item.stats.paceBonus}%
+                          Pace
                         </span>
                       ) : null}
                       {item.stats.staminaBonus ? (
                         <span className="flex items-center gap-1 text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-lg border border-emerald-200/50 dark:border-emerald-800/50">
-                          <Flame className="h-3 w-3" />+{item.stats.staminaBonus} Stamina
+                          <Flame className="h-3 w-3" />+
+                          {item.stats.staminaBonus} Stamina
                         </span>
                       ) : null}
                       {item.stats.hydrationBonus ? (
                         <span className="flex items-center gap-1 text-[10px] font-bold bg-cyan-50 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-300 px-2 py-0.5 rounded-lg border border-cyan-200/50 dark:border-cyan-800/50">
-                          <Sparkles className="h-3 w-3" />+{item.stats.hydrationBonus} Hydration
+                          <Sparkles className="h-3 w-3" />+
+                          {item.stats.hydrationBonus} Hydration
                         </span>
                       ) : null}
                       {item.stats.willpowerBonus ? (
@@ -538,7 +550,9 @@ export function ShopScreen() {
           {
             target: "#tour-shop-categories",
             title: t("tour.screens.shop.categories.title" as TranslationKey),
-            content: t("tour.screens.shop.categories.content" as TranslationKey),
+            content: t(
+              "tour.screens.shop.categories.content" as TranslationKey,
+            ),
           },
           {
             target: "#tour-shop-items",

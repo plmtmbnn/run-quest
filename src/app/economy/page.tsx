@@ -1,11 +1,20 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowLeft, Briefcase, Calendar, ShieldCheck, Sparkles, TrendingUp, Zap } from "lucide-react";
+import {
+  ArrowLeft,
+  Briefcase,
+  Calendar,
+  ShieldCheck,
+  Sparkles,
+  TrendingUp,
+  Zap,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { TransactionLog } from "@/components/economy/transaction-log";
 import { WorkSelectorModal } from "@/components/economy/work-selector-modal";
+import { formatCurrency } from "@/economy/currency-converter";
 import { getEconomicSummary } from "@/economy/earning-engine";
 import type { WorkTypeId } from "@/economy/work-types";
 import { getWorkTypeById } from "@/economy/work-types";
@@ -16,11 +25,13 @@ import {
 } from "@/engine/timeline/actions";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
-import { useTimelineStore } from "@/store/timeline-store";
-import { formatCurrency } from "@/economy/currency-converter";
 import { useSettingsStore } from "@/store/settings-store";
+import { useTimelineStore } from "@/store/timeline-store";
 
-function interpolate(tpl: string, vars: Record<string, string | number>): string {
+function interpolate(
+  tpl: string,
+  vars: Record<string, string | number>,
+): string {
   return tpl.replace(/\{(\w+)\}/g, (_, k) =>
     k in vars ? String(vars[k]) : "{" + k + "}",
   );
@@ -32,7 +43,8 @@ export default function EconomyPage() {
   const { t } = useTranslation();
   const { gameState, setGameState } = useTimelineStore();
   const [isWorkModalOpen, setIsWorkModalOpen] = useState(false);
-  const preferredCurrency = useSettingsStore((state) => state.settings.preferredCurrency) || "USD";
+  const preferredCurrency =
+    useSettingsStore((state) => state.settings.preferredCurrency) || "USD";
 
   if (!gameState) {
     return (
@@ -56,8 +68,12 @@ export default function EconomyPage() {
   // Daily limits check
   const hasWorkedToday = gameState.flags.lastWorkedDay === gameState.dayIndex;
   const lastJobChangeDay = (gameState.flags.lastJobChangeDay as number) ?? -7;
-  const cooldownDaysRemaining = Math.max(0, 7 - (gameState.dayIndex - lastJobChangeDay));
-  const canPerformWork = activeJob && gameState.energy >= activeJob.energyCost && !hasWorkedToday;
+  const cooldownDaysRemaining = Math.max(
+    0,
+    7 - (gameState.dayIndex - lastJobChangeDay),
+  );
+  const canPerformWork =
+    activeJob && gameState.energy >= activeJob.energyCost && !hasWorkedToday;
 
   const handleSelectWork = (workTypeId: WorkTypeId) => {
     playSound("success");
@@ -122,15 +138,21 @@ export default function EconomyPage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               {/* Job Details */}
               <div className="flex items-start gap-4">
-                <span className="text-4xl p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl block shrink-0">{activeJob.icon || "💼"}</span>
+                <span className="text-4xl p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl block shrink-0">
+                  {activeJob.icon || "💼"}
+                </span>
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <h2 className="font-heading text-xl font-bold text-slate-900 dark:text-white tracking-tight">{activeJob.name}</h2>
+                    <h2 className="font-heading text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+                      {activeJob.name}
+                    </h2>
                     <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/10">
                       {t("economy.active_job" as TranslationKey)}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500 leading-relaxed max-w-md">{activeJob.description}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500 leading-relaxed max-w-md">
+                    {activeJob.description}
+                  </p>
                 </div>
               </div>
 
@@ -161,11 +183,15 @@ export default function EconomyPage() {
                   }}
                   disabled={cooldownDaysRemaining > 0}
                   className={`w-full py-2.5 rounded-xl border border-[#E5E7EB] dark:border-slate-700 text-xs font-semibold tracking-wide transition-colors focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none ${
-                    cooldownDaysRemaining > 0 ? "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-500 cursor-not-allowed" : "hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
+                    cooldownDaysRemaining > 0
+                      ? "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-500 cursor-not-allowed"
+                      : "hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
                   }`}
                 >
                   {cooldownDaysRemaining > 0
-                    ? interpolate(t("economy.wait_days" as TranslationKey), { days: cooldownDaysRemaining })
+                    ? interpolate(t("economy.wait_days" as TranslationKey), {
+                        days: cooldownDaysRemaining,
+                      })
                     : t("economy.apply_job" as TranslationKey)}
                 </button>
               </div>
@@ -174,7 +200,8 @@ export default function EconomyPage() {
             {/* Constraints Display */}
             <div className="mt-6 pt-4 border-t border-slate-100/50 dark:border-slate-800/50 flex flex-wrap gap-x-6 gap-y-2 text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">
               <div className="flex items-center gap-1.5">
-                <span className="text-green-500 dark:text-green-400">💰</span> {t("economy.pay_rate" as TranslationKey)}:{" "}
+                <span className="text-green-500 dark:text-green-400">💰</span>{" "}
+                {t("economy.pay_rate" as TranslationKey)}:{" "}
                 <span className="text-slate-800 dark:text-white font-medium">
                   {formatCurrency(activeJob.pay.min, preferredCurrency)}
                   {activeJob.pay.max !== activeJob.pay.min &&
@@ -182,23 +209,31 @@ export default function EconomyPage() {
                 </span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-yellow-500 dark:text-yellow-400">⚡</span> {t("economy.energy_cost" as TranslationKey)}:{" "}
-                <span className="text-slate-800 dark:text-white font-medium">{activeJob.energyCost} EP</span>
+                <span className="text-yellow-500 dark:text-yellow-400">⚡</span>{" "}
+                {t("economy.energy_cost" as TranslationKey)}:{" "}
+                <span className="text-slate-800 dark:text-white font-medium">
+                  {activeJob.energyCost} EP
+                </span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-blue-500 dark:text-blue-400">⚡</span> {t("economy.current_energy" as TranslationKey)}:{" "}
-                <span className="text-slate-800 dark:text-white font-medium">{gameState.energy} / {gameState.energyMax} EP</span>
+                <span className="text-blue-500 dark:text-blue-400">⚡</span>{" "}
+                {t("economy.current_energy" as TranslationKey)}:{" "}
+                <span className="text-slate-800 dark:text-white font-medium">
+                  {gameState.energy} / {gameState.energyMax} EP
+                </span>
               </div>
 
               {/* Status Warning */}
               {hasWorkedToday && (
                 <div className="w-full mt-3 px-3 py-2 bg-amber-50/40 dark:bg-amber-950/10 border border-amber-100/30 dark:border-amber-950/30 text-amber-600 dark:text-amber-400 font-bold rounded-lg flex items-center gap-1.5 animate-pulse">
-                  <Calendar className="h-4 w-4" /> {t("economy.already_worked_today" as TranslationKey)}
+                  <Calendar className="h-4 w-4" />{" "}
+                  {t("economy.already_worked_today" as TranslationKey)}
                 </div>
               )}
               {!hasWorkedToday && gameState.energy < activeJob.energyCost && (
                 <div className="w-full mt-3 px-3 py-2 bg-red-50/40 dark:bg-red-950/10 border border-red-100/30 dark:border-red-950/30 text-red-500 dark:text-red-400 font-bold rounded-lg flex items-center gap-1.5">
-                  <Zap className="h-4 w-4" /> {t("economy.low_energy_warning" as TranslationKey)}
+                  <Zap className="h-4 w-4" />{" "}
+                  {t("economy.low_energy_warning" as TranslationKey)}
                 </div>
               )}
             </div>

@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Zap, Coins, Flame } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Coins, Flame, Zap } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { formatCurrency } from "@/economy/currency-converter";
 import { useSettingsStore } from "@/store/settings-store";
 
@@ -21,8 +21,15 @@ interface LiveRewardTickerProps {
   isRaceActive: boolean;
 }
 
-export function LiveRewardTicker({ totalXpGained, totalMoneyGained, popups, isRaceActive }: LiveRewardTickerProps) {
-  const preferredCurrency = useSettingsStore((s) => s.settings.preferredCurrency ?? "USD");
+export function LiveRewardTicker({
+  totalXpGained,
+  totalMoneyGained,
+  popups,
+  isRaceActive,
+}: LiveRewardTickerProps) {
+  const preferredCurrency = useSettingsStore(
+    (s) => s.settings.preferredCurrency ?? "USD",
+  );
   const [activePopups, setActivePopups] = useState<RewardPopupItem[]>([]);
 
   useEffect(() => {
@@ -57,7 +64,10 @@ export function LiveRewardTicker({ totalXpGained, totalMoneyGained, popups, isRa
             >
               <span>{popup.type === "xp" ? "⚡" : "💰"}</span>
               <span>
-                +{popup.amount} {popup.type === "xp" ? "XP" : formatCurrency(popup.amount, preferredCurrency)}
+                +{popup.amount}{" "}
+                {popup.type === "xp"
+                  ? "XP"
+                  : formatCurrency(popup.amount, preferredCurrency)}
               </span>
               {popup.multiplier && popup.multiplier > 1 && (
                 <span className="text-[10px] text-amber-400 font-bold px-1 bg-black/40 rounded">
@@ -73,7 +83,9 @@ export function LiveRewardTicker({ totalXpGained, totalMoneyGained, popups, isRa
       <div className="fixed top-14 right-32 z-30 hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/80 border border-slate-700/80 backdrop-blur-md text-xs font-mono font-bold text-slate-200">
         <span className="text-indigo-400">+{totalXpGained} XP</span>
         <span className="text-slate-500">|</span>
-        <span className="text-emerald-400">+{formatCurrency(totalMoneyGained, preferredCurrency)}</span>
+        <span className="text-emerald-400">
+          +{formatCurrency(totalMoneyGained, preferredCurrency)}
+        </span>
       </div>
     </>
   );

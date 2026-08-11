@@ -1,8 +1,8 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
+import { Flag, Flame, Star, Target, Trophy } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Flag, Star, Flame, Target } from "lucide-react";
 import type { MilestoneMarkerItem } from "@/engine/achievements/race-achievements";
 
 interface MilestoneMarkersProps {
@@ -11,8 +11,15 @@ interface MilestoneMarkersProps {
   isRaceActive: boolean;
 }
 
-export function MilestoneMarkers({ currentKm, markers, isRaceActive }: MilestoneMarkersProps) {
-  const [activeBanner, setActiveBanner] = useState<{ text: string; icon: string } | null>(null);
+export function MilestoneMarkers({
+  currentKm,
+  markers,
+  isRaceActive,
+}: MilestoneMarkersProps) {
+  const [activeBanner, setActiveBanner] = useState<{
+    text: string;
+    icon: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!isRaceActive || !markers || markers.length === 0) return;

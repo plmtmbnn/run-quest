@@ -1,17 +1,17 @@
 /**
  * Comprehensive Error Handling System for Run-Quest
- * 
+ *
  * Centralized error handling, reporting, and recovery mechanisms
  * to improve game stability and user experience.
  */
 
-import React from 'react';
-import { storageRepository } from '@/storage/storage-repository';
+import React from "react";
+import { storageRepository } from "@/storage/storage-repository";
 
 /**
  * Error severity levels
  */
-export type ErrorSeverity = 'critical' | 'high' | 'medium' | 'low' | 'debug';
+export type ErrorSeverity = "critical" | "high" | "medium" | "low" | "debug";
 
 /**
  * Error context for better debugging
@@ -37,7 +37,7 @@ export interface GameError {
   stack?: string;
   severity: ErrorSeverity;
   context: ErrorContext;
-  type: 'runtime' | 'validation' | 'network' | 'storage' | 'game_logic';
+  type: "runtime" | "validation" | "network" | "storage" | "game_logic";
   recoverable: boolean;
   metadata?: Record<string, unknown>;
 }
@@ -59,11 +59,11 @@ export interface ErrorReportingConfig {
  */
 const DEFAULT_CONFIG: ErrorReportingConfig = {
   enabled: true,
-  logToConsole: process.env.NODE_ENV !== 'production',
-  sendToServer: process.env.NODE_ENV === 'production',
-  serverEndpoint: '/api/errors',
+  logToConsole: process.env.NODE_ENV !== "production",
+  sendToServer: process.env.NODE_ENV === "production",
+  serverEndpoint: "/api/errors",
   maxReportsPerSession: 10,
-  includeStackTrace: process.env.NODE_ENV !== 'production',
+  includeStackTrace: process.env.NODE_ENV !== "production",
 };
 
 /**
@@ -71,18 +71,20 @@ const DEFAULT_CONFIG: ErrorReportingConfig = {
  */
 let errorConfig: ErrorReportingConfig = DEFAULT_CONFIG;
 let reportedErrors: GameError[] = [];
-let sessionId: string = '';
+let sessionId: string = "";
 let errorCount: number = 0;
 
 /**
  * Initialize error handling system
  */
-export function initializeErrorHandling(config?: Partial<ErrorReportingConfig>): void {
+export function initializeErrorHandling(
+  config?: Partial<ErrorReportingConfig>,
+): void {
   errorConfig = { ...DEFAULT_CONFIG, ...config };
   sessionId = generateSessionId();
   errorCount = 0;
   reportedErrors = [];
-  
+
   // Set up global error handlers
   setupGlobalErrorHandlers();
 }
@@ -91,7 +93,7 @@ export function initializeErrorHandling(config?: Partial<ErrorReportingConfig>):
  * Generate a unique session ID
  */
 function generateSessionId(): string {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
     return crypto.randomUUID();
   }
   return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -101,17 +103,17 @@ function generateSessionId(): string {
  * Set up global error handlers
  */
 function setupGlobalErrorHandlers(): void {
-  if (typeof window === 'undefined') return;
+  if (typeof window === "undefined") return;
 
   // Unhandled promise rejections
-  window.addEventListener('unhandledrejection', (event) => {
+  window.addEventListener("unhandledrejection", (event) => {
     reportError({
       message: `Unhandled promise rejection: ${event.reason}`,
-      severity: 'high',
-      type: 'runtime',
+      severity: "high",
+      type: "runtime",
       recoverable: false,
       context: {
-        action: 'unhandled_rejection',
+        action: "unhandled_rejection",
         timestamp: Date.now(),
         sessionId,
       },
@@ -119,15 +121,15 @@ function setupGlobalErrorHandlers(): void {
   });
 
   // Global error handler
-  window.addEventListener('error', (event) => {
+  window.addEventListener("error", (event) => {
     reportError({
       message: `Global error: ${event.message}`,
       stack: event.error?.stack,
-      severity: 'critical',
-      type: 'runtime',
+      severity: "critical",
+      type: "runtime",
       recoverable: false,
       context: {
-        action: 'global_error',
+        action: "global_error",
         file: event.filename,
         line: event.lineno,
         timestamp: Date.now(),
@@ -140,23 +142,25 @@ function setupGlobalErrorHandlers(): void {
 /**
  * Report an error with structured information
  */
-export function reportError(error: Partial<GameError> & { message: string }): string {
-  if (!errorConfig.enabled) return '';
+export function reportError(
+  error: Partial<GameError> & { message: string },
+): string {
+  if (!errorConfig.enabled) return "";
 
   // Check rate limiting
   if (errorCount >= errorConfig.maxReportsPerSession) {
     if (errorConfig.logToConsole) {
-      console.warn('⚠️ Error reporting rate limit exceeded');
+      console.warn("⚠️ Error reporting rate limit exceeded");
     }
-    return '';
+    return "";
   }
 
   const gameError: GameError = {
     id: `err_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
     message: error.message,
     stack: errorConfig.includeStackTrace ? error.stack : undefined,
-    severity: error.severity || 'medium',
-    type: error.type || 'runtime',
+    severity: error.severity || "medium",
+    type: error.type || "runtime",
     recoverable: error.recoverable !== false,
     context: {
       timestamp: Date.now(),
@@ -170,17 +174,17 @@ export function reportError(error: Partial<GameError> & { message: string }): st
   if (errorConfig.logToConsole) {
     const severityIcon = getSeverityIcon(gameError.severity);
     const severityColor = getSeverityColor(gameError.severity);
-    
+
     console.groupCollapsed(
       `%c${severityIcon} [${gameError.severity.toUpperCase()}] ${gameError.message}`,
-      `color: ${severityColor}; font-weight: bold;`
+      `color: ${severityColor}; font-weight: bold;`,
     );
-    console.log('Context:', gameError.context);
+    console.log("Context:", gameError.context);
     if (gameError.stack) {
-      console.log('Stack:', gameError.stack);
+      console.log("Stack:", gameError.stack);
     }
     if (gameError.metadata) {
-      console.log('Metadata:', gameError.metadata);
+      console.log("Metadata:", gameError.metadata);
     }
     console.groupEnd();
   }
@@ -209,13 +213,13 @@ export function reportError(error: Partial<GameError> & { message: string }): st
  */
 function getSeverityIcon(severity: ErrorSeverity): string {
   const icons = {
-    critical: '🔴',
-    high: '🟠',
-    medium: '🟡',
-    low: '🟢',
-    debug: '🔵',
+    critical: "🔴",
+    high: "🟠",
+    medium: "🟡",
+    low: "🟢",
+    debug: "🔵",
   };
-  return icons[severity] || '⚪';
+  return icons[severity] || "⚪";
 }
 
 /**
@@ -223,13 +227,13 @@ function getSeverityIcon(severity: ErrorSeverity): string {
  */
 function getSeverityColor(severity: ErrorSeverity): string {
   const colors = {
-    critical: '#ef4444', // red-500
-    high: '#f97316',   // orange-500
-    medium: '#f59e0b', // amber-500
-    low: '#10b981',   // emerald-500
-    debug: '#3b82f6',  // blue-500
+    critical: "#ef4444", // red-500
+    high: "#f97316", // orange-500
+    medium: "#f59e0b", // amber-500
+    low: "#10b981", // emerald-500
+    debug: "#3b82f6", // blue-500
   };
-  return colors[severity] || '#6b7280';
+  return colors[severity] || "#6b7280";
 }
 
 /**
@@ -240,9 +244,9 @@ async function sendErrorToServer(error: GameError): Promise<void> {
 
   try {
     const response = await fetch(errorConfig.serverEndpoint, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         error: {
@@ -250,7 +254,10 @@ async function sendErrorToServer(error: GameError): Promise<void> {
           // Remove potentially sensitive information
           context: {
             ...error.context,
-            userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
+            userAgent:
+              typeof navigator !== "undefined"
+                ? navigator.userAgent
+                : undefined,
           },
         },
         sessionId,
@@ -263,8 +270,8 @@ async function sendErrorToServer(error: GameError): Promise<void> {
     }
   } catch (error) {
     // Silently fail - we don't want error reporting to cause more errors
-    if (process.env.NODE_ENV !== 'production') {
-      console.warn('Failed to send error to server:', error);
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("Failed to send error to server:", error);
     }
   }
 }
@@ -279,13 +286,13 @@ function attemptErrorRecovery(error: GameError): void {
 
   // Implement specific recovery strategies based on error type
   switch (error.type) {
-    case 'storage':
+    case "storage":
       recoverFromStorageError(error);
       break;
-    case 'game_logic':
+    case "game_logic":
       recoverFromGameLogicError(error);
       break;
-    case 'validation':
+    case "validation":
       recoverFromValidationError(error);
       break;
     default:
@@ -299,7 +306,7 @@ function attemptErrorRecovery(error: GameError): void {
  */
 function recoverFromStorageError(error: GameError): void {
   if (errorConfig.logToConsole) {
-    console.log('💾 Attempting storage recovery...');
+    console.log("💾 Attempting storage recovery...");
   }
 
   // Try to restore from backup or reset to defaults
@@ -312,8 +319,8 @@ function recoverFromStorageError(error: GameError): void {
   } catch (recoveryError) {
     reportError({
       message: `Storage recovery failed: ${recoveryError}`,
-      severity: 'high',
-      type: 'storage',
+      severity: "high",
+      type: "storage",
       recoverable: false,
       context: error.context,
     });
@@ -325,7 +332,7 @@ function recoverFromStorageError(error: GameError): void {
  */
 function recoverFromGameLogicError(error: GameError): void {
   if (errorConfig.logToConsole) {
-    console.log('🎮 Attempting game logic recovery...');
+    console.log("🎮 Attempting game logic recovery...");
   }
 
   // For game logic errors, we might:
@@ -339,7 +346,7 @@ function recoverFromGameLogicError(error: GameError): void {
  */
 function recoverFromValidationError(error: GameError): void {
   if (errorConfig.logToConsole) {
-    console.log('✅ Attempting validation recovery...');
+    console.log("✅ Attempting validation recovery...");
   }
 
   // For validation errors, we might:
@@ -351,11 +358,14 @@ function recoverFromValidationError(error: GameError): void {
 /**
  * Create an error boundary component for React
  */
-export class ErrorBoundary extends React.Component<{
-  fallback?: React.ReactNode;
-  onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
-  children: React.ReactNode;
-}, { hasError: boolean; error?: Error }> {
+export class ErrorBoundary extends React.Component<
+  {
+    fallback?: React.ReactNode;
+    onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
+    children: React.ReactNode;
+  },
+  { hasError: boolean; error?: Error }
+> {
   constructor(props: any) {
     super(props);
     this.state = { hasError: false };
@@ -367,16 +377,16 @@ export class ErrorBoundary extends React.Component<{
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
     this.setState({ hasError: true, error });
-    
+
     reportError({
       message: `UI Error: ${error.message}`,
       stack: error.stack,
-      severity: 'high',
-      type: 'runtime',
+      severity: "high",
+      type: "runtime",
       recoverable: true,
       context: {
-        component: errorInfo.componentStack?.split('\n')[0] || '',
-        action: 'render',
+        component: errorInfo.componentStack?.split("\n")[0] || "",
+        action: "render",
         timestamp: Date.now(),
         sessionId,
       },
@@ -389,24 +399,26 @@ export class ErrorBoundary extends React.Component<{
 
   render(): React.ReactNode {
     if (this.state.hasError) {
-      return this.props.fallback || (
-        <div className="min-h-screen flex items-center justify-center bg-rose-50 dark:bg-rose-950/10 p-4">
-          <div className="bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-800 rounded-[2rem] p-6 text-center max-w-md">
-            <div className="text-4xl mb-4">🚨</div>
-            <h3 className="font-heading font-black text-base text-slate-800 dark:text-white mb-2">
-              Something went wrong
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-              We encountered an error while rendering this component.
-            </p>
-            <button 
-              onClick={() => this.setState({ hasError: false })}
-              className="py-2.5 rounded-xl text-xs font-black bg-indigo-500 hover:bg-indigo-600 text-white shadow-md shadow-indigo-500/20 active:scale-95 transition"
-            >
-              Try Again
-            </button>
+      return (
+        this.props.fallback || (
+          <div className="min-h-screen flex items-center justify-center bg-rose-50 dark:bg-rose-950/10 p-4">
+            <div className="bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-800 rounded-[2rem] p-6 text-center max-w-md">
+              <div className="text-4xl mb-4">🚨</div>
+              <h3 className="font-heading font-black text-base text-slate-800 dark:text-white mb-2">
+                Something went wrong
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                We encountered an error while rendering this component.
+              </p>
+              <button
+                onClick={() => this.setState({ hasError: false })}
+                className="py-2.5 rounded-xl text-xs font-black bg-indigo-500 hover:bg-indigo-600 text-white shadow-md shadow-indigo-500/20 active:scale-95 transition"
+              >
+                Try Again
+              </button>
+            </div>
           </div>
-        </div>
+        )
       );
     }
 
@@ -420,18 +432,18 @@ export class ErrorBoundary extends React.Component<{
 export function safeExecute<T>(
   fn: () => T,
   context: Partial<ErrorContext> = {},
-  fallback?: T
+  fallback?: T,
 ): T {
   try {
     return fn();
   } catch (error) {
     reportError({
       message: `Safe execution failed: ${error}`,
-      severity: 'medium',
-      type: 'runtime',
+      severity: "medium",
+      type: "runtime",
       recoverable: true,
       context: {
-        action: 'safe_execute',
+        action: "safe_execute",
         timestamp: Date.now(),
         sessionId,
         ...context,
@@ -448,18 +460,18 @@ export function safeExecute<T>(
 export async function safeExecuteAsync<T>(
   fn: () => Promise<T>,
   context: Partial<ErrorContext> = {},
-  fallback?: T
+  fallback?: T,
 ): Promise<T> {
   try {
     return await fn();
   } catch (error) {
     reportError({
       message: `Safe async execution failed: ${error}`,
-      severity: 'medium',
-      type: 'runtime',
+      severity: "medium",
+      type: "runtime",
       recoverable: true,
       context: {
-        action: 'safe_execute_async',
+        action: "safe_execute_async",
         timestamp: Date.now(),
         sessionId,
         ...context,
@@ -476,18 +488,18 @@ export async function safeExecuteAsync<T>(
 export function validateInput<T>(
   input: unknown,
   validator: (input: unknown) => T,
-  context: Partial<ErrorContext> = {}
+  context: Partial<ErrorContext> = {},
 ): T {
   try {
     return validator(input);
   } catch (error) {
     reportError({
       message: `Input validation failed: ${error}`,
-      severity: 'medium',
-      type: 'validation',
+      severity: "medium",
+      type: "validation",
       recoverable: false,
       context: {
-        action: 'validate_input',
+        action: "validate_input",
         timestamp: Date.now(),
         sessionId,
         ...context,
@@ -509,7 +521,7 @@ export async function retryOperation<T>(
     delay?: number;
     shouldRetry?: (error: unknown) => boolean;
     context?: Partial<ErrorContext>;
-  } = {}
+  } = {},
 ): Promise<T> {
   const {
     maxRetries = 3,
@@ -525,15 +537,15 @@ export async function retryOperation<T>(
       return await operation();
     } catch (error) {
       lastError = error;
-      
+
       if (attempt < maxRetries && shouldRetry(error)) {
         reportError({
           message: `Operation failed, retrying (${attempt}/${maxRetries}): ${error}`,
-          severity: 'low',
-          type: 'runtime',
+          severity: "low",
+          type: "runtime",
           recoverable: true,
           context: {
-            action: 'retry_operation',
+            action: "retry_operation",
             attempt,
             timestamp: Date.now(),
             sessionId,
@@ -551,11 +563,11 @@ export async function retryOperation<T>(
   // If we get here, all retries failed
   reportError({
     message: `Operation failed after ${maxRetries} retries: ${lastError}`,
-    severity: 'high',
-    type: 'runtime',
+    severity: "high",
+    type: "runtime",
     recoverable: false,
     context: {
-      action: 'retry_operation',
+      action: "retry_operation",
       timestamp: Date.now(),
       sessionId,
       ...context,
@@ -616,13 +628,13 @@ export function getErrorStats(): {
 export function isRecoverableState(): boolean {
   // Check for critical errors that might make the game unplayable
   const criticalErrors = reportedErrors.filter(
-    (e) => e.severity === 'critical' && !e.recoverable
+    (e) => e.severity === "critical" && !e.recoverable,
   );
-  
+
   return criticalErrors.length === 0;
 }
 
 // Initialize error handling when this module is imported
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   initializeErrorHandling();
 }

@@ -139,9 +139,12 @@ export function earnRacePrize(
 
   // Apply Win Streak Multiplier Bonus
   let streakMultiplier = 1.0;
-  if (winStreak >= 10) streakMultiplier = 2.0; // +100%
-  else if (winStreak >= 5) streakMultiplier = 1.5; // +50%
-  else if (winStreak >= 3) streakMultiplier = 1.2; // +20%
+  if (winStreak >= 10)
+    streakMultiplier = 2.0; // +100%
+  else if (winStreak >= 5)
+    streakMultiplier = 1.5; // +50%
+  else if (winStreak >= 3)
+    streakMultiplier = 1.2; // +20%
   else if (winStreak >= 2) streakMultiplier = 1.1; // +10%
 
   prize = Math.round(prize * streakMultiplier);

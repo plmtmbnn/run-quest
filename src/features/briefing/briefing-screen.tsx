@@ -14,20 +14,20 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { formatPace, predictRaceOutcome } from "@/coach/race-prediction";
+import { CoachPredictionPanel } from "@/components/race/coach-prediction-panel";
 import { RaceChoiceCard } from "@/components/share/race-choice-card";
 import { ShareModal } from "@/components/share/share-modal";
+import { ScreenTour } from "@/components/tour/screen-tour";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+import { loadRunnerState } from "@/runner/runner-persistence";
+import { makeRegistrationKey } from "@/scheduling/race-calendar-engine";
 import { generateDailyChallenge } from "@/services/challenge/generator";
-import { loadGhostRun, type GhostRun } from "@/social/ghost-engine";
+import { type GhostRun, loadGhostRun } from "@/social/ghost-engine";
 import { useGameStore } from "@/store/game-store";
 import { usePreparationStore } from "@/store/preparation-store";
 import { useTimelineStore } from "@/store/timeline-store";
-import { makeRegistrationKey } from "@/scheduling/race-calendar-engine";
-import { ScreenTour } from "@/components/tour/screen-tour";
-import { predictRaceOutcome, formatPace } from "@/coach/race-prediction";
-import { loadRunnerState } from "@/runner/runner-persistence";
-import { CoachPredictionPanel } from "@/components/race/coach-prediction-panel";
 
 export function BriefingScreen() {
   const router = useRouter();
@@ -101,8 +101,8 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
     challenge.race.surface === "trail"
       ? "bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/40"
       : challenge.race.surface === "track"
-      ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-900/40"
-      : "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-900/40";
+        ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-900/40"
+        : "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-900/40";
 
   return (
     <motion.div
@@ -150,7 +150,9 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
         {/* Hero Card Container */}
         <div className="rounded-[2rem] border border-[#E5E7EB] dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 shadow-sm">
           {/* Surface Category Badge */}
-          <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider font-heading mb-4 ${surfaceColorClass}`}>
+          <div
+            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider font-heading mb-4 ${surfaceColorClass}`}
+          >
             <Flame className="w-3.5 h-3.5" />
             <span>Today&apos;s Race Details</span>
           </div>
@@ -163,7 +165,10 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
           </p>
 
           {/* 4 Metric Mini Cards Grid */}
-          <div id="tour-briefing-course" className="grid grid-cols-2 gap-3 sm:gap-4 border-t border-b border-[#E5E7EB] dark:border-slate-800/80 py-6 mb-6">
+          <div
+            id="tour-briefing-course"
+            className="grid grid-cols-2 gap-3 sm:gap-4 border-t border-b border-[#E5E7EB] dark:border-slate-800/80 py-6 mb-6"
+          >
             <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800 p-3.5 sm:p-4 rounded-2xl flex items-center gap-3">
               <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 shrink-0">
                 <MapPin className="h-4.5 w-4.5" />
@@ -278,7 +283,7 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
 
           {/* Coach Prediction Panel - Below the stat banners */}
           <div className="mb-6">
-            <CoachPredictionPanel 
+            <CoachPredictionPanel
               challenge={challenge}
               preparation={preparation}
               runnerProfile={loadRunnerState().profile}
@@ -414,13 +419,17 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
             target: "body",
             placement: "center",
             title: t("tour.screens.briefing.welcome.title" as TranslationKey),
-            content: t("tour.screens.briefing.welcome.content" as TranslationKey),
+            content: t(
+              "tour.screens.briefing.welcome.content" as TranslationKey,
+            ),
             skipBeacon: true,
           },
           {
             target: "#tour-briefing-course",
             title: t("tour.screens.briefing.course.title" as TranslationKey),
-            content: t("tour.screens.briefing.course.content" as TranslationKey),
+            content: t(
+              "tour.screens.briefing.course.content" as TranslationKey,
+            ),
           },
           {
             target: "#tour-briefing-start",
@@ -432,5 +441,3 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
     </motion.div>
   );
 }
-
-

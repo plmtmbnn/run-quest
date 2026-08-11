@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePlayerStore } from "@/store/player-store";
-import { useSettingsStore } from "@/store/settings-store";
 import { migrateToShopSystem } from "@/shop/shop-migration";
 import { useShopStore } from "@/shop/shop-store";
-import { useTimelineStore } from "@/store/timeline-store";
 import { useFirebaseStore } from "@/store/firebaseStore";
+import { usePlayerStore } from "@/store/player-store";
+import { useSettingsStore } from "@/store/settings-store";
+import { useTimelineStore } from "@/store/timeline-store";
 
 interface AppProviderProps {
   children: React.ReactNode;
@@ -23,9 +23,7 @@ if (typeof window !== "undefined") {
   // Sync Firebase enabled flag from persisted settings
   useFirebaseStore
     .getState()
-    .setEnabled(
-      useSettingsStore.getState().settings.syncWithFirebase ?? false,
-    );
+    .setEnabled(useSettingsStore.getState().settings.syncWithFirebase ?? false);
   usePlayerStore.getState().initializePlayer();
   useTimelineStore.getState().initialize();
   migrateToShopSystem();
@@ -64,10 +62,7 @@ export function AppProvider({ children }: AppProviderProps) {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
     const updateTheme = () => {
-      const isDark =
-        theme === "system"
-          ? mediaQuery.matches
-          : theme === "dark";
+      const isDark = theme === "system" ? mediaQuery.matches : theme === "dark";
       if (isDark) {
         root.classList.add("dark");
       } else {
@@ -85,4 +80,3 @@ export function AppProvider({ children }: AppProviderProps) {
 
   return <>{children}</>;
 }
-

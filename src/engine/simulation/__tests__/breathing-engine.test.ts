@@ -29,11 +29,19 @@ describe("Breathing Control Engine", () => {
     expect(nextState.canControl).toBe(false);
 
     // Before cooldown expires (60s later), canControl remains false even at high HR
-    const updatedDuringCooldown = updateBreathingState(nextState, 190, now + 60000);
+    const updatedDuringCooldown = updateBreathingState(
+      nextState,
+      190,
+      now + 60000,
+    );
     expect(updatedDuringCooldown.canControl).toBe(false);
 
     // After 2 min (120s later), canControl becomes true again at high HR
-    const updatedAfterCooldown = updateBreathingState(nextState, 185, now + 120001);
+    const updatedAfterCooldown = updateBreathingState(
+      nextState,
+      185,
+      now + 120001,
+    );
     expect(updatedAfterCooldown.canControl).toBe(true);
   });
 

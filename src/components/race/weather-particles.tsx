@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { Weather, Wind } from "@/types/engine";
 import { getWeatherParticleConfig } from "@/engine/weather/weather-particle-params";
 import { useSettingsStore } from "@/store/settings-store";
+import type { Weather, Wind } from "@/types/engine";
 
 interface WeatherParticlesProps {
   weather?: Weather;
@@ -81,8 +81,12 @@ export function WeatherParticles({
       pool.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: config.speedXMin + Math.random() * (config.speedXMax - config.speedXMin),
-        vy: config.speedYMin + Math.random() * (config.speedYMax - config.speedYMin),
+        vx:
+          config.speedXMin +
+          Math.random() * (config.speedXMax - config.speedXMin),
+        vy:
+          config.speedYMin +
+          Math.random() * (config.speedYMax - config.speedYMin),
         length:
           config.particleLengthMin +
           Math.random() * (config.particleLengthMax - config.particleLengthMin),
@@ -178,7 +182,15 @@ export function WeatherParticles({
           // Leaf / debris particle
           ctx.fillStyle = config.particleColor;
           ctx.beginPath();
-          ctx.ellipse(p.x, p.y, p.length * 0.4, p.length * 0.2, p.phase, 0, Math.PI * 2);
+          ctx.ellipse(
+            p.x,
+            p.y,
+            p.length * 0.4,
+            p.length * 0.2,
+            p.phase,
+            0,
+            Math.PI * 2,
+          );
           ctx.fill();
         }
 
@@ -205,14 +217,21 @@ export function WeatherParticles({
   const config = getWeatherParticleConfig(weather, temperature, wind);
 
   return (
-    <div className={`fixed inset-0 pointer-events-none z-10 overflow-hidden ${className}`}>
+    <div
+      className={`fixed inset-0 pointer-events-none z-10 overflow-hidden ${className}`}
+    >
       {/* Dynamic Screen Edge Gradient Overlay */}
       {config.showOverlay && (
-        <div className={`absolute inset-0 bg-gradient-to-b ${config.overlayGradient} transition-opacity duration-700`} />
+        <div
+          className={`absolute inset-0 bg-gradient-to-b ${config.overlayGradient} transition-opacity duration-700`}
+        />
       )}
 
       {/* Canvas Particle Overlay */}
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block" />
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full block"
+      />
     </div>
   );
 }

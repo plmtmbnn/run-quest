@@ -6,6 +6,7 @@
 
 import type { RaceTier } from "../economy/economy-types";
 export type { RaceTier };
+
 import type { RacePrerequisites } from "../economy/race-entry-engine";
 
 export type ScheduleFrequency =
@@ -83,7 +84,7 @@ export interface RaceSchedule {
   /** Visual identity */
   icon: string;
   color: string;
-  
+
   /** Default route profile ID for this race (can be overridden per category) */
   routeProfileId?: string;
 }
@@ -154,7 +155,7 @@ export interface RaceOccurrence {
   isRegistered: boolean;
   isCompleted: boolean;
   isFull: boolean;
-  
+
   /** Route profile for terrain visualization */
   routeProfileId?: string;
 }

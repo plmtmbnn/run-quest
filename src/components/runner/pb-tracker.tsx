@@ -1,17 +1,29 @@
 "use client";
 
-import { useMemo } from "react";
-import { Trophy, Clock, TrendingUp, Target, Zap, AlertCircle } from "lucide-react";
 import {
+  AlertCircle,
+  Clock,
+  Target,
+  TrendingUp,
+  Trophy,
+  Zap,
+} from "lucide-react";
+import { useMemo } from "react";
+import type { DistanceCategory } from "@/runner/personal-best";
+import {
+  formatTime,
   getAllPBs,
-  predictFromBestPB,
   getDistanceCategory,
   getStandardDistance,
-  formatTime,
+  predictFromBestPB,
 } from "@/runner/personal-best";
-import type { DistanceCategory } from "@/runner/personal-best";
 
-const CATEGORIES: { key: DistanceCategory; label: string; emoji: string; distanceKm: number }[] = [
+const CATEGORIES: {
+  key: DistanceCategory;
+  label: string;
+  emoji: string;
+  distanceKm: number;
+}[] = [
   { key: "5K", label: "5K", emoji: "🏃", distanceKm: 5 },
   { key: "10K", label: "10K", emoji: "⚡", distanceKm: 10 },
   { key: "HM", label: "Half Marathon", emoji: "🏅", distanceKm: 21.1 },
@@ -110,13 +122,20 @@ export function PBTracker({ showPredictions = true }: PBTrackerProps) {
                       </span>
                     </div>
                     <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 font-mono pl-5">
-                      {Math.floor(pb.averagePace / 60)}:{String(Math.floor(pb.averagePace % 60)).padStart(2, "0")} /km avg
+                      {Math.floor(pb.averagePace / 60)}:
+                      {String(Math.floor(pb.averagePace % 60)).padStart(2, "0")}{" "}
+                      /km avg
                     </p>
                   </div>
 
                   {/* Date */}
                   <p className="text-[10px] text-gray-400 dark:text-gray-500 border-t border-gray-100 dark:border-slate-800 pt-2">
-                    Set on {new Date(pb.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                    Set on{" "}
+                    {new Date(pb.date).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
                   </p>
                 </>
               ) : (

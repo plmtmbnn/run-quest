@@ -4,27 +4,25 @@ import { motion } from "framer-motion";
 import { Briefcase, Settings, Share2, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+// Sprint 33 Imports
+import { RaceDayAlert } from "@/components/alerts/race-day-alert";
 import {
   SponsorNotification,
   SponsorOfferBadge,
 } from "@/components/economy/sponsor-notification";
 import { WorkSelectorModal } from "@/components/economy/work-selector-modal";
+import { HealthStatusWidget } from "@/components/health/health-status-widget";
+import { ExpenseWidget } from "@/components/home/expense-widget";
 // New Sprint 26 Imports
 import { RaceCalendar } from "@/components/scheduling/race-calendar";
 import { RaceEntryModal } from "@/components/scheduling/race-entry-modal";
 import { DailyStatsCard } from "@/components/share/daily-stats-card";
 import { ShareModal } from "@/components/share/share-modal";
+import { ProductTour } from "@/components/tour/product-tour";
 import { GameStats } from "@/components/ui/game-clock";
 import { RestControls } from "@/components/ui/rest-controls";
-import { HealthStatusWidget } from "@/components/health/health-status-widget";
-import { ExpenseWidget } from "@/components/home/expense-widget";
-import { ProductTour } from "@/components/tour/product-tour";
-// Sprint 33 Imports
-import { RaceDayAlert } from "@/components/alerts/race-day-alert";
 import { getCountryByCode } from "@/config/countries-data";
 import { formatCurrency } from "@/economy/currency-converter";
-import { formatCompact } from "@/utils/format-compact";
-import { generateRaceChallenge } from "@/services/challenge/generator";
 import {
   earnAchievementBonus,
   earnChampionshipBonus,
@@ -48,14 +46,18 @@ import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { useRunnerStore } from "@/runner/runner-store";
 import {
   completeRace,
+  getRegisteredRaces,
   getScheduleById,
   getTodaysRaces,
   getUpcomingRaces,
-  getRegisteredRaces,
   registerForRace,
 } from "@/scheduling/race-calendar-engine";
-import type { RaceOccurrence, CategoryId } from "@/scheduling/race-calendar-types";
+import type {
+  CategoryId,
+  RaceOccurrence,
+} from "@/scheduling/race-calendar-types";
 import { isChampionship } from "@/scheduling/race-schedule-database";
+import { generateRaceChallenge } from "@/services/challenge/generator";
 import { useSocialStore } from "@/social/social-store";
 import { storageRepository } from "@/storage/storage-repository";
 import type { StoredDailyBoard } from "@/storage/types"; // Still needed for now, but will be phased out
@@ -63,9 +65,10 @@ import { useGameStore } from "@/store/game-store";
 import { usePlayerStore } from "@/store/player-store";
 import { useSettingsStore } from "@/store/settings-store";
 import { useTimelineStore } from "@/store/timeline-store";
-import { useTrainingStore } from "@/training/training-store";
 import { generateCoachRecommendation } from "@/training/coach-recommendation";
+import { useTrainingStore } from "@/training/training-store";
 import type { DailyChallenge } from "@/types/engine";
+import { formatCompact } from "@/utils/format-compact";
 
 export function HomeScreen() {
   const router = useRouter();
@@ -210,13 +213,17 @@ export function HomeScreen() {
   // Sprint 33: Check for race day alerts
   useEffect(() => {
     if (!gameState) return;
-    
-    const racesToday = getTodaysRaces(gameState.scheduling, gameState, currentDayIndex);
-    
+
+    const racesToday = getTodaysRaces(
+      gameState.scheduling,
+      gameState,
+      currentDayIndex,
+    );
+
     if (racesToday.length > 0) {
       const alertKey = `race_alert_shown_${currentDayIndex}`;
       const hasShown = localStorage.getItem(alertKey);
-      
+
       if (!hasShown) {
         setTodaysRace(racesToday[0]);
         setShowRaceAlert(true);
@@ -238,22 +245,22 @@ export function HomeScreen() {
   // Handle race selection from calendar
   const handleRaceSelect = (race: RaceOccurrence) => {
     if (!gameState) return;
-    
+
     // Sprint 29 Task 2: Prevent re-joining finished/past races
     if (race.isCompleted) {
       console.warn("Cannot start a race that has already been completed");
       return;
     }
-    
+
     // Sprint 29 Task 2: Prevent starting races that have passed
     if (race.dayIndex < currentDayIndex) {
       console.warn("Cannot start a race from the past");
       return;
     }
-    
+
     const onlyRegister = race.dayIndex > currentDayIndex;
     const isRegistered = race.isRegistered;
-    
+
     const validation = validateRaceEntry(
       gameState.economy,
       gameState,
@@ -272,11 +279,17 @@ export function HomeScreen() {
       return;
 
     const categories = selectedRaceOccurrence.categories ?? [];
-    const selectedCategory = categories.find((c) => c.id === categoryId) ?? categories[0];
+    const selectedCategory =
+      categories.find((c) => c.id === categoryId) ?? categories[0];
 
-    const actualFee = selectedCategory ? selectedCategory.fee : selectedRaceOccurrence.entryFee;
+    const actualFee = selectedCategory
+      ? selectedCategory.fee
+      : selectedRaceOccurrence.entryFee;
     const actualDistance = selectedCategory ? selectedCategory.distance : 5;
-    const actualMaxEntrants = selectedCategory?.maxEntrants ?? selectedRaceOccurrence.maxEntrants ?? 100;
+    const actualMaxEntrants =
+      selectedCategory?.maxEntrants ??
+      selectedRaceOccurrence.maxEntrants ??
+      100;
     const raceNameWithCategory = selectedCategory
       ? `${selectedRaceOccurrence.name} (${selectedCategory.name})`
       : selectedRaceOccurrence.name;
@@ -310,7 +323,7 @@ export function HomeScreen() {
           selectedCategory?.id,
         );
         setGameState((prev) => ({ ...prev!, scheduling: updatedScheduling }));
-        
+
         // ✅ Award XP for race registration
         import("@/runner/xp-rewards").then(({ awardRegistrationXP }) => {
           awardRegistrationXP(selectedRaceOccurrence.tier);
@@ -324,25 +337,29 @@ export function HomeScreen() {
 
         // Determine surface and elevation based on race name/description
         // Trail races typically have "trail" in the ID or name
-        const isTrailRace = 
+        const isTrailRace =
           selectedRaceOccurrence.scheduleId.toLowerCase().includes("trail") ||
           selectedRaceOccurrence.name.toLowerCase().includes("trail") ||
           selectedRaceOccurrence.description.toLowerCase().includes("trail");
-        
+
         const surface = isTrailRace ? "trail" : "road";
-        
+
         // Determine elevation from race characteristics
-        const hasHills = 
+        const hasHills =
           selectedRaceOccurrence.name.toLowerCase().includes("hill") ||
           selectedRaceOccurrence.description.toLowerCase().includes("hill") ||
           selectedRaceOccurrence.description.toLowerCase().includes("climb") ||
-          selectedRaceOccurrence.description.toLowerCase().includes("elevation");
-        
-        const hasMountain = 
-          selectedRaceOccurrence.description.toLowerCase().includes("mountain") ||
+          selectedRaceOccurrence.description
+            .toLowerCase()
+            .includes("elevation");
+
+        const hasMountain =
+          selectedRaceOccurrence.description
+            .toLowerCase()
+            .includes("mountain") ||
           selectedRaceOccurrence.description.toLowerCase().includes("summit") ||
           selectedRaceOccurrence.description.toLowerCase().includes("peak");
-        
+
         const elevation = hasMountain ? "hilly" : hasHills ? "rolling" : "flat";
 
         // Generate race challenge with dynamic weather based on race parameters
@@ -387,9 +404,12 @@ export function HomeScreen() {
 
   const { currentWeeklyPlan } = useTrainingStore();
   const todaysActivity = currentWeeklyPlan?.plannedActivities.find(
-    (pa) => pa.dayIndex === currentDayIndex
+    (pa) => pa.dayIndex === currentDayIndex,
   );
-  const coachTip = generateCoachRecommendation(currentDayIndex, registeredRaces);
+  const coachTip = generateCoachRecommendation(
+    currentDayIndex,
+    registeredRaces,
+  );
 
   return (
     <motion.div
@@ -420,7 +440,9 @@ export function HomeScreen() {
               setRunTour(true);
             }}
             className={`rounded-full min-h-[44px] px-3.5 bg-amber-500/10 dark:bg-amber-500/20 border-2 border-amber-400/50 dark:border-amber-500/40 hover:bg-amber-500/20 dark:hover:bg-amber-500/30 text-amber-700 dark:text-amber-300 font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40 ${
-              (player?.statistics?.totalRuns ?? 0) === 0 ? "animate-pulse ring-2 ring-amber-400/50" : ""
+              (player?.statistics?.totalRuns ?? 0) === 0
+                ? "animate-pulse ring-2 ring-amber-400/50"
+                : ""
             }`}
             aria-label="Start Tour"
             title="Start Feature Tour"
@@ -456,7 +478,10 @@ export function HomeScreen() {
 
         {/* Today's Training Card & Coach Tip */}
         {todaysActivity && (
-          <div id="tour-daily-training" className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl md:rounded-[2rem] p-4 md:p-5 shadow-sm flex flex-col gap-3">
+          <div
+            id="tour-daily-training"
+            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl md:rounded-[2rem] p-4 md:p-5 shadow-sm flex flex-col gap-3"
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-lg shadow-sm">
@@ -467,7 +492,9 @@ export function HomeScreen() {
                     {t("home.todays_training" as TranslationKey)}
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {todaysActivity.isCompleted ? t("home.training_completed" as TranslationKey) : t("home.training_scheduled" as TranslationKey)}
+                    {todaysActivity.isCompleted
+                      ? t("home.training_completed" as TranslationKey)
+                      : t("home.training_scheduled" as TranslationKey)}
                   </p>
                 </div>
               </div>
@@ -488,7 +515,9 @@ export function HomeScreen() {
                 }}
                 className="px-3.5 py-1.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-indigo-500/20 active:scale-95"
               >
-                {todaysActivity.isCompleted ? t("home.view_training_plan" as TranslationKey) : `${t("training.start_workout" as TranslationKey)} →`}
+                {todaysActivity.isCompleted
+                  ? t("home.view_training_plan" as TranslationKey)
+                  : `${t("training.start_workout" as TranslationKey)} →`}
               </button>
             </div>
 
@@ -496,7 +525,9 @@ export function HomeScreen() {
               <div className="mt-1 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl text-xs text-slate-600 dark:text-slate-300 flex items-start gap-2 border border-slate-100 dark:border-slate-800">
                 <span className="text-base shrink-0">💡</span>
                 <div>
-                  <span className="font-bold text-slate-800 dark:text-white block">{t("home.coach_tip" as TranslationKey)}:</span>
+                  <span className="font-bold text-slate-800 dark:text-white block">
+                    {t("home.coach_tip" as TranslationKey)}:
+                  </span>
                   <span>{coachTip.message}</span>
                 </div>
               </div>
@@ -528,7 +559,8 @@ export function HomeScreen() {
                       </span>
                     </div>
                     <span className="text-lg md:text-xl font-black font-heading truncate drop-shadow-sm">
-                      {player.name || `Runner #${player.id.slice(0, 5).toUpperCase()}`}
+                      {player.name ||
+                        `Runner #${player.id.slice(0, 5).toUpperCase()}`}
                     </span>
                   </div>
                 </div>
@@ -555,7 +587,8 @@ export function HomeScreen() {
                       <span>⚡ XP Progress</span>
                     </span>
                     <span className="font-mono text-white">
-                      {runnerState.profile.xp || 0} / {(runnerState.profile.level || 1) * 100} XP
+                      {runnerState.profile.xp || 0} /{" "}
+                      {(runnerState.profile.level || 1) * 100} XP
                       {Boolean(runnerState.profile.skillPoints) && (
                         <span className="ml-2 px-1.5 py-0.5 rounded-md bg-amber-400 text-slate-900 font-extrabold text-[9px]">
                           🌟 {runnerState.profile.skillPoints} SP
@@ -572,8 +605,8 @@ export function HomeScreen() {
                           Math.round(
                             ((runnerState.profile.xp || 0) /
                               ((runnerState.profile.level || 1) * 100)) *
-                              100
-                          )
+                              100,
+                          ),
                         )}%`,
                       }}
                     />
@@ -612,10 +645,15 @@ export function HomeScreen() {
 
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-2.5 border border-white/10 flex flex-col">
                   <span className="text-[9px] uppercase font-bold text-orange-100 tracking-wider">
-                    {t("home.stats.rating" as TranslationKey) || "Rating / Wins"}
+                    {t("home.stats.rating" as TranslationKey) ||
+                      "Rating / Wins"}
                   </span>
                   <span className="font-mono font-black text-sm md:text-base mt-0.5 text-white truncate">
-                    🏆 {formatCompact((gameState.flags?.rating as number) ?? 1500)} <span className="opacity-75 text-[10px]">({gameState.flags?.career_wins || 0}W)</span>
+                    🏆{" "}
+                    {formatCompact((gameState.flags?.rating as number) ?? 1500)}{" "}
+                    <span className="opacity-75 text-[10px]">
+                      ({gameState.flags?.career_wins || 0}W)
+                    </span>
                   </span>
                 </div>
               </div>
@@ -831,7 +869,7 @@ export function HomeScreen() {
           isOpen={showRaceAlert}
           onClose={() => {
             setShowRaceAlert(false);
-            localStorage.setItem(`race_alert_shown_${currentDayIndex}`, 'true');
+            localStorage.setItem(`race_alert_shown_${currentDayIndex}`, "true");
           }}
           onStartRace={() => {
             // Navigate directly to race when clicking the alert button

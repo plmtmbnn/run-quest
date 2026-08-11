@@ -72,13 +72,19 @@ export function ChapterProgressCard({
       <div className="absolute top-4 right-4">{getStatusIcon()}</div>
 
       {/* Chapter icon */}
-      <div className="text-5xl mb-4 p-4 bg-white/50 dark:bg-slate-800/30 rounded-2xl inline-block border border-slate-200/50 dark:border-slate-700/30 shadow-sm">{chapter.icon}</div>
+      <div className="text-5xl mb-4 p-4 bg-white/50 dark:bg-slate-800/30 rounded-2xl inline-block border border-slate-200/50 dark:border-slate-700/30 shadow-sm">
+        {chapter.icon}
+      </div>
 
       {/* Title */}
-      <h3 className="text-xl font-black font-heading tracking-tight text-slate-800 dark:text-white mb-1.5">{chapter.title[lang]}</h3>
+      <h3 className="text-xl font-black font-heading tracking-tight text-slate-800 dark:text-white mb-1.5">
+        {chapter.title[lang]}
+      </h3>
 
       {/* Subtitle */}
-      <p className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4">{chapter.subtitle[lang]}</p>
+      <p className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-4">
+        {chapter.subtitle[lang]}
+      </p>
 
       {/* Synopsis (if unlocked) */}
       {isUnlocked && (

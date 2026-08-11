@@ -11,6 +11,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { PBTracker } from "@/components/runner/pb-tracker";
 import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import {
@@ -22,9 +23,8 @@ import {
   getReadinessLevel,
 } from "@/runner/runner-selectors";
 import { useRunnerStore } from "@/runner/runner-store";
-import { useTrainingStore } from "@/training/training-store";
 import { usePlayerStore } from "@/store/player-store";
-import { PBTracker } from "@/components/runner/pb-tracker";
+import { useTrainingStore } from "@/training/training-store";
 
 interface AttributeUpgradeCardProps {
   name: string;
@@ -108,9 +108,11 @@ export function ProfileScreen() {
   const player = usePlayerStore((state) => state.player);
   const { t } = useTranslation();
   const { playSound } = useSound();
-  
+
   // Get player name from player store
-  const playerName = player?.name || `Runner #${player?.id.slice(0, 5).toUpperCase() || "00000"}`;
+  const playerName =
+    player?.name ||
+    `Runner #${player?.id.slice(0, 5).toUpperCase() || "00000"}`;
 
   const { trainingState } = useTrainingStore();
 
@@ -206,11 +208,16 @@ export function ProfileScreen() {
             <div className="flex items-center gap-2">
               <Award className="h-6 w-6 text-yellow-400" />
               <span className="font-heading font-black text-xl">
-                {t("profile.level.runner" as TranslationKey, { level: profile.level || 1 })}
+                {t("profile.level.runner" as TranslationKey, {
+                  level: profile.level || 1,
+                })}
               </span>
             </div>
             <span className="text-xs bg-white/10 px-3 py-1 rounded-full border border-white/10 font-mono">
-              {t("profile.level.xp_progress" as TranslationKey, { current: profile.xp || 0, needed: xpNeeded })}
+              {t("profile.level.xp_progress" as TranslationKey, {
+                current: profile.xp || 0,
+                needed: xpNeeded,
+              })}
             </span>
           </div>
           <div className="w-full bg-white/10 h-3 rounded-full overflow-hidden border border-white/5">
@@ -223,7 +230,7 @@ export function ProfileScreen() {
             <div className="text-xs font-semibold text-yellow-300 animate-pulse mt-1">
               {t("profile.level.skill_points_available" as TranslationKey, {
                 points: profile.skillPoints,
-                plural: profile.skillPoints > 1 ? "s" : ""
+                plural: profile.skillPoints > 1 ? "s" : "",
               })}
             </div>
           )}
@@ -237,7 +244,9 @@ export function ProfileScreen() {
             </h2>
             {(profile.skillPoints || 0) > 0 && (
               <span className="text-xs font-bold bg-orange-50/40 dark:bg-orange-950/10 text-orange-600 dark:text-orange-400 px-3 py-1 rounded-full animate-bounce">
-                {t("profile.attributes.points_available" as TranslationKey, { points: profile.skillPoints })}
+                {t("profile.attributes.points_available" as TranslationKey, {
+                  points: profile.skillPoints,
+                })}
               </span>
             )}
           </div>
@@ -303,7 +312,9 @@ export function ProfileScreen() {
             <div className="flex items-center gap-2">
               {(profile.skillPoints || 0) > 0 && (
                 <span className="text-xs font-bold bg-orange-50/40 dark:bg-orange-950/10 text-orange-600 dark:text-orange-400 px-3 py-1 rounded-full animate-bounce">
-                  {t("profile.perks.points_available" as TranslationKey, { points: profile.skillPoints })}
+                  {t("profile.perks.points_available" as TranslationKey, {
+                    points: profile.skillPoints,
+                  })}
                 </span>
               )}
               <span className="text-xs text-gray-400 dark:text-gray-500 font-medium">
@@ -318,7 +329,10 @@ export function ProfileScreen() {
                 id: "hill_specialist",
                 name: "Hill Specialist",
                 desc: "Nullifies climb penalties: no +20s/km pace penalty and no +1.5x fatigue increase on uphill segments.",
-                effects: ["No pace penalty on climbs", "No fatigue increase on climbs"],
+                effects: [
+                  "No pace penalty on climbs",
+                  "No fatigue increase on climbs",
+                ],
                 icon: "⛰️",
                 cost: 1,
                 bgClass:
@@ -328,7 +342,10 @@ export function ProfileScreen() {
                 id: "iron_stomach",
                 name: "Iron Stomach",
                 desc: "Energy gels restore +50 stamina instead of +30, and provide double momentum boost (+1.6 vs +0.8) during races.",
-                effects: ["+20 extra stamina from gels", "Double momentum gain"],
+                effects: [
+                  "+20 extra stamina from gels",
+                  "Double momentum gain",
+                ],
                 icon: "🍳",
                 cost: 1,
                 bgClass:
@@ -337,7 +354,8 @@ export function ProfileScreen() {
             ].map((perk) => {
               const activePerks = profile.activePerks || [];
               const isUnlocked = activePerks.includes(perk.id);
-              const canUnlock = (profile.skillPoints || 0) >= perk.cost && !isUnlocked;
+              const canUnlock =
+                (profile.skillPoints || 0) >= perk.cost && !isUnlocked;
               return (
                 <div
                   key={perk.id}
@@ -374,7 +392,9 @@ export function ProfileScreen() {
                   <div className="flex flex-col gap-1 px-1">
                     {perk.effects.map((effect, idx) => (
                       <div key={idx} className="flex items-center gap-1.5">
-                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400">▸</span>
+                        <span className="text-[10px] text-emerald-600 dark:text-emerald-400">
+                          ▸
+                        </span>
                         <span className="text-[10px] font-semibold text-slate-600 dark:text-slate-300">
                           {effect}
                         </span>
@@ -404,7 +424,13 @@ export function ProfileScreen() {
                             : "bg-slate-100 dark:bg-slate-900 text-slate-400 dark:text-slate-500 cursor-not-allowed opacity-45 border-slate-200 dark:border-slate-700"
                       }`}
                     >
-                      {isUnlocked ? t("profile.perks.unlocked" as TranslationKey) : canUnlock ? t("profile.perks.unlock_now" as TranslationKey) : t("profile.perks.insufficient_sp" as TranslationKey)}
+                      {isUnlocked
+                        ? t("profile.perks.unlocked" as TranslationKey)
+                        : canUnlock
+                          ? t("profile.perks.unlock_now" as TranslationKey)
+                          : t(
+                              "profile.perks.insufficient_sp" as TranslationKey,
+                            )}
                     </button>
                   </div>
                 </div>
@@ -455,17 +481,23 @@ export function ProfileScreen() {
           {/* Pending Adaptations */}
           {trainingState.adaptationQueue.length > 0 ? (
             <div className="bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/40 rounded-2xl p-4 flex flex-col gap-2">
-                <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <span>⏳</span> {t("profile.training.pending_adaptations" as TranslationKey, { count: trainingState.adaptationQueue.length })}
-                </span>
+              <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
+                <span>⏳</span>{" "}
+                {t("profile.training.pending_adaptations" as TranslationKey, {
+                  count: trainingState.adaptationQueue.length,
+                })}
+              </span>
               <div className="space-y-1.5">
                 {trainingState.adaptationQueue.map((item, i) => (
-                  <div key={i} className="flex justify-between items-center text-xs">
+                  <div
+                    key={i}
+                    className="flex justify-between items-center text-xs"
+                  >
                     <span className="text-slate-600 dark:text-slate-300 font-medium">
                       Matures on Day {item.date}
                     </span>
                     <span className="font-mono font-bold text-emerald-500">
-                      +{(item.fitnessGain).toFixed(1)} Fitness
+                      +{item.fitnessGain.toFixed(1)} Fitness
                     </span>
                   </div>
                 ))}
@@ -484,40 +516,45 @@ export function ProfileScreen() {
             </h3>
             {trainingState.trainingHistory.length > 0 ? (
               <div className="space-y-2">
-                {trainingState.trainingHistory.slice(-7).reverse().map((day, idx) => (
-                  <div
-                    key={idx}
-                    className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800 text-xs"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono font-bold text-slate-400">
-                        Day {day.date}
-                      </span>
-                      <span className="font-bold text-slate-800 dark:text-white">
-                        {day.activity}
-                      </span>
+                {trainingState.trainingHistory
+                  .slice(-7)
+                  .reverse()
+                  .map((day, idx) => (
+                    <div
+                      key={idx}
+                      className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800 text-xs"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-bold text-slate-400">
+                          Day {day.date}
+                        </span>
+                        <span className="font-bold text-slate-800 dark:text-white">
+                          {day.activity}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 font-mono text-[11px]">
+                        {day.effect.fitness > 0 && (
+                          <span className="text-emerald-500 font-bold">
+                            +{day.effect.fitness} Fit
+                          </span>
+                        )}
+                        {day.effect.fatigue > 0 ? (
+                          <span className="text-orange-500">
+                            +{day.effect.fatigue} Fat
+                          </span>
+                        ) : day.effect.fatigue < 0 ? (
+                          <span className="text-emerald-500">
+                            {day.effect.fatigue} Fat
+                          </span>
+                        ) : null}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3 font-mono text-[11px]">
-                      {day.effect.fitness > 0 && (
-                        <span className="text-emerald-500 font-bold">
-                          +{day.effect.fitness} Fit
-                        </span>
-                      )}
-                      {day.effect.fatigue > 0 ? (
-                        <span className="text-orange-500">
-                          +{day.effect.fatigue} Fat
-                        </span>
-                      ) : day.effect.fatigue < 0 ? (
-                        <span className="text-emerald-500">
-                          {day.effect.fatigue} Fat
-                        </span>
-                      ) : null}
-                    </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             ) : (
-              <p className="text-xs text-slate-400 italic">{t("profile.training.no_sessions" as TranslationKey)}</p>
+              <p className="text-xs text-slate-400 italic">
+                {t("profile.training.no_sessions" as TranslationKey)}
+              </p>
             )}
           </div>
         </div>
@@ -525,148 +562,152 @@ export function ProfileScreen() {
         {/* Personal Best Tracker */}
         <PBTracker showPredictions={true} />
 
-          {/* Career Statistics & Lifetime Metrics */}
-          <div className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-6 shadow-sm flex flex-col gap-6">
-            {/* Runner Name */}
+        {/* Career Statistics & Lifetime Metrics */}
+        <div className="bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-[2rem] p-6 shadow-sm flex flex-col gap-6">
+          {/* Runner Name */}
+          <div>
+            <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">
+              {t("profile.career.title" as TranslationKey)}
+            </h2>
+            <p className="text-lg font-bold text-slate-800 dark:text-white">
+              {playerName}
+            </p>
+          </div>
+
+          <hr className="border-gray-100 dark:border-slate-800" />
+
+          {/* Lifetime Stats */}
+          <div className="grid grid-cols-2 gap-6">
             <div>
               <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">
-                {t("profile.career.title" as TranslationKey)}
+                {t("profile.career.lifetime_distance" as TranslationKey)}
               </h2>
-              <p className="text-lg font-bold text-slate-800 dark:text-white">
-                {playerName}
+              <p className="text-lg font-mono font-black text-slate-800 dark:text-white">
+                {calculateLifetimeDistance(profile)}
               </p>
             </div>
-
-            <hr className="border-gray-100 dark:border-slate-800" />
-
-            {/* Lifetime Stats */}
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">
-                  {t("profile.career.lifetime_distance" as TranslationKey)}
-                </h2>
-                <p className="text-lg font-mono font-black text-slate-800 dark:text-white">
-                  {calculateLifetimeDistance(profile)}
-                </p>
-              </div>
-              <div>
-                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">
-                  {t("profile.career.total_runs" as TranslationKey)}
-                </h2>
-                <p className="text-lg font-mono font-black text-slate-800 dark:text-white">
-                  {profile.totalRuns}
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">
-                  {t("profile.career.total_race_time" as TranslationKey)}
-                </h2>
-                <p className="text-lg font-mono font-black text-slate-800 dark:text-white">
-                  {calculateTotalRaceTime(profile)}
-                </p>
-              </div>
-              <div>
-                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">
-                  {t("profile.career.training_days" as TranslationKey)}
-                </h2>
-                <p className="text-lg font-mono font-black text-slate-800 dark:text-white">
-                  {profile.totalTrainingDays}
-                </p>
-              </div>
-            </div>
-
-            <hr className="border-gray-100 dark:border-slate-800" />
-
-            {/* Current Metrics */}
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">
-                  {t("profile.career.current_fitness" as TranslationKey)}
-                </h2>
-                <p className="text-slate-700 dark:text-gray-200">
-                  <span className="font-extrabold text-slate-800 dark:text-white">
-                    {profile.currentFitness}
-                  </span>
-                  <span className="text-xs text-gray-400 uppercase ml-1">
-                    ({getFitnessLevel(profile)})
-                  </span>
-                </p>
-              </div>
-              <div>
-                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">
-                  {t("profile.career.current_fatigue" as TranslationKey)}
-                </h2>
-                <p className="text-slate-700 dark:text-gray-200">
-                  <span className="font-extrabold text-slate-800 dark:text-white">
-                    {profile.currentFatigue}
-                  </span>
-                  <span className="text-xs text-gray-400 uppercase ml-1">
-                    ({getFatigueLevel(profile)})
-                  </span>
-                </p>
-              </div>
-            </div>
-
-            <hr className="border-gray-100 dark:border-slate-800" />
-
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">
-                  {t("profile.career.readiness" as TranslationKey)}
-                </h2>
-                <p className="text-slate-700 dark:text-gray-200">
-                  <span className="font-extrabold text-slate-800 dark:text-white">
-                    {profile.currentReadiness}
-                  </span>
-                  <span className="text-xs text-gray-400 uppercase ml-1">
-                    ({getReadinessLevel(profile)})
-                  </span>
-                </p>
-              </div>
-              <div>
-                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">
-                  {t("profile.career.running_streak" as TranslationKey)}
-                </h2>
-                <p className="text-lg font-bold text-slate-800 dark:text-white">
-                  {calculateRunningStreak(profile)} {t("common.days" as TranslationKey)}
-                </p>
-              </div>
-            </div>
-
-            <hr className="border-gray-100 dark:border-slate-800" />
-
-            {/* Preferences */}
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">
-                  {t("profile.career.preferred_surface" as TranslationKey)}
-                </h2>
-                <p className="text-sm font-semibold text-slate-700 dark:text-gray-300 capitalize">
-                  {profile.preferredSurface || t("profile.career.not_set" as TranslationKey)}
-                </p>
-              </div>
-              <div>
-                <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">
-                  {t("profile.career.preferred_distance" as TranslationKey)}
-                </h2>
-                <p className="text-sm font-semibold text-slate-700 dark:text-gray-300 capitalize">
-                  {profile.preferredDistance || t("profile.career.not_set" as TranslationKey)}
-                </p>
-              </div>
-            </div>
-
             <div>
               <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">
-                {t("profile.career.preferred_strategy" as TranslationKey)}
+                {t("profile.career.total_runs" as TranslationKey)}
               </h2>
-              <p className="text-sm font-semibold text-slate-700 dark:text-gray-300 capitalize">
-                {profile.preferredStrategy || t("profile.career.not_set" as TranslationKey)}
+              <p className="text-lg font-mono font-black text-slate-800 dark:text-white">
+                {profile.totalRuns}
               </p>
             </div>
           </div>
+
+          <div className="grid grid-cols-2 gap-6">
+            <div>
+              <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">
+                {t("profile.career.total_race_time" as TranslationKey)}
+              </h2>
+              <p className="text-lg font-mono font-black text-slate-800 dark:text-white">
+                {calculateTotalRaceTime(profile)}
+              </p>
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">
+                {t("profile.career.training_days" as TranslationKey)}
+              </h2>
+              <p className="text-lg font-mono font-black text-slate-800 dark:text-white">
+                {profile.totalTrainingDays}
+              </p>
+            </div>
+          </div>
+
+          <hr className="border-gray-100 dark:border-slate-800" />
+
+          {/* Current Metrics */}
+          <div className="grid grid-cols-2 gap-6">
+            <div>
+              <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">
+                {t("profile.career.current_fitness" as TranslationKey)}
+              </h2>
+              <p className="text-slate-700 dark:text-gray-200">
+                <span className="font-extrabold text-slate-800 dark:text-white">
+                  {profile.currentFitness}
+                </span>
+                <span className="text-xs text-gray-400 uppercase ml-1">
+                  ({getFitnessLevel(profile)})
+                </span>
+              </p>
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">
+                {t("profile.career.current_fatigue" as TranslationKey)}
+              </h2>
+              <p className="text-slate-700 dark:text-gray-200">
+                <span className="font-extrabold text-slate-800 dark:text-white">
+                  {profile.currentFatigue}
+                </span>
+                <span className="text-xs text-gray-400 uppercase ml-1">
+                  ({getFatigueLevel(profile)})
+                </span>
+              </p>
+            </div>
+          </div>
+
+          <hr className="border-gray-100 dark:border-slate-800" />
+
+          <div className="grid grid-cols-2 gap-6">
+            <div>
+              <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">
+                {t("profile.career.readiness" as TranslationKey)}
+              </h2>
+              <p className="text-slate-700 dark:text-gray-200">
+                <span className="font-extrabold text-slate-800 dark:text-white">
+                  {profile.currentReadiness}
+                </span>
+                <span className="text-xs text-gray-400 uppercase ml-1">
+                  ({getReadinessLevel(profile)})
+                </span>
+              </p>
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">
+                {t("profile.career.running_streak" as TranslationKey)}
+              </h2>
+              <p className="text-lg font-bold text-slate-800 dark:text-white">
+                {calculateRunningStreak(profile)}{" "}
+                {t("common.days" as TranslationKey)}
+              </p>
+            </div>
+          </div>
+
+          <hr className="border-gray-100 dark:border-slate-800" />
+
+          {/* Preferences */}
+          <div className="grid grid-cols-2 gap-6">
+            <div>
+              <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">
+                {t("profile.career.preferred_surface" as TranslationKey)}
+              </h2>
+              <p className="text-sm font-semibold text-slate-700 dark:text-gray-300 capitalize">
+                {profile.preferredSurface ||
+                  t("profile.career.not_set" as TranslationKey)}
+              </p>
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">
+                {t("profile.career.preferred_distance" as TranslationKey)}
+              </h2>
+              <p className="text-sm font-semibold text-slate-700 dark:text-gray-300 capitalize">
+                {profile.preferredDistance ||
+                  t("profile.career.not_set" as TranslationKey)}
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">
+              {t("profile.career.preferred_strategy" as TranslationKey)}
+            </h2>
+            <p className="text-sm font-semibold text-slate-700 dark:text-gray-300 capitalize">
+              {profile.preferredStrategy ||
+                t("profile.career.not_set" as TranslationKey)}
+            </p>
+          </div>
+        </div>
       </main>
     </motion.div>
   );

@@ -34,7 +34,7 @@ export interface ParkrunState {
   history: ParkrunHistory[];
   totalParkruns: number;
   bestTimes: Record<string, number>; // eventId -> best time
-  
+
   // Actions
   getParkrunsByDistance: (distance: Distance) => ParkrunEvent[];
   recordParkrun: (history: ParkrunHistory) => void;
@@ -58,7 +58,8 @@ const DEFAULT_PARKRUNS: ParkrunEvent[] = [
     prizeMultiplier: 0.3,
     xpMultiplier: 0.5,
     alwaysAvailable: true,
-    description: "Friendly local 5K, perfect for testing fitness or warm-up racing",
+    description:
+      "Friendly local 5K, perfect for testing fitness or warm-up racing",
   },
   {
     id: "parkrun_5k_medium",
@@ -110,7 +111,8 @@ const DEFAULT_PARKRUNS: ParkrunEvent[] = [
     prizeMultiplier: 0.2,
     xpMultiplier: 0.3,
     alwaysAvailable: true,
-    description: "Solo time trial, minimal competition, perfect for testing pacing",
+    description:
+      "Solo time trial, minimal competition, perfect for testing pacing",
   },
 ];
 
@@ -121,17 +123,17 @@ export const useParkrunStore = create<ParkrunState>()(
       history: [],
       totalParkruns: 0,
       bestTimes: {},
-      
+
       getParkrunsByDistance: (distance) => {
         const state = get();
         return state.availableParkruns.filter((pr) => pr.distance === distance);
       },
-      
+
       recordParkrun: (history) =>
         set((state) => {
           const bestTime = state.bestTimes[history.eventId];
           const isNewBest = !bestTime || history.time < bestTime;
-          
+
           return {
             history: [...state.history, history],
             totalParkruns: state.totalParkruns + 1,
@@ -140,26 +142,27 @@ export const useParkrunStore = create<ParkrunState>()(
               : state.bestTimes,
           };
         }),
-      
+
       getBestTime: (eventId) => {
         const state = get();
         return state.bestTimes[eventId] || null;
       },
-      
+
       getParkrunStats: () => {
         const state = get();
-        
+
         // Get current day index from timeline store if available
         // For now, use a simple week calculation
         const thisWeekRuns = state.history.filter((h) => {
           // Last 7 days
           return true; // Simplified - would need actual day tracking
         });
-        
-        const bestFinish = state.history.length > 0
-          ? Math.min(...state.history.map((h) => h.position))
-          : 999;
-        
+
+        const bestFinish =
+          state.history.length > 0
+            ? Math.min(...state.history.map((h) => h.position))
+            : 999;
+
         return {
           total: state.totalParkruns,
           thisWeek: thisWeekRuns.length,
@@ -169,6 +172,6 @@ export const useParkrunStore = create<ParkrunState>()(
     }),
     {
       name: "runquest.parkruns",
-    }
-  )
+    },
+  ),
 );

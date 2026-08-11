@@ -3,16 +3,20 @@
 
 import { useEffect } from "react";
 import { create } from "zustand";
-import type { TrainingState, WeeklyPlan, DailyActivity } from "./training-types";
-import { DEFAULT_TRAINING_STATE } from "./training-types";
 import type { RunnerState } from "../runner/runner-types";
 import type { RaceOccurrence } from "../scheduling/race-calendar-types";
+import type {
+  DailyActivity,
+  TrainingState,
+  WeeklyPlan,
+} from "./training-types";
+import { DEFAULT_TRAINING_STATE } from "./training-types";
 import {
-  generateWeeklyPlan,
-  completeActivity as completeActivityInPlan,
-  swapActivity as swapActivityInPlan,
   calculateAdherence,
+  completeActivity as completeActivityInPlan,
+  generateWeeklyPlan,
   getTodaysPlannedActivity,
+  swapActivity as swapActivityInPlan,
 } from "./weekly-plan-engine";
 
 const TRAINING_STORAGE_KEY = "trainingState";
@@ -27,17 +31,31 @@ interface TrainingStoreState {
   planHistory: WeeklyPlan[];
   lastPlanGenerated: number;
   setCurrentPlan: (plan: WeeklyPlan) => void;
-  generateNewPlan: (dayIndex: number, runnerState: RunnerState, upcomingRaces?: RaceOccurrence[], templateId?: string) => void;
+  generateNewPlan: (
+    dayIndex: number,
+    runnerState: RunnerState,
+    upcomingRaces?: RaceOccurrence[],
+    templateId?: string,
+  ) => void;
   completeActivity: (dayIndex: number, activity: DailyActivity) => void;
   swapActivity: (dayIndex: number, newActivity: DailyActivity) => void;
   archivePlan: (plan: WeeklyPlan) => void;
-  getAdherenceMetrics: (currentDayIndex?: number) => { completionRate: number; substitutionRate: number; missedWorkouts: number; totalPlanned: number; totalCompleted: number; };
-  getTodaysActivity: (currentDayIndex: number) => { activity: DailyActivity; energyCost: number; } | null;
+  getAdherenceMetrics: (currentDayIndex?: number) => {
+    completionRate: number;
+    substitutionRate: number;
+    missedWorkouts: number;
+    totalPlanned: number;
+    totalCompleted: number;
+  };
+  getTodaysActivity: (
+    currentDayIndex: number,
+  ) => { activity: DailyActivity; energyCost: number } | null;
 }
 
 // Helpers to get initial state safely for SSR
 const getInitialWeeklyPlan = (): WeeklyPlan | null => {
-  if (typeof window === "undefined" || typeof localStorage === "undefined") return null;
+  if (typeof window === "undefined" || typeof localStorage === "undefined")
+    return null;
   try {
     const stored = localStorage.getItem(WEEKLY_PLAN_STORAGE_KEY);
     return stored ? (JSON.parse(stored) as WeeklyPlan) : null;
@@ -47,7 +65,8 @@ const getInitialWeeklyPlan = (): WeeklyPlan | null => {
 };
 
 const getInitialPlanHistory = (): WeeklyPlan[] => {
-  if (typeof window === "undefined" || typeof localStorage === "undefined") return [];
+  if (typeof window === "undefined" || typeof localStorage === "undefined")
+    return [];
   try {
     const stored = localStorage.getItem(PLAN_HISTORY_STORAGE_KEY);
     return stored ? (JSON.parse(stored) as WeeklyPlan[]) : [];
@@ -57,10 +76,13 @@ const getInitialPlanHistory = (): WeeklyPlan[] => {
 };
 
 const getInitialTrainingState = (): TrainingState => {
-  if (typeof window === "undefined" || typeof localStorage === "undefined") return DEFAULT_TRAINING_STATE;
+  if (typeof window === "undefined" || typeof localStorage === "undefined")
+    return DEFAULT_TRAINING_STATE;
   try {
     const stored = localStorage.getItem(TRAINING_STORAGE_KEY);
-    return stored ? (JSON.parse(stored) as TrainingState) : DEFAULT_TRAINING_STATE;
+    return stored
+      ? (JSON.parse(stored) as TrainingState)
+      : DEFAULT_TRAINING_STATE;
   } catch {
     return DEFAULT_TRAINING_STATE;
   }
@@ -71,82 +93,103 @@ const useGlobalTrainingStore = create<TrainingStoreState>((set, get) => {
   return {
     trainingState: getInitialTrainingState(),
     setTrainingState: (state) => set({ trainingState: state }),
-    
+
     // Sprint 30: Weekly Plan State
     currentWeeklyPlan: initialPlan,
     planHistory: getInitialPlanHistory(),
     lastPlanGenerated: initialPlan ? initialPlan.weekStartDay : 0,
 
-  setCurrentPlan: (plan) => {
-    set({ currentWeeklyPlan: plan, lastPlanGenerated: plan.weekStartDay });
-    saveWeeklyPlan(plan);
-  },
+    setCurrentPlan: (plan) => {
+      set({ currentWeeklyPlan: plan, lastPlanGenerated: plan.weekStartDay });
+      saveWeeklyPlan(plan);
+    },
 
-  generateNewPlan: (dayIndex, runnerState, upcomingRaces = [], templateId?: string) => {
-    const newPlan = generateWeeklyPlan(dayIndex, runnerState, upcomingRaces, templateId);
-    
-    // Archive old plan if exists
-    const { currentWeeklyPlan } = get();
-    if (currentWeeklyPlan) {
-      get().archivePlan({ ...currentWeeklyPlan, isActive: false });
-    }
-    
-    get().setCurrentPlan(newPlan);
-  },
+    generateNewPlan: (
+      dayIndex,
+      runnerState,
+      upcomingRaces = [],
+      templateId?: string,
+    ) => {
+      const newPlan = generateWeeklyPlan(
+        dayIndex,
+        runnerState,
+        upcomingRaces,
+        templateId,
+      );
 
-  completeActivity: (dayIndex, activity) => {
-    const { currentWeeklyPlan } = get();
-    if (!currentWeeklyPlan) return;
+      // Archive old plan if exists
+      const { currentWeeklyPlan } = get();
+      if (currentWeeklyPlan) {
+        get().archivePlan({ ...currentWeeklyPlan, isActive: false });
+      }
 
-    const updatedPlan = completeActivityInPlan(currentWeeklyPlan, dayIndex, activity);
-    get().setCurrentPlan(updatedPlan);
-  },
+      get().setCurrentPlan(newPlan);
+    },
 
-  swapActivity: (dayIndex, newActivity) => {
-    const { currentWeeklyPlan } = get();
-    if (!currentWeeklyPlan) return;
+    completeActivity: (dayIndex, activity) => {
+      const { currentWeeklyPlan } = get();
+      if (!currentWeeklyPlan) return;
 
-    const updatedPlan = swapActivityInPlan(currentWeeklyPlan, dayIndex, newActivity);
-    get().setCurrentPlan(updatedPlan);
-  },
+      const updatedPlan = completeActivityInPlan(
+        currentWeeklyPlan,
+        dayIndex,
+        activity,
+      );
+      get().setCurrentPlan(updatedPlan);
+    },
 
-  archivePlan: (plan) => {
-    const { planHistory } = get();
-    const updatedHistory = [...planHistory, plan];
-    
-    // Keep only last 8 weeks
-    const recentHistory = updatedHistory.slice(-8);
-    
-    set({ planHistory: recentHistory });
-    savePlanHistory(recentHistory);
-  },
+    swapActivity: (dayIndex, newActivity) => {
+      const { currentWeeklyPlan } = get();
+      if (!currentWeeklyPlan) return;
 
-  getAdherenceMetrics: (currentDayIndex?: number) => {
-    const { currentWeeklyPlan } = get();
-    if (!currentWeeklyPlan) {
+      const updatedPlan = swapActivityInPlan(
+        currentWeeklyPlan,
+        dayIndex,
+        newActivity,
+      );
+      get().setCurrentPlan(updatedPlan);
+    },
+
+    archivePlan: (plan) => {
+      const { planHistory } = get();
+      const updatedHistory = [...planHistory, plan];
+
+      // Keep only last 8 weeks
+      const recentHistory = updatedHistory.slice(-8);
+
+      set({ planHistory: recentHistory });
+      savePlanHistory(recentHistory);
+    },
+
+    getAdherenceMetrics: (currentDayIndex?: number) => {
+      const { currentWeeklyPlan } = get();
+      if (!currentWeeklyPlan) {
+        return {
+          completionRate: 0,
+          substitutionRate: 0,
+          missedWorkouts: 0,
+          totalPlanned: 0,
+          totalCompleted: 0,
+        };
+      }
+      return calculateAdherence(currentWeeklyPlan, currentDayIndex);
+    },
+
+    getTodaysActivity: (currentDayIndex) => {
+      const { currentWeeklyPlan } = get();
+      const plannedActivity = getTodaysPlannedActivity(
+        currentWeeklyPlan,
+        currentDayIndex,
+      );
+
+      if (!plannedActivity) return null;
+
       return {
-        completionRate: 0,
-        substitutionRate: 0,
-        missedWorkouts: 0,
-        totalPlanned: 0,
-        totalCompleted: 0,
+        activity: plannedActivity.activity,
+        energyCost: plannedActivity.energyCost,
       };
-    }
-    return calculateAdherence(currentWeeklyPlan, currentDayIndex);
-  },
-
-  getTodaysActivity: (currentDayIndex) => {
-    const { currentWeeklyPlan } = get();
-    const plannedActivity = getTodaysPlannedActivity(currentWeeklyPlan, currentDayIndex);
-    
-    if (!plannedActivity) return null;
-    
-    return {
-      activity: plannedActivity.activity,
-      energyCost: plannedActivity.energyCost,
-    };
-  },
-};
+    },
+  };
 });
 
 let inMemoryTrainingState: TrainingState | null = null;
@@ -302,14 +345,14 @@ const savePlanHistory = (history: WeeklyPlan[]): void => {
 export const initializeWeeklyPlanState = (): void => {
   const plan = loadWeeklyPlan();
   const history = loadPlanHistory();
-  
+
   if (plan) {
-    useGlobalTrainingStore.setState({ 
+    useGlobalTrainingStore.setState({
       currentWeeklyPlan: plan,
       lastPlanGenerated: plan.weekStartDay,
     });
   }
-  
+
   if (history.length > 0) {
     useGlobalTrainingStore.setState({ planHistory: history });
   }

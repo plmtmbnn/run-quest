@@ -1,15 +1,23 @@
 /**
  * Game Health Monitoring System
- * 
+ *
  * Comprehensive health monitoring for the Run-Quest game,
  * tracking XP persistence, performance, errors, and overall game stability.
  */
 
-import { getXPState, resetXPTracker } from '@/runner/xp-tracker';
-import { getErrorStats, clearReportedErrors, isRecoverableState } from './error-handling';
-import { getPerformanceScore, isPerformanceAcceptable, getPerformanceTips } from './performance-monitor';
-import { loadRunnerState } from '@/runner/runner-persistence';
-import { useTimelineStore } from '@/store/timeline-store';
+import { loadRunnerState } from "@/runner/runner-persistence";
+import { getXPState, resetXPTracker } from "@/runner/xp-tracker";
+import { useTimelineStore } from "@/store/timeline-store";
+import {
+  clearReportedErrors,
+  getErrorStats,
+  isRecoverableState,
+} from "./error-handling";
+import {
+  getPerformanceScore,
+  getPerformanceTips,
+  isPerformanceAcceptable,
+} from "./performance-monitor";
 
 /**
  * Game health status interface
@@ -17,47 +25,47 @@ import { useTimelineStore } from '@/store/timeline-store';
 export interface GameHealthStatus {
   id: string;
   timestamp: number;
-  
+
   // XP System Health
   xpHealth: {
     currentXP: number;
     currentLevel: number;
     pendingAwards: number;
-    status: 'healthy' | 'warning' | 'critical';
+    status: "healthy" | "warning" | "critical";
     issues: string[];
   };
-  
+
   // Error System Health
   errorHealth: {
     totalErrors: number;
     bySeverity: Record<string, number>;
     byType: Record<string, number>;
     recoverable: boolean;
-    status: 'healthy' | 'warning' | 'critical';
+    status: "healthy" | "warning" | "critical";
     issues: string[];
   };
-  
+
   // Performance Health
   performanceHealth: {
     score: number;
     frameRate: number;
     memoryUsage: number;
     acceptable: boolean;
-    status: 'healthy' | 'warning' | 'critical';
+    status: "healthy" | "warning" | "critical";
     tips: string[];
   };
-  
+
   // Storage Health
   storageHealth: {
     runnerStateValid: boolean;
     gameStateValid: boolean;
     inventoryValid: boolean;
-    status: 'healthy' | 'warning' | 'critical';
+    status: "healthy" | "warning" | "critical";
     issues: string[];
   };
-  
+
   // Overall Health
-  overallStatus: 'healthy' | 'warning' | 'critical';
+  overallStatus: "healthy" | "warning" | "critical";
   overallScore: number; // 0-100
   recommendations: string[];
 }
@@ -103,35 +111,37 @@ let monitoringInterval: ReturnType<typeof setInterval> | null = null;
 /**
  * Initialize game health monitoring
  */
-export function initializeGameHealthMonitoring(config?: Partial<GameHealthConfig>): void {
+export function initializeGameHealthMonitoring(
+  config?: Partial<GameHealthConfig>,
+): void {
   healthConfig = { ...DEFAULT_CONFIG, ...config };
-  
+
   if (isMonitoring) {
     stopGameHealthMonitoring();
   }
-  
+
   isMonitoring = true;
   healthHistory = [];
-  
+
   // Start periodic health checks
   monitoringInterval = setInterval(() => {
     const status = checkGameHealth();
     recordHealthStatus(status);
-    
+
     // Log health issues in development
-    if (process.env.NODE_ENV !== 'production') {
-      if (status.overallStatus !== 'healthy') {
+    if (process.env.NODE_ENV !== "production") {
+      if (status.overallStatus !== "healthy") {
         console.log(`🏥 Game Health: ${status.overallStatus}`, status);
       }
     }
   }, healthConfig.checkInterval);
-  
+
   // Initial health check
   const initialStatus = checkGameHealth();
   recordHealthStatus(initialStatus);
-  
-  if (process.env.NODE_ENV !== 'production') {
-    console.log('🏥 Game Health Monitoring Started');
+
+  if (process.env.NODE_ENV !== "production") {
+    console.log("🏥 Game Health Monitoring Started");
   }
 }
 
@@ -152,29 +162,48 @@ export function stopGameHealthMonitoring(): void {
 export function checkGameHealth(): GameHealthStatus {
   const timestamp = Date.now();
   const statusId = `health_${timestamp}`;
-  
+
   // Check XP Health
   const xpState = getXPState();
   const xpHealth = checkXPHealth(xpState);
-  
+
   // Check Error Health
   const errorStats = getErrorStats();
   const errorHealth = checkErrorHealth(errorStats);
-  
+
   // Check Performance Health
   const performanceScore = getPerformanceScore();
   const isPerfAcceptable = isPerformanceAcceptable();
   const performanceTips = getPerformanceTips();
-  const performanceHealth = checkPerformanceHealth(performanceScore, isPerfAcceptable, performanceTips);
-  
+  const performanceHealth = checkPerformanceHealth(
+    performanceScore,
+    isPerfAcceptable,
+    performanceTips,
+  );
+
   // Check Storage Health
   const storageHealth = checkStorageHealth();
-  
+
   // Calculate Overall Health
-  const overallStatus = calculateOverallStatus(xpHealth, errorHealth, performanceHealth, storageHealth);
-  const overallScore = calculateOverallScore(xpHealth, errorHealth, performanceHealth, storageHealth);
-  const recommendations = generateRecommendations(xpHealth, errorHealth, performanceHealth, storageHealth);
-  
+  const overallStatus = calculateOverallStatus(
+    xpHealth,
+    errorHealth,
+    performanceHealth,
+    storageHealth,
+  );
+  const overallScore = calculateOverallScore(
+    xpHealth,
+    errorHealth,
+    performanceHealth,
+    storageHealth,
+  );
+  const recommendations = generateRecommendations(
+    xpHealth,
+    errorHealth,
+    performanceHealth,
+    storageHealth,
+  );
+
   return {
     id: statusId,
     timestamp,
@@ -191,26 +220,28 @@ export function checkGameHealth(): GameHealthStatus {
 /**
  * Check XP system health
  */
-function checkXPHealth(state: ReturnType<typeof getXPState>): GameHealthStatus['xpHealth'] {
+function checkXPHealth(
+  state: ReturnType<typeof getXPState>,
+): GameHealthStatus["xpHealth"] {
   const issues: string[] = [];
-  let status: 'healthy' | 'warning' | 'critical' = 'healthy';
-  
+  let status: "healthy" | "warning" | "critical" = "healthy";
+
   if (state.pending > healthConfig.thresholds.xpPendingWarning) {
     issues.push(`High pending XP awards: ${state.pending}`);
-    status = 'warning';
+    status = "warning";
   }
-  
+
   // Check if XP seems reasonable (not negative, not extremely high)
   if (state.xp < 0) {
-    issues.push('Negative XP detected');
-    status = 'critical';
+    issues.push("Negative XP detected");
+    status = "critical";
   }
-  
+
   if (state.level < 1) {
-    issues.push('Invalid level detected');
-    status = 'critical';
+    issues.push("Invalid level detected");
+    status = "critical";
   }
-  
+
   return {
     currentXP: state.xp,
     currentLevel: state.level,
@@ -223,29 +254,31 @@ function checkXPHealth(state: ReturnType<typeof getXPState>): GameHealthStatus['
 /**
  * Check error system health
  */
-function checkErrorHealth(stats: ReturnType<typeof getErrorStats>): GameHealthStatus['errorHealth'] {
+function checkErrorHealth(
+  stats: ReturnType<typeof getErrorStats>,
+): GameHealthStatus["errorHealth"] {
   const issues: string[] = [];
-  let status: 'healthy' | 'warning' | 'critical' = 'healthy';
-  
+  let status: "healthy" | "warning" | "critical" = "healthy";
+
   if (stats.total > healthConfig.thresholds.errorCritical) {
     issues.push(`High error count: ${stats.total}`);
-    status = 'critical';
+    status = "critical";
   } else if (stats.total > healthConfig.thresholds.errorWarning) {
     issues.push(`Elevated error count: ${stats.total}`);
-    status = 'warning';
+    status = "warning";
   }
-  
+
   if (!isRecoverableState()) {
-    issues.push('Game in unrecoverable state');
-    status = 'critical';
+    issues.push("Game in unrecoverable state");
+    status = "critical";
   }
-  
+
   // Check for critical errors
   if (stats.bySeverity.critical > 0) {
     issues.push(`${stats.bySeverity.critical} critical errors detected`);
-    status = 'critical';
+    status = "critical";
   }
-  
+
   return {
     totalErrors: stats.total,
     bySeverity: stats.bySeverity,
@@ -262,24 +295,24 @@ function checkErrorHealth(stats: ReturnType<typeof getErrorStats>): GameHealthSt
 function checkPerformanceHealth(
   score: number,
   acceptable: boolean,
-  tips: string[]
-): GameHealthStatus['performanceHealth'] {
+  tips: string[],
+): GameHealthStatus["performanceHealth"] {
   const issues: string[] = [];
-  let status: 'healthy' | 'warning' | 'critical' = 'healthy';
-  
+  let status: "healthy" | "warning" | "critical" = "healthy";
+
   if (!acceptable) {
-    issues.push('Performance below acceptable thresholds');
-    status = 'warning';
+    issues.push("Performance below acceptable thresholds");
+    status = "warning";
   }
-  
+
   if (score < healthConfig.thresholds.performanceCritical) {
     issues.push(`Low performance score: ${score}`);
-    status = 'critical';
+    status = "critical";
   } else if (score < healthConfig.thresholds.performanceWarning) {
     issues.push(`Performance score could be improved: ${score}`);
-    status = 'warning';
+    status = "warning";
   }
-  
+
   return {
     score,
     frameRate: 0, // Will be updated with actual metrics
@@ -293,29 +326,30 @@ function checkPerformanceHealth(
 /**
  * Check storage health
  */
-function checkStorageHealth(): GameHealthStatus['storageHealth'] {
+function checkStorageHealth(): GameHealthStatus["storageHealth"] {
   const issues: string[] = [];
-  let status: 'healthy' | 'warning' | 'critical' = 'healthy';
-  
+  let status: "healthy" | "warning" | "critical" = "healthy";
+
   try {
     // Check runner state
     const runnerState = loadRunnerState();
-    const runnerStateValid = runnerState && runnerState.profile && runnerState.profile.xp >= 0;
-    
+    const runnerStateValid =
+      runnerState && runnerState.profile && runnerState.profile.xp >= 0;
+
     if (!runnerStateValid) {
-      issues.push('Runner state appears corrupted');
-      status = 'critical';
+      issues.push("Runner state appears corrupted");
+      status = "critical";
     }
-    
+
     // Check game state
     const gameState = useTimelineStore.getState().gameState;
     const gameStateValid = gameState !== null;
-    
+
     if (!gameStateValid) {
-      issues.push('Game state not initialized');
-      status = 'warning';
+      issues.push("Game state not initialized");
+      status = "warning";
     }
-    
+
     return {
       runnerStateValid,
       gameStateValid,
@@ -329,7 +363,7 @@ function checkStorageHealth(): GameHealthStatus['storageHealth'] {
       runnerStateValid: false,
       gameStateValid: false,
       inventoryValid: false,
-      status: 'critical',
+      status: "critical",
       issues,
     };
   }
@@ -339,52 +373,64 @@ function checkStorageHealth(): GameHealthStatus['storageHealth'] {
  * Calculate overall status
  */
 function calculateOverallStatus(
-  xpHealth: GameHealthStatus['xpHealth'],
-  errorHealth: GameHealthStatus['errorHealth'],
-  performanceHealth: GameHealthStatus['performanceHealth'],
-  storageHealth: GameHealthStatus['storageHealth']
-): 'healthy' | 'warning' | 'critical' {
+  xpHealth: GameHealthStatus["xpHealth"],
+  errorHealth: GameHealthStatus["errorHealth"],
+  performanceHealth: GameHealthStatus["performanceHealth"],
+  storageHealth: GameHealthStatus["storageHealth"],
+): "healthy" | "warning" | "critical" {
   const statuses = [
     xpHealth.status,
     errorHealth.status,
     performanceHealth.status,
     storageHealth.status,
   ];
-  
+
   // If any system is critical, overall is critical
-  if (statuses.includes('critical')) {
-    return 'critical';
+  if (statuses.includes("critical")) {
+    return "critical";
   }
-  
+
   // If any system is warning, overall is warning
-  if (statuses.includes('warning')) {
-    return 'warning';
+  if (statuses.includes("warning")) {
+    return "warning";
   }
-  
-  return 'healthy';
+
+  return "healthy";
 }
 
 /**
  * Calculate overall score (0-100)
  */
 function calculateOverallScore(
-  xpHealth: GameHealthStatus['xpHealth'],
-  errorHealth: GameHealthStatus['errorHealth'],
-  performanceHealth: GameHealthStatus['performanceHealth'],
-  storageHealth: GameHealthStatus['storageHealth']
+  xpHealth: GameHealthStatus["xpHealth"],
+  errorHealth: GameHealthStatus["errorHealth"],
+  performanceHealth: GameHealthStatus["performanceHealth"],
+  storageHealth: GameHealthStatus["storageHealth"],
 ): number {
   // Weighted average
-  const xpScore = xpHealth.status === 'healthy' ? 100 : xpHealth.status === 'warning' ? 70 : 0;
-  const errorScore = errorHealth.status === 'healthy' ? 100 : errorHealth.status === 'warning' ? 70 : 0;
+  const xpScore =
+    xpHealth.status === "healthy"
+      ? 100
+      : xpHealth.status === "warning"
+        ? 70
+        : 0;
+  const errorScore =
+    errorHealth.status === "healthy"
+      ? 100
+      : errorHealth.status === "warning"
+        ? 70
+        : 0;
   const perfScore = performanceHealth.score;
-  const storageScore = storageHealth.status === 'healthy' ? 100 : storageHealth.status === 'warning' ? 70 : 0;
-  
+  const storageScore =
+    storageHealth.status === "healthy"
+      ? 100
+      : storageHealth.status === "warning"
+        ? 70
+        : 0;
+
   // XP: 25%, Errors: 25%, Performance: 30%, Storage: 20%
   return Math.round(
-    (xpScore * 0.25) + 
-    (errorScore * 0.25) + 
-    (perfScore * 0.30) + 
-    (storageScore * 0.20)
+    xpScore * 0.25 + errorScore * 0.25 + perfScore * 0.3 + storageScore * 0.2,
   );
 }
 
@@ -392,33 +438,33 @@ function calculateOverallScore(
  * Generate recommendations based on health status
  */
 function generateRecommendations(
-  xpHealth: GameHealthStatus['xpHealth'],
-  errorHealth: GameHealthStatus['errorHealth'],
-  performanceHealth: GameHealthStatus['performanceHealth'],
-  storageHealth: GameHealthStatus['storageHealth']
+  xpHealth: GameHealthStatus["xpHealth"],
+  errorHealth: GameHealthStatus["errorHealth"],
+  performanceHealth: GameHealthStatus["performanceHealth"],
+  storageHealth: GameHealthStatus["storageHealth"],
 ): string[] {
   const recommendations: string[] = [];
-  
+
   // XP recommendations
   if (xpHealth.issues.length > 0) {
-    recommendations.push('Check XP system for pending awards');
+    recommendations.push("Check XP system for pending awards");
   }
-  
+
   // Error recommendations
   if (errorHealth.issues.length > 0) {
-    recommendations.push('Review error logs for issues');
+    recommendations.push("Review error logs for issues");
   }
-  
+
   // Performance recommendations
   if (performanceHealth.tips.length > 0) {
     recommendations.push(...performanceHealth.tips);
   }
-  
+
   // Storage recommendations
   if (storageHealth.issues.length > 0) {
-    recommendations.push('Verify game data integrity');
+    recommendations.push("Verify game data integrity");
   }
-  
+
   return recommendations;
 }
 
@@ -427,7 +473,7 @@ function generateRecommendations(
  */
 function recordHealthStatus(status: GameHealthStatus): void {
   healthHistory.push(status);
-  
+
   // Keep only the most recent health reports
   if (healthHistory.length > healthConfig.maxHistory) {
     healthHistory.shift();
@@ -464,10 +510,10 @@ export function getHealthTrends(): {
       statusChanges: 0,
     };
   }
-  
+
   const latest = healthHistory[healthHistory.length - 1];
   const previous = healthHistory[healthHistory.length - 2];
-  
+
   return {
     improving: latest.overallScore > previous.overallScore,
     scoreChange: latest.overallScore - previous.overallScore,
@@ -490,11 +536,11 @@ export function resetHealthMonitoring(): void {
  */
 export function getHealthReport(): string {
   const status = getCurrentHealthStatus();
-  
+
   if (!status) {
-    return 'Health monitoring not started';
+    return "Health monitoring not started";
   }
-  
+
   const lines = [
     `🏥 Game Health Report (${new Date(status.timestamp).toLocaleTimeString()})`,
     `===`,
@@ -509,18 +555,18 @@ export function getHealthReport(): string {
     `Performance: ${status.performanceHealth.status.toUpperCase()} (${status.performanceHealth.score}/100)`,
     `Storage: ${status.storageHealth.status.toUpperCase()}`,
   ];
-  
+
   if (status.recommendations.length > 0) {
-    lines.push('===');
-    lines.push('Recommendations:');
-    status.recommendations.forEach(rec => lines.push(`  • ${rec}`));
+    lines.push("===");
+    lines.push("Recommendations:");
+    status.recommendations.forEach((rec) => lines.push(`  • ${rec}`));
   }
-  
-  return lines.join('\n');
+
+  return lines.join("\n");
 }
 
 // Auto-initialize in development
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== "production") {
   // Don't auto-start in production to avoid performance overhead
   // Call initializeGameHealthMonitoring() explicitly when needed
 }

@@ -1,11 +1,12 @@
 "use client";
 
-import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
 import {
   ArrowLeft,
   Briefcase,
   Calendar,
   CheckCircle2,
+  ChevronRight,
   HelpCircle,
   Info,
   Lightbulb,
@@ -13,7 +14,6 @@ import {
   Timer,
   Trophy,
   Zap,
-  ChevronRight,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -21,7 +21,13 @@ import { useSound } from "@/hooks/use-sound";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
 import { useSettingsStore } from "@/store/settings-store";
 
-type GuideTab = "scheduling" | "economy" | "shop" | "training" | "race_day" | "progression";
+type GuideTab =
+  | "scheduling"
+  | "economy"
+  | "shop"
+  | "training"
+  | "race_day"
+  | "progression";
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 8 },
@@ -37,7 +43,7 @@ const TAB_CONFIG: {
   titleKey: TranslationKey;
   emoji: string;
   icon: React.ElementType;
-  accent: string;      // tailwind color name used in dynamic classes
+  accent: string; // tailwind color name used in dynamic classes
   gradient: string;
   iconBg: string;
   iconText: string;
@@ -58,7 +64,12 @@ const TAB_CONFIG: {
     border: "border-indigo-100 dark:border-indigo-900/60",
     activeBg: "bg-indigo-50 dark:bg-indigo-950/40",
     activeText: "text-indigo-700 dark:text-indigo-300",
-    cta: { label: "🏁 Go Home →", route: "/", bg: "bg-indigo-500 hover:bg-indigo-600 shadow-indigo-500/30", shadow: "shadow-md" },
+    cta: {
+      label: "🏁 Go Home →",
+      route: "/",
+      bg: "bg-indigo-500 hover:bg-indigo-600 shadow-indigo-500/30",
+      shadow: "shadow-md",
+    },
   },
   {
     id: "economy",
@@ -72,7 +83,12 @@ const TAB_CONFIG: {
     border: "border-emerald-100 dark:border-emerald-900/60",
     activeBg: "bg-emerald-50 dark:bg-emerald-950/40",
     activeText: "text-emerald-700 dark:text-emerald-300",
-    cta: { label: "💰 Economy →", route: "/economy", bg: "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/30", shadow: "shadow-md" },
+    cta: {
+      label: "💰 Economy →",
+      route: "/economy",
+      bg: "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/30",
+      shadow: "shadow-md",
+    },
   },
   {
     id: "shop",
@@ -86,7 +102,12 @@ const TAB_CONFIG: {
     border: "border-blue-100 dark:border-blue-900/60",
     activeBg: "bg-blue-50 dark:bg-blue-950/40",
     activeText: "text-blue-700 dark:text-blue-300",
-    cta: { label: "🏪 Shop →", route: "/shop", bg: "bg-blue-600 hover:bg-blue-700 shadow-blue-500/30", shadow: "shadow-md" },
+    cta: {
+      label: "🏪 Shop →",
+      route: "/shop",
+      bg: "bg-blue-600 hover:bg-blue-700 shadow-blue-500/30",
+      shadow: "shadow-md",
+    },
   },
   {
     id: "training",
@@ -100,7 +121,12 @@ const TAB_CONFIG: {
     border: "border-amber-100 dark:border-amber-900/60",
     activeBg: "bg-amber-50 dark:bg-amber-950/40",
     activeText: "text-amber-700 dark:text-amber-300",
-    cta: { label: "🏃 Training →", route: "/training", bg: "bg-amber-500 hover:bg-amber-600 shadow-amber-500/30", shadow: "shadow-md" },
+    cta: {
+      label: "🏃 Training →",
+      route: "/training",
+      bg: "bg-amber-500 hover:bg-amber-600 shadow-amber-500/30",
+      shadow: "shadow-md",
+    },
   },
   {
     id: "race_day",
@@ -114,7 +140,12 @@ const TAB_CONFIG: {
     border: "border-rose-100 dark:border-rose-900/60",
     activeBg: "bg-rose-50 dark:bg-rose-950/40",
     activeText: "text-rose-700 dark:text-rose-300",
-    cta: { label: "🏁 Go Home →", route: "/", bg: "bg-rose-500 hover:bg-rose-600 shadow-rose-500/30", shadow: "shadow-md" },
+    cta: {
+      label: "🏁 Go Home →",
+      route: "/",
+      bg: "bg-rose-500 hover:bg-rose-600 shadow-rose-500/30",
+      shadow: "shadow-md",
+    },
   },
   {
     id: "progression",
@@ -128,10 +159,14 @@ const TAB_CONFIG: {
     border: "border-purple-100 dark:border-purple-900/60",
     activeBg: "bg-purple-50 dark:bg-purple-950/40",
     activeText: "text-purple-700 dark:text-purple-300",
-    cta: { label: "👤 My Profile →", route: "/profile", bg: "bg-purple-600 hover:bg-purple-700 shadow-purple-500/30", shadow: "shadow-md" },
+    cta: {
+      label: "👤 My Profile →",
+      route: "/profile",
+      bg: "bg-purple-600 hover:bg-purple-700 shadow-purple-500/30",
+      shadow: "shadow-md",
+    },
   },
 ];
-
 
 export function HowToPlayScreen() {
   const router = useRouter();
@@ -194,7 +229,10 @@ export function HowToPlayScreen() {
               <button
                 key={lang}
                 type="button"
-                onClick={() => { playSound("click"); setLanguage(lang); }}
+                onClick={() => {
+                  playSound("click");
+                  setLanguage(lang);
+                }}
                 className={`px-3 py-1.5 rounded-full text-xs font-black transition-all ${
                   language === lang
                     ? "bg-indigo-500 text-white shadow-sm"
@@ -210,7 +248,6 @@ export function HowToPlayScreen() {
 
       {/* ── Main ── */}
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 md:px-6 py-6 flex flex-col gap-6 relative z-10">
-
         {/* Pro Tip Banner */}
         <div className="relative overflow-hidden bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/15 border border-amber-400/30 dark:border-amber-500/30 rounded-2xl p-4 md:p-5 flex items-start gap-3 shadow-sm">
           <div className="absolute inset-0 bg-gradient-to-r from-amber-400/5 to-transparent pointer-events-none" />
@@ -243,8 +280,12 @@ export function HowToPlayScreen() {
                     : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-800 hover:text-indigo-600 dark:hover:text-indigo-400"
                 }`}
               >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? "text-white" : tab.iconText}`} />
-                {t(tab.titleKey).replace(/^[\p{Emoji}\s]+/u, "").trim()}
+                <Icon
+                  className={`w-3.5 h-3.5 ${isActive ? "text-white" : tab.iconText}`}
+                />
+                {t(tab.titleKey)
+                  .replace(/^[\p{Emoji}\s]+/u, "")
+                  .trim()}
               </button>
             );
           })}
@@ -261,21 +302,34 @@ export function HowToPlayScreen() {
             className={`relative overflow-hidden bg-white dark:bg-slate-900 border ${activeConfig.border} rounded-[2rem] shadow-sm flex flex-col gap-5 p-5 sm:p-6`}
           >
             {/* gradient overlay */}
-            <div className={`absolute inset-0 bg-gradient-to-br ${activeConfig.gradient} pointer-events-none`} />
+            <div
+              className={`absolute inset-0 bg-gradient-to-br ${activeConfig.gradient} pointer-events-none`}
+            />
             {/* decorative circle */}
-            <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-current opacity-[0.04] text-current pointer-events-none" style={{ color: "inherit" }} />
+            <div
+              className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-current opacity-[0.04] text-current pointer-events-none"
+              style={{ color: "inherit" }}
+            />
 
             {/* Section header */}
             <div className="flex items-center gap-3 relative z-10">
-              <div className={`p-2.5 rounded-2xl ${activeConfig.iconBg} border ${activeConfig.border} shrink-0`}>
-                <activeConfig.icon className={`w-5 h-5 ${activeConfig.iconText}`} />
+              <div
+                className={`p-2.5 rounded-2xl ${activeConfig.iconBg} border ${activeConfig.border} shrink-0`}
+              >
+                <activeConfig.icon
+                  className={`w-5 h-5 ${activeConfig.iconText}`}
+                />
               </div>
               <div>
                 <h2 className="text-base md:text-lg font-black font-heading text-slate-900 dark:text-white">
-                  {t(`how_to_play.sections.${activeTab}.title` as TranslationKey)}
+                  {t(
+                    `how_to_play.sections.${activeTab}.title` as TranslationKey,
+                  )}
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
-                  {t(`how_to_play.sections.${activeTab}.desc` as TranslationKey)}
+                  {t(
+                    `how_to_play.sections.${activeTab}.desc` as TranslationKey,
+                  )}
                 </p>
               </div>
             </div>
@@ -293,11 +347,15 @@ export function HowToPlayScreen() {
                   variants={itemVariants}
                   className="flex items-start gap-3 bg-slate-50/80 dark:bg-slate-950/60 border border-slate-200/70 dark:border-slate-800/70 p-4 rounded-2xl hover:border-indigo-300/50 dark:hover:border-indigo-700/50 transition-colors"
                 >
-                  <div className={`h-6 w-6 rounded-full ${activeConfig.iconBg} ${activeConfig.iconText} font-black text-[11px] flex items-center justify-center shrink-0 mt-0.5 font-mono`}>
+                  <div
+                    className={`h-6 w-6 rounded-full ${activeConfig.iconBg} ${activeConfig.iconText} font-black text-[11px] flex items-center justify-center shrink-0 mt-0.5 font-mono`}
+                  >
                     {n}
                   </div>
                   <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-200 leading-relaxed">
-                    {t(`how_to_play.sections.${activeTab}.item${n}` as TranslationKey)}
+                    {t(
+                      `how_to_play.sections.${activeTab}.item${n}` as TranslationKey,
+                    )}
                   </p>
                 </motion.div>
               ))}
@@ -308,7 +366,10 @@ export function HowToPlayScreen() {
               <div className="pt-1 border-t border-slate-100 dark:border-slate-800 flex justify-end relative z-10">
                 <button
                   type="button"
-                  onClick={() => { playSound("click"); router.push(activeConfig.cta!.route); }}
+                  onClick={() => {
+                    playSound("click");
+                    router.push(activeConfig.cta!.route);
+                  }}
                   className={`px-4 py-2 ${activeConfig.cta.bg} ${activeConfig.cta.shadow} text-white rounded-xl text-xs font-extrabold transition-all active:scale-95 flex items-center gap-1.5`}
                 >
                   {activeConfig.cta.label}
@@ -341,14 +402,26 @@ export function HowToPlayScreen() {
                       : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
                   }`}
                 >
-                  <div className={`p-1.5 rounded-xl ${isActive ? tItem.iconBg : "bg-slate-100 dark:bg-slate-800"} shrink-0 transition-colors`}>
-                    <Icon className={`w-4 h-4 ${isActive ? tItem.iconText : "text-slate-500 dark:text-slate-400"}`} />
+                  <div
+                    className={`p-1.5 rounded-xl ${isActive ? tItem.iconBg : "bg-slate-100 dark:bg-slate-800"} shrink-0 transition-colors`}
+                  >
+                    <Icon
+                      className={`w-4 h-4 ${isActive ? tItem.iconText : "text-slate-500 dark:text-slate-400"}`}
+                    />
                   </div>
-                  <span className={`text-xs font-black flex-1 min-w-0 truncate ${isActive ? tItem.activeText : "text-slate-700 dark:text-slate-300"}`}>
-                    {t(`how_to_play.sections.${tItem.id}.title` as TranslationKey).replace(/^[\p{Emoji}\s]+/u, "").trim()}
+                  <span
+                    className={`text-xs font-black flex-1 min-w-0 truncate ${isActive ? tItem.activeText : "text-slate-700 dark:text-slate-300"}`}
+                  >
+                    {t(
+                      `how_to_play.sections.${tItem.id}.title` as TranslationKey,
+                    )
+                      .replace(/^[\p{Emoji}\s]+/u, "")
+                      .trim()}
                   </span>
                   {isActive ? (
-                    <CheckCircle2 className={`w-3.5 h-3.5 ${tItem.iconText} shrink-0`} />
+                    <CheckCircle2
+                      className={`w-3.5 h-3.5 ${tItem.iconText} shrink-0`}
+                    />
                   ) : (
                     <ChevronRight className="w-3.5 h-3.5 text-slate-300 dark:text-slate-600 shrink-0 group-hover:text-slate-400 transition-colors" />
                   )}
@@ -372,16 +445,25 @@ export function HowToPlayScreen() {
           <div className="flex flex-col gap-2 relative z-10">
             {[
               { emoji: "⚡", key: "disclaimer.offline_info" as TranslationKey },
-              { emoji: "⚠️", key: "disclaimer.unofficial_notice" as TranslationKey },
+              {
+                emoji: "⚠️",
+                key: "disclaimer.unofficial_notice" as TranslationKey,
+              },
             ].map(({ emoji, key }) => (
-              <div key={key} className="flex items-start gap-2.5 bg-slate-50 dark:bg-slate-950/60 p-3 rounded-xl border border-slate-100 dark:border-slate-800/80">
-                <span className="text-sm shrink-0 leading-tight mt-0.5">{emoji}</span>
-                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{t(key)}</p>
+              <div
+                key={key}
+                className="flex items-start gap-2.5 bg-slate-50 dark:bg-slate-950/60 p-3 rounded-xl border border-slate-100 dark:border-slate-800/80"
+              >
+                <span className="text-sm shrink-0 leading-tight mt-0.5">
+                  {emoji}
+                </span>
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                  {t(key)}
+                </p>
               </div>
             ))}
           </div>
         </div>
-
       </main>
     </motion.div>
   );

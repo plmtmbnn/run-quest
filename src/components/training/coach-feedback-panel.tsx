@@ -1,8 +1,8 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import type { CoachFeedbackMessage } from "@/training/training-types";
+import { AnimatePresence, motion } from "framer-motion";
 import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+import type { CoachFeedbackMessage } from "@/training/training-types";
 
 function interpolate(
   template: string,
@@ -29,9 +29,22 @@ export function CoachFeedbackPanel({
   // Categorize feedback by type
   const getFeedbackType = (msg: CoachFeedbackMessage) => {
     const key = msg.key;
-    if (key.includes("good_") || key.includes("solid") || key.includes("great")) return "positive";
-    if (key.includes("overtraining") || key.includes("no_rest") || key.includes("back_to_back") || key.includes("high_fatigue")) return "warning";
-    if (key.includes("tip") || key.includes("add_") || key.includes("more_") || key.includes("decent")) return "tip";
+    if (key.includes("good_") || key.includes("solid") || key.includes("great"))
+      return "positive";
+    if (
+      key.includes("overtraining") ||
+      key.includes("no_rest") ||
+      key.includes("back_to_back") ||
+      key.includes("high_fatigue")
+    )
+      return "warning";
+    if (
+      key.includes("tip") ||
+      key.includes("add_") ||
+      key.includes("more_") ||
+      key.includes("decent")
+    )
+      return "tip";
     if (key.includes("great_race")) return "celebration";
     if (key.includes("taper")) return "race";
     return "neutral";
@@ -43,7 +56,10 @@ export function CoachFeedbackPanel({
       positive: { icon: "✅", color: "text-green-600 dark:text-green-400" },
       warning: { icon: "⚠️", color: "text-yellow-600 dark:text-yellow-400" },
       tip: { icon: "💡", color: "text-blue-600 dark:text-blue-400" },
-      celebration: { icon: "🎉", color: "text-purple-600 dark:text-purple-400" },
+      celebration: {
+        icon: "🎉",
+        color: "text-purple-600 dark:text-purple-400",
+      },
       race: { icon: "🏁", color: "text-red-600 dark:text-red-400" },
       neutral: { icon: "👍", color: "text-slate-600 dark:text-slate-400" },
     };
@@ -80,9 +96,8 @@ export function CoachFeedbackPanel({
               <div className="space-y-3">
                 {feedback.map((item, index) => {
                   // Backward compat: legacy plans store raw strings
-                  const msg: CoachFeedbackMessage = typeof item === "string"
-                    ? { key: item }
-                    : item;
+                  const msg: CoachFeedbackMessage =
+                    typeof item === "string" ? { key: item } : item;
 
                   const type = getFeedbackType(msg);
                   const { icon, color } = getFeedbackIcon(type);
@@ -96,7 +111,7 @@ export function CoachFeedbackPanel({
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
-                      className={`flex items-start gap-3 p-3 rounded-xl ${type === 'warning' ? 'bg-yellow-50/50 dark:bg-yellow-950/10' : type === 'positive' ? 'bg-green-50/50 dark:bg-green-950/10' : 'bg-slate-50/50 dark:bg-slate-800/50'}`}
+                      className={`flex items-start gap-3 p-3 rounded-xl ${type === "warning" ? "bg-yellow-50/50 dark:bg-yellow-950/10" : type === "positive" ? "bg-green-50/50 dark:bg-green-950/10" : "bg-slate-50/50 dark:bg-slate-800/50"}`}
                     >
                       <span className={`text-xl ${color}`}>{icon}</span>
                       <p className="text-sm text-slate-700 dark:text-slate-300 flex-1">

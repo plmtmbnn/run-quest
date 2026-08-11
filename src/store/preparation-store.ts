@@ -67,7 +67,9 @@ export const usePreparationStore = create<PreparationState>((set) => ({
 
   setNutritionQuantity: (nutritionItem, quantity) =>
     set((state) => {
-      const currentQuantities = state.preparation.nutritionQuantities ?? { water: 1 };
+      const currentQuantities = state.preparation.nutritionQuantities ?? {
+        water: 1,
+      };
       return {
         preparation: {
           ...state.preparation,

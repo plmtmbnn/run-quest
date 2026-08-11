@@ -164,13 +164,16 @@ export function MentalCommentary({
  * Hook to manage commentary queue and prevent spam
  */
 export function useCommentaryQueue() {
-  const [activeCommentary, setActiveCommentary] = useState<CommentaryTrigger | null>(null);
-  const [lastTriggerKm, setLastTriggerKm] = useState<Record<string, number>>({});
+  const [activeCommentary, setActiveCommentary] =
+    useState<CommentaryTrigger | null>(null);
+  const [lastTriggerKm, setLastTriggerKm] = useState<Record<string, number>>(
+    {},
+  );
 
   const triggerCommentary = (
     trigger: CommentaryTrigger,
     currentKm: number,
-    state: SimulationState
+    state: SimulationState,
   ) => {
     // Prevent spam: No more than one message per km
     const lastKm = lastTriggerKm[trigger] || -2;
@@ -185,16 +188,18 @@ export function useCommentaryQueue() {
       case "race_start":
         shouldTrigger = currentKm <= 0.1;
         break;
-      case "halfway":
+      case "halfway": {
         const halfwayPoint = state.totalDistance / 2;
         shouldTrigger = Math.abs(currentKm - halfwayPoint) < 0.1;
         break;
+      }
       case "low_energy":
         shouldTrigger = state.energy < 30 && state.energy > 15;
         break;
       case "final_2km":
-        shouldTrigger = state.distanceCovered >= state.totalDistance - 2.1 && 
-                       state.distanceCovered <= state.totalDistance - 1.9;
+        shouldTrigger =
+          state.distanceCovered >= state.totalDistance - 2.1 &&
+          state.distanceCovered <= state.totalDistance - 1.9;
         break;
       case "near_pb":
         // This should be triggered externally when pace comparison is calculated

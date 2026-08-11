@@ -23,7 +23,10 @@ function formatTime(seconds: number): string {
 /**
  * Get performance status based on comparison to PB
  */
-function getPerformanceStatus(splitTime: number, comparisonTime?: number): {
+function getPerformanceStatus(
+  splitTime: number,
+  comparisonTime?: number,
+): {
   status: "faster" | "slower" | "way_slower" | "neutral";
   difference: number;
   gradient: string;
@@ -80,7 +83,7 @@ function getPerformanceStatus(splitTime: number, comparisonTime?: number): {
  */
 function getMotivationalMessage(
   status: "faster" | "slower" | "way_slower" | "neutral",
-  difference: number
+  difference: number,
 ): string {
   if (status === "faster") {
     if (difference <= -5) {
@@ -108,7 +111,10 @@ export function SplitCallout({
 }: SplitCalloutProps) {
   const [visible, setVisible] = useState(true);
   const performance = getPerformanceStatus(splitTime, comparisonTime);
-  const message = getMotivationalMessage(performance.status, performance.difference);
+  const message = getMotivationalMessage(
+    performance.status,
+    performance.difference,
+  );
 
   useEffect(() => {
     // Auto-dismiss after 3 seconds
@@ -198,7 +204,7 @@ export function useSplitCalloutQueue() {
     km: number,
     splitTime: number,
     cumulativeTime: number,
-    comparisonTime?: number
+    comparisonTime?: number,
   ) => {
     // Only trigger for whole kilometers
     const wholeKm = Math.floor(km);

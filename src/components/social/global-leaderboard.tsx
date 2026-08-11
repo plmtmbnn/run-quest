@@ -1,14 +1,32 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Flame, Zap, Award, Search, RefreshCw, Globe, UserCheck, ArrowLeft } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  ArrowLeft,
+  Award,
+  Flame,
+  Globe,
+  RefreshCw,
+  Search,
+  Trophy,
+  UserCheck,
+  Zap,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
-import { LeaderboardService, type LeaderboardCategory, type LeaderboardEntry, type ActivityFeedItem } from "@/services/leaderboard/leaderboard-service";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+import {
+  type ActivityFeedItem,
+  type LeaderboardCategory,
+  type LeaderboardEntry,
+  LeaderboardService,
+} from "@/services/leaderboard/leaderboard-service";
 import { usePlayerStore } from "@/store/player-store";
 
 export function GlobalLeaderboardView() {
   const router = useRouter();
+  const { t } = useTranslation();
   const player = usePlayerStore((state) => state.player);
   const [category, setCategory] = useState<LeaderboardCategory>("daily");
   const [searchQuery, setSearchQuery] = useState("");
@@ -34,15 +52,39 @@ export function GlobalLeaderboardView() {
   }, [category]);
 
   const filteredEntries = entries.filter((item) =>
-    item.playerName.toLowerCase().includes(searchQuery.toLowerCase())
+    item.playerName.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  const categories: { key: LeaderboardCategory; label: string; icon: React.ReactNode }[] = [
-    { key: "daily", label: "Daily Top Times", icon: <Zap className="w-4 h-4 text-amber-500" /> },
-    { key: "weekly", label: "Weekly Champions", icon: <Trophy className="w-4 h-4 text-indigo-500" /> },
-    { key: "all_time", label: "All-Time Records", icon: <Award className="w-4 h-4 text-emerald-500" /> },
-    { key: "rising", label: "Rising Stars", icon: <Flame className="w-4 h-4 text-rose-500" /> },
-    { key: "most_active", label: "Most Active", icon: <Globe className="w-4 h-4 text-sky-500" /> },
+  const categories: {
+    key: LeaderboardCategory;
+    label: string;
+    icon: React.ReactNode;
+  }[] = [
+    {
+      key: "daily",
+      label: "Daily Top Times",
+      icon: <Zap className="w-4 h-4 text-amber-500" />,
+    },
+    {
+      key: "weekly",
+      label: "Weekly Champions",
+      icon: <Trophy className="w-4 h-4 text-indigo-500" />,
+    },
+    {
+      key: "all_time",
+      label: "All-Time Records",
+      icon: <Award className="w-4 h-4 text-emerald-500" />,
+    },
+    {
+      key: "rising",
+      label: "Rising Stars",
+      icon: <Flame className="w-4 h-4 text-rose-500" />,
+    },
+    {
+      key: "most_active",
+      label: "Most Active",
+      icon: <Globe className="w-4 h-4 text-sky-500" />,
+    },
   ];
 
   return (
@@ -76,7 +118,9 @@ export function GlobalLeaderboardView() {
               disabled={isRefreshing}
               className="px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 font-bold text-xs flex items-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95 transition-all"
             >
-              <RefreshCw className={`w-4 h-4 text-indigo-500 ${isRefreshing ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`w-4 h-4 text-indigo-500 ${isRefreshing ? "animate-spin" : ""}`}
+              />
               Refresh
             </button>
           </div>
@@ -125,10 +169,18 @@ export function GlobalLeaderboardView() {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-[#E5E7EB] dark:border-slate-800 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                    <th className="py-3 px-4">Rank</th>
-                    <th className="py-3 px-4">Runner</th>
-                    <th className="py-3 px-4">Distance</th>
-                    <th className="py-3 px-4 text-right">Record / Time</th>
+                    <th className="py-3 px-4">
+                      {t("social_table.rank" as TranslationKey)}
+                    </th>
+                    <th className="py-3 px-4">
+                      {t("social_table.runner" as TranslationKey)}
+                    </th>
+                    <th className="py-3 px-4">
+                      {t("social_table.distance" as TranslationKey)}
+                    </th>
+                    <th className="py-3 px-4 text-right">
+                      {t("social_table.record_time" as TranslationKey)}
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E5E7EB] dark:divide-slate-800">
@@ -142,7 +194,13 @@ export function GlobalLeaderboardView() {
                       }`}
                     >
                       <td className="py-3.5 px-4 font-mono font-bold text-sm">
-                        {item.rank === 1 ? "🥇 1" : item.rank === 2 ? "🥈 2" : item.rank === 3 ? "🥉 3" : `#${item.rank}`}
+                        {item.rank === 1
+                          ? "🥇 1"
+                          : item.rank === 2
+                            ? "🥈 2"
+                            : item.rank === 3
+                              ? "🥉 3"
+                              : `#${item.rank}`}
                       </td>
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-2.5">
@@ -190,8 +248,15 @@ export function GlobalLeaderboardView() {
                   className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 flex flex-col gap-1.5"
                 >
                   <div className="flex items-center justify-between text-[10px] font-bold text-slate-400">
-                    <span className="font-mono text-indigo-500">{act.distance}</span>
-                    <span>{new Date(act.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    <span className="font-mono text-indigo-500">
+                      {act.distance}
+                    </span>
+                    <span>
+                      {new Date(act.timestamp).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
                   </div>
                   <p className="font-heading font-black text-xs text-slate-800 dark:text-white">
                     {act.playerName}

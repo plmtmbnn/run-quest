@@ -37,7 +37,7 @@ export default function Page() {
   const [screen, setScreen] = useState<AppScreen>("loading");
   const gameMode = useSettingsStore((state) => state.settings.gameMode);
   const hasCompletedOnboarding = useSettingsStore(
-    (state) => state.settings.hasCompletedOnboarding
+    (state) => state.settings.hasCompletedOnboarding,
   );
 
   useEffect(() => {
@@ -53,7 +53,9 @@ export default function Page() {
   if (screen === "loading") {
     return (
       <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
-        <div className="text-neutral-400 text-sm animate-pulse">Loading RunQuest...</div>
+        <div className="text-neutral-400 text-sm animate-pulse">
+          Loading RunQuest...
+        </div>
       </div>
     );
   }

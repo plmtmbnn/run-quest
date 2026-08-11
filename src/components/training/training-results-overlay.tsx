@@ -1,9 +1,18 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, TrendingUp, Heart, ShieldCheck, Zap, Sparkles, Clock, ArrowRight } from "lucide-react";
-import type { DailyActivity } from "@/training/training-types";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  ArrowRight,
+  CheckCircle2,
+  Clock,
+  Heart,
+  ShieldCheck,
+  Sparkles,
+  TrendingUp,
+  Zap,
+} from "lucide-react";
 import { ACTIVITY_EFFECTS } from "@/training/training-effects";
+import type { DailyActivity } from "@/training/training-types";
 
 export interface WorkoutStatDiff {
   fitnessBefore: number;
@@ -32,9 +41,15 @@ export function TrainingResultsOverlay({
   if (!isOpen) return null;
 
   const effect = ACTIVITY_EFFECTS[activity];
-  const fitnessDelta = Number((statsDiff.fitnessAfter - statsDiff.fitnessBefore).toFixed(1));
-  const fatigueDelta = Number((statsDiff.fatigueAfter - statsDiff.fatigueBefore).toFixed(1));
-  const readinessDelta = Number((statsDiff.readinessAfter - statsDiff.readinessBefore).toFixed(1));
+  const fitnessDelta = Number(
+    (statsDiff.fitnessAfter - statsDiff.fitnessBefore).toFixed(1),
+  );
+  const fatigueDelta = Number(
+    (statsDiff.fatigueAfter - statsDiff.fatigueBefore).toFixed(1),
+  );
+  const readinessDelta = Number(
+    (statsDiff.readinessAfter - statsDiff.readinessBefore).toFixed(1),
+  );
 
   return (
     <AnimatePresence>
@@ -71,9 +86,12 @@ export function TrainingResultsOverlay({
             {/* Fitness */}
             <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/50 rounded-2xl p-3 flex flex-col items-center">
               <TrendingUp className="w-4 h-4 text-emerald-500 mb-1" />
-              <span className="text-[10px] font-bold uppercase text-slate-400">Fitness</span>
+              <span className="text-[10px] font-bold uppercase text-slate-400">
+                Fitness
+              </span>
               <span className="text-sm font-black font-mono text-slate-800 dark:text-white mt-0.5">
-                {Math.round(statsDiff.fitnessBefore)} → {Math.round(statsDiff.fitnessAfter)}
+                {Math.round(statsDiff.fitnessBefore)} →{" "}
+                {Math.round(statsDiff.fitnessAfter)}
               </span>
               <span className="text-[11px] font-mono font-bold text-emerald-500 mt-0.5">
                 +{fitnessDelta}
@@ -83,9 +101,12 @@ export function TrainingResultsOverlay({
             {/* Fatigue */}
             <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/50 rounded-2xl p-3 flex flex-col items-center">
               <Heart className="w-4 h-4 text-orange-500 mb-1" />
-              <span className="text-[10px] font-bold uppercase text-slate-400">Fatigue</span>
+              <span className="text-[10px] font-bold uppercase text-slate-400">
+                Fatigue
+              </span>
               <span className="text-sm font-black font-mono text-slate-800 dark:text-white mt-0.5">
-                {Math.round(statsDiff.fatigueBefore)} → {Math.round(statsDiff.fatigueAfter)}
+                {Math.round(statsDiff.fatigueBefore)} →{" "}
+                {Math.round(statsDiff.fatigueAfter)}
               </span>
               <span
                 className={`text-[11px] font-mono font-bold mt-0.5 ${
@@ -99,9 +120,12 @@ export function TrainingResultsOverlay({
             {/* Readiness */}
             <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/50 rounded-2xl p-3 flex flex-col items-center">
               <ShieldCheck className="w-4 h-4 text-indigo-500 mb-1" />
-              <span className="text-[10px] font-bold uppercase text-slate-400">Readiness</span>
+              <span className="text-[10px] font-bold uppercase text-slate-400">
+                Readiness
+              </span>
               <span className="text-sm font-black font-mono text-slate-800 dark:text-white mt-0.5">
-                {Math.round(statsDiff.readinessBefore)} → {Math.round(statsDiff.readinessAfter)}
+                {Math.round(statsDiff.readinessBefore)} →{" "}
+                {Math.round(statsDiff.readinessAfter)}
               </span>
               <span
                 className={`text-[11px] font-mono font-bold mt-0.5 ${
@@ -119,22 +143,31 @@ export function TrainingResultsOverlay({
               <div className="flex items-start gap-2 text-xs text-indigo-600 dark:text-indigo-400 font-medium">
                 <Clock className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-bold block">Delayed Adaptation Queued</span>
+                  <span className="font-bold block">
+                    Delayed Adaptation Queued
+                  </span>
                   <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                    +{(effect.fitness * 0.7).toFixed(1)} additional fitness gain matures in {effect.adaptationDays} days.
+                    +{(effect.fitness * 0.7).toFixed(1)} additional fitness gain
+                    matures in {effect.adaptationDays} days.
                   </span>
                 </div>
               </div>
             ) : (
               <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300 font-medium">
                 <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
-                <span>Recovery session helps lower fatigue for upcoming efforts.</span>
+                <span>
+                  Recovery session helps lower fatigue for upcoming efforts.
+                </span>
               </div>
             )}
 
             <div className="flex items-center justify-between pt-2 border-t border-slate-200/50 dark:border-slate-700/30 text-xs">
-              <span className="font-bold text-slate-600 dark:text-slate-400">XP Earned:</span>
-              <span className="font-mono font-black text-indigo-500">+{statsDiff.xpGained} XP</span>
+              <span className="font-bold text-slate-600 dark:text-slate-400">
+                XP Earned:
+              </span>
+              <span className="font-mono font-black text-indigo-500">
+                +{statsDiff.xpGained} XP
+              </span>
             </div>
           </div>
 

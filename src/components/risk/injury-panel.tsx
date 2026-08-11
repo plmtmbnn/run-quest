@@ -20,11 +20,14 @@ interface InjuryPanelProps {
   onApplyTreatment?: (injuryId: string, treatmentType: TreatmentType) => void;
 }
 
+import { type TranslationKey, useTranslation } from "@/i18n/use-translation";
+
 export function InjuryPanel({
   injuryState,
   availableMoney,
   onApplyTreatment,
 }: InjuryPanelProps) {
+  const { t } = useTranslation();
   const statusSummary = getInjuryStatusSummary(injuryState);
 
   if (injuryState.activeInjuries.length === 0) {
@@ -33,7 +36,9 @@ export function InjuryPanel({
         <div className="flex items-center gap-2">
           <span className="text-2xl">{statusSummary.icon}</span>
           <div>
-            <h3 className="font-semibold text-green-400">Healthy</h3>
+            <h3 className="font-semibold text-green-400">
+              {t("injury_panel_custom.healthy" as TranslationKey)}
+            </h3>
             <p className="text-sm text-gray-400">{statusSummary.message}</p>
           </div>
         </div>
@@ -90,6 +95,7 @@ function InjuryCard({
   availableMoney,
   onApplyTreatment,
 }: InjuryCardProps) {
+  const { t } = useTranslation();
   const template = INJURY_TEMPLATES[injury.type];
   const penaltyPercent = Math.round(injury.performancePenalty * 100);
   const progressPercent = Math.round(
@@ -150,7 +156,9 @@ function InjuryCard({
       {/* Recovery Progress */}
       <div className="mb-3">
         <div className="mb-1 flex justify-between text-xs">
-          <span className="text-gray-500">Recovery Progress</span>
+          <span className="text-gray-500">
+            {t("injury_panel_custom.recovery_progress" as TranslationKey)}
+          </span>
           <span className="text-gray-400">{progressPercent}%</span>
         </div>
         <div className="h-2 overflow-hidden rounded-full bg-gray-700">

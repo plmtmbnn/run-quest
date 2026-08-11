@@ -54,12 +54,17 @@ export const ACHIEVEMENTS: RaceAchievement[] = [
     icon: "📈",
     condition: (_, __, ctx) => {
       const half = Math.floor(ctx.totalDistance / 2);
-      if (ctx.km < ctx.totalDistance - 1 || ctx.kmPaces.length < ctx.totalDistance) return false;
+      if (
+        ctx.km < ctx.totalDistance - 1 ||
+        ctx.kmPaces.length < ctx.totalDistance
+      )
+        return false;
       const firstHalf = ctx.kmPaces.slice(0, half);
       const secondHalf = ctx.kmPaces.slice(half);
       if (!firstHalf.length || !secondHalf.length) return false;
       const avgFirst = firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length;
-      const avgSecond = secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length;
+      const avgSecond =
+        secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length;
       return avgSecond < avgFirst;
     },
   },
@@ -86,7 +91,11 @@ export const ACHIEVEMENTS: RaceAchievement[] = [
     },
     icon: "👑",
     condition: (_, __, ctx) => {
-      return ctx.playerPosition === 1 && ctx.prevPlayerPosition > 1 && ctx.totalRunners > 1;
+      return (
+        ctx.playerPosition === 1 &&
+        ctx.prevPlayerPosition > 1 &&
+        ctx.totalRunners > 1
+      );
     },
   },
   {
@@ -98,7 +107,11 @@ export const ACHIEVEMENTS: RaceAchievement[] = [
     },
     icon: "🔥",
     condition: (_, __, ctx) => {
-      return ctx.prevPlayerPosition >= ctx.totalRunners && ctx.playerPosition <= 3 && ctx.totalRunners >= 4;
+      return (
+        ctx.prevPlayerPosition >= ctx.totalRunners &&
+        ctx.playerPosition <= 3 &&
+        ctx.totalRunners >= 4
+      );
     },
   },
 
@@ -151,7 +164,10 @@ export const ACHIEVEMENTS: RaceAchievement[] = [
     icon: "🧪",
     condition: (snapshot, _, ctx) => {
       if (!ctx.recentConsumption) return false;
-      return ctx.recentConsumption.km === ctx.km && ctx.recentConsumption.energyAtTime < 20;
+      return (
+        ctx.recentConsumption.km === ctx.km &&
+        ctx.recentConsumption.energyAtTime < 20
+      );
     },
   },
   {
@@ -163,7 +179,11 @@ export const ACHIEVEMENTS: RaceAchievement[] = [
     },
     icon: "💀",
     condition: (snapshot, _, ctx) => {
-      return ctx.km >= ctx.totalDistance && snapshot.energy < 5 && snapshot.energy > 0;
+      return (
+        ctx.km >= ctx.totalDistance &&
+        snapshot.energy < 5 &&
+        snapshot.energy > 0
+      );
     },
   },
 
@@ -201,8 +221,13 @@ export function checkRaceAchievements(
 
   // Only fire once-per-race achievements for specific IDs
   const oncePerRaceIds = new Set([
-    "overtake_leader", "comeback_kid", "halfway", "century_km",
-    "energy_crisis", "negative_split", "dnf_escape",
+    "overtake_leader",
+    "comeback_kid",
+    "halfway",
+    "century_km",
+    "energy_crisis",
+    "negative_split",
+    "dnf_escape",
   ]);
 
   for (const ach of ACHIEVEMENTS) {
@@ -234,7 +259,7 @@ export function getUpcomingMilestoneMarkers(
   currentKm: number,
   totalDistance: number,
   playerRank: number,
-  winStreak: number = 0
+  winStreak: number = 0,
 ): MilestoneMarkerItem[] {
   const markers: MilestoneMarkerItem[] = [];
 
@@ -254,7 +279,10 @@ export function getUpcomingMilestoneMarkers(
   if (currentKm < totalDistance) {
     markers.push({
       id: "ms_finish",
-      title: winStreak > 0 ? `${winStreak + 1}-Win Streak Finish!` : "Race Finish & XP Bonus",
+      title:
+        winStreak > 0
+          ? `${winStreak + 1}-Win Streak Finish!`
+          : "Race Finish & XP Bonus",
       distanceKm: totalDistance,
       icon: winStreak > 0 ? "🔥" : "🏆",
       type: winStreak > 0 ? "streak" : "level",
@@ -274,4 +302,3 @@ export function getUpcomingMilestoneMarkers(
 
   return markers.filter((m) => m.distanceKm > currentKm).slice(0, 3);
 }
-

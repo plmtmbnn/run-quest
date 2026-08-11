@@ -189,7 +189,10 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
                 </span>
                 <ul className="list-disc pl-4 text-xs text-slate-600 dark:text-slate-300 space-y-1.5 leading-relaxed">
                   {analysis.briefing.warnings.map((warn) => (
-                    <li key={warn.en} className="text-rose-600 dark:text-rose-400 font-semibold">
+                    <li
+                      key={warn.en}
+                      className="text-rose-600 dark:text-rose-400 font-semibold"
+                    >
                       {warn[lang]}
                     </li>
                   ))}
@@ -400,4 +403,3 @@ ${t("share.race_choice.cta" as TranslationKey)} https://runquest.game`;
     </motion.div>
   );
 }
-

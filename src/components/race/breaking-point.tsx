@@ -111,7 +111,7 @@ export function BreakingPointOverlay({
 
             {bp.recoveryOptions.map((option, index) => {
               const isEndorphinOption = option.triggersEndorphins;
-              
+
               const riskColor = isEndorphinOption
                 ? "border-pink-500 bg-gradient-to-br from-pink-900/40 via-purple-900/40 to-blue-900/40 hover:from-pink-900/60 hover:via-purple-900/60 hover:to-blue-900/60 shadow-lg shadow-pink-500/20"
                 : option.risk === "high"
@@ -130,11 +130,15 @@ export function BreakingPointOverlay({
                   className={`w-full p-5 sm:p-4 min-h-[56px] sm:min-h-[48px] rounded-xl border-2 ${riskColor} transition-all duration-200 hover:scale-105 active:scale-95`}
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <span className={`font-semibold text-left flex-1 text-sm sm:text-base ${isEndorphinOption ? 'text-pink-200' : 'text-white'}`}>
+                    <span
+                      className={`font-semibold text-left flex-1 text-sm sm:text-base ${isEndorphinOption ? "text-pink-200" : "text-white"}`}
+                    >
                       {option.action[lang]}
                     </span>
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <span className={`text-xs ${isEndorphinOption ? 'text-pink-300/80' : 'text-white/70'}`}>
+                      <span
+                        className={`text-xs ${isEndorphinOption ? "text-pink-300/80" : "text-white/70"}`}
+                      >
                         {Math.round(option.recoveryChance * 100)}%
                       </span>
                       <span

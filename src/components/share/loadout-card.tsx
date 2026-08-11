@@ -53,7 +53,9 @@ export function LoadoutCard({
               {preparation.nutrition.length > 0
                 ? preparation.nutrition
                     .map((item) => {
-                      const name = t(`preparation.nutrition.${item}.name` as TranslationKey);
+                      const name = t(
+                        `preparation.nutrition.${item}.name` as TranslationKey,
+                      );
                       const qty = preparation.nutritionQuantities?.[item] ?? 1;
                       return qty > 1 ? `${name} (x${qty})` : name;
                     })

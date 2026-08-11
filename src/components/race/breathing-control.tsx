@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Wind, Heart, Sparkles, X } from "lucide-react";
+import { Heart, Sparkles, Wind, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import type { BreathingState } from "@/engine/simulation/breathing-engine";
 import { useSound } from "@/hooks/use-sound";
@@ -20,7 +20,9 @@ export function BreathingControl({
   const { playSound } = useSound();
   const [isExercising, setIsExercising] = useState(false);
   const [breathCount, setBreathCount] = useState(1);
-  const [breathPhase, setBreathPhase] = useState<"inhale" | "hold" | "exhale">("inhale");
+  const [breathPhase, setBreathPhase] = useState<"inhale" | "hold" | "exhale">(
+    "inhale",
+  );
 
   const category = breathingState?.category ?? "calm";
   const canControl = breathingState?.canControl ?? false;
@@ -102,7 +104,9 @@ export function BreathingControl({
   }, [isExercising, breathPhase, breathCount, playSound, onControlSuccess]);
 
   return (
-    <div className={`relative p-3 bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-2xl shadow-sm ${className}`}>
+    <div
+      className={`relative p-3 bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-800 rounded-2xl shadow-sm ${className}`}
+    >
       {/* Main Widget Summary */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
@@ -112,12 +116,17 @@ export function BreathingControl({
               className={`absolute inset-0 rounded-full border-2 ${getCategoryColor()}`}
               animate={{ scale: [0.8, 1.15, 0.8] }}
               transition={{
-                duration: Math.max(1.2, 60 / (breathingState?.breathsPerMin || 18)),
+                duration: Math.max(
+                  1.2,
+                  60 / (breathingState?.breathsPerMin || 18),
+                ),
                 repeat: Infinity,
                 ease: "easeInOut",
               }}
             />
-            <Wind className={`w-4 h-4 ${category === "gasping" ? "text-rose-500 animate-bounce" : "text-emerald-500"}`} />
+            <Wind
+              className={`w-4 h-4 ${category === "gasping" ? "text-rose-500 animate-bounce" : "text-emerald-500"}`}
+            />
           </div>
 
           <div>
@@ -130,7 +139,10 @@ export function BreathingControl({
               </span>
             </div>
             <span className="text-[10px] font-bold uppercase tracking-wide text-slate-400 dark:text-slate-400">
-              STATE: <span className="text-slate-700 dark:text-slate-200">{category.toUpperCase()}</span>
+              STATE:{" "}
+              <span className="text-slate-700 dark:text-slate-200">
+                {category.toUpperCase()}
+              </span>
             </span>
           </div>
         </div>
@@ -193,7 +205,10 @@ export function BreathingControl({
                           ? 1.2
                           : 0.7,
                   }}
-                  transition={{ duration: breathPhase === "hold" ? 0.2 : 2.0, ease: "easeInOut" }}
+                  transition={{
+                    duration: breathPhase === "hold" ? 0.2 : 2.0,
+                    ease: "easeInOut",
+                  }}
                 />
                 <Heart className="w-10 h-10 text-emerald-500 animate-pulse" />
               </div>

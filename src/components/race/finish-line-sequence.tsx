@@ -42,14 +42,14 @@ export function FinishLineSequence({
     timers.push(
       setTimeout(() => {
         setPhase("collapse");
-      }, 1000)
+      }, 1000),
     );
 
     // Phase 2: Collapse (1-2s)
     timers.push(
       setTimeout(() => {
         setPhase("breathing");
-      }, 2000)
+      }, 2000),
     );
 
     // Phase 3: Heavy breathing + HR decrease (2-4s)
@@ -64,7 +64,7 @@ export function FinishLineSequence({
       setTimeout(() => {
         clearInterval(breathingInterval);
         setPhase("recovery");
-      }, 4000)
+      }, 4000),
     );
 
     // Phase 4: Recovery (4-5s)
@@ -72,14 +72,14 @@ export function FinishLineSequence({
       setTimeout(() => {
         setPhase("complete");
         onComplete();
-      }, 5000)
+      }, 5000),
     );
 
     // Show skip option after 2 seconds
     timers.push(
       setTimeout(() => {
         setShowSkip(true);
-      }, 2000)
+      }, 2000),
     );
 
     return () => {
@@ -263,16 +263,20 @@ export function FinishLineSequence({
           )}
 
           {/* Skip Prompt */}
-          {showSkip && (phase === "crossing" || phase === "collapse" || phase === "breathing" || phase === "recovery") && (
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              onClick={handleSkip}
-              className="text-sm text-slate-500 hover:text-slate-300 transition-colors"
-            >
-              Press any key to skip
-            </motion.button>
-          )}
+          {showSkip &&
+            (phase === "crossing" ||
+              phase === "collapse" ||
+              phase === "breathing" ||
+              phase === "recovery") && (
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                onClick={handleSkip}
+                className="text-sm text-slate-500 hover:text-slate-300 transition-colors"
+              >
+                Press any key to skip
+              </motion.button>
+            )}
         </div>
       </motion.div>
     </AnimatePresence>

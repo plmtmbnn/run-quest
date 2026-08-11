@@ -1,8 +1,8 @@
 // recurring-expenses.ts
 // Recurring expenses system for the game economy.
 
-export type ExpenseCategory = 'living' | 'training' | 'medical' | 'equipment';
-export type ExpenseFrequency = 'daily' | 'weekly' | 'monthly';
+export type ExpenseCategory = "living" | "training" | "medical" | "equipment";
+export type ExpenseFrequency = "daily" | "weekly" | "monthly";
 
 export interface ExpenseBenefits {
   trainingEffectiveness?: number; // 0.05 = +5%
@@ -68,22 +68,22 @@ export interface ExpenseProcessingResult {
  */
 export const RECURRING_EXPENSES: RecurringExpense[] = [
   {
-    id: 'living_expenses',
-    name: 'expenses.living_expenses.name',
-    description: 'expenses.living_expenses.description',
-    category: 'living',
+    id: "living_expenses",
+    name: "expenses.living_expenses.name",
+    description: "expenses.living_expenses.description",
+    category: "living",
     baseAmount: 150,
-    frequency: 'monthly',
+    frequency: "monthly",
     mandatory: true,
     unlockedAtLevel: 1,
   },
   {
-    id: 'gym_membership',
-    name: 'expenses.gym_membership.name',
-    description: 'expenses.gym_membership.description',
-    category: 'training',
+    id: "gym_membership",
+    name: "expenses.gym_membership.name",
+    description: "expenses.gym_membership.description",
+    category: "training",
     baseAmount: 100,
-    frequency: 'weekly',
+    frequency: "weekly",
     mandatory: false,
     unlockedAtLevel: 3,
     benefits: {
@@ -91,58 +91,58 @@ export const RECURRING_EXPENSES: RecurringExpense[] = [
     },
   },
   {
-    id: 'personal_coaching',
-    name: 'expenses.personal_coaching.name',
-    description: 'expenses.personal_coaching.description',
-    category: 'training',
+    id: "personal_coaching",
+    name: "expenses.personal_coaching.name",
+    description: "expenses.personal_coaching.description",
+    category: "training",
     baseAmount: 250,
-    frequency: 'weekly',
+    frequency: "weekly",
     mandatory: false,
     unlockedAtLevel: 8,
     benefits: {
-      trainingEffectiveness: 0.10,
-      xpBonus: 0.10,
+      trainingEffectiveness: 0.1,
+      xpBonus: 0.1,
     },
   },
   {
-    id: 'health_insurance',
-    name: 'expenses.health_insurance.name',
-    description: 'expenses.health_insurance.description',
-    category: 'medical',
+    id: "health_insurance",
+    name: "expenses.health_insurance.name",
+    description: "expenses.health_insurance.description",
+    category: "medical",
     baseAmount: 150,
-    frequency: 'weekly',
+    frequency: "weekly",
     mandatory: false,
     unlockedAtLevel: 5,
     benefits: {
-      treatmentDiscount: 0.40,
-      recoverySpeed: 0.10,
+      treatmentDiscount: 0.4,
+      recoverySpeed: 0.1,
     },
   },
   {
-    id: 'sports_massage',
-    name: 'expenses.sports_massage.name',
-    description: 'expenses.sports_massage.description',
-    category: 'medical',
+    id: "sports_massage",
+    name: "expenses.sports_massage.name",
+    description: "expenses.sports_massage.description",
+    category: "medical",
     baseAmount: 80,
-    frequency: 'weekly',
+    frequency: "weekly",
     mandatory: false,
     unlockedAtLevel: 6,
     benefits: {
-      injuryRiskReduction: 0.20,
+      injuryRiskReduction: 0.2,
     },
   },
   {
-    id: 'nutritionist',
-    name: 'expenses.nutritionist.name',
-    description: 'expenses.nutritionist.description',
-    category: 'training',
+    id: "nutritionist",
+    name: "expenses.nutritionist.name",
+    description: "expenses.nutritionist.description",
+    category: "training",
     baseAmount: 400,
-    frequency: 'monthly',
+    frequency: "monthly",
     mandatory: false,
     unlockedAtLevel: 12,
     benefits: {
       staminaRecovery: 0.15,
-      nutritionEfficiency: 0.20,
+      nutritionEfficiency: 0.2,
     },
   },
 ];
@@ -151,13 +151,16 @@ export const RECURRING_EXPENSES: RecurringExpense[] = [
  * Get expense by ID.
  */
 export function getExpenseById(expenseId: string): RecurringExpense | null {
-  return RECURRING_EXPENSES.find(e => e.id === expenseId) || null;
+  return RECURRING_EXPENSES.find((e) => e.id === expenseId) || null;
 }
 
 /**
  * Calculate Living Expense breakdown (base living + race logistics like accommodation & tickets).
  */
-export function calculateLivingBreakdown(playerLevel: number, registeredCount: number = 0) {
+export function calculateLivingBreakdown(
+  playerLevel: number,
+  registeredCount: number = 0,
+) {
   const baseLiving = 150 + Math.max(1, playerLevel) * 10;
   const travelLogistics = Math.max(0, registeredCount) * 200; // hotel, accommodation, flight/bus tickets
   return {
@@ -174,9 +177,9 @@ export function calculateLivingBreakdown(playerLevel: number, registeredCount: n
 export function calculateExpenseAmount(
   expense: RecurringExpense,
   playerLevel: number,
-  registeredCount: number = 0
+  registeredCount: number = 0,
 ): number {
-  if (expense.id === 'living_expenses') {
+  if (expense.id === "living_expenses") {
     const breakdown = calculateLivingBreakdown(playerLevel, registeredCount);
     return breakdown.total;
   }
@@ -189,18 +192,20 @@ export function calculateExpenseAmount(
 export function isExpenseDue(
   frequency: ExpenseFrequency,
   currentDay: number,
-  lastProcessedDay: number
+  lastProcessedDay: number,
 ): boolean {
   if (currentDay <= lastProcessedDay) return false;
   switch (frequency) {
-    case 'daily':
+    case "daily":
       return currentDay > lastProcessedDay;
-    case 'weekly': {
-      const weeksPassed = Math.floor(currentDay / 7) - Math.floor(lastProcessedDay / 7);
+    case "weekly": {
+      const weeksPassed =
+        Math.floor(currentDay / 7) - Math.floor(lastProcessedDay / 7);
       return weeksPassed > 0;
     }
-    case 'monthly': {
-      const monthsPassed = Math.floor(currentDay / 30) - Math.floor(lastProcessedDay / 30);
+    case "monthly": {
+      const monthsPassed =
+        Math.floor(currentDay / 30) - Math.floor(lastProcessedDay / 30);
       return monthsPassed > 0;
     }
     default:
@@ -215,7 +220,7 @@ export function calculateDueExpenses(
   dayIndex: number,
   lastProcessedDay: number,
   activeExpenses: string[],
-  playerLevel: number
+  playerLevel: number,
 ): RecurringExpense[] {
   const dueExpenses: RecurringExpense[] = [];
   for (const expense of RECURRING_EXPENSES) {
@@ -236,9 +241,9 @@ export function processExpenses(
   currentBalance: number,
   playerLevel: number,
   dayIndex: number,
-  registeredCount: number = 0
+  registeredCount: number = 0,
 ): ExpenseProcessingResult {
-  const expenseItems: ExpenseProcessingItem[] = dueExpenses.map(expense => ({
+  const expenseItems: ExpenseProcessingItem[] = dueExpenses.map((expense) => ({
     id: expense.id,
     name: expense.name,
     amount: calculateExpenseAmount(expense, playerLevel, registeredCount),
@@ -252,9 +257,9 @@ export function processExpenses(
 
   const consequences: string[] = [];
   if (!canAfford) {
-    const unpaidMandatory = expenseItems.filter(e => e.mandatory);
+    const unpaidMandatory = expenseItems.filter((e) => e.mandatory);
     if (unpaidMandatory.length > 0) {
-      consequences.push('Cannot train or race until expenses are paid');
+      consequences.push("Cannot train or race until expenses are paid");
     }
   }
 
@@ -270,7 +275,9 @@ export function processExpenses(
 /**
  * Aggregate active benefits from enabled expenses.
  */
-export function getActiveBenefits(activeExpenses: string[]): Record<string, number> {
+export function getActiveBenefits(
+  activeExpenses: string[],
+): Record<string, number> {
   const benefits: Record<string, number> = {
     trainingEffectiveness: 0,
     xpBonus: 0,
@@ -301,18 +308,22 @@ export function getActiveBenefits(activeExpenses: string[]): Record<string, numb
 export function getWeeklyExpenseTotal(
   activeExpenses: string[],
   playerLevel: number,
-  registeredCount: number = 0
+  registeredCount: number = 0,
 ): number {
   let total = 0;
   for (const expense of RECURRING_EXPENSES) {
     if (playerLevel < expense.unlockedAtLevel) continue;
     if (expense.mandatory || activeExpenses.includes(expense.id)) {
-      const amount = calculateExpenseAmount(expense, playerLevel, registeredCount);
-      if (expense.frequency === 'weekly') {
+      const amount = calculateExpenseAmount(
+        expense,
+        playerLevel,
+        registeredCount,
+      );
+      if (expense.frequency === "weekly") {
         total += amount;
-      } else if (expense.frequency === 'daily') {
+      } else if (expense.frequency === "daily") {
         total += amount * 7;
-      } else if (expense.frequency === 'monthly') {
+      } else if (expense.frequency === "monthly") {
         total += Math.round(amount / 4);
       }
     }
@@ -326,18 +337,22 @@ export function getWeeklyExpenseTotal(
 export function getMonthlyExpenseTotal(
   activeExpenses: string[],
   playerLevel: number,
-  registeredCount: number = 0
+  registeredCount: number = 0,
 ): number {
   let total = 0;
   for (const expense of RECURRING_EXPENSES) {
     if (playerLevel < expense.unlockedAtLevel) continue;
     if (expense.mandatory || activeExpenses.includes(expense.id)) {
-      const amount = calculateExpenseAmount(expense, playerLevel, registeredCount);
-      if (expense.frequency === 'weekly') {
+      const amount = calculateExpenseAmount(
+        expense,
+        playerLevel,
+        registeredCount,
+      );
+      if (expense.frequency === "weekly") {
         total += amount * 4;
-      } else if (expense.frequency === 'daily') {
+      } else if (expense.frequency === "daily") {
         total += amount * 30;
-      } else if (expense.frequency === 'monthly') {
+      } else if (expense.frequency === "monthly") {
         total += amount;
       }
     }

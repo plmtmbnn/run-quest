@@ -23,7 +23,9 @@ export function migrateToShopSystem(): void {
 
     // 2. Remove legacy coins field from runner profile if present
     const runnerState = loadRunnerState();
-    const profile = runnerState?.profile as unknown as Record<string, unknown> | undefined;
+    const profile = runnerState?.profile as unknown as
+      | Record<string, unknown>
+      | undefined;
 
     if (profile && "coins" in profile) {
       delete profile.coins;
