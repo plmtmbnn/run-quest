@@ -179,7 +179,6 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
     setPlayerName(nameInput.trim());
     setNationality(selectedNationality);
     setPreferredCurrency(selectedCurrency);
-    setGameMode(selectedGameMode);
 
     if (
       selectedGameMode === "easy" ||
@@ -202,6 +201,8 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
     }
     // Set default age to 18 years old
     setDateOfBirth(generateDefaultDOB());
+
+    // Save settings with the selected game mode BEFORE calling onComplete
     storageRepository.saveSettings({
       version: 1,
       theme: "system", // Use system preference by default instead of forcing light
@@ -220,6 +221,10 @@ export function OnboardingScreen({ onComplete }: OnboardingScreenProps) {
       parallaxEnabled: true,
       weatherEffectsEnabled: true,
     });
+
+    // Update Zustand store to match persisted settings
+    setGameMode(selectedGameMode);
+
     useFirebaseStore.getState().setEnabled(true);
     const finalPlayer = usePlayerStore.getState().player;
     if (finalPlayer) {

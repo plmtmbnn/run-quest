@@ -46,6 +46,7 @@ export default function Page() {
     } else if (gameMode === "focus") {
       setScreen("focus");
     } else {
+      // "career", "easy", and "season" all use the home screen
       setScreen("home");
     }
   }, [hasCompletedOnboarding, gameMode]);
